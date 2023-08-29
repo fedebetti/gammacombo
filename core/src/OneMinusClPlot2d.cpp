@@ -1025,12 +1025,12 @@ void OneMinusClPlot2d::Draw()
     else
     {
         // new left axis (so that is not covered by the plot)
-                double nmin = ymin;
-                double nmax = ymax;
-                if (arg->isQuickhack(39)){
-                 nmin *= 100;
-                 nmax *= 100;
-                }
+        double nmin = ymin;
+        double nmax = ymax;
+        if (arg->isQuickhack(39)){
+            nmin *= 100;
+            nmax *= 100;
+        }
         haxes->GetYaxis()->SetNdivisions(0);
         TGaxis *axisl = new TGaxis(xmin, ymin, xmin, ymax, nmin, nmax, yndiv, ylchopt);
         axisl->SetName("axisl");

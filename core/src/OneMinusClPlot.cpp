@@ -182,7 +182,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
     haxes->GetXaxis()->SetTitleFont(font);
     haxes->GetYaxis()->SetTitleFont(font);
     haxes->GetXaxis()->SetTitleOffset(0.9);
-    haxes->GetYaxis()->SetTitleOffset(0.85);
+    haxes->GetYaxis()->SetTitleOffset(0.95);
     haxes->GetXaxis()->SetLabelSize(labelsize);
     haxes->GetYaxis()->SetLabelSize(labelsize);
     haxes->GetXaxis()->SetTitleSize(titlesize);
@@ -343,7 +343,7 @@ void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, bool first, int CLsType)
     hCL->GetXaxis()->SetTitleFont(font);
     hCL->GetYaxis()->SetTitleFont(font);
     hCL->GetXaxis()->SetTitleOffset(0.9);
-    hCL->GetYaxis()->SetTitleOffset(0.85);
+    hCL->GetYaxis()->SetTitleOffset(0.95);
     hCL->GetXaxis()->SetLabelSize(labelsize);
     hCL->GetYaxis()->SetLabelSize(labelsize);
     hCL->GetXaxis()->SetTitleSize(titlesize);
@@ -565,27 +565,27 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan *s, bool smooth, bool obsError)
     gObs->SetMarkerSize(1);
     gObs->SetMarkerStyle(20);
 
-        float min = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmin() : arg->scanrangeMin;
-        float max = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmax() : arg->scanrangeMax;
-        TH1F *haxes = new TH1F("haxes"+getUniqueRootName(), "", 100, min, max);
-        haxes->SetStats(0);
+    float min = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmin() : arg->scanrangeMin;
+    float max = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmax() : arg->scanrangeMax;
+    TH1F *haxes = new TH1F("haxes"+getUniqueRootName(), "", 100, min, max);
+    haxes->SetStats(0);
     if ( arg->xtitle == "" ) haxes->GetXaxis()->SetTitle(s->getScanVar1()->GetTitle());
     else haxes->GetXaxis()->SetTitle(arg->xtitle);
-        haxes->GetYaxis()->SetTitle("CL_{S}");
-        haxes->GetXaxis()->SetLabelFont(font);
-        haxes->GetYaxis()->SetLabelFont(font);
-        haxes->GetXaxis()->SetTitleFont(font);
-        haxes->GetYaxis()->SetTitleFont(font);
-        haxes->GetXaxis()->SetTitleOffset(0.9);
-        haxes->GetYaxis()->SetTitleOffset(0.85);
-        haxes->GetXaxis()->SetLabelSize(labelsize);
-        haxes->GetYaxis()->SetLabelSize(labelsize);
-        haxes->GetXaxis()->SetTitleSize(titlesize);
-        haxes->GetYaxis()->SetTitleSize(titlesize);
-        int xndiv = arg->ndiv==-1 ? 407 : abs(arg->ndiv);
-        bool optimizeNdiv = arg->ndiv<0 ? true : false;
-        haxes->GetXaxis()->SetNdivisions(xndiv, optimizeNdiv);
-        haxes->GetYaxis()->SetNdivisions(407, true);
+    haxes->GetYaxis()->SetTitle("CL_{S}");
+    haxes->GetXaxis()->SetLabelFont(font);
+    haxes->GetYaxis()->SetLabelFont(font);
+    haxes->GetXaxis()->SetTitleFont(font);
+    haxes->GetYaxis()->SetTitleFont(font);
+    haxes->GetXaxis()->SetTitleOffset(0.9);
+    haxes->GetYaxis()->SetTitleOffset(0.95);
+    haxes->GetXaxis()->SetLabelSize(labelsize);
+    haxes->GetYaxis()->SetLabelSize(labelsize);
+    haxes->GetXaxis()->SetTitleSize(titlesize);
+    haxes->GetYaxis()->SetTitleSize(titlesize);
+    int xndiv = arg->ndiv==-1 ? 407 : abs(arg->ndiv);
+    bool optimizeNdiv = arg->ndiv<0 ? true : false;
+    haxes->GetXaxis()->SetNdivisions(xndiv, optimizeNdiv);
+    haxes->GetYaxis()->SetNdivisions(407, true);
     haxes->GetYaxis()->SetRangeUser(0.,1.);
 
     // Legend:
