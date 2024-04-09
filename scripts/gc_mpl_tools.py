@@ -22,7 +22,7 @@ def load_interval(fname):
     return module.intervals
   return None
 
-def print_interval(fname, nsigma=1):
+def print_interval(fname, nsigma=1, floatfmt=[]):
     intervals = load_interval(fname)
     print_rows = []
     for cl, cfgs in intervals.items():
@@ -45,7 +45,7 @@ def print_interval(fname, nsigma=1):
         for sol in cfgs:
             print_rows.append( [ ns, conf, sol['central'], sol['neg'], sol['pos'], sol['min'], sol['max'] ] )
 
-    print( tabulate( print_rows, headers=['nSig','cl','val','-err','+err','min','max'], floatfmt=' .1f' ) )   
+    print( tabulate( print_rows, headers=['nSig','cl','val','-err','+err','min','max'], floatfmt=floatfmt) )   
 
 def read1dscan(h, bf, minnll):
 
@@ -431,6 +431,9 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
             if 'colors' in lopt.keys():
                 c = lopt.pop('colors')
                 lopt['ec'] = c[0]
+            if 'linewidths' in lopt.keys():
+                lw = lopt.pop('linewidths')
+                lopt['linewidth'] = lw
             if 'c' in fopt.keys():
                 fopt['fc'] = fopt.pop('c')
             if 'color' in fopt.keys():
