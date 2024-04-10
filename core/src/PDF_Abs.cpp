@@ -282,7 +282,7 @@ void PDF_Abs::buildCov()
         // check that off-diagonal terms of the correlation matrices are not all zero
         auto is_nonzero = [](double x){ return std::abs(x) > 1e-6; };
         if (std::find_if(StatErr.begin(), StatErr.end(), is_nonzero) != StatErr.end()) {
-            bool warn = true;
+            bool warn = false;
             for (int i=0; i<n; ++i) {
                 for (int j=0; j<n; ++j) {
                     if (i != j && is_nonzero(corStatMatrix[i][j])) warn = false;
@@ -291,7 +291,7 @@ void PDF_Abs::buildCov()
             if (warn) warning("All off-diagonal elements of the stat. corr. matrix are zero. Is this OK?");
         }
         if (std::find_if(SystErr.begin(), SystErr.end(), is_nonzero) != SystErr.end()) {
-            bool warn = true;
+            bool warn = false;
             for (int i=0; i<n; ++i) {
                 for (int j=0; j<n; ++j) {
                     if (i != j && is_nonzero(corSystMatrix[i][j])) warn = false;

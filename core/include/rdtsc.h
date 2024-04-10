@@ -18,9 +18,9 @@ static __inline__ unsigned long long rdtsc(void)
 #elif defined(__aarch64__)
 static __inline__ unsigned long long rdtsc(void)
 {
-    unsigned result;
+    uint64_t result;
 	__asm__ __volatile__("mrs %0, cntvct_el0" : "=r"(result));
-	return result;
+	return static_cast<unsigned long long>(result);
 }
 #elif defined(__powerpc__)
 static __inline__ unsigned long long rdtsc(void)
