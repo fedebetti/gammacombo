@@ -147,16 +147,16 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
     else{
         g->SetLineWidth( s->getLineWidth() );
         g->SetLineStyle( s->getLineStyle() );
-    g->SetLineColor( s->getLineColor() );
-    g->SetFillStyle( s->getFillStyle() );
-    if ( last && arg->isQuickhack(25) ) g->SetLineWidth(3);
+        g->SetLineColor( s->getLineColor() );
+        g->SetFillStyle( s->getFillStyle() );
+        if ( last && arg->isQuickhack(25) ) g->SetLineWidth(3);
     }
 
     if (CLsType>0) g->SetLineColor(color);
 
     if ( plotPoints ){
         g->SetLineWidth(1);
-    g->SetLineColor(color);
+        g->SetLineColor(color);
         g->SetMarkerColor(color);
         g->SetMarkerStyle(8);
         g->SetMarkerSize(0.6);
@@ -227,6 +227,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
 
     // for the angles, draw a new axis in units of degrees
     if ( isAngle(s->getScanVar1()) ){
+
     if ( arg->xtitle == "" ) haxes->GetXaxis()->SetTitle(s->getScanVar1()->GetTitle() + TString(" [#circ]"));
     else haxes->GetXaxis()->SetTitle(arg->xtitle);
         haxes->GetXaxis()->SetNdivisions(0);  // disable old axis
