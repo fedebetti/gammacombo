@@ -35,7 +35,7 @@ RooBinned2DBicubicBase<BASE>::RooBinned2DBicubicBase(
     coeffs(other.coeffs)
 { }
 
-template<class BASE>
+/*template<class BASE>
 RooBinned2DBicubicBase<BASE>& RooBinned2DBicubicBase<BASE>::operator=(
     const RooBinned2DBicubicBase<BASE>& other)
 {
@@ -53,7 +53,7 @@ RooBinned2DBicubicBase<BASE>& RooBinned2DBicubicBase<BASE>::operator=(
     ymax = other.ymax;
     coeffs = other.coeffs;
     return *this;
-}
+}*/
 
 template<class BASE>
 inline double RooBinned2DBicubicBase<BASE>::histcont(

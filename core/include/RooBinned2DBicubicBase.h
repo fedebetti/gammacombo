@@ -73,8 +73,8 @@ class RooBinned2DBicubicBase : public BASE
         const RooBinned2DBicubicBase<BASE>& other, const
         char* name = 0);
     /// assignment operator
-    RooBinned2DBicubicBase<BASE>& operator=(
-        const RooBinned2DBicubicBase<BASE>& other);
+    /*RooBinned2DBicubicBase<BASE>& operator=(
+        const RooBinned2DBicubicBase<BASE>& other);*/
     /// clone method
     virtual RooBinned2DBicubicBase<BASE>* clone(
         const char* newname = 0) const;
