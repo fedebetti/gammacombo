@@ -339,7 +339,7 @@ void  PDF_Datasets::generateBkgAsimovGlobalObservables(int SeedShift, int index)
 
     // generate the global observables into a RooArgSet
     const RooArgSet* set = wspc->set(globalObsName);
-    if(wspc->set(globalObsName)->getSize()>0) set = _constraintPdf->generate(*(wspc->set(globalObsName)), 1)->get(0);
+    // if(wspc->set(globalObsName)->getSize()>0) set = _constraintPdf->generate(*(wspc->set(globalObsName)), 1)->get(0);
     // iterate over the generated values and use them to update the actual global observables in the workspace
 
     TIterator* it =  set->createIterator();
@@ -575,10 +575,12 @@ void   PDF_Datasets::generateToys(int SeedShift) {
     //
     RooAbsData* toys;
     if (isMultipdfSet) {
-        toys = multipdf->getPdf(bestIndexScan)->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        // toys = multipdf->getPdf(bestIndexScan)->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        toys = multipdf->getPdf(bestIndexScan)->generate(*observables, multipdf->getPdf(bestIndexScan)->expectedEvents(*observables),false,true,"",false,true);
     }
     else {
-        toys = pdf->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        // toys = pdf->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        toys = pdf->generate(*observables, pdf->expectedEvents(*observables),false,true,"",false,true);
     }
     // Having the delete in here causes a segmentation fault, likely due to a double free
     // related to Root's internal memory management. Therefore we do not delete,
@@ -600,10 +602,12 @@ void   PDF_Datasets::generateBkgToys(int SeedShift, TString signalvar) {
     // std::cout << "WARNING in PDF_Datasets::generateBkgToys -- Fitting bkg model as sig+bkg model with " << signalvar << " to zero!" << std::endl;
     RooAbsData* toys;
     if (isBkgMultipdfSet) {
-        toys = multipdfBkg->getPdf(bestIndexBkg)->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        // toys = multipdfBkg->getPdf(bestIndexBkg)->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        toys = multipdfBkg->getPdf(bestIndexBkg)->generate(*observables, multipdfBkg->getPdf(bestIndexBkg)->expectedEvents(*observables),false,true,"",false,true);
     }
     else if(pdfBkg && !isMultipdfSet){
-        toys = pdfBkg->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        // toys = pdfBkg->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+        toys = pdfBkg->generate(*observables, pdfBkg->expectedEvents(*observables),false,true,"",false,true);
     }
     else
     {
@@ -614,10 +618,12 @@ void   PDF_Datasets::generateBkgToys(int SeedShift, TString signalvar) {
         // RooDataSet* toys = pdfBkg->generate(*observables, RooFit::NumEvents(wspc->data(dataName)->numEntries()), RooFit::Extended(kTRUE));
         // RooDataSet* toys = pdf->generate(*observables, RooFit::NumEvents(wspc->data(dataName)->numEntries()), RooFit::Extended(kTRUE));
         if (isMultipdfSet) {
-            toys = multipdf->getPdf(bestIndexBkg)->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+            // toys = multipdf->getPdf(bestIndexBkg)->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+            toys = multipdf->getPdf(bestIndexBkg)->generate(*observables, multipdf->getPdf(bestIndexBkg)->expectedEvents(*observables) ,false,true,"",false,true);
         }
         else {
-            toys = pdf->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+            // toys = pdf->generate(*observables, wspc->data(dataName)->numEntries(),false,true,"",false,true);
+            toys = pdf->generate(*observables, pdf->expectedEvents(*observables),false,true,"",false,true);
         }
         getWorkspace()->var(signalvar)->setVal(parvalue);
         getWorkspace()->var(signalvar)->setConstant(isconst);    
@@ -685,8 +691,7 @@ void   PDF_Datasets::generateBkgAsimov(int SeedShift, TString signalvar) {
             // Get pdf associated with state from simpdf
             RooAbsPdf* pdftmp = simPdf->getPdf(channelCat.getCurrentLabel()) ;
             assert(pdftmp != 0);
-
-            std::cout << "PDF_Datasets::generateBkgAsimov(): on type " << channelCat.getCurrentLabel() << " " << channelCat.getCurrentIndex() << endl;
+            if(arg->debug) std::cout << "PDF_Datasets::generateBkgAsimov(): on type " << channelCat.getCurrentLabel() << " " << channelCat.getCurrentIndex() << endl;
 
             RooAbsData * dataSinglePdf = generateBkgAsimovSinglePdf( *pdftmp, *observables, *weightVar, &channelCat);
             if (!dataSinglePdf) {
@@ -700,9 +705,11 @@ void   PDF_Datasets::generateBkgAsimov(int SeedShift, TString signalvar) {
             }
             asimovDataMap[string(channelCat.getCurrentLabel())] = (RooDataSet*) dataSinglePdf;
 
-            cout << "channel: " << channelCat.getCurrentLabel() << ", data: ";
-            dataSinglePdf->Print();
-            cout << endl;
+            if (arg->debug){
+                cout << "channel: " << channelCat.getCurrentLabel() << ", data: ";
+                dataSinglePdf->Print();
+                cout << endl;
+            }
         }
 
         RooArgSet obsAndWeight(*observables);
@@ -750,8 +757,8 @@ void   PDF_Datasets::generateBkgAsimov(int SeedShift, TString signalvar) {
     
     // loop on observables and on the bins
     // this needs to be in a recursive manner to automatically take into account the (in principle unconstrained) number of observables
-    cout << "PDF_Datasets::generateBkgAsimovSinglePdf(): Generating bkg asimov data for pdf " << pdf.GetName() << endl;
-    cout << "PDF_Datasets::generateBkgAsimovSinglePdf(): list of observables  " << endl;
+    // cout << "PDF_Datasets::generateBkgAsimovSinglePdf(): Generating bkg asimov data for pdf " << pdf.GetName() << endl;
+    // cout << "PDF_Datasets::generateBkgAsimovSinglePdf(): list of observables  " << endl;
     obsList.Print();
  
     int obsIndex = 0;
@@ -759,9 +766,8 @@ void   PDF_Datasets::generateBkgAsimov(int SeedShift, TString signalvar) {
     int nbins = 0;
     FillBinsAsimov(pdf, obsList, *asimovData, obsIndex, binVolume, nbins);
 
-    cout << "PDF_Datasets::generateBkgAsimovSinglePdf(): filled from " << pdf.GetName() << "   " << nbins << " nbins " << " volume is " << binVolume << endl;
- 
-    asimovData->Print();
+    // cout << "PDF_Datasets::generateBkgAsimovSinglePdf(): filled from " << pdf.GetName() << "   " << nbins << " nbins " << " volume is " << binVolume << endl;
+    // asimovData->Print();
 
     if( TMath::IsNaN(asimovData->sumEntries()) ){
       cout << "sum entries is nan"<<endl;
@@ -783,12 +789,13 @@ void   PDF_Datasets::generateBkgAsimov(int SeedShift, TString signalvar) {
     if (!v) return;
   
     v->Print("v");
+    v->setBins(10000);
 
     RooArgSet obstmp(obs);
     double expectedEvents = pdf.expectedEvents(obstmp);
 
-    std::cout << "PDF_Datasets::FillBinsAsimov(): expected events = " << expectedEvents << std::endl;
-    std::cout << "PDF_Datasets::FillBinsAsimov(): looping on observable " << v->GetName() << endl;
+    // std::cout << "PDF_Datasets::FillBinsAsimov(): expected events = " << expectedEvents << std::endl;
+    // std::cout << "PDF_Datasets::FillBinsAsimov(): looping on observable " << v->GetName() << endl;
 
     std::cout << v->GetName() << " has " << v->getBins() << " bins." << std::endl;
     for (int i = 0; i < v->getBins(); ++i) {
@@ -805,8 +812,12 @@ void   PDF_Datasets::generateBkgAsimov(int SeedShift, TString signalvar) {
           // this is now a new bin - compute the pdf in this bin
           double totBinVolume = binVolume * v->getBinWidth(i);
           double fval = pdf.getVal(&obstmp)*totBinVolume;
+
+          if (TMath::IsNaN(fval)){
+            fval = 1e-7;
+          }
   
-          std::cout << "PDF_Datasets::FillBinsAsimov(): pdf value in the bin " << fval << " bin volume = " << totBinVolume << "   " << fval*expectedEvents << std::endl;
+        //   std::cout << "PDF_Datasets::FillBinsAsimov(): pdf value in the bin " << fval << " bin volume = " << totBinVolume << "   " << fval*expectedEvents << std::endl;
           if (fval*expectedEvents <= 0)
           {
              if (fval*expectedEvents < 0)
@@ -818,16 +829,16 @@ void   PDF_Datasets::generateBkgAsimov(int SeedShift, TString signalvar) {
           else
              data.add(obs, fval*expectedEvents);
   
-          cout << "bin " << ibin << "\t";
-          for (int j=0; j < obs.getSize(); ++j) { cout << "  " <<  ((RooRealVar&) obs[j]).getVal(); }
-          cout << " w = " << fval*expectedEvents;
-          cout << endl;
+        //   cout << "bin " << ibin << "\t";
+        //   for (int j=0; j < obs.getSize(); ++j) { cout << "  " <<  ((RooRealVar&) obs[j]).getVal(); }
+        //   cout << " w = " << fval*expectedEvents;
+        //   cout << endl;
 
           ibin++;
        }
     }
     //reset bin values
-    cout << "ending loop on .. " << v->GetName() << endl;
+    // cout << "ending loop on .. " << v->GetName() << endl;
 
     v->setBin(0);
   
