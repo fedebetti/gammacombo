@@ -18,9 +18,9 @@ static __inline__ unsigned long long rdtsc(void)
 #elif defined(__aarch64__)
 static __inline__ unsigned long long rdtsc(void)
 {
-    unsigned result;
+    uint64_t result;
 	__asm__ __volatile__("mrs %0, cntvct_el0" : "=r"(result));
-	return result;
+	return static_cast<unsigned long long>(result);
 }
 #elif defined(__powerpc__)
 static __inline__ unsigned long long rdtsc(void)
@@ -28,14 +28,14 @@ static __inline__ unsigned long long rdtsc(void)
     unsigned long long int result=0;
     unsigned long int upper, lower,tmp;
     __asm__ volatile(
-	    "0:                  \n"
-	    "\tmftbu   %0           \n"
-	    "\tmftb    %1           \n"
-	    "\tmftbu   %2           \n"
-	    "\tcmpw    %2,%0        \n"
-	    "\tbne     0b         \n"
-	    : "=r"(upper),"=r"(lower),"=r"(tmp)
-	    );
+        "0:                  \n"
+        "\tmftbu   %0           \n"
+        "\tmftb    %1           \n"
+        "\tmftbu   %2           \n"
+        "\tcmpw    %2,%0        \n"
+        "\tbne     0b         \n"
+        : "=r"(upper),"=r"(lower),"=r"(tmp)
+        );
     result = upper;
     result = result<<32;
     result = result|lower;
