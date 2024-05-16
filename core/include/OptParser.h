@@ -86,6 +86,8 @@ class OptParser
         bool            lightfiles;
         int             batchstartn;
         bool            batcheos;
+        TString         batchout;
+        TString         batchreqs;
         int             nbatchjobs;
         int             nBBpoints;
         int             ndiv;
