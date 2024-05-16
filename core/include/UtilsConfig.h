@@ -179,6 +179,7 @@ namespace Utils
         lumi3fbPaper,
         lumi3fbDKstz,
         lumi3fb_estimate,
+        lumi3fbUpdated,
         lumi5ab,
         lumi5fb,
         lumi5fbOld,

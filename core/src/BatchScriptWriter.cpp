@@ -9,7 +9,7 @@ BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]):
     // skip arguments we dont need
     if ( string(argv[i])==string("--nbatchjobs") || (i>0 && string(argv[i-1])==string("--nbatchjobs")) ||
          string(argv[i])==string("--batchstartn") || (i>0 && string(argv[i-1])==string("--batchstartn")) ||
-         string(argv[i])==string("--batcheos")
+         string(argv[i])==string("--batcheos") || string(argv[i])==string("-i")
            ) {
       continue;
     }
@@ -55,30 +55,40 @@ void BatchScriptWriter::writeScripts(OptParser *arg, vector<Combiner*> *cmb){
     if ( arg->isAction("coveragebatch") ) {
       dirname += arg->id<0 ? "_id0" : Form("_id%d",arg->id);
     }
+    
+    char cwd[1024];
+    getcwd(cwd,1024);
+
     TString scripts_dir_path = "sub/" + dirname;
-    TString outf_dir = "root/" + dirname;
+    TString outf_dir = TString(cwd) + "/root/" + dirname;
     system(Form("mkdir -p %s",scripts_dir_path.Data()));
     TString scriptname = "scan1d"+methodname+"_"+c->getName()+"_"+arg->var[0];
     if ( arg->isAction("coveragebatch") ) {
       scriptname += arg->id<0 ? "_id0" : Form("_id%d",arg->id) ;
     }
     // if write to eos then make the directory
-    if ( arg->batcheos ) {
-      time_t t = time(0);
-      struct tm * now = localtime(&t);
-      int day = now->tm_mday;
-      int month = now->tm_mon+1;
-      int year  = now->tm_year+1900;
+    if ( arg->batchout != "" || arg->batcheos ) {
+        time_t t = time(0);
+        struct tm * now = localtime(&t);
+        int day = now->tm_mday;
+        int month = now->tm_mon+1;
+        int year  = now->tm_year+1900;
 
-      std::string name(getenv("USER"));
-      char initial = name[0];
-      std::cout << "Name: " << name << " first: " << initial <<std::endl;
-      TString eos_path = Form("/eos/lhcb/user/%c/%s/gammacombo/%02d%02d%04d",initial,name.c_str(),day,month,year);
-      // TString eos_path = Form("/eos/lhcb/user/t/tmombach/gammacombo/%02d%02d%04d",day,month,year);
-      // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir %s",eos_path.Data()));
-      eos_path += Form("/%s",dirname.Data());
-      // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir -p %s",eos_path.Data()));
-      outf_dir = eos_path;
+        if ( arg->batcheos ) {
+            std::string name(getenv("USER"));
+            char initial = name[0];
+            std::cout << "Name: " << name << " first: " << initial <<std::endl;
+            TString eos_path = Form("/eos/lhcb/user/%c/%s/gammacombo/%02d%02d%04d",initial,name.c_str(),day,month,year);
+            // TString eos_path = Form("/eos/lhcb/user/t/tmombach/gammacombo/%02d%02d%04d",day,month,year);
+            // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir %s",eos_path.Data()));
+            eos_path += Form("/%s",dirname.Data());
+            // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir -p %s",eos_path.Data()));
+            outf_dir = eos_path;
+        }
+        else if ( arg->batchout ) {
+            outf_dir = Form("%s/%02d%02d%04d/%s", arg->batchout.Data(),day,month,year,dirname.Data());
+        }
+    
     }
     if ( arg->var.size()==2 ) {
       scriptname = "scan2d"+methodname+"_"+c->getName()+"_"+arg->var[0];
@@ -257,10 +267,16 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, Op
   
   TString basename = rootfilename;
   basename.Remove(0, rootfilename.Last('/')+1);
-  system(Form("mkdir -p %s/%s",cwd,outfloc.Data()));
-  TString copy_line = Form("cp %s %s/%s/%s",rootfilename.Data(),cwd,outfloc.Data(),basename.Data());
+  system(Form("mkdir -p %s",outfloc.Data()));
+  TString copy_line = Form("cp %s %s/%s",rootfilename.Data(),outfloc.Data(),basename.Data());
   if ( arg->batcheos ) copy_line = Form("xrdcp -p %s root://eoslhcb.cern.ch/%s/%s",rootfilename.Data(),outfloc.Data(),basename.Data());
-  outfile << copy_line << endl;
+  outfile << Form("echo \"Copying file to %s/%s\"",outfloc.Data(),basename.Data()) << endl;
+  outfile << Form("if ( %s ); then", copy_line.Data()) << endl;
+  outfile << Form("\ttouch %s/%s.copied",cwd,fname.Data()) << endl;
+  outfile << "\techo \"SUCCESS!\"" << endl;
+  outfile << "else" << endl;
+  outfile << Form("\ttouch %s/%s.copyfail",cwd,fname.Data()) << endl; 
+  outfile << "fi" << endl;
 
   outfile.close();
 
