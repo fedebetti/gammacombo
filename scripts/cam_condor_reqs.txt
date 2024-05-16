@@ -1,0 +1,1 @@
+requirements = OpSysAndVer == "AlmaLinux9"
