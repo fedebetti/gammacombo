@@ -225,7 +225,6 @@ void BatchScriptWriter::writeCondorScript(TString fname, OptParser *arg) {
   outfile << "output = $(subfile).out" << endl;
   outfile << "error = $(subfile).err" << endl;
   outfile << Form("log = %s.log",fname.Data()) << endl;
-  if (arg->queue != "") outfile << "+JobFlavour = " << '"' << arg->queue << '"'<< endl;
   outfile << Form("queue subfile from %s_sublist.txt",fname.Data()) << endl;
   outfile.close();
 
@@ -233,7 +232,7 @@ void BatchScriptWriter::writeCondorScript(TString fname, OptParser *arg) {
 
   cout << "Written condor submission script to\n\t" << subfilename << endl;
 
-  if ( arg->queue != "" ) {
+  if ( arg->batchsubmit ) {
     //cout << Form("condor_submit %s/%s",cwd,subfilename.Data()) << endl;
     system(Form("condor_submit %s/%s",cwd,subfilename.Data()));
   }
@@ -297,8 +296,4 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, Op
 
   system(Form("chmod +x %s",fname.Data()));
 
-  // if ( arg->queue != "" ) {
-  //   //system(Form("bsub -R \"rusage[mem=40000]\" -q %s -o %s/%s.log %s/%s",arg->queue.Data(),cwd,fname.Data(),cwd,fname.Data()));
-  //   system(Form("bsub -q %s -o %s/%s.log %s/%s",arg->queue.Data(),cwd,fname.Data(),cwd,fname.Data()));
-  // }
 }
