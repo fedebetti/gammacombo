@@ -54,6 +54,7 @@ OptParser::OptParser():
     batchstartn = 1;
     nbatchjobs = -99;
     batcheos = false;
+    batchsubmit = false;
     batchout = "";
     batchreqs = "";
     nBBpoints = -99;
@@ -107,7 +108,7 @@ OptParser::OptParser():
     printcor = false;
     printSolX = -999.;
     printSolY = -999.;
-    queue = "";
+    /// queue = "";
     save = "";
     saveAtMin = false;
     scanforce = false;
@@ -139,6 +140,7 @@ void OptParser::defineOptions()
     availableOptions.push_back("batcheos");
     availableOptions.push_back("batchout");
     availableOptions.push_back("batchreqs");
+    availableOptions.push_back("batchsubmit");
     availableOptions.push_back("CL");
     availableOptions.push_back("cls");
     availableOptions.push_back("combid");
@@ -215,7 +217,7 @@ void OptParser::defineOptions()
     availableOptions.push_back("ps");
     availableOptions.push_back("pulls");
     availableOptions.push_back("qh");
-    availableOptions.push_back("queue");
+    /// availableOptions.push_back("queue");
     availableOptions.push_back("randomizeToyVars");
     availableOptions.push_back("readfromfile");
     availableOptions.push_back("removeRange");
@@ -300,6 +302,7 @@ void OptParser::bookPluginOptions()
     bookedOptions.push_back("batcheos");
     bookedOptions.push_back("batchout");
     bookedOptions.push_back("batchreqs");
+    bookedOptions.push_back("batchsubmit");
     bookedOptions.push_back("controlplots");
     bookedOptions.push_back("id");
     bookedOptions.push_back("importance");
@@ -457,7 +460,7 @@ void OptParser::parseArguments(int argc, char* argv[])
             "for one coordinate, use 'def': --grouppos def:y.", false, "default", "string");
     TCLAP::ValueArg<float> printSolXArg("","printsolx", "x coordinate to print solution at in 1D plots", false, -999., "float");
     TCLAP::ValueArg<float> printSolYArg("","printsoly", "y coordinate to shift solution by in 1D plots", false, -999., "float");
-    TCLAP::ValueArg<string> queueArg("q","queue","Batch queue to submit to. If none is given then the scripts will be written but not submitted.", false, "", "string");
+    /// TCLAP::ValueArg<string> queueArg("q","queue","Batch queue to submit to. If none is given then the scripts will be written but not submitted.", false, "", "string");
     TCLAP::ValueArg<int> batchstartnArg("","batchstartn", "number of first batch job (e.g. if you have already submitted 100 you can submit another 100 starting from 101)", false, 1, "int");
     TCLAP::ValueArg<int> nbatchjobsArg("","nbatchjobs", "number of jobs to write scripts for and submit to batch system", false, 0, "int");
     TCLAP::ValueArg<string> batchoutArg("","batchout", "location of batch output files", false, "", "string");
@@ -495,6 +498,7 @@ void OptParser::parseArguments(int argc, char* argv[])
 
     // --------------- switch arguments
     TCLAP::SwitchArg batcheosArg("","batcheos", "When submitting batch jobs (for plugin) write the output to eos", false);
+    TCLAP::SwitchArg batchsubmitArg("","batchsubmit", "Actually submit the batch jobs", false);
     TCLAP::SwitchArg gridArg("", "grid", "Put a grid on the canvas", false);
     TCLAP::SwitchArg plotpluginonlyArg("", "po", "Make a 1-CL plot just showing the plugin curves.", false);
     TCLAP::SwitchArg interactiveArg("i", "interactive", "Enables interactive mode (requires X11 session). Exit with Ctrl+c.", false);
@@ -760,7 +764,7 @@ void OptParser::parseArguments(int argc, char* argv[])
     if ( isIn<TString>(bookedOptions, "readfromfile" ) ) cmd.add(readfromfileArg);
     if ( isIn<TString>(bookedOptions, "randomizeToyVars" ) ) cmd.add(randomizeToyVarsArg);
     if ( isIn<TString>(bookedOptions, "qh" ) ) cmd.add(qhArg);
-    if ( isIn<TString>(bookedOptions, "queue") ) cmd.add(queueArg);
+    /// if ( isIn<TString>(bookedOptions, "queue") ) cmd.add(queueArg);
     if ( isIn<TString>(bookedOptions, "pulls" ) ) cmd.add( plotpullsArg );
     if ( isIn<TString>(bookedOptions, "ps" ) ) cmd.add( plotsolutionsArg );
     if ( isIn<TString>(bookedOptions, "plotsoln" ) ) cmd.add( plotsolnArg );
@@ -847,6 +851,7 @@ void OptParser::parseArguments(int argc, char* argv[])
     if ( isIn<TString>(bookedOptions, "batcheos" ) ) cmd.add(batcheosArg);
     if ( isIn<TString>(bookedOptions, "batchout" ) ) cmd.add(batchoutArg);
     if ( isIn<TString>(bookedOptions, "batchreqs" ) ) cmd.add(batchreqsArg);
+    if ( isIn<TString>(bookedOptions, "batchsubmit" ) ) cmd.add(batchsubmitArg);
     if ( isIn<TString>(bookedOptions, "asimovfile" ) ) cmd.add( asimovFileArg );
     if ( isIn<TString>(bookedOptions, "asimov") ) cmd.add(asimovArg);
     if ( isIn<TString>(bookedOptions, "action") ) cmd.add(actionArg);
@@ -909,6 +914,7 @@ void OptParser::parseArguments(int argc, char* argv[])
     batcheos          = batcheosArg.getValue();
     batchout          = batchoutArg.getValue();
     batchreqs         = batchreqsArg.getValue();
+    batchsubmit       = batchsubmitArg.getValue();
     nbatchjobs        = nbatchjobsArg.getValue();
     nBBpoints         = nBBpointsArg.getValue();
     ndiv              = ndivArg.getValue();
@@ -943,7 +949,7 @@ void OptParser::parseArguments(int argc, char* argv[])
     probimprove       = probimproveArg.getValue();
     probScanResult    = probScanResultArg.getValue();
     qh                = qhArg.getValue();
-    queue             = TString(queueArg.getValue());
+    /// queue             = TString(queueArg.getValue());
     scaleerr          = scaleerrArg.getValue();
     scalestaterr      = scalestaterrArg.getValue();
     save              = saveArg.getValue();

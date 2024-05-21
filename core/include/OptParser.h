@@ -86,6 +86,7 @@ class OptParser
         bool            lightfiles;
         int             batchstartn;
         bool            batcheos;
+        bool            batchsubmit;
         TString         batchout;
         TString         batchreqs;
         int             nbatchjobs;
@@ -147,7 +148,7 @@ class OptParser
         float           printSolX;
         float           printSolY;
         vector<int>     qh;
-        TString         queue;
+        /*TString         queue;*/
         vector<vector<TString> > readfromfile;
         vector<TString> relation;
         bool            runCLs;
