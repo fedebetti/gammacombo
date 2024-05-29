@@ -17,6 +17,11 @@ find_program(GENREFLEX_EXECUTABLE genreflex PATHS $ENV{ROOTSYS}/bin)
 #If we found root-config then get all relevent varaiables
 if(ROOT_CONFIG_EXECUTABLE)
   execute_process(
+    COMMAND ${ROOT_CONFIG_EXECUTABLE} --cflags
+    OUTPUT_VARIABLE ROOT_CXX_FLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  execute_process(
     COMMAND ${ROOT_CONFIG_EXECUTABLE} --prefix
     OUTPUT_VARIABLE ROOTSYS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -51,6 +56,8 @@ if(ROOT_CONFIG_EXECUTABLE)
     set(ROOT_LIBRARIES ${ROOT_LIBRARIES} -lRooFit -lRooFitCore -lHtml -lMinuit -lThread -lRooStats -lGui -lTreePlayer -lGenVector)
   endif()
   set(ROOT_LIBRARY_DIR ${ROOTSYS}/lib)
+else()
+    message(WARNING "root-config not found. The c++ standard used by ROOT may differ from the one used to compile this project.")
 endif()
 
 #---Report the status of finding ROOT-------------------
