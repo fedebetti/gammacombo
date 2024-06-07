@@ -10,6 +10,7 @@ ytick.minor.visible : True
 font.size : 16
 
 text.usetex : True
+text.latex.preamble : \usepackage{amsmath}
 
 errorbar.capsize : 2
 

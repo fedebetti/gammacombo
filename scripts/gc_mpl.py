@@ -1,3 +1,6 @@
+raise RuntimeError("gc_mpl.py is depreciated (and marked for removal) and is no longer supported use gc_mpl_tools.py instead")
+
+
 from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument('-s','--scan', default=[], action="append", help="Scanner to pick up")
