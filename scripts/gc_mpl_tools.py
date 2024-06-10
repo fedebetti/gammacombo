@@ -141,6 +141,75 @@ def read_gc_scan(scanfile, parfile, pars):
 
   return res
 
+def getfnames( prefix, xpar, ypar=None ):
+    """
+    For a given prefix and one or two parameter names find the scan file and the best-fit file
+
+    Parameters
+    ----------
+    prefix : str
+        The prefix for the scan which is normally the main file name followed by the combination name
+        e.g. gamma_wa_scanner_hflav_moriond2024
+    xpar : str
+        The scan variable name. If `ypar` is provided this is the x-axis parameter
+    ypar : str, optional
+        The y-axis parameter
+
+    Returns
+    -------
+    tuple of str
+        A two element tuple of the scan file name and the best fit file name
+
+    """
+
+    if ypar is not None:
+        fname = f'plots/scanner/{prefix}_{xpar}_{ypar}.root'
+    else:
+        fname = f'plots/scanner/{prefix}_{xpar}.root'
+    
+    bfname = fname.replace('scanner/','par/').replace('_scanner','').replace('.root','.dat')
+
+    if not os.path.exists( fname ):
+        raise FileNotFoundError(f'Cannot find scan file {fname}')
+
+    if not os.path.exists( bfname ):
+        raise FileNotFoundError(f'Cannot find fit result file {bfname}')
+
+    return fname, bfname
+
+def print_cl( prefix, xpar, ypar=None, prob=True ):
+
+    if ypar is not None:
+        return
+    
+    pref = prefix.split('scanner')[1] 
+    suff = 'Prob' if prob else 'Plugin'
+    fname = f'plots/cl/clintervals{pref}_{xpar}_{suff}.py'
+    if not os.path.exists(fname):
+        return
+    
+    try:
+        print_interval(fname, nsigma=1)
+    except:
+        return
+
+def get_scan_res( prefix, xpar, ypar=None ):
+    
+    pars = [xpar]
+    if ypar is not None:
+        pars.append(ypar)
+
+    fname, bfname = getfnames( prefix, xpar, ypar )
+    
+    header_str = prefix + ' - ' + xpar
+    if ypar is not None:
+        header_str += ' , '  + ypar
+
+    print(header_str)
+    print_cl( prefix, xpar, ypar )
+    
+    return read_gc_scan( fname, bfname, pars )
+
 def_lopts_1d = [ dict( c='steelblue' ),
                  dict( c='forestgreen' ),
                  dict( c='peru' ),
@@ -196,6 +265,36 @@ hflav_cols = {
     'k': 'k'
 }
 
+lhcb_cols = {
+    'b' : ( 94,129,185),
+    'r' : (203, 80, 68),
+    'o' : (231,138,104),
+    'lb': (150,186,214),
+    'y' : (245,169, 94),
+    'g' : (132,181,178),
+    'p' : (169,124,159),
+    'db': ( 56, 81,123),
+    'dr': (138, 44, 34),
+    'do': (190, 70, 35),
+    'dlb': ( 76,125,167),
+    'dy': (160, 84, 10),
+    'dg': ( 82,137,133),
+    'dp': (124, 81,114),
+    'k': 'k'
+}
+
+lhcb_2d_cols = {
+    # lighter to darker
+    'b' : [(114,144,193), ( 65,103,168), ],
+    'r' : [(227,152,144), (215,108, 96), (203, 80, 68) ],
+    'o' : [(244,184,163), (239,153,123), (233,116, 76) ],
+    'lb': [(188,211,230), (159,192,219), (120,167,204) ],
+    'y' : [(249,201,152), (245,169, 94), ],
+    'g' : [(157,196,193), (132,181,178), ],
+
+}
+
+
 keys = hflav_cols.keys()
 
 for key in keys:
@@ -203,6 +302,33 @@ for key in keys:
     if type(item)!=str:
         newval = tuple( [ float(v)/255. for v in item] )
         hflav_cols[key] = newval
+
+keys = lhcb_cols.keys()
+
+for key in keys:
+    item = lhcb_cols[key]
+    if type(item)!=str:
+        newval = tuple( [ float(v)/255. for v in item] )
+        lhcb_cols[key] = newval
+
+keys = lhcb_2d_cols.keys()
+
+for key in keys:
+    items = lhcb_2d_cols[key]
+    for i, item in enumerate(items):
+        if type(item)!=str:
+            newval = tuple( [ float(v)/255. for v in item] )
+            lhcb_2d_cols[key][i] = newval
+
+lhcb_ls = {
+    '-': '-',
+    'longdash': (0,(4,4)),
+    'shortdash': (0,(2,2)),
+    'dashdot': (0,(4,2,1,2)),
+    'dash2dots': (0,(4,2,1,2,1,2)),
+    'dash3dots':(0,(4,2,1,2,1,2,1,2)),
+    'dots': (0,(1,1))
+}
 
 def get_lopts( nscans, lopts, dim=1 ):
 
@@ -320,8 +446,12 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
                 lopt['ec'] = lopt.pop('color')
             if 'color' in fopt.keys():
                 fopt['fc'] = fopt.pop('color')
+            if 'ec' in fopt.keys():
+                fopt.pop('ec')
+            if 'fc' in lopt.keys():
+                lopt.pop('fc')
             leg_opts = { **lopt, **fopt, **dict(label=title) }
-
+        
             leg_els.append( patches.Patch( **leg_opts ) )
 
         ax.legend( handles=leg_els, **legopts )
@@ -433,7 +563,12 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
                 lopt['ec'] = c[0]
             if 'linewidths' in lopt.keys():
                 lw = lopt.pop('linewidths')
-                lopt['linewidth'] = lw
+                if lw is not None:
+                    lopt['linewidth'] = lw[0]
+            if 'linestyles' in lopt.keys():
+                ls = lopt.pop('linestyles')
+                if ls is not None:
+                    lopt['linestyle'] = ls[0]
             if 'c' in fopt.keys():
                 fopt['fc'] = fopt.pop('c')
             if 'color' in fopt.keys():
@@ -441,9 +576,8 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
             if 'colors' in fopt.keys():
                 c = fopt.pop('colors')
                 fopt['fc'] = c[0]
-
-            leg_opts = { **lopt, **fopt, **dict(label=ltitle) }
             
+            leg_opts = { **lopt, **fopt, **dict(label=ltitle) }
             if ltitle is not None:
                 leg_els.append( patches.Patch( **leg_opts ) )
         
@@ -464,6 +598,17 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
     if save:
         fig = plt.gcf()
         fig.savefig(save)
+
+def lhcb_logo(pos=[0.02,0.88], prelim=False, date=None, ax=None):
+
+    ax = ax or plt.gca()
+    props = dict(fc='none',ec='none',boxstyle='square,pad=0.1')
+    font = { 'family': 'Times New Roman', 'weight': 400 }
+    ax.text( *pos, 'LHCb', transform=ax.transAxes, size=28, ha='left', bbox=props, fontdict=font, usetex=False )
+    if prelim:
+        ax.text( pos[0], pos[1]-0.05, 'Preliminary', transform=ax.transAxes, size=14.7, ha='left', bbox=props, fontdict=font, usetex=False)
+    if date is not None:
+        ax.text( pos[0], pos[1]-0.10, date, transform=ax.transAxes, size=12.2, ha='left', bbox=props, fontdict=font, usetex=False)
 
 def hflav_logo(subtitle, pos=[0.02,0.98], ax=None, scale=1):
     
@@ -493,4 +638,122 @@ def hflav_logo(subtitle, pos=[0.02,0.98], ax=None, scale=1):
     font['size'] *= fontsub
     ax.fill( [x[0],x[1],x[1],x[0]], [y[0],y[0],y[1],y[1]], 'w', ec='k', lw=0.5, transform=ax.transAxes, clip_on=False, zorder=120 )
     ax.text( xc, yc-0.005, subtitle, fontdict=font, ha='center', va='center', transform=ax.transAxes, usetex=False, clip_on=False, zorder=130 ) 
+
+class plotter():
+    def __init__(self, dim=1, save=None, xtitle=None, ytitle=None, xangle=False, yangle=False, xrange=None, yrange=None, logo='l', legpos=None, legfill=False, cls=None):
+        self.dim = dim
+        self.save = save
+        self.xtitle = xtitle
+        self.ytitle = ytitle
+        self.xangle = xangle
+        self.yangle = yangle
+        self.xrange = xrange
+        self.yrange = yrange
+        self.logo = logo
+        self.legpos = legpos
+        self.legfill = legfill
+        self.cls = cls
+
+        self.scanpoints = []
+        self.bfs = []
+        self.legtitles = []
+        self.lopts = []
+        self.fopts = []
+        self.mopts = []
+
+    def add_scan(self, scanname, pars, label, bf=False, col=None, hatch=None, lw=None):
+        
+        if scanname is not None:
+            x, y, z, pt = get_scan_res(f'{args.prefix}{scanname}', *pars)
+        else:
+            x = y = z = np.empty((2,2)) * np.nan # tricks a fake 
+            pt = None
+        
+        # best fit point
+        if bf:
+            self.bfs.append( pt )
+        else:
+            self.bfs.append( None )
+        
+        # scan points
+        if self.dim==1:
+            self.scanpoints.append( [x,y] )
+        elif self.dim==2:
+            self.scanpoints.append( [x,y,z] )
+
+        # label
+        self.legtitles.append( label )
+
+        # 1d opts
+        if self.dim==1:
+            self.lopts.append( dict(c=hflav_cols[col], lw=lw) )
+            self.fopts.append( dict(ec=hflav_cols[col], fc='none', hatch=hatch ) )
+
+        # 2d opts
+        # elif self.dim==2:
+        # self.mopts.append( 
+
+    def plot(self):
+
+        legopts = {}
+
+        if self.logo=='l' and self.legpos=='l':
+            legopts = dict( bbox_to_anchor=(0, 0.83-0.07*len(self.scanpoints), 0.2, 0.07*len(self.scanpoints)), loc='upper left' )
+        elif self.logo=='r' and self.legpos=='r':
+            legopts = dict( bbox_to_anchor=(0.8, 0.83-0.07*len(self.scanpoints), 0.2, 0.07*len(self.scanpoints)), loc='upper right', fontsize=12 )
+        elif self.logo=='l' and self.legpos=='r':
+            legopts = dict( bbox_to_anchor=(0.8, 1-0.07*len(self.scanpoints), 0.2, 0.07*len(self.scanpoints)), loc='upper right', fontsize=12 )
+        elif self.logo=='r' and self.legpos=='l':
+            legopts = dict( bbox_to_anchor=(0, 1-0.07*len(self.scanpoints), 0.2, 0.07*len(self.scanpoints)), loc='upper left', fontsize=12 )
+        elif self.legpos=='bl':
+            legopts = dict( bbox_to_anchor=(0, 0, 0.2, 0.07*len(self.scanpoints)), loc='lower left', fontsize=12 )
+
+        if self.legfill:
+            legopts['frameon'] = True
+            legopts['framealpha'] = 0.8
+            legopts['facecolor'] = 'w'
+            legopts['edgecolor'] = '0.7'
+            legopts['borderpad'] = 0.3
+
+        fig, ax = plt.subplots()
+        if self.dim==1:
+            plot1d( self.scanpoints, self.lopts, self.fopts, xtitle=self.xtitle, legtitles=self.legtitles, angle=self.xangle, ax=ax, legopts=legopts )
+        elif self.dim==2:
+            plot2d( self.scanpoints, self.lopts, self.fopts, self.mopts, title=[self.xtitle,self.ytitle], levels=2, 
+                    legtitles=self.legtitles, angle=[self.xangle, self.yangle], ax=ax, bf=self.bfs, cl2d=True, legopts=legopts ) 
+
+        if self.logo=='l':
+            hflav_logo('Moriond 2024', ax=ax)
+        else:
+            hflav_logo('Moriond 2024', ax=ax, pos=[0.76,0.98])
+
+        # limits 
+        if self.xrange is not None:
+            ax.set_xlim(*self.xrange)
+        if self.yrange is not None:
+            ax.set_ylim(*self.yrange)
+
+        # axis labels
+        ax.set_xlabel(ax.get_xlabel(), loc='right')
+        if self.dim==1:
+            ax.set_ylabel('$1-CL$', loc='top')
+        elif self.dim==2:
+            ax.set_ylabel(ax.get_ylabel(), loc='top')
+        
+        # CL lines
+        if self.cls is not None:
+            ax.axhline( chi2.sf(1,1), c='k', ls=':', lw=1 )
+            ax.axhline( chi2.sf(4,1), c='k', ls=':', lw=1 )
+            if self.cls=='l':
+                ax.text( 0.02, 0.32, r'$68.3\%$', ha='left', va='bottom', transform=ax.transAxes, fontsize=16 )
+                ax.text( 0.02, 0.05, r'$95.4\%$', ha='left', va='bottom', transform=ax.transAxes, fontsize=16 )
+            elif self.cls=='r':
+                ax.text( 0.98, 0.32, r'$68.3\%$', ha='right', va='bottom', transform=ax.transAxes, fontsize=16 )
+                ax.text( 0.98, 0.05, r'$95.4\%$', ha='right', va='bottom', transform=ax.transAxes, fontsize=16 )
+
+        fig.savefig(self.save)
+        fig.savefig(self.save.replace('pdf','png'))
+        
+        if not args.interactive:
+            fig.clf()
 

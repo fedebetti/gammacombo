@@ -3,6 +3,7 @@
 
 import uncertainties as u
 import numpy as np
+import pandas as pd
 from operator import itemgetter
 from scipy.stats import multivariate_normal
 from scipy.stats.distributions import chi2
@@ -235,3 +236,46 @@ def point_compare(meas, point):
 #compare(a,b,[1,3,5],0.57)
 #point_compare(a,[0,0])
 
+def read_corr_as_df( fname, verbose=True, with_names=True ):
+    pars, names = read_minimum( fname, verbose=verbose, with_names=with_names )
+    corr = u.correlation_matrix(pars)
+    df = pd.DataFrame(corr, columns=names, index=names)
+    return df
+
+def df_corr_to_latex( df, savef ):
+  # remove below diagonal
+    N = len(df.columns)
+    for i in range(N):
+        for j in range(N):
+            if i>j:
+                df.iloc[i,j] = 9.99
+    # suppress values under 0.001
+    df = df.mask( abs(df)<0.01 )
+    # rename vars to remove _
+    renames = {}
+    for col in df.columns:
+        renames[col] = col.replace('_','')
+    df = df.rename( columns=renames, index=renames )
+    # make latex
+    df.to_latex(savef, float_format='{: .2f}'.format, na_rep='-')
+
+    ## manipulate the latex
+    with open(savef) as f:
+        lines = f.readlines()
+
+    with open(savef,'w') as f:
+        for i, line in enumerate(lines):
+            line = line.replace('9.99','    ')
+            if i==2:
+                els = line.split('&')
+                mels = [ '{:>6s}'.format('\\'+el.replace(' ','')) for el in els[1:] ]
+                line = '  '+' &'.join(['       '] + mels)
+            if i>2 and not line.startswith('\\'):
+                line = '\\'+line
+
+            if 'rule' in line:
+                line = '\\hline'+'\n'
+
+            f.write(line)
+
+    return df
