@@ -1,6 +1,7 @@
 ### A script which will read the minimum and correlation matrix from the GC
 ### output and keep it in a python uncertainties package format
 
+import os
 import uncertainties as u
 import numpy as np
 import pandas as pd
@@ -279,3 +280,91 @@ def df_corr_to_latex( df, savef ):
             f.write(line)
 
     return df
+
+def input_log_to_latex(fname, outfname):
+    """ take the print screen output of a --info -v run and convert to latex tables """
+
+    if not os.path.exists(fname):
+        raise RuntimeError( f'input_log_to_latex() error, no such file {fname}' )
+
+    with open(fname) as f:
+        lines = f.readlines()
+
+    # read list of inputs
+    inputs = []
+    loc = None
+    for i, line in enumerate(lines):
+        if '.' in line[:3]:
+            if line.split('.')[0].replace(' ','').isdigit():
+                ind = int(line.split('.')[0].replace(' ',''))
+                pdf_id = int(line.split('measurement ')[1].split(']')[0])
+                title = line.split(f'measurement {pdf_id}]')[1].replace('\n','') 
+                print( f'{ind:3d} {pdf_id:4d} {title}' )
+                inputs.append( { 'ind': ind, 'id:': pdf_id, 'title': title } )
+        if 'input observables' in line:
+            loc = i
+            break
+
+    lines = lines[i:]
+
+    # for each input find the relevant block of lines
+    for i, line in enumerate(lines):
+        if '. PDF: ' in line:
+            ind = int(line.split('.')[0].replace(' ',''))
+            inputs[ind-1]['name'] = line.split(': ')[1].split('(UID')[0] 
+            inputs[ind-1]['start_line'] = i
+            if ind>1:
+                inputs[ind-2]['end_line'] = i-1
+            if ind == len(inputs):
+                inputs[ind-1]['end_line'] = None
+    
+    with open(outfname,'w') as outf:
+        # read each individual input
+        for i, inp in enumerate(inputs):
+            rel_lines = lines[ inp['start_line']:inp['end_line'] ]
+            # get nObs
+            nObs = None
+            for line in rel_lines:
+                if 'nObs' in line:
+                    nObs = int(line.split()[2])
+                    inp['nObs'] = nObs
+            # write name and nObs
+            print( r'\textbf{' + inp['name'].replace('_',r'\_'), f'- {nObs} observables' + '}', r'\\', '\n', file=outf )
+            # write table of values and errors
+            print( 'Values and uncertainties:', r'\\', file=outf )
+            print( r'\begin{tabular}{ l r c l c l }', file=outf )
+            for line in rel_lines:
+                if '+/-' in line:
+                    obs = line.split()[0].replace('_obs','').replace('_',r'\_').replace("~","\~")
+                    val = line.split()[2]
+                    stat = line.split()[4]
+                    syst = line.split()[6]
+                    print( rf'    {obs:30s} & ${val:>8s}$ & $\pm$ & ${stat:7s}$ & $\pm$ & ${syst:7s}$ \\', file=outf )
+            print( r'\end{tabular} \\', file=outf)
+            # write correlation matrices
+            if nObs>1:
+                stat_corr_start_line = None
+                syst_corr_start_line = None
+                for i, line in enumerate(rel_lines):
+                    if 'correlation (stat)' in line:
+                        stat_corr_start_line = i+3
+                    if 'correlation (syst)' in line:
+                        syst_corr_start_line = i+3
+
+                # stat corr
+                print( 'Statistical correlation:', r'\\', file=outf )
+                print( r'\begin{tabular}{ ' + 'r '*nObs + '}', file=outf )
+                for cline in rel_lines[stat_corr_start_line:stat_corr_start_line+nObs]:
+                    els = cline.split()
+                    print( '    ' + ' & '.join( [ f'${el:>6s}$' for el in els[2:] ] ) + r' \\', file=outf )
+                print( r'\end{tabular} \\', file=outf)
+                
+                # syst corr
+                print( 'Systematic correlation:', r'\\', file=outf )
+                print( r'\begin{tabular}{ ' + 'r '*nObs + '}', file=outf )
+                for cline in rel_lines[syst_corr_start_line:syst_corr_start_line+nObs]:
+                    els = cline.split()
+                    print( '    ' + ' & '.join( [ f'${el:>6s}$' for el in els[2:] ] ), file=outf )
+                print( r'\end{tabular} \\', '\n', file=outf)
+            
+
