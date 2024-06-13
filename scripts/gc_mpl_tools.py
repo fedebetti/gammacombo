@@ -8,6 +8,7 @@ from scipy.stats import chi2
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib.lines import Line2D
 plt.style.use(os.path.dirname( os.getcwd() ) + '/scripts/gc.mplstyle')
 from tabulate import tabulate
 
@@ -451,9 +452,11 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
             if 'fc' in lopt.keys():
                 lopt.pop('fc')
             leg_opts = { **lopt, **fopt, **dict(label=title) }
-        
+
             leg_els.append( patches.Patch( **leg_opts ) )
 
+        if 'prop' not in legopts:
+            legopts['prop'] = {'family': 'Times New Roman'}
         ax.legend( handles=leg_els, **legopts )
     
     # style
@@ -548,7 +551,8 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
                 ax.plot( pt[0], pt[1], **mopts[i] )
     
     # add legend 
-    leg_els = []
+    leg_handles = []
+    leg_labels = []
     if legtitles:
         for i, ltitle in enumerate(legtitles):
             lopt = dict(**lopts[i])
@@ -577,11 +581,15 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
                 c = fopt.pop('colors')
                 fopt['fc'] = c[0]
             
-            leg_opts = { **lopt, **fopt, **dict(label=ltitle) }
             if ltitle is not None:
-                leg_els.append( patches.Patch( **leg_opts ) )
+                leg_labels.append(ltitle)
+                leg_opts = { **lopt, **fopt }
+                leg_handle = (patches.Patch(**leg_opts), Line2D([0], [0], lw=0, **mopt)) if mopt else patches.Patch(**leg_opts)
+                leg_handles.append(leg_handle)
         
-        ax.legend( handles=leg_els, **legopts )
+        if 'prop' not in legopts:
+            legopts['prop'] = {'family': 'Times New Roman'}
+        ax.legend( leg_handles, leg_labels, **legopts )
         
     # style
     if title[0]:
