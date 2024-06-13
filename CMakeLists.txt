@@ -37,18 +37,15 @@ find_package(Freetype REQUIRED)
 MESSAGE("FREETYPE_LIBRARIES: " ${FREETYPE_LIBRARIES})
 #MESSAGE("FREETYPE_LIBRARY_DIR: " ${FREETYPE_LIBRARY})
 
-# find ROOT
-FIND_PACKAGE(ROOT REQUIRED)
-# defines:
-# ROOT_FOUND          If the ROOT is found
-# ROOT_INCLUDE_DIR    PATH to the include directory
-# ROOT_LIBRARIES      Most common libraries
-# ROOT_GUI_LIBRARIES  Most common gui libraries
-# ROOT_LIBRARY_DIR    PATH to the library directory
+# Find ROOT
+# ROOT 6.24.06 ensures that the compiler is at least C++17
+find_package(ROOT 6.24.06 REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O3 ${ROOT_CXX_FLAGS}")
 MESSAGE("ROOT_INCLUDE_DIR: " ${ROOT_INCLUDE_DIR})
 MESSAGE("ROOT_LIBRARIES: " ${ROOT_LIBRARIES})
 MESSAGE("ROOT_GUI_LIBRARIES: " ${ROOT_GUI_LIBRARIES})
 MESSAGE("ROOT_LIBRARY_DIR: " ${ROOT_LIBRARY_DIR})
+MESSAGE("CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
 
 # find Boost
 SET(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake")
@@ -81,41 +78,6 @@ if(DOXYGEN_FOUND)
 ELSE()
     MESSAGE( STATUS "Doxygen not installed or found -- API documentation can't be generated!" )
 ENDIF(DOXYGEN_FOUND)
-
-######################################
-#
-# check for C++ version
-#
-######################################
-
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O3")
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-std=c++11 HAS_CPP11)
-check_cxx_compiler_flag(-std=c++0x HAS_CPP11_ALTERNATIVE)
-check_cxx_compiler_flag(-std=c++14 HAS_CPP14)
-check_cxx_compiler_flag(-std=c++1y HAS_CPP14_ALTERNATIVE)
-check_cxx_compiler_flag(-std=c++17 HAS_CPP17)
-check_cxx_compiler_flag(-std=c++1z HAS_CPP17_ALTERNATIVE)
-
-if (HAS_CPP17)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-elseif (HAS_CPP17_ALTERNATIVE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
-elseif (HAS_CPP14)
-    message(WARNING "No C++17 support.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-elseif (HAS_CPP14_ALTERNATIVE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-else()
-    message(WARNING "No C++14 support.")
-    if (HAS_CPP11)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    elseif (HAS_CPP11_ALTERNATIVE)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    else()
-        message(FATAL_ERROR "No C++11 support.")
-    endif()
-endif()
 
 ######################################
 #
