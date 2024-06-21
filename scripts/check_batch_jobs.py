@@ -47,7 +47,15 @@ for root, dirs, files in os.walk(opts.dir):
 
     # if it passes then include it
     if include:
-      job_dirs.append(root)
+      # check the create time of the .sub file to order by job creation time
+      subpath = root + '/' + os.path.basename(root) + '.sub'
+      if not os.path.exists(subpath):
+          raise RuntimeError(f"Couldn't find the submission file {subpath} for job {root}")
+      ctime = os.path.getctime(subpath)
+      job_dirs.append( [root, ctime] )
+
+# sort job dirs by creation time
+job_dirs = sorted( job_dirs, key=lambda x: x[1] )
 
 # totals
 total_done = []
@@ -56,7 +64,7 @@ total_run  = []
 total_waiting = []
 total_scripts = []
 
-for job_dir in job_dirs:
+for job_dir, ctime in job_dirs:
   done = []
   fail = []
   run  = []
@@ -148,7 +156,7 @@ if opts.synch:
   # now link the root files
   print('Synching files')
   nSynch = 0
-  for job_dir in job_dirs:
+  for job_dir, ctime in job_dirs:
     synch_dir = job_dir
     if opts.synchdir:
       synch_dir = synch_dir.replace(opts.dir,opts.synchdir)
