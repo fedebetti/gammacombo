@@ -455,8 +455,8 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
 
             leg_els.append( patches.Patch( **leg_opts ) )
 
-        if 'prop' not in legopts:
-            legopts['prop'] = {'family': 'Times New Roman'}
+        # if 'prop' not in legopts:
+        #     legopts['prop'] = {'family': 'Times New Roman'}
         ax.legend( handles=leg_els, **legopts )
     
     # style
@@ -587,8 +587,8 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
                 leg_handle = (patches.Patch(**leg_opts), Line2D([0], [0], lw=0, **mopt)) if mopt else patches.Patch(**leg_opts)
                 leg_handles.append(leg_handle)
         
-        if 'prop' not in legopts:
-            legopts['prop'] = {'family': 'Times New Roman'}
+        # if 'prop' not in legopts:
+        #     legopts['prop'] = {'family': 'Times New Roman'}
         ax.legend( leg_handles, leg_labels, **legopts )
         
     # style
@@ -645,7 +645,44 @@ def hflav_logo(subtitle, pos=[0.02,0.98], ax=None, scale=1):
     font['color'] = 'black'
     font['size'] *= fontsub
     ax.fill( [x[0],x[1],x[1],x[0]], [y[0],y[0],y[1],y[1]], 'w', ec='k', lw=0.5, transform=ax.transAxes, clip_on=False, zorder=120 )
-    ax.text( xc, yc-0.005, subtitle, fontdict=font, ha='center', va='center', transform=ax.transAxes, usetex=False, clip_on=False, zorder=130 ) 
+    ax.text( xc, yc-0.005, subtitle, fontdict=font, ha='center', va='center', transform=ax.transAxes, usetex=False, clip_on=False, zorder=130 )
+
+def corr_plot(df, savef=None, names=None):
+    
+    # symmetrise
+    if names=='columns':
+        names = df.columns.values
+
+    corr = df.values
+
+    for (j, i), value in np.ndenumerate(corr):
+        if j>i:
+            corr[j,i] = corr[i,j]
+
+    
+    scale = len(names)/12
+    fig, ax = plt.subplots(figsize=(scale*6.4,scale*4.8))
+    im = ax.imshow(corr, cmap='coolwarm', interpolation='none', aspect='auto', vmin=-1, vmax=1)
+    cb = fig.colorbar(im, ax=ax, format=lambda x, pos: f'${x:+3.1f}$', pad=0.03/scale, aspect=15*scale)
+    cb.set_label('Correlation')
+
+    for (j,i), value in np.ndenumerate(corr):
+        if not np.isnan(value) and abs(value)>=0.01:
+            ax.text(i, j, f'${value:+4.2f}$', ha='center', va='center', fontsize=8)
+
+    if names is not None:
+        labels = [ name.replace(r'\,[^\circ]','').replace(r'\, [\%]','') for name in names ]
+        ax.set_xticks( np.arange( len(labels) ) )
+        ax.set_xticklabels( labels )
+        ax.set_yticks( np.arange( len(labels) ) )
+        ax.set_yticklabels( labels )
+        ax.tick_params( axis='x', labelrotation=45 )
+
+    
+    if savef is not None:
+        fig.savefig(savef)
+        if '.pdf' in savef:
+            fig.savefig( savef.replace('.pdf','.png') )
 
 class plotter():
     def __init__(self, dim=1, save=None, xtitle=None, ytitle=None, xangle=False, yangle=False, xrange=None, yrange=None, logo='l', legpos=None, legfill=False, cls=None):
