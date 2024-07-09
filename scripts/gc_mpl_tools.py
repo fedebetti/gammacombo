@@ -9,7 +9,6 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.lines import Line2D
-plt.style.use(os.path.dirname( os.getcwd() ) + '/scripts/gc.mplstyle')
 from tabulate import tabulate
 
 def load_interval(fname):
@@ -402,7 +401,7 @@ def addContoursLine(ax, x=0.01, y=0.01, nlevs=2, etc=False, cl2d=False):
     ax.text(x, y, text, transform=ax.transAxes, ha="left", va="bottom", fontsize=13, fontname='Times New Roman', color='0.5')
 
 
-def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=False, ax=None, save=None, logo=False, prelim=False, legopts={} ):
+def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=False, ax=None, save=None, logo=False, prelim=False, legopts={}, axes_origin=(0.12, 0.16), righttop_padding=(0.04, 0.05) ):
     """ parameters
     scanpoints : 2D array-like
         - expect an array of (x,y) points for each scanner [ (x1,y1), (x2,y2), ... , (xn,yn) ]
@@ -410,6 +409,12 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
         - expect a list of dictionaries giving the line options for each scanner
     fopts : list of dict (default: None)
         - expect a list of dictionaries giving the fill options for each scanner
+    axes_origin : tuple
+        - Origin of the axes, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
+    righttop_padding : tuple
+        - Space to be left between the top and right axes and the margins of the figure, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
     """
     ax = ax or plt.gca()
 
@@ -474,11 +479,19 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
     if logo:
         addLHCbLogo(ax, prelim=prelim)
 
+    if axes_origin and righttop_padding:
+        ax.set_position([
+            axes_origin[0],
+            axes_origin[1],
+            1 - righttop_padding[0] - axes_origin[0],
+            1 - righttop_padding[1] - axes_origin[1],
+        ])
+
     if save:
         fig = plt.gcf()
         fig.savefig(save)
         
-def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=1, legtitles=None, angle=[False,False], ax=None, save=None, bf=None, cl2d=False, logo=False, prelim=False, contourline=False, legopts={} ):
+def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=1, legtitles=None, angle=[False,False], ax=None, save=None, bf=None, cl2d=False, logo=False, prelim=False, contourline=False, legopts={}, axes_origin=(0.14, 0.16), righttop_padding=(0.04, 0.04) ):
     """ parameters
     scanpoints : 2D array-like
         - expect an array of (x,y,z) points for each scanner [ (x1,y1,z1), (x2,y2,z2), ... , (xn,yn,zn) ]
@@ -496,6 +509,12 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
         - if int then will plot this number of sigma contours at -2DLL=1,4,9,..,N**2
         - if list of int will plot this number of sigma contours as above
         - if list of float will plot this number containing the fraction
+    axes_origin : tuple
+        - Origin of the axes, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
+    righttop_padding : tuple
+        - Space to be left between the top and right axes and the margins of the figure, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
     """
     ax = plt.gca()
 
@@ -603,6 +622,14 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
     if contourline:
         addContoursLine(ax, nlevs=len(levels), cl2d=cl2d)
 
+    if axes_origin and righttop_padding:
+        ax.set_position([
+            axes_origin[0],
+            axes_origin[1],
+            1 - righttop_padding[0] - axes_origin[0],
+            1 - righttop_padding[1] - axes_origin[1],
+        ])
+
     if save:
         fig = plt.gcf()
         fig.savefig(save)
@@ -662,7 +689,7 @@ def corr_plot(df, savef=None, names=None):
     
     scale = len(names)/12
     fig, ax = plt.subplots(figsize=(scale*6.4,scale*4.8))
-    im = ax.imshow(corr, cmap='coolwarm', interpolation='none', aspect='auto', vmin=-1, vmax=1)
+    im = ax.imshow(corr, cmap='coolwarm', interpolation='none', aspect='auto', vmin=-1, vmax=1, rasterized=True)
     cb = fig.colorbar(im, ax=ax, format=lambda x, pos: f'${x:+3.1f}$', pad=0.03/scale, aspect=15*scale)
     cb.set_label('Correlation')
 
@@ -677,6 +704,8 @@ def corr_plot(df, savef=None, names=None):
         ax.set_yticks( np.arange( len(labels) ) )
         ax.set_yticklabels( labels )
         ax.tick_params( axis='x', labelrotation=45 )
+        ax.tick_params( direction='out' )
+        ax.minorticks_off()
 
     
     if savef is not None:
