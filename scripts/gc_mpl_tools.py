@@ -72,13 +72,8 @@ def read2dscan(h, bf, minnll):
 
   assert(len(bf)==2)
 
-  xedges = np.array([ h.GetXaxis().GetBinLowEdge(b) for b in range(1,h.GetNbinsX()+2)])
-  yedges = np.array([ h.GetYaxis().GetBinLowEdge(b) for b in range(1,h.GetNbinsX()+2)])
   xcenters = np.array([ h.GetXaxis().GetBinCenter(b) for b in range(1,h.GetNbinsX()+1)])
   ycenters = np.array([ h.GetYaxis().GetBinCenter(b) for b in range(1,h.GetNbinsX()+1)])
-
-  # get global bins
-  gbins = np.array( [ list([xbin,ybin]) for xbin, ybin in itertools.product( range(h.GetNbinsX()), range(h.GetNbinsY()) ) ] )
 
   # get content of each bin
   entries = np.array([ h.GetBinContent(xbin+1, ybin+1) for xbin, ybin in itertools.product( range(h.GetNbinsX()), range(h.GetNbinsY()) ) ])
