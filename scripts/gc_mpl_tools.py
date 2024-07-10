@@ -519,15 +519,14 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
     ax = plt.gca()
 
     # figure out the levels
-    if type(levels)==int:
-        levels = [ (lev+1)**2 for lev in range(levels) ]
+    if type(levels) == int:
+        levels = [lev + 1 for lev in range(levels)]
+    if type(levels[0]) == int:
+        levels = [lev**2 for lev in levels]
         if cl2d:
-            levels = [ chi2.ppf( chi2.cdf(lev,1), 2 ) for lev in levels ]
+            levels = [chi2.ppf(chi2.cdf(lev,1), 2) for lev in levels]
     else:
-        if type(levels[0])==int:
-            levels = [ lev**2 for lev in levels ]
-        else:
-            levels = [ chi2.ppf( lev, 2 ) for lev in levels ]
+        levels = [chi2.ppf(lev, 2) for lev in levels]
 
     # figure out frac contained
     fc = [ chi2.cdf(lev, 2) for lev in levels ]

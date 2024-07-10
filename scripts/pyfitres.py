@@ -335,7 +335,7 @@ def input_log_to_latex(fname, outfname):
             print( r'\begin{tabular}{ l r c l c l }', file=outf )
             for line in rel_lines:
                 if '+/-' in line:
-                    obs = line.split()[0].replace('_obs','').replace('_',r'\_').replace("~","\~")
+                    obs = line.split()[0].replace('_obs','').replace('_',r'\_').replace('~',r'\~')
                     val = line.split()[2]
                     stat = line.split()[4]
                     syst = line.split()[6]
