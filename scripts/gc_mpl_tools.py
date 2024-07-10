@@ -553,6 +553,11 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
     # do the fills first
     for i, (x, y, z) in enumerate(scanpoints):
 
+        # workaround to avoid that contours are drawn for points where the scanner failed to converge
+        if np.any(z < 0):
+            print('WARNING: There are negative values in the likelihood scan. this implies that the scan failed to converge and the results could be unreliable')
+            z[z < 0] = 1e9
+
         # plot the fill
         ax.contourf( x, y, z, levels=[0]+levels, **fopts[i] )
     
