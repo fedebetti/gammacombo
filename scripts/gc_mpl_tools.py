@@ -8,6 +8,7 @@ from scipy.stats import chi2
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib import rcParams
 from matplotlib.lines import Line2D
 from tabulate import tabulate
 
@@ -690,7 +691,8 @@ def corr_plot(df, savef=None, names=None):
     fig, ax = plt.subplots(figsize=(scale*6.4,scale*4.8))
     im = ax.imshow(corr, cmap='coolwarm', interpolation='none', aspect='auto', vmin=-1, vmax=1, rasterized=True)
     cb = fig.colorbar(im, ax=ax, format=lambda x, pos: f'${x:+3.1f}$', pad=0.03/scale, aspect=15*scale)
-    cb.set_label('Correlation')
+    font_size = rcParams['font.size'] * scale
+    cb.set_label('Correlation', size=font_size)
 
     for (j,i), value in np.ndenumerate(corr):
         if not np.isnan(value) and abs(value)>=0.01:
@@ -710,7 +712,8 @@ def corr_plot(df, savef=None, names=None):
     if savef is not None:
         fig.savefig(savef)
         if '.pdf' in savef:
-            fig.savefig( savef.replace('.pdf','.png') )
+            for ext in ['.png', '.ps']:
+                fig.savefig(savef.replace('.pdf', ext))
 
 class plotter():
     def __init__(self, dim=1, save=None, xtitle=None, ytitle=None, xangle=False, yangle=False, xrange=None, yrange=None, logo='l', legpos=None, legfill=False, cls=None):
