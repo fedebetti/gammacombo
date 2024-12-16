@@ -23,6 +23,8 @@
 #include <TApplication.h>
 #include <TStopwatch.h>
 
+#include <memory>
+
 ///
 /// The main GammaCombo scanning engine, controlling
 /// the application.
@@ -53,7 +55,7 @@ class GammaComboEngine
         void              cloneCombiner(int newId, int oldId, TString name, TString title);
         Combiner*         getCombiner(int id) const;
         PDF_Abs*          getPdf(int id) const;
-        inline OptParser* getArg() const {return arg;};
+        inline OptParser* getArg() const {return arg.get();};
         void              newCombiner(int id, TString name, TString title,
                     int pdf1=-1, int pdf2=-1, int pdf3=-1, int pdf4=-1, int pdf5=-1,
                     int pdf6=-1, int pdf7=-1, int pdf8=-1, int pdf9=-1, int pdf10=-1,
@@ -117,7 +119,7 @@ class GammaComboEngine
         void     saveWorkspace( Combiner *c, int i );
         void     runToys( Combiner *c );
 
-        OptParser*        arg = nullptr;
+        std::unique_ptr<OptParser> arg;
         std::vector<Combiner*> cmb;
         std::vector<int>     colorsLine;
         std::vector<int>     colorsText;
@@ -129,8 +131,8 @@ class GammaComboEngine
         std::vector<int>     lineWidths;
         std::vector<MethodProbScan*> comparisonScanners;
         TString                 execname;
-        FileNameBuilder*        m_fnamebuilder = nullptr;
-        BatchScriptWriter*      m_batchscriptwriter = nullptr;
+        std::unique_ptr<FileNameBuilder> m_fnamebuilder;
+        std::unique_ptr<BatchScriptWriter> m_batchscriptwriter;
         std::vector<PDF_Abs*>        pdf;
         OneMinusClPlotAbs*      plot = nullptr;
         TStopwatch              t;
