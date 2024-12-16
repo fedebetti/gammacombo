@@ -23,8 +23,6 @@
 
 #include "MethodProbScan.h"
 
-using namespace Utils;
-
 ///
 /// Interface class for the root trees that are written
 /// by the Plugin method and related functions.

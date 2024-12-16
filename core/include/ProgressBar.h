@@ -11,8 +11,6 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-using namespace Utils;
-
 ///
 /// Class showing a progress bar.
 ///

@@ -35,9 +35,6 @@
 #include "FileNameBuilder.h"
 #include "PValueCorrection.h"
 
-using namespace RooFit;
-using namespace Utils;
-
 class OneMinusClPlotAbs;
 
 class MethodAbsScan

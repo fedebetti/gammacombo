@@ -54,9 +54,6 @@
 #include "Utils.h"
 #include "ParameterCache.h"
 
-using namespace RooFit;
-using namespace Utils;
-
 class MethodCoverageScan : public MethodAbsScan
 {
     public:

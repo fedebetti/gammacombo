@@ -15,15 +15,13 @@
 #include "Contour.h"
 #include "Utils.h"
 
-using namespace Utils;
-
 class ConfidenceContours
 {
     public:
 
         ConfidenceContours(OptParser *arg);
         ~ConfidenceContours();
-        void        computeContours(TH2F* hist, histogramType type, int id=0);
+        void        computeContours(TH2F* hist, Utils::histogramType type, int id=0);
         void        Draw();
         void        DrawDashedLine();
         void        setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth, std::vector<int>& fillcolor, std::vector<int>& fillstyle);

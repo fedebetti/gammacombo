@@ -1,6 +1,7 @@
 #include <Fitter.h>
 
 using namespace std;
+using namespace Utils;
 
 Fitter::Fitter(OptParser *arg, RooWorkspace *w, TString name)
 {

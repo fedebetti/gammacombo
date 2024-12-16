@@ -15,7 +15,6 @@
 #include "Utils.h"
 #include "tclap/CmdLine.h"
 
-using namespace Utils;
 using namespace TCLAP;
 
 class OptParser
@@ -62,9 +61,9 @@ class OptParser
         std::vector<std::string>  hexlinecolor;
         TString         filenamechange;
         TString         filenameaddition;
-        std::vector<std::vector<FixPar> >   fixParameters;
-        std::vector<std::vector<StartPar> > startVals;
-        std::vector<std::vector<RangePar> > physRanges;
+        std::vector<std::vector<Utils::FixPar> >   fixParameters;
+        std::vector<std::vector<Utils::StartPar> > startVals;
+        std::vector<std::vector<Utils::RangePar> > physRanges;
         std::vector<std::vector<TString> >  removeRanges;
         std::vector<std::vector<TString> >  randomizeToyVars;
         bool            grid;

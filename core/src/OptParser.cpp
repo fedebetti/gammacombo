@@ -1,6 +1,7 @@
 #include <OptParser.h>
 
 using namespace std;
+using namespace Utils;
 
 ///
 /// Organize command line options.

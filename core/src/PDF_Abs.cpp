@@ -8,6 +8,8 @@
 #include <PDF_Abs.h>
 
 using namespace std;
+using namespace RooFit;
+using namespace Utils;
 
 PDF_Abs::PDF_Abs(int nObs):
     covMatrix(nObs),

@@ -48,9 +48,6 @@
 #include "Utils.h"
 #include "ParametersAbs.h"
 
-using namespace RooFit;
-using namespace Utils;
-
 class PDF_Abs
 {
     public:

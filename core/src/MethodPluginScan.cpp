@@ -10,6 +10,8 @@
 #include <TLatex.h>
 
 using namespace std;
+using namespace RooFit;
+using namespace Utils;
 
 ///
 /// Initialize from a previous Prob scan, setting the profile

@@ -5,6 +5,8 @@
 #include <TLatex.h>
 
 using namespace std;
+using namespace RooFit;
+using namespace Utils;
 
 GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]):
     runOnDataSet(false)

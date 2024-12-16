@@ -13,8 +13,6 @@
 #include "Combiner.h"
 #include "PDF_Abs.h"
 
-using namespace Utils;
-
 class BatchScriptWriter
 {
   public:

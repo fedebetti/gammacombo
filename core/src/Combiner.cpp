@@ -1,6 +1,8 @@
 #include <Combiner.h>
 
 using namespace std;
+using namespace RooFit;
+using namespace Utils;
 
 Combiner::Combiner(OptParser *arg, TString title)
     : title(title)

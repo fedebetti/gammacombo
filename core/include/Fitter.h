@@ -12,8 +12,6 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-using namespace Utils;
-
 class Fitter
 {
 public:

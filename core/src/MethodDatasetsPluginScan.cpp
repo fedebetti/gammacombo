@@ -28,6 +28,7 @@
 // #include <boost/accumulators/statistics/variance.hpp>
 
 using namespace std;
+using namespace Utils;
 
 ///
 /// The default constructor for the dataset plugin scan
@@ -48,7 +49,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
 
 
     globalMin = probScan->globalMin;
-    Utils::setParameters(w,globalMin);  // reset fit parameters to the free fit
+    setParameters(w,globalMin);  // reset fit parameters to the free fit
     bestfitpoint = ((RooRealVar*) globalMin->floatParsFinal().find(scanVar1))->getVal();
     // globalMin = (RooFitResult*) w->obj("data_fit_result");
     chi2minGlobal = probScan->getChi2minGlobal();
@@ -120,7 +121,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
     }
     dataBkgFitResult = pdf->fitBkg(pdf->getData(), arg->var[0]); // get Bkg fit parameters
     this->pdf->setBestIndexBkg(this->pdf->getBestIndex());
-    Utils::setParameters(w,globalMin);  // reset fit parameters to the free fit
+    setParameters(w,globalMin);  // reset fit parameters to the free fit
 }
 
 ///////////////////////////////////////////////
@@ -154,7 +155,7 @@ void MethodDatasetsPluginScan::initScan() {
         exit(EXIT_FAILURE);
     }
     // if ( arg->scanrangeMin != arg->scanrangeMax ) par1->setRange("scan", arg->scanrangeMin, arg->scanrangeMax);
-    // Utils::setLimit(w, scanVar1, "scan");
+    // setLimit(w, scanVar1, "scan");
     float min1 = arg->scanrangeMin;
     float max1 = arg->scanrangeMax;
 
@@ -340,7 +341,7 @@ TChain* MethodDatasetsPluginScan::readFiles(int runMin, int runMax, int &nFilesR
 
     if (explicitInputFile) {
         for (TString &file : inputFiles) {
-            Utils::assertFileExists(file);
+            assertFileExists(file);
             c->Add(file);
             _nFilesRead += 1;
         }
@@ -349,7 +350,7 @@ TChain* MethodDatasetsPluginScan::readFiles(int runMin, int runMax, int &nFilesR
         for (int i = runMin; i <= runMax; i++) {
             TString file = Form(fileNameBase + "%i.root", i);
             cout << "MethodDatasetsPluginScan::readFiles() : opening " << file << "\r";
-            Utils::assertFileExists(file);
+            assertFileExists(file);
             c->Add(file);
             _nFilesRead += 1;
         }
@@ -1178,7 +1179,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun)
         // std::cout << "Toy " << j << std::endl;
       // if(pdf->getBkgPdf())
       {
-        Utils::setParameters(w,dataBkgFitResult); //set parameters to bkg fit so the generation always starts at the same value
+        setParameters(w,dataBkgFitResult); //set parameters to bkg fit so the generation always starts at the same value
         // pdf->printParameters();
         pdf->generateBkgToys(0,arg->var[0]);
         pdf->generateBkgToysGlobalObservables(0,j);
@@ -1205,7 +1206,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun)
                 assert(rb);
             }
         }
-        Utils::setParameters(w,rb); // set parameters to fitresult of best fit before making refitting decision, necessary if using multipdf
+        setParameters(w,rb); // set parameters to fitresult of best fit before making refitting decision, necessary if using multipdf
         // implement physical range a la Feldman Cousins
         bool refit_necessary = false;
         if ( arg->physRanges.size()>0 ){
@@ -1606,7 +1607,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun)
                         cout << "+++++ > try to fit with different starting values" << endl;
                         cout << "+++++ > dChi2: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << endl;
                         cout << "+++++ > dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl;
-                        Utils::setParameters(this->pdf->getWorkspace(), pdf->getParName(), parsAfterScanFit->get(0));
+                        setParameters(this->pdf->getWorkspace(), pdf->getParName(), parsAfterScanFit->get(0));
                         // if (parameterToScan->getVal() < 1e-13) parameterToScan->setVal(0.67e-12); //what do we gain from this?
                         parameterToScan->setConstant(false);
                         pdf->deleteNLL();
@@ -1637,7 +1638,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun)
                 }
             }
 
-            Utils::setParameters(w,r1); //  set parameters to fitresult of best fit before making refitting decision, necessary if using multipdf
+            setParameters(w,r1); //  set parameters to fitresult of best fit before making refitting decision, necessary if using multipdf
             // implement physical range a la Feldman Cousins
             bool refit_necessary = false;
             std::map<TString, double> boundary_vals;
@@ -1730,7 +1731,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun)
                             cout << "+++++ > try to fit with different starting values" << endl;
                             cout << "+++++ > dChi2: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << endl;
                             cout << "+++++ > dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl;
-                            Utils::setParameters(this->pdf->getWorkspace(), pdf->getParName(), parsAfterScanFit->get(0));
+                            setParameters(this->pdf->getWorkspace(), pdf->getParName(), parsAfterScanFit->get(0));
                             // but need to keep the parameters fixed to boundary:
                             for(auto element : boundary_vals){
                                 w->var(element.first)->setVal(element.second);
@@ -2226,8 +2227,8 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double> > bVals,
         hb->SetLineColor(kRed);
         hsb->SetLineColor(kBlue);
 
-        //TGraph *gb = Utils::smoothHist(hb, 0);
-        //TGraph *gsb = Utils::smoothHist(hsb, 1);
+        //TGraph *gb = smoothHist(hb, 0);
+        //TGraph *gsb = smoothHist(hsb, 1);
 
         //gb->SetLineColor(kRed+1);
         //gb->SetLineWidth(4);
@@ -2334,7 +2335,7 @@ void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, vector<double> > bi
         hsig->SetFillStyle(3003);
         hsig->SetLineColor(kBlue);
 
-        //TGraph *gsb = Utils::smoothHist(hsig, 1);
+        //TGraph *gsb = smoothHist(hsig, 1);
 
         //gsb->SetLineColor(kBlue+1);
         //gsb->SetLineWidth(4);

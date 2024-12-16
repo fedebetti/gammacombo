@@ -1,6 +1,7 @@
 #include <CLIntervalPrinter.h>
 
 using namespace std;
+using Utils::RadToDeg;
 
 CLIntervalPrinter::CLIntervalPrinter(OptParser *arg, TString name, TString var, TString unit, TString method, int CLsType)
 {

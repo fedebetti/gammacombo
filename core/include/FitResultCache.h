@@ -11,8 +11,6 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-using namespace Utils;
-
 ///
 /// Helper class for the scan methods. Store several parameter points
 /// that are needed at various points at the scan. The points are handled

@@ -14,8 +14,6 @@
 #include <TGraphSmooth.h>
 #include "Utils.h"
 
-using namespace Utils;
-
 class TGraphTools
 {
     public:

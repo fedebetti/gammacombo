@@ -1,5 +1,7 @@
 #include <ParametersCartesian.h>
 
+using namespace Utils;
+
 ParametersCartesian::ParametersCartesian()
 {
     defineParameters();

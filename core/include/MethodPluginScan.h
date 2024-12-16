@@ -53,9 +53,6 @@
 #include "Utils.h"
 #include "PDF_Datasets.h"
 
-using namespace RooFit;
-using namespace Utils;
-
 class MethodPluginScan : public MethodAbsScan
 {
     public:

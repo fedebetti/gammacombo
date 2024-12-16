@@ -11,6 +11,7 @@
 #include <RooProdPdf.h>
 
 using namespace std;
+using namespace RooFit;
 
 int Utils::countFitBringBackAngle;      ///< counts how many times an angle needed to be brought back
 int Utils::countAllFitBringBackAngle;   ///< counts how many times fitBringBackAngle() was called

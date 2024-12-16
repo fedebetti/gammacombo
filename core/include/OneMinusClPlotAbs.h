@@ -18,9 +18,6 @@
 #include "MethodAbsScan.h"
 #include "OptParser.h"
 
-using namespace Utils;
-using namespace RooFit;
-
 class MethodAbsScan;
 
 class OneMinusClPlotAbs

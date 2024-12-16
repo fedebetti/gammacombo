@@ -43,8 +43,6 @@
 #include "rdtsc.h"
 #include "UtilsConfig.h"
 
-using namespace RooFit;
-
 namespace Utils
 {
     extern int countFitBringBackAngle;      ///< counts how many times an angle needed to be brought back

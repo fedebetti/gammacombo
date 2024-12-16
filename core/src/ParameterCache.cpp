@@ -1,6 +1,7 @@
 #include <ParameterCache.h>
 
 using namespace std;
+using namespace Utils;
 
 ///
 /// Constructor.

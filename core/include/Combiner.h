@@ -58,7 +58,7 @@ public:
     void                        setObservablesToToyValues();
     void                        setParametersConstant(); // helper function for combine()
   inline void                   setTitle(TString title){this->title=title;};
-  inline std::vector<FixPar>    getConstVars(){return constVars;};
+  inline std::vector<Utils::FixPar>    getConstVars(){return constVars;};
 
 private:
   std::vector<PDF_Abs*> pdfs;         // holds all pdfs to be combined
@@ -71,7 +71,7 @@ private:
   RooWorkspace*    w;                 // holds all input pdfs, parameters, and observables, as well as the combination
   std::vector<std::string> pdfNames;  // hold all unique names of the pdfs to be combined
   bool             _isCombined;       // make sure we'll only combine once - else all PDFs get double counted!
-  std::vector<FixPar> constVars;      // hold variables that will be set constant (filled by fixParameter())
+  std::vector<Utils::FixPar> constVars;      // hold variables that will be set constant (filled by fixParameter())
 };
 
 #endif

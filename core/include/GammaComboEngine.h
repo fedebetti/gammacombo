@@ -30,8 +30,6 @@
 #include "BatchScriptWriter.h"
 #include "LatexMaker.h"
 
-using namespace Utils;
-
 ///
 /// The main GammaCombo scanning engine, controlling
 /// the application.

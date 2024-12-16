@@ -11,8 +11,6 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-using namespace Utils;
-
 // forward declarations - include headers only in
 // cpp file to deal with circular dependencies
 class MethodAbsScan;

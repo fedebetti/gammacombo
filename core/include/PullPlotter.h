@@ -17,8 +17,6 @@
 
 class MethodAbsScan;
 
-using namespace Utils;
-
 class PullPlotter
 {
 public:

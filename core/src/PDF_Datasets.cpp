@@ -10,6 +10,7 @@
 #include <TIterator.h>
 
 using namespace std;
+using namespace RooFit;
 
 PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt)
     : PDF_Abs(nObs) {
