@@ -6,6 +6,8 @@
 
 #include "MethodBergerBoosScan.h"
 
+using namespace std;
+
 ///
 /// Initialize from a previous Prob scan, setting the profile
 /// likelihood. This should

@@ -14,7 +14,6 @@
 #include "TGraphSmooth.h"
 #include "Utils.h"
 
-using namespace std;
 using namespace Utils;
 
 class TGraphTools

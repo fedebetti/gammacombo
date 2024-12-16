@@ -21,7 +21,6 @@
 #include "MethodProbScan.h"
 #include "ToyTree.h"
 
-using namespace std;
 using namespace Utils;
 
 ///
@@ -54,7 +53,7 @@ class ControlPlots
         ToyTree*         tt;               ///< the toy tree
         TTree*           t;                ///< the tree
         OptParser*       arg;              ///< command line arguments
-        vector<TCanvas*> ctrlPlotCanvases; ///< Pointers to the canvases of the control plots, see selectNewCanvas().
+        std::vector<TCanvas*> ctrlPlotCanvases; ///< Pointers to the canvases of the control plots, see selectNewCanvas().
         int              ctrlPadId;        ///< ID of currently selected pad, see selectNewPad().
         TCut             ctrlPlotCuts;     ///< Cuts that are applied to all control plots.
 };

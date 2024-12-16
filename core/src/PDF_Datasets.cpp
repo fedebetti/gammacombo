@@ -9,6 +9,8 @@
 #include "PDF_Datasets.h"
 #include "TIterator.h"
 
+using namespace std;
+
 PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt)
     : PDF_Abs(nObs) {
     wspc            = w;//new RooWorkspace(*w);

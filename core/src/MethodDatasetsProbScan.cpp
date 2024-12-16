@@ -12,6 +12,8 @@
 #include <ios>
 #include <iomanip>
 
+using namespace std;
+
 MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt)
     : MethodProbScan(opt),
       pdf              (PDF),

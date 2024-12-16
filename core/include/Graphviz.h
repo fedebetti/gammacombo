@@ -19,7 +19,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
 using namespace Utils;
 
 class Graphviz
@@ -37,7 +36,7 @@ private:
   TString   graphvizString(TString s);
   // TString   graphvizString(string s);
   bool      isDmixingParameter(TString s);
-  ofstream& openFile(TString name);
+  std::ofstream& openFile(TString name);
   OptParser *arg;                     ///< command line arguments
 };
 

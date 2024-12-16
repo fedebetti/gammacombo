@@ -15,7 +15,6 @@
 
 using namespace Utils;
 using namespace RooFit;
-using namespace std;
 
 class OneMinusClPlot : public OneMinusClPlotAbs
 {

@@ -1,5 +1,7 @@
 #include "CLIntervalPrinter.h"
 
+using namespace std;
+
 CLIntervalPrinter::CLIntervalPrinter(OptParser *arg, TString name, TString var, TString unit, TString method, int CLsType)
 {
     assert(arg);

@@ -1,5 +1,7 @@
 #include "MethodCoverageScan.h"
 
+using namespace std;
+
 MethodCoverageScan::MethodCoverageScan(Combiner *comb)
     : MethodAbsScan(comb)
 {

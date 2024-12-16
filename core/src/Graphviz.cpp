@@ -1,5 +1,7 @@
 #include "Graphviz.h"
 
+using namespace std;
+
 Graphviz::Graphviz(OptParser *arg)
 {
   assert(arg);

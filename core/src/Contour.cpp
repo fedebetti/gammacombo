@@ -1,5 +1,7 @@
 #include "Contour.h"
 
+using namespace std;
+
 ///
 /// Constructor. The class stores copies of the TGraphs provided in listOfGraphs.
 ///

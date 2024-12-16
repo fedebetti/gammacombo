@@ -13,8 +13,6 @@
 #include <stdlib.h>
 #include "TString.h"
 
-using namespace std;
-
 ///
 /// Class that represents a confidence interval
 ///

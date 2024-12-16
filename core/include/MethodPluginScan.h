@@ -54,7 +54,6 @@
 #include "PDF_Datasets.h"
 
 using namespace RooFit;
-using namespace std;
 using namespace Utils;
 
 class MethodPluginScan : public MethodAbsScan
@@ -72,7 +71,7 @@ class MethodPluginScan : public MethodAbsScan
         void          readScan2dTrees(int runMin=1, int runMax=1);
         int           getNtoys(){return nToys;};
         double        getPvalue1d(RooSlimFitResult* plhScan, double chi2minGlobal, ToyTree* t=0, int id=0, bool quiet=false);
-        void          makeControlPlotsCLs(map<int, vector<double> > bVals, map<int, vector<double> > sbVals);
+        void          makeControlPlotsCLs(std::map<int, std::vector<double> > bVals, std::map<int, std::vector<double> > sbVals);
 
     protected:
         TH1F*              analyseToys(ToyTree* t, int id=-1, bool quiet=false);

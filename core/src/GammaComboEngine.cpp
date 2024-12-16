@@ -4,6 +4,8 @@
 #include "PDF_Datasets.h"
 #include "TLatex.h"
 
+using namespace std;
+
 GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]):
     runOnDataSet(false)
 {

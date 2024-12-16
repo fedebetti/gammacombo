@@ -2,6 +2,8 @@
 #include "TLatex.h"
 #include "TFitResult.h"
 
+using namespace std;
+
 PullPlotter::PullPlotter(MethodAbsScan *cmb)
 {
     assert(cmb);

@@ -43,7 +43,6 @@
 #include "rdtsc.h"
 #include "UtilsConfig.h"
 
-using namespace std;
 using namespace RooFit;
 
 namespace Utils
@@ -89,7 +88,7 @@ namespace Utils
     double        angularDifference(double angle1, double angle2);
     bool          isPosDef(TMatrixDSym* c);
     bool          isAngle(RooRealVar* v);
-    int           makeNewColor(string hex);
+    int           makeNewColor(std::string hex);
 
     RooFitResult*   fitToMin(RooAbsPdf *pdf, bool thorough, int printLevel);
     RooFitResult*   fitToMinBringBackAngles(RooAbsPdf *pdf, bool thorough, int printLevel);
@@ -104,8 +103,8 @@ namespace Utils
     TGraph* smoothGraph(TGraph* g, int option=0);
     TGraph* smoothHist(TH1* h, int option=0);
 
-    void addSetNamesToList( vector<string>& list, RooWorkspace *w, TString setName);
-    void makeNamedSet(RooWorkspace *w, TString mergedSet, vector<string>& names);
+    void addSetNamesToList( std::vector<std::string>& list, RooWorkspace *w, TString setName);
+    void makeNamedSet(RooWorkspace *w, TString mergedSet, std::vector<std::string>& names);
     void mergeNamedSets(RooWorkspace *w, TString mergedSet, TString set1, TString set2);
     void randomizeParameters(RooWorkspace* w, TString setname);
     void randomizeParametersGaussian(RooWorkspace* w, TString setname, RooSlimFitResult *r);
@@ -127,20 +126,20 @@ namespace Utils
     void setLimit(RooRealVar* v, TString limitname);
     void setLimit(RooWorkspace* w, TString parname, TString limitname);
     void setLimit(const RooAbsCollection* set, TString limitname);
-  double getCorrelationFactor( const vector<double> &a , const vector<double> &b );
+  double getCorrelationFactor( const std::vector<double> &a , const std::vector<double> &b );
 
     template<typename T>
         TMatrixDSym buildCorMatrix(const int n, std::vector<T> data);
     bool buildCorMatrix(TMatrixDSym &cor);
     TMatrixDSym* buildCovMatrix(TMatrixDSym &cor, float *err);
-    TMatrixDSym* buildCovMatrix(TMatrixDSym &cor, vector<double> &err);
+    TMatrixDSym* buildCovMatrix(TMatrixDSym &cor, std::vector<double> &err);
 
     RooFormulaVar* makeTheoryVar(TString name, TString title, TString formula, RooArgList* pars);
 
     void savePlot(TCanvas *c1, TString name);
     bool FileExists( TString strFilename );
     void assertFileExists(TString strFilename);
-    template<class T> inline bool isIn(vector<T> vec, T var){return (find(vec.begin(), vec.end(), var) != vec.end());};
+    template<class T> inline bool isIn(std::vector<T> vec, T var){return (find(vec.begin(), vec.end(), var) != vec.end());};
 
     static int uniqueRootNameId = 0;
     inline TString          getUniqueRootName(){return (TString)Form("UID%i", ++uniqueRootNameId);}
@@ -294,17 +293,17 @@ double Utils::getVectorFracAboveValue(const std::vector<T>& vec, T val) {
 
 template<typename T>
 void Utils::print(const std::vector<T>& vec){
-    cout << "[ (size=" << vec.size() << ") ";
+    std::cout << "[ (size=" << vec.size() << ") ";
     for (int i=0; i<vec.size(); i++) {
         print(vec[i]);
-        if ( i<vec.size()-1) cout << " , ";
+        if ( i<vec.size()-1) std::cout << " , ";
     }
-    cout << " ]";
+    std::cout << " ]";
 }
 
 template<typename T>
 void Utils::print(T val){
-    cout << val;
+    std::cout << val;
 }
 
 template<typename T>

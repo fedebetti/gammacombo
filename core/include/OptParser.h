@@ -15,7 +15,6 @@
 #include "Utils.h"
 #include "tclap/CmdLine.h"
 
-using namespace std;
 using namespace Utils;
 using namespace TCLAP;
 
@@ -36,15 +35,15 @@ class OptParser
         bool isAsimovCombiner(int id);
         bool isQuickhack(int id);
 
-        vector<TString> action;
-        vector<int>     asimov;
-        vector<TString> asimovfile;
+        std::vector<TString> action;
+        std::vector<int>     asimov;
+        std::vector<TString> asimovfile;
         bool            cacheStartingValues;
-        vector<float>   CL;
-        vector<int>     cls;
-        vector<int>     color;
-        vector<int>     combid;
-        vector<vector<int> >    combmodifications; // encodes requested modifications to the combiner ID through the -c 26:+12 syntax,format is [cmbid:[+pdf1,-pdf2,...]]
+        std::vector<float>   CL;
+        std::vector<int>     cls;
+        std::vector<int>     color;
+        std::vector<int>     combid;
+        std::vector<std::vector<int> >    combmodifications; // encodes requested modifications to the combiner ID through the -c 26:+12 syntax,format is [cmbid:[+pdf1,-pdf2,...]]
         bool            compare;
         bool            confirmsols;
         bool            controlplot;
@@ -53,21 +52,21 @@ class OptParser
         bool            debug;
         int             digits;
         bool            enforcePhysRange;
-        vector<int>     fillstyle;
-        vector<int>     fillcolor;
-        vector<float>   filltransparency;
-        vector<int>     linewidth;
-        vector<int>     linecolor;
-        vector<int>     linestyle;
-        vector<string>  hexfillcolor;
-        vector<string>  hexlinecolor;
+        std::vector<int>     fillstyle;
+        std::vector<int>     fillcolor;
+        std::vector<float>   filltransparency;
+        std::vector<int>     linewidth;
+        std::vector<int>     linecolor;
+        std::vector<int>     linestyle;
+        std::vector<std::string>  hexfillcolor;
+        std::vector<std::string>  hexlinecolor;
         TString         filenamechange;
         TString         filenameaddition;
-        vector<vector<FixPar> >   fixParameters;
-        vector<vector<StartPar> > startVals;
-        vector<vector<RangePar> > physRanges;
-        vector<vector<TString> >  removeRanges;
-        vector<vector<TString> >  randomizeToyVars;
+        std::vector<std::vector<FixPar> >   fixParameters;
+        std::vector<std::vector<StartPar> > startVals;
+        std::vector<std::vector<RangePar> > physRanges;
+        std::vector<std::vector<TString> >  removeRanges;
+        std::vector<std::vector<TString> >  randomizeToyVars;
         bool            grid;
         TString         group;
         TString         groupPos;
@@ -77,12 +76,12 @@ class OptParser
         bool            importance;
         bool            info;
         bool            interactive;
-        vector<int>     jmax;
-        vector<int>     jmin;
+        std::vector<int>     jmax;
+        std::vector<int>     jmin;
         TString         jobdir;
         bool            largest;
         bool            latex;
-        vector<TString> loadParamsFile;
+        std::vector<TString> loadParamsFile;
         bool            lightfiles;
         int             batchstartn;
         bool            batcheos;
@@ -104,8 +103,8 @@ class OptParser
         int             nsmooth;
         TString         parsavefile;
         bool            parevol;
-        vector<int>     pevid;
-        vector<int>     plot2dcl;
+        std::vector<int>     pevid;
+        std::vector<int>     plot2dcl;
         TString         plotdate;
         TString         plotext;
         int             plotid;
@@ -127,14 +126,14 @@ class OptParser
         Double_t        plotHFAGLabelScale;
         bool            plotmagnetic;
         int             plotnsigmacont;
-        map<int,vector<int> > contourlabels;
+        std::map<int, std::vector<int> > contourlabels;
         bool            plotpluginonly;
         bool            plotpulls;
         bool            plotprelim;
         float           plotoriginx;
         float           plotoriginy;
-        vector<int>     plotsolutions;
-        vector<int>     plotsoln;
+        std::vector<int>     plotsolutions;
+        std::vector<int>     plotsoln;
         bool            plotunoff;
         float           plotymin;
         float           plotymax;
@@ -147,16 +146,16 @@ class OptParser
         bool            printcor;
         float           printSolX;
         float           printSolY;
-        vector<int>     qh;
+        std::vector<int>     qh;
         /*TString         queue;*/
-        vector<vector<TString> > readfromfile;
-        vector<TString> relation;
+        std::vector<std::vector<TString> > readfromfile;
+        std::vector<TString> relation;
         bool            runCLs;
         TString         save;
         bool            saveAtMin;
-        vector<float>   savenuisances1d;
-        vector<float>   savenuisances2dx;
-        vector<float>   savenuisances2dy;
+        std::vector<float>   savenuisances1d;
+        std::vector<float>   savenuisances2dx;
+        std::vector<float>   savenuisances2dy;
         bool            scanforce;
         float           scanrangeMin;
         float           scanrangeMax;
@@ -167,13 +166,13 @@ class OptParser
         bool            smooth2d;
         bool            square;
         int             teststatistic;
-        vector<TString> title;
+        std::vector<TString> title;
         TString         xtitle;
         TString         ytitle;
         TString         toyFiles;
         int             updateFreq;
         bool            usage;
-        vector<TString> var;
+        std::vector<TString> var;
         bool            verbose;
 
         CmdLine cmd;
@@ -187,9 +186,9 @@ class OptParser
         bool        parseRange(TString parseMe, float &min, float &max);
         bool        parseAssignment(TString parseMe, TString &name, TString &value);
         bool        parseAssignment(TString parseMe, TString &name, float &value);
-        void        parseCombinerString(TString parseMe, int& resultCmbId, vector<int>& resultAddDelPdf);
-        vector<TString> availableOptions;
-        vector<TString> bookedOptions;
+        void        parseCombinerString(TString parseMe, int& resultCmbId, std::vector<int>& resultAddDelPdf);
+        std::vector<TString> availableOptions;
+        std::vector<TString> bookedOptions;
 };
 
 #endif

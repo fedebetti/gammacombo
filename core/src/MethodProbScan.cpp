@@ -7,6 +7,8 @@
 #include "TSystem.h"
 #include "MethodProbScan.h"
 
+using namespace std;
+
 MethodProbScan::MethodProbScan(Combiner *comb)
 : MethodAbsScan(comb)
 {

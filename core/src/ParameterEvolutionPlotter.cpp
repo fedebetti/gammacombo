@@ -1,5 +1,7 @@
 #include "ParameterEvolutionPlotter.h"
 
+using namespace std;
+
 ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan *scanner)
 {
     // copy over the command line arguments

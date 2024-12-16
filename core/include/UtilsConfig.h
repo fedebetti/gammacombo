@@ -15,8 +15,6 @@
 
 #include "TString.h"
 
-using namespace std;
-
 namespace Utils
 {
     enum config {

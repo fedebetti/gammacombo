@@ -13,7 +13,6 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-using namespace std;
 using namespace Utils;
 
 class ParametersAbs
@@ -27,7 +26,7 @@ public:
   Parameter::Range    range(float min, float max);
 
 protected:
-  vector<Parameter*>  m_parameters;
+  std::vector<Parameter*> m_parameters;
   inline virtual void defineParameters(){};
 };
 

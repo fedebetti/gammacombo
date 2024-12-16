@@ -11,7 +11,6 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-using namespace std;
 using namespace Utils;
 
 ///
@@ -46,7 +45,7 @@ private:
     int _roundrobinid;                  ///< id of currently active round robin cell
     RooDataSet* _parsAtFunctionCall;
     RooDataSet* _parsAtGlobalMin;
-    vector<RooDataSet*> _parsRoundRobin;
+    std::vector<RooDataSet*> _parsRoundRobin;
 
 };
 

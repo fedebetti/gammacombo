@@ -1,5 +1,7 @@
 #include "CLIntervalMaker.h"
 
+using namespace std;
+
 CLIntervalMaker::CLIntervalMaker(OptParser *arg, const TH1F &pvalues)
     : _pvalues(pvalues)
 {

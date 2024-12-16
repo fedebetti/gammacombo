@@ -20,7 +20,7 @@ class LatexMaker {
     ~LatexMaker();
 
     void writeFile();
-    void writeCorrMatrix( ofstream& file, TMatrixDSym mat, RooArgList *observables, std::vector<TString> labels);
+    void writeCorrMatrix( std::ofstream& file, TMatrixDSym mat, RooArgList *observables, std::vector<TString> labels);
 
     TString outfname;
     PDF_Abs *pdf;

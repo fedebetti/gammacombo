@@ -7,6 +7,8 @@
 
 #include "PDF_Abs.h"
 
+using namespace std;
+
 PDF_Abs::PDF_Abs(int nObs):
     covMatrix(nObs),
     corMatrix(nObs),

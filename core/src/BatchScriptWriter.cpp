@@ -2,6 +2,8 @@
 
 #include "BatchScriptWriter.h"
 
+using namespace std;
+
 BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]):
   exec("")
 {

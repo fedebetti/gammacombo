@@ -1,5 +1,7 @@
 #include "ConfidenceContours.h"
 
+using namespace std;
+
 ConfidenceContours::ConfidenceContours(OptParser *arg)
 {
     assert(arg);

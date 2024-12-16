@@ -4,6 +4,8 @@
 #include "GammaComboEngine.h"
 #include "Combiner.h"
 
+using namespace std;
+
 ///
 /// Constructor.
 ///
