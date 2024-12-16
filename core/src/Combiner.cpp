@@ -16,7 +16,7 @@ Combiner::Combiner(OptParser *arg, TString title)
 
 
 Combiner::Combiner(OptParser *arg, TString name, TString title)
-    : name(name), title(title)
+    : title(title), name(name)
 {
     if ( arg->debug ) cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << endl;
     pdfName = "";

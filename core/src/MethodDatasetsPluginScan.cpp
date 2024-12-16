@@ -1128,7 +1128,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun)
     RooRealVar *parameterToScan = w->var(scanVar1);
     float parameterToScan_min = hCL->GetXaxis()->GetXmin();
     float parameterToScan_max = hCL->GetXaxis()->GetXmax();
-    double freeDataFitValue = w->var(scanVar1)->getVal();
 
     TString probResName = Form("root/scan1dDatasetsProb_" + this->pdf->getName() + "_%ip" + "_" + scanVar1 + ".root", arg->npoints1d);
     TFile* probResFile = TFile::Open(probResName);
@@ -1969,7 +1968,6 @@ void MethodDatasetsPluginScan::performBootstrapTest(int nSamples, const TString&
     cout  << " Total number failed: " << totFailed << endl;
 
     for (int i = 0; i < nSamples; ++i) {
-        int nSelected   = 0;
         double nbetter  = 0;
         for (int j = 0; j < numberOfToys; j++) {
 
@@ -2014,7 +2012,7 @@ void MethodDatasetsPluginScan::printDebug(const RooFitResult& r) {
 };
 
 
-RooSlimFitResult* MethodDatasetsPluginScan::getParevolPoint(float scanpoint) {
+RooSlimFitResult* MethodDatasetsPluginScan::getParevolPoint([[maybe_unused]] float scanpoint) {
     std::cout << "ERROR: not implemented for MethodDatasetsPluginScan, use setParevolPointByIndex() instad" << std::endl;
     exit(EXIT_FAILURE);
 }
@@ -2052,7 +2050,7 @@ void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
 
 
 
-void MethodDatasetsPluginScan::setAndPrintFitStatusConstrainedToys(const ToyTree& toyTree) {
+void MethodDatasetsPluginScan::setAndPrintFitStatusConstrainedToys([[maybe_unused]] const ToyTree& toyTree) {
 
     if (pdf->getMinNllScan() != 0 && (pdf->getMinNllFree() > pdf->getMinNllScan())) {
         // create unique failureflag

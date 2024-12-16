@@ -240,9 +240,7 @@ int MethodCoverageScan::scan1d(int nRun)
 
 void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
 
-    TChain *c = new TChain("coverage");
-    int nFilesMissing = 0;
-    int nFilesRead = 0;
+    auto c = new TChain("coverage");
 
     TString idStr = arg->id<0 ? "0" : Form("%d",arg->id);
     TString dirname = "root/scan1dCoverage_"+name+"_"+scanVar1+"_id"+idStr;
@@ -253,12 +251,10 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
         TString file = Form(fileNameBase+"%i.root", i);
         if ( !FileExists(file) ){
             if ( arg->verbose ) cout << "ERROR : File not found: " + file + " ..." << endl;
-            nFilesMissing += 1;
             continue;
         }
         if ( arg->verbose ) cout << "reading " + file + " ..." << endl;
         c->Add(file);
-        nFilesRead += 1;
     }
 
     if (arg->debug) c->Print();
@@ -544,7 +540,6 @@ void MethodCoverageScan::plot()
     h_pvalue_prob->Draw();
 
     int ci = 926;
-    TColor *color = new TColor(ci, 0.35, 0.33, 0.85, " ", 0.488);
     h_pvalue_plugin->SetFillColor(ci);
     h_pvalue_plugin->SetFillStyle(3004);
     h_pvalue_plugin->Draw("same");
