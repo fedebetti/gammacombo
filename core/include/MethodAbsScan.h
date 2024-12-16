@@ -42,23 +42,23 @@ class MethodAbsScan
     public:
         MethodAbsScan();
         MethodAbsScan(Combiner* c);
-        MethodAbsScan(OptParser* opt);
+        MethodAbsScan(const OptParser* opt);
         ~MethodAbsScan();
 
         virtual void                    calcCLintervals(int CLsType = 0, bool calc_expected=false, bool quiet=false);
         void                            confirmSolutions();
         void                            doInitialFit(bool force=false);
-        inline OptParser*               getArg(){return arg;};
-        inline const std::vector<RooSlimFitResult*>& getAllResults(){return allResults;};
-        inline const std::vector<RooSlimFitResult*>& getCurveResults(){return curveResults;};
-        inline float                    getChi2minGlobal(){return chi2minGlobal;}
-        inline float                    getChi2minBkg(){return chi2minBkg;}
-        float                           getCL(double val);
+        inline const OptParser*         getArg() const {return arg;};
+        inline const std::vector<RooSlimFitResult*>& getAllResults() const {return allResults;};
+        inline const std::vector<RooSlimFitResult*>& getCurveResults() const {return curveResults;};
+        inline float                    getChi2minGlobal() const {return chi2minGlobal;}
+        inline float                    getChi2minBkg() const {return chi2minBkg;}
+        float                           getCL(double val) const;
         CLInterval                      getCLintervalCentral(int sigma=1, bool quiet=false);
         CLInterval                      getCLinterval(int iSol=0, int sigma=1, bool quiet=false);
         inline Combiner*                getCombiner() const {return combiner;};
-        int                             getDrawSolution();
-        inline bool                     getFilled(){return drawFilled;};
+        int                             getDrawSolution() const { return drawSolution; }
+        inline bool                     getFilled() const {return drawFilled;};
         inline TH1F*                    getHCL(){return hCL;};
         inline TH1F*                    getHCLs(){return hCLs;};
         inline TH1F*                    getHCLsFreq(){return hCLsFreq;};
@@ -71,33 +71,33 @@ class MethodAbsScan
         inline TH2F*                    getHCLs2d(){return hCLs2d;};
         inline TH1F*                    getHchisq(){return hChi2min;};
         inline TH2F*                    getHchisq2d(){return hChi2min2d;};
-        inline int                      getLineColor(){return lineColor;};
-        inline int                      getLineStyle(){return lineStyle;};
-        inline int                      getLineWidth(){return lineWidth;};
-        inline int                      getFillStyle(){return fillStyle;};
-        inline int                      getFillColor(){return fillColor;};
-        inline float                    getFillTransparency(){return fillTransparency;};
+        inline int                      getLineColor() const {return lineColor;};
+        inline int                      getLineStyle() const {return lineStyle;};
+        inline int                      getLineWidth() const {return lineWidth;};
+        inline int                      getFillStyle() const {return fillStyle;};
+        inline int                      getFillColor() const {return fillColor;};
+        inline float                    getFillTransparency() const {return fillTransparency;};
         inline TString                  getMethodName() const {return methodName;};
         inline TString                  getName() const {return name;};
-        inline int                      getNObservables(){return w->set(obsName)->getSize();}
-        inline int                      getNPoints1d(){return nPoints1d;}
-        inline int                      getNPoints2dx(){return nPoints2dx;}
-        inline int                      getNPoints2dy(){return nPoints2dy;}
-        inline const RooArgSet*         getObservables(){return w->set(obsName);}
-        inline TString                  getObsName(){return obsName;};
-        inline TString                  getParsName(){return parsName;};
+        inline int                      getNObservables() const {return w->set(obsName)->getSize();}
+        inline int                      getNPoints1d() const {return nPoints1d;}
+        inline int                      getNPoints2dx() const {return nPoints2dx;}
+        inline int                      getNPoints2dy() const {return nPoints2dy;}
+        inline const RooArgSet*         getObservables() const {return w->set(obsName);}
+        inline TString                  getObsName() const {return obsName;};
+        inline TString                  getParsName() const {return parsName;};
         float                           getScanVarSolution(int iVar, int iSol);
         RooRealVar*                     getScanVar1();
-        TString                         getScanVar1Name();
+        TString                         getScanVar1Name() const { return scanVar1; }
         float                           getScanVar1Solution(int i=0);
         RooRealVar*                     getScanVar2();
-        TString                         getScanVar2Name();
+        TString                         getScanVar2Name() const {return scanVar2;}
         float                           getScanVar2Solution(int i=0);
         inline std::vector<RooSlimFitResult*>    getSolutions(){return solutions;};
         RooSlimFitResult*                   getSolution(int i=0);
         inline const RooArgSet*         getTheory(){return w->set(thName);}
-        inline int                      getTextColor(){return textColor;};
-        inline TString                  getTitle(){return title;};
+        inline int                      getTextColor() const {return textColor;};
+        inline TString                  getTitle() const {return title;};
         inline RooWorkspace*            getWorkspace(){return w;};
         virtual void                    initScan();
         void                            loadParameters(RooSlimFitResult *r);
@@ -107,13 +107,13 @@ class MethodAbsScan
         void                            plot1d(TString var);
         void                            plotOn(OneMinusClPlotAbs *plot, int CLsType=0); // CLsType: 0 (off), 1 (naive CLs t_s+b - t_b), 2 (freq CLs)
         void                            plotPulls(int nSolution=0);
-        virtual void                    print();
+        virtual void                    print() const;
         void                            printCLintervals(int CLsType, bool calc_expected=false);
-        void                            printLocalMinima();
-        void                            saveLocalMinima(TString fName="");
-        void                            saveScanner(TString fName="");
-        virtual int                     scan1d();
-        virtual int                     scan2d();
+        void                            printLocalMinima() const;
+        void                            saveLocalMinima(TString fName="") const;
+        void                            saveScanner(TString fName="") const;
+        virtual int                     scan1d() const;
+        virtual int                     scan2d() const;
         inline void                     setDrawSolution(int code=0){drawSolution = code;};
         inline void                     setPValueCorrector(PValueCorrection *pvalCor) { pvalueCorrector = pvalCor; pvalueCorrectorSet=true; }
         inline void                     setScanVar1(TString var){scanVar1 = var;};
@@ -138,9 +138,9 @@ class MethodAbsScan
         void                            setXscanRange(float min, float max);
         void                            setYscanRange(float min, float max);
         void                            calcCLintervalsSimple(int CLsType=0, bool calc_expected=false);
-        const std::pair<double, double> getBorders(const TGraph& graph, const double confidence_level, bool qubic=false);
-        const std::pair<double, double> getBorders_CLs(const TGraph& graph, const double confidence_level, bool qubic=false);
-        virtual bool                    checkCLs();
+        const std::pair<double, double> getBorders(const TGraph& graph, const double confidence_level, bool qubic=false) const;
+        const std::pair<double, double> getBorders_CLs(const TGraph& graph, const double confidence_level, bool qubic=false) const;
+        virtual bool                    checkCLs() const;
 
         std::vector<RooSlimFitResult*> allResults;           ///< All fit results we encounter along the scan.
         std::vector<RooSlimFitResult*> curveResults;         ///< All fit results of the the points that make it into the 1-CL curve.
@@ -210,7 +210,7 @@ class MethodAbsScan
         ///< Default is taken from arg, unless disabled by setDrawSolution().
         bool verbose;
         int nWarnings = 0;                     ///< number of warnings printed in getScanVarSolution()
-        OptParser* arg;                        ///< command line options
+        const OptParser* arg;                        ///< command line options
         Combiner* combiner = nullptr;          ///< the combination
         bool m_xrangeset = false;              ///< true if the x range was set manually (setXscanRange())
         bool m_yrangeset = false;              ///< true if the y range was set manually (setYscanRange())
@@ -219,11 +219,11 @@ class MethodAbsScan
 
     private:
 
-        bool  compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2);
-        float pq(float p0, float p1, float p2, float y, int whichSol=0);
+        bool  compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2) const;
+        float pq(float p0, float p1, float p2, float y, int whichSol=0) const;
         void  removeDuplicateSolutions();
-        bool  interpolate(TH1F* h, int i, float y, float central, bool upper, float &val, float &err);
-        void  interpolateSimple(TH1F* h, int i, float y, float &val);
+        bool  interpolate(TH1F* h, int i, float y, float central, bool upper, float &val, float &err) const;
+        void  interpolateSimple(TH1F* h, int i, float y, float &val) const;
 };
 
 #endif

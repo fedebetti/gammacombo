@@ -25,7 +25,6 @@ MethodBergerBoosScan::MethodBergerBoosScan(MethodProbScan* s, TString d)
     else{
         this->dir = d;
     }
-    nBBPoints = 1;
     //std::cout << "open the file" << std::endl;
     TString fName;
     if(this->dir == "XX"){
@@ -79,7 +78,7 @@ TH2F* MethodBergerBoosScan::calcPValues(TH2F better, TH2F all, TH2F bg){
 ///
 /// Draws a 2D Histogram in var1:var2 space
 ///
-void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, int runMax, bool save){
+void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, int runMax, bool save) const {
     TChain *c = new TChain("plugin");
     int nFilesMissing = 0;
     int nFilesRead    = 0;

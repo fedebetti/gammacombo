@@ -86,7 +86,7 @@ void PullPlotter::defineOrder()
 /// \param maxid - Define the max index for the "(3 of 7)" statement
 /// \param nObs - total number of observables
 ///
-void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, int maxid, int nObs)
+void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, int maxid, int nObs) const
 {
     // pull bar
     float width = 0.45;    // width of pull bar
@@ -207,7 +207,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
 /// Save the pulls per combination pdf into a file so that we can somewhere else compute
 /// the chi2 that each pdf contributes to the total combination
 ///
-void PullPlotter::savePulls()
+void PullPlotter::savePulls() const
 {
     cout << "saving pulls" << endl;
 
@@ -356,7 +356,7 @@ void PullPlotter::plotPulls()
 /// \param nsigma - threshold value
 /// \return - True, if one pull is above N sigma.
 ///
-bool PullPlotter::hasPullsAboveNsigma(float nsigma)
+bool PullPlotter::hasPullsAboveNsigma(float nsigma) const
 {
     TIterator* it = cmb->getObservables()->createIterator();
     while ( RooRealVar* pObs = (RooRealVar*)it->Next() ){
@@ -379,7 +379,7 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma)
 /// Print pulls using the current values of the parameters.
 /// \param aboveNsigma Only print pulls above (or equal) N sigma.
 ///
-void PullPlotter::printPulls(float aboveNsigma)
+void PullPlotter::printPulls(float aboveNsigma) const
 {
     TIterator* it = cmb->getObservables()->createIterator();
     while ( RooRealVar* pObs = (RooRealVar*)it->Next() ){

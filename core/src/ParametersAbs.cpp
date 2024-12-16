@@ -5,14 +5,14 @@ using namespace RooFit;
 
 Parameter* ParametersAbs::newParameter(TString name)
 {
-    Parameter *p = new Parameter();
+    auto p = new Parameter();
     p->name = name;
     m_parameters.push_back(p);
     return p;
 }
 
 
-Parameter::Range ParametersAbs::range(float min, float max)
+Parameter::Range ParametersAbs::range(float min, float max) const
 {
     Parameter::Range r = {min, max};
     return r;

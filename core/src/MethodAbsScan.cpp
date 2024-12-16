@@ -37,7 +37,7 @@ MethodAbsScan::MethodAbsScan(Combiner *c):
 
 
 // constructor without combiner, this is atm still needed for the datasets stuff
-MethodAbsScan::MethodAbsScan(OptParser* opt):
+MethodAbsScan::MethodAbsScan(const OptParser* opt):
     arg(opt),
     scanVar1(opt->var[0]),
     verbose(opt->verbose),
@@ -290,7 +290,7 @@ void MethodAbsScan::initScan()
 /// Save this scanner to a root file placed into plots/scanner.
 /// It contains the 1-CL histograms and the solutions.
 ///
-void MethodAbsScan::saveScanner(TString fName)
+void MethodAbsScan::saveScanner(TString fName) const
 {
     if ( fName=="" ){
         FileNameBuilder fb(arg);
@@ -452,14 +452,14 @@ bool MethodAbsScan::loadScanner(TString fName)
 }
 
 
-int MethodAbsScan::scan1d()
+int MethodAbsScan::scan1d() const
 {
     cout << "MethodAbsScan::scan1d() : not implemented." << endl;
     return 0;
 }
 
 
-int MethodAbsScan::scan2d()
+int MethodAbsScan::scan2d() const
 {
     cout << "MethodAbsScan::scan2d() : not implemented." << endl;
     return 0;
@@ -474,7 +474,7 @@ int MethodAbsScan::scan2d()
 /// \param y the y position we want to find the interpolated x for
 /// \param val Return value: interpolated x position
 ///
-void MethodAbsScan::interpolateSimple(TH1F* h, int i, float y, float &val)
+void MethodAbsScan::interpolateSimple(TH1F* h, int i, float y, float &val) const
 {
     // std::cout << "MethodAbsScan::interpolateSimple(): i=" << i << " y=" << y << std::endl;
     if ( !( 1 <= i && i <= h->GetNbinsX()-1 ) ) return;
@@ -489,7 +489,7 @@ void MethodAbsScan::interpolateSimple(TH1F* h, int i, float y, float &val)
 /// Solve a quadratic equation by means of a modified pq formula:
 /// @f[x^2 + \frac{p_1}{p_2} x + \frac{p_0-y}{p2} = 0@f]
 ///
-float MethodAbsScan::pq(float p0, float p1, float p2, float y, int whichSol)
+float MethodAbsScan::pq(float p0, float p1, float p2, float y, int whichSol) const
 {
     if ( whichSol == 0 ) return -p1/2./p2 + sqrt( sq(p1/2./p2) - (p0-y)/p2 );
     else                 return -p1/2./p2 - sqrt( sq(p1/2./p2) - (p0-y)/p2 );
@@ -510,7 +510,7 @@ float MethodAbsScan::pq(float p0, float p1, float p2, float y, int whichSol)
 /// \param err - Return value: estimated interpolation error
 /// \return true, if inpterpolation was performed, false, if conditions were not met
 ///
-bool MethodAbsScan::interpolate(TH1F* h, int i, float y, float central, bool upper, float &val, float &err)
+bool MethodAbsScan::interpolate(TH1F* h, int i, float y, float central, bool upper, float &val, float &err) const
 {
     // cout << "MethodAbsScan::interpolate(): i=" << i << " y=" << y << " central=" << central << endl;
     if ( i > h->GetNbinsX()-2 ) return false;
@@ -1006,7 +1006,7 @@ CLInterval MethodAbsScan::getCLinterval(int iSol, int sigma, bool quiet)
 }
 
 
-float MethodAbsScan::getCL(double val)
+float MethodAbsScan::getCL(double val) const
 {
     return 1.-hCL->Interpolate(val);
 }
@@ -1023,23 +1023,12 @@ RooRealVar* MethodAbsScan::getScanVar1()
     return w->var(scanVar1);
 }
 
-TString MethodAbsScan::getScanVar1Name()
-{
-    return scanVar1;
-}
-
 RooRealVar* MethodAbsScan::getScanVar2()
 {
     return w->var(scanVar2);
 }
 
-TString MethodAbsScan::getScanVar2Name()
-{
-    return scanVar2;
-}
-
-
-void MethodAbsScan::print()
+void MethodAbsScan::print() const
 {
     cout << "MethodAbsScan::print() : Method: " << methodName;
     cout << ", Scanner: " << name << endl;
@@ -1149,7 +1138,7 @@ void MethodAbsScan::loadParameters(RooSlimFitResult *r)
 ///
 /// Print local minima solutions.
 ///
-void MethodAbsScan::printLocalMinima()
+void MethodAbsScan::printLocalMinima() const
 {
     TDatime date; // lets also print the current date
     if ( arg->debug ){
@@ -1168,7 +1157,7 @@ void MethodAbsScan::printLocalMinima()
 ///
 /// Save local minima solutions.
 ///
-void MethodAbsScan::saveLocalMinima(TString fName)
+void MethodAbsScan::saveLocalMinima(TString fName) const
 {
     TDatime date; // lets also print the current date
     if ( arg->debug ){
@@ -1436,7 +1425,7 @@ void MethodAbsScan::removeDuplicateSolutions()
 /// \param r2 Second solution
 /// \return true, if both are equal inside a certain margin
 ///
-bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2)
+bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2) const
 {
     // compare chi2
     if ( fabs(r1->minNll()-r2->minNll())>0.05 ) return false;
@@ -1489,11 +1478,6 @@ void MethodAbsScan::setSolutions(vector<RooSlimFitResult*> s)
     }
 }
 
-
-int MethodAbsScan::getDrawSolution()
-{
-    return drawSolution;
-}
 
 ///
 /// Make a pull plot of observables corresponding
@@ -1607,7 +1591,7 @@ void MethodAbsScan::calcCLintervalsSimple(int CLsType, bool calc_expected)
 \param confidence_level The confidence level at which the interval is to be determined.
 \param qubic Optional parameter. False by default. If true, qubic interpolation is used.
 */
-const std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, const double confidence_level, bool qubic){
+const std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, const double confidence_level, bool qubic) const {
 
     const double p_val = 1 - confidence_level;
     TSpline* splines = nullptr;
@@ -1644,7 +1628,7 @@ const std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, c
 //// Therefore the pValue(CL_s) is given by the ratio of the pValue at scanpointand the pValue of the lowest bin.
 //// \todo Do it properly from the very start by introducing a bkg model and propagate it to the entire framework.
 
-const std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& graph, const double confidence_level, bool qubic){
+const std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& graph, const double confidence_level, bool qubic) const {
 
     const double p_val = 1 - confidence_level;
     TSpline* splines = nullptr;
@@ -1678,7 +1662,7 @@ const std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& grap
     return std::pair<double, double>(lower_edge,upper_edge);
 }
 
-bool MethodAbsScan::checkCLs()
+bool MethodAbsScan::checkCLs() const
 {
     if (!hCLsExp || !hCLsErr1Up || !hCLsErr1Dn || !hCLsErr2Up || !hCLsErr2Dn){
         std::cout << "ERROR: ***************************************************" << std::endl;

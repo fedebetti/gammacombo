@@ -22,7 +22,7 @@ BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]):
 
 BatchScriptWriter::~BatchScriptWriter(){}
 
-void BatchScriptWriter::writeScripts(OptParser *arg, vector<Combiner*> *cmb){
+void BatchScriptWriter::writeScripts(const OptParser *arg, vector<Combiner*> *cmb){
 
   for ( int i=0; i<arg->combid.size(); i++ )
   {
@@ -117,7 +117,7 @@ void BatchScriptWriter::writeScripts(OptParser *arg, vector<Combiner*> *cmb){
 // Copy the same submission script with minor differences for the datasets option
 // -> only difference is that the NLL is stored in the pdf already and does not have to be combined
 // -> no combiners for the datasets option
-void BatchScriptWriter::writeScripts_datasets(OptParser *arg, PDF_Abs* pdf){
+void BatchScriptWriter::writeScripts_datasets(const OptParser *arg, PDF_Abs* pdf){
 
   if(!pdf){
     std::cout<< "BatchScriptWriter::writeScripts_datasets(): ERROR: No PDF given " << std::endl;
@@ -197,7 +197,7 @@ void BatchScriptWriter::writeScripts_datasets(OptParser *arg, PDF_Abs* pdf){
   writeCondorScript(scriptname, arg);
 }
 
-void BatchScriptWriter::writeCondorScript(TString fname, OptParser *arg) {
+void BatchScriptWriter::writeCondorScript(TString fname, const OptParser *arg) {
 
   TString subfilename = fname + ".sub";
   //cout << "\t" << subfilename << endl;
@@ -241,7 +241,7 @@ void BatchScriptWriter::writeCondorScript(TString fname, OptParser *arg) {
 }
 
 
-void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, OptParser *arg) {
+void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, const OptParser *arg) {
 
   TString rootfilename = fname;
   (rootfilename.ReplaceAll("sub","root")).ReplaceAll(".sh",".root");

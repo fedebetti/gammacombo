@@ -4,14 +4,12 @@ using namespace std;
 using namespace RooFit;
 using namespace Utils;
 
-Combiner::Combiner(OptParser *arg, TString title)
+Combiner::Combiner(const OptParser *arg, TString title)
     : title(title)
 {
     cout << "Combiner::Combiner() : WARNING : This constructor is deprecated. "
                                     "Use Combiner(OptParser *arg, TString name, TString title) instead." << endl;
     if ( arg->debug ) cout << "Combiner::Combiner() : new combiner title=" << title << endl;
-    name = "";
-    pdfName = "";
     this->arg = arg;
     TString wsname = "w"+getUniqueRootName();
     w = new RooWorkspace(wsname, wsname);
@@ -19,11 +17,10 @@ Combiner::Combiner(OptParser *arg, TString title)
 }
 
 
-Combiner::Combiner(OptParser *arg, TString name, TString title)
+Combiner::Combiner(const OptParser *arg, TString name, TString title)
     : title(title), name(name)
 {
     if ( arg->debug ) cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << endl;
-    pdfName = "";
     this->arg = arg;
     TString wsname = "w"+getUniqueRootName();
     w = new RooWorkspace(wsname, wsname);

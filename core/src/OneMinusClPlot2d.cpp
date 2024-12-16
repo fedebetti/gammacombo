@@ -13,11 +13,9 @@ using namespace Utils;
 OneMinusClPlot2d::OneMinusClPlot2d(OptParser *arg, TString name, TString title)
     : OneMinusClPlotAbs(arg,name,title)
 {
-    contoursOnly = false;
     xTitle = arg->xtitle;
     yTitle = arg->ytitle;
     ColorBuilder cb;
-    m_legend = 0;
 
     // ==== define style ====
     for ( int i=0; i<9; i++ ){
@@ -602,7 +600,7 @@ void OneMinusClPlot2d::addFile(TString fName)
 ///
 /// Draw the group label on a 2d plot at a higher position.
 ///
-void OneMinusClPlot2d::drawGroup()
+void OneMinusClPlot2d::drawGroup() const
 {
     OneMinusClPlotAbs::drawGroup(0.775);
 }
@@ -613,7 +611,7 @@ void OneMinusClPlot2d::drawGroup()
 ///
 /// t - histogram type: kChi2 or kPvalue
 ///
-bool OneMinusClPlot2d::hasHistoType(histogramType t)
+bool OneMinusClPlot2d::hasHistoType(histogramType t) const
 {
     for ( int i=0; i<histosType.size(); i++ ){
         if ( histosType[i]==t ) return true;
@@ -670,7 +668,7 @@ void OneMinusClPlot2d::DrawFull()
         cout << "OneMinusClPlot2d::DrawFull() : WARNING : can only draw the full histogram of the first" << endl;
         cout << "                                         scanner." << endl;
     }
-    if ( m_mainCanvas==0 ){
+    if ( !m_mainCanvas ){
         m_mainCanvas = newNoWarnTCanvas(name+getUniqueRootName(), title, 800, arg->square ? 800 : 600);
     }
     m_mainCanvas->cd();
@@ -810,7 +808,7 @@ void OneMinusClPlot2d::Draw()
         cout << "OneMinusClPlot2d::Draw() : ERROR : cannot draw " << name << " : No plots were added!" << endl;
         return;
     }
-    if ( m_mainCanvas==0 ){
+    if ( !m_mainCanvas ){
         m_mainCanvas = newNoWarnTCanvas(name+getUniqueRootName(), title, 800, arg->square ? 800 : 600);
         // put this in for exponent xaxes
         if ( !arg->isQuickhack(30) ) m_mainCanvas->SetRightMargin(0.1);
@@ -1062,12 +1060,12 @@ void OneMinusClPlot2d::Draw()
 }
 
 
-void OneMinusClPlot2d::drawMarker(float x, float y, int color, int style, float size)
+void OneMinusClPlot2d::drawMarker(float x, float y, int color, int style, float size) const
 {
-    TMarker *m = new TMarker(x, y, style);
-    m->SetMarkerSize(size);
-    m->SetMarkerColor(color);
-    m->Draw();
+    auto m = TMarker(x, y, style);
+    m.SetMarkerSize(size);
+    m.SetMarkerColor(color);
+    m.Draw();
 }
 
 ///

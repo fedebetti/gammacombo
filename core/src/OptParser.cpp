@@ -29,105 +29,6 @@ OptParser::OptParser():
     bookedOptions.push_back("usage");
     bookedOptions.push_back("var");
     bookedOptions.push_back("verbose");
-
-    // Initialize the variables.
-    // For more complex arguments these are also the default values.
-    compare     = false;
-    controlplot = false;
-    coverageCorrectionID = 0;
-    coverageCorrectionPoint = 0;
-    debug = false;
-    digits = -99;
-    enforcePhysRange = false;
-    filenamechange = "";
-    grid = false;
-    group = "GammaCombo";
-    groupPos = "";
-    hfagLabel = "";
-    hfagLabelPos = "";
-    id = -99;
-    importance = false;
-    info = false;
-    interactive = false;
-    jobdir = ".";
-    largest = false;
-    latex = false;
-    plotlegstyle = "default";
-    lightfiles = false;
-    batchstartn = 1;
-    nbatchjobs = -99;
-    batcheos = false;
-    batchsubmit = false;
-    batchout = "";
-    batchreqs = "";
-    nBBpoints = -99;
-    ndiv = 407;
-    ndivy = 407;
-    nosyst = false;
-    confirmsols = true;
-    npoints1d = -99;
-    npoints2dx = -99;
-    npoints2dy = -99;
-    npointstoy = -99;
-    ncoveragetoys = -99;
-    nrun = -99;
-    ntoys = -99;
-    nsmooth = 1;
-    parevol = false;
-    plotdate = "";
-    plotext = "";
-    plotid = -99;
-    plotlegend = true;
-    plotlegx = -99;
-    plotlegy = -99;
-    plotlegsizex = -99;
-    plotlegsizey = -99;
-    plotlegcols = 1;
-    plotlegbox = false;
-    plotlegboxx = -99;
-    plotlegboxy = -99;
-    plotgroupx = -99;
-    plotgroupy = -99;
-    plotHFAGLabelPosX = 0;
-    plotHFAGLabelPosY = 0;
-    plotHFAGLabelScale = 1;
-    plotlog = false;
-    plotmagnetic = false;
-    plotnsigmacont = 2;
-    plotpluginonly = false;
-    plotprelim = false;
-    plotpulls = false;
-    plotoriginx = -99.;
-    plotoriginy = -99.;
-    plotunoff = false;
-    plotymin = -99.;
-    plotymax = -99.;
-    pluginPlotRangeMax = -100;
-    pluginPlotRangeMin = -100;
-    intprob = false;
-    probforce = false;
-    probimprove = false;
-    probScanResult = "notSet";
-    printcor = false;
-    printSolX = -999.;
-    printSolY = -999.;
-    /// queue = "";
-    save = "";
-    saveAtMin = false;
-    scanforce = false;
-    scanrangeMax = -101;
-    scanrangeMin = -101;
-    scanrangeyMax = -102;
-    scanrangeyMin = -102;
-    scaleerr = -999.;
-    scalestaterr = -999.;
-    smooth2d = false;
-    square   = false;
-    teststatistic = 2;
-    toyFiles = "";
-    updateFreq = 10;
-    usage = false;
-    verbose = false;
 }
 
 ///
@@ -376,7 +277,7 @@ void OptParser::bookOption(TString opt)
 ///
 /// Check the --action argument. Was action 's' given?
 ///
-bool OptParser::isAction(TString s)
+bool OptParser::isAction(TString s) const
 {
     return isIn<TString>(action, s);
 }
@@ -384,7 +285,7 @@ bool OptParser::isAction(TString s)
 ///
 /// Check the --quickhack argument. Was hack 'id' given?
 ///
-bool OptParser::isQuickhack(int id)
+bool OptParser::isQuickhack(int id) const
 {
     return isIn<int>(qh, id);
 }
@@ -1529,7 +1430,7 @@ void OptParser::parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y,
 /// \param min return value
 /// \param max return value
 ///
-bool OptParser::parseRange(TString parseMe, float &min, float &max)
+bool OptParser::parseRange(TString parseMe, float &min, float &max) const
 {
     if ( parseMe==TString("default") ){
         min = -104;
@@ -1555,7 +1456,7 @@ bool OptParser::parseRange(TString parseMe, float &min, float &max)
 /// \param name return string
 /// \param value return value
 ///
-bool OptParser::parseAssignment(TString parseMe, TString &name, TString &value)
+bool OptParser::parseAssignment(TString parseMe, TString &name, TString &value) const
 {
     TString nameStr = parseMe;
     TString valueStr = parseMe;
@@ -1573,7 +1474,7 @@ bool OptParser::parseAssignment(TString parseMe, TString &name, TString &value)
 /// \param name return string
 /// \param value return value
 ///
-bool OptParser::parseAssignment(TString parseMe, TString &name, float &value)
+bool OptParser::parseAssignment(TString parseMe, TString &name, float &value) const
 {
     TString valueStr;
     parseAssignment(parseMe, name, valueStr);
@@ -1585,7 +1486,7 @@ bool OptParser::parseAssignment(TString parseMe, TString &name, float &value)
 /// Helper function for parseCombinerString().
 /// Checks if a string is an integer (pos or neg), if not, exits with printing the usage.
 ///
-int OptParser::convertToIntWithCheck(TString parseMe, TString usage)
+int OptParser::convertToIntWithCheck(TString parseMe, TString usage) const
 {
     if ( !( !parseMe.Contains(".") && !parseMe.Contains(",") && parseMe.IsFloat() ) ){
         cout << "ERROR : could not parse argument. This string is not a positive or negative integer: '" << parseMe << "'" << endl;
@@ -1599,7 +1500,7 @@ int OptParser::convertToIntWithCheck(TString parseMe, TString usage)
 /// Helper function for parseCombinerString().
 /// Checks if a string is a digit (positive integer), if not, exits with printing the usage.
 ///
-int OptParser::convertToDigitWithCheck(TString parseMe, TString usage)
+int OptParser::convertToDigitWithCheck(TString parseMe, TString usage) const
 {
     if ( !parseMe.IsDigit() ){
         cout << "ERROR : could not parse argument. This string is not a positive integer: '" << parseMe << "'" << endl;
@@ -1623,7 +1524,7 @@ int OptParser::convertToDigitWithCheck(TString parseMe, TString usage)
 ///                     to/from the combiner. If it is supposed to be added, a positive PDF ID
 ///                 is stored, if it is supposed to be deleted, a negative PDF ID is stored
 ///
-void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<int>& resultAddDelPdf)
+void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<int>& resultAddDelPdf) const
 {
     resultCmbId = 0;
     resultAddDelPdf.clear();
@@ -1668,7 +1569,7 @@ void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<in
 ///
 /// \param id - position of -c argument
 ///
-bool OptParser::isAsimovCombiner(int id)
+bool OptParser::isAsimovCombiner(int id) const
 {
     return id<asimov.size() && asimov[id]>0;
 }

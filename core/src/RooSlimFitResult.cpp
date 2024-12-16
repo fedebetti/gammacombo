@@ -34,10 +34,6 @@ RooSlimFitResult::RooSlimFitResult()
     _isConfirmed = false;
 }
 
-RooSlimFitResult::~RooSlimFitResult()
-{
-}
-
 RooSlimFitResult* RooSlimFitResult::Clone()
 {
     return new RooSlimFitResult(this);
@@ -264,7 +260,7 @@ void RooSlimFitResult::Print(bool verbose, bool printcor) const
 }
 
 
-bool RooSlimFitResult::isAngle(RooRealVar* v)
+bool RooSlimFitResult::isAngle(RooRealVar* v) const
 {
     return v->getUnit()==TString("Rad") || v->getUnit()==TString("rad");
 }

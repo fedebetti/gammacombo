@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Graphviz::Graphviz(OptParser *arg)
+Graphviz::Graphviz(const OptParser *arg)
 {
   assert(arg);
   this->arg = arg;
@@ -16,13 +16,13 @@ Graphviz::~Graphviz()
 /// Convert a string so that it compatible with the graphviz
 /// syntax for element names such as nodes or edges.
 ///
-TString Graphviz::graphvizString(TString s)
+TString Graphviz::graphvizString(TString s) const
 {
   s.ReplaceAll("-","_");
   return s;
 }
 
-bool Graphviz::isDmixingParameter(TString s)
+bool Graphviz::isDmixingParameter(TString s) const
 {
   if ( s==TString("xD")
     || s==TString("yD") ) return true;
@@ -32,7 +32,7 @@ bool Graphviz::isDmixingParameter(TString s)
 ///
 /// Open a file, return the file handle.
 ///
-ofstream& Graphviz::openFile(TString name)
+ofstream& Graphviz::openFile(TString name) const
 {
   ofstream* dotfile = new ofstream();
   dotfile->open(name);
@@ -50,7 +50,7 @@ ofstream& Graphviz::openFile(TString name)
 ///
 /// dot -Tpdf plots/dot/dkdpiRunning.dot -o dkdpiRunning.pdf
 ///
-void Graphviz::printCombiner(Combiner* cmb)
+void Graphviz::printCombiner(Combiner* cmb) const
 {
   // open the dot file
   ofstream& dotfile = openFile("plots/dot/circle_"+cmb->getName()+".dot");
@@ -111,7 +111,7 @@ void Graphviz::printCombiner(Combiner* cmb)
 ///
 /// dot -Tpdf plots/dot/dkdpiRunning.dot -o dkdpiRunning.pdf
 ///
-void Graphviz::printCombinerLayer(Combiner* cmb)
+void Graphviz::printCombinerLayer(Combiner* cmb) const
 {
   // open the dot file
   ofstream& dotfile = openFile("plots/dot/layer_"+cmb->getName()+".dot");

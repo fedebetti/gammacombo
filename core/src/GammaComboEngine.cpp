@@ -8,8 +8,7 @@ using namespace std;
 using namespace RooFit;
 using namespace Utils;
 
-GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]):
-    runOnDataSet(false)
+GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[])
 {
     // time the program
     t.Start();
@@ -58,7 +57,7 @@ GammaComboEngine::~GammaComboEngine()
 ///
 /// Check if a PDF with a certain ID exits.
 ///
-bool GammaComboEngine::pdfExists(int id)
+bool GammaComboEngine::pdfExists(int id) const
 {
     if ( id<0 ) return false;
     if ( id>=this->pdf.size() ) return false;
@@ -354,7 +353,7 @@ Combiner* GammaComboEngine::getCombiner(int id) const
 /// Get a PDF.
 /// \param id - PDF ID, set when adding the PDF using addPdf()
 ///
-PDF_Abs* GammaComboEngine::getPdf(int id)
+PDF_Abs* GammaComboEngine::getPdf(int id) const
 {
     if ( !pdfExists(id) ){
         cout << "GammaComboEngine::getPdf() : ERROR : Requested PDF id doesn't exist in GammaComboEngine. Exit." << endl;
@@ -687,7 +686,7 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId)
 ///
 /// print usage and exit
 ///
-void GammaComboEngine::usage()
+void GammaComboEngine::usage() const
 {
     if ( runOnDataSet ) {
         cout << "USAGE\n\n"
@@ -726,7 +725,7 @@ void GammaComboEngine::usage()
 ///
 /// Print the available PDFs.
 ///
-void GammaComboEngine::printPdfs()
+void GammaComboEngine::printPdfs() const
 {
     cout << "AVAILABLE MEASUREMENTS" << endl;
     cout << endl;
@@ -742,7 +741,7 @@ void GammaComboEngine::printPdfs()
 ///
 /// Print the availabe Combinations.
 ///
-void GammaComboEngine::printCombinations()
+void GammaComboEngine::printCombinations() const
 {
     cout << "AVAILABLE COMBINATIONS" << endl;
     cout << endl;
@@ -758,7 +757,7 @@ void GammaComboEngine::printCombinations()
 ///
 /// Print the content of this engine.
 ///
-void GammaComboEngine::print()
+void GammaComboEngine::print() const
 {
     printPdfs();
     printCombinations();
@@ -767,7 +766,7 @@ void GammaComboEngine::print()
 ///
 /// Check the combination argument (-c), exit if it is bad.
 ///
-void GammaComboEngine::checkCombinationArg()
+void GammaComboEngine::checkCombinationArg() const
 {
     if ( runOnDataSet && arg->combid.size()>0 ) {
     cout << "When running on a dataset do not pass a combination argument (it makes no sense for this use case)" << endl;
@@ -797,7 +796,7 @@ void GammaComboEngine::checkCombinationArg()
 /// with the ID 0, it won't do anything. Print a warning in that
 /// case.
 ///
-void GammaComboEngine::checkAsimovArg()
+void GammaComboEngine::checkAsimovArg() const
 {
     if ( arg->asimov.size()==1 && arg->asimov[0]==0 ){
         cout << "WARNING : --asimov 0 found, this won't do anything." << endl;
@@ -813,7 +812,7 @@ void GammaComboEngine::checkAsimovArg()
 /// GammaComboEngine::defineColors(). Colors for two-dimensional pltos are
 /// defined in OneMinusClPlot2d::OneMinusClPlot2d().
 ///
-void GammaComboEngine::checkColorArg()
+void GammaComboEngine::checkColorArg() const
 {
     for ( int i=0; i<arg->color.size(); i++ ){
         // colors for one-dimensional plots
@@ -902,7 +901,7 @@ void GammaComboEngine::makeAddDelCombinations()
 /// print parameter structure of the combinations into
 /// .dot file
 ///
-void GammaComboEngine::printCombinerStructure(Combiner *c)
+void GammaComboEngine::printCombinerStructure(Combiner *c) const
 {
     Graphviz gviz(arg);
     gviz.printCombiner(c);
@@ -944,7 +943,7 @@ void GammaComboEngine::setUpPlot()
 ///
 /// Save the plot to disc.
 ///
-void GammaComboEngine::savePlot()
+void GammaComboEngine::savePlot() const
 {
     if ( arg->hfagLabel!="" ) HFAGLabel( arg->hfagLabel, arg->plotHFAGLabelPosX, arg->plotHFAGLabelPosY, arg->plotHFAGLabelScale );
     plot->save();
@@ -1604,7 +1603,7 @@ void GammaComboEngine::setupToyVariationSets(Combiner *c, int cId)
 /// configured (-l) argument. If so, it is returned, else the default
 /// name is returned.
 ///
-TString GammaComboEngine::getStartParFileName(int cId)
+TString GammaComboEngine::getStartParFileName(int cId) const
 {
     if ( arg->loadParamsFile.size()<=cId ) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
     if ( arg->loadParamsFile[cId].EqualTo("default") ) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
@@ -1620,7 +1619,7 @@ TString GammaComboEngine::getStartParFileName(int cId)
 /// \param scanVar  - the scan variable name
 /// \return true if included, else false
 ///
-bool GammaComboEngine::isScanVarObservable(Combiner *c, TString scanVar)
+bool GammaComboEngine::isScanVarObservable(Combiner *c, TString scanVar) const
 {
     vector<string> obs = c->getObservableNames();
     for ( int i=0; i<obs.size(); i++ ){
@@ -1756,7 +1755,7 @@ void GammaComboEngine::writebatchscripts()
 ///
 /// make latex
 ///
-void GammaComboEngine::makeLatex(Combiner *c)
+void GammaComboEngine::makeLatex(Combiner *c) const
 {
     for ( unsigned int p=0; p < c->getPdfs().size(); p++) {
         PDF_Abs *pdf = c->getPdfs()[p];
@@ -2353,7 +2352,7 @@ void GammaComboEngine::runApplication()
 ///
 /// print the initial banner
 ///
-void GammaComboEngine::printBanner()
+void GammaComboEngine::printBanner() const
 {
     const char* VTAG="1.3";
     cout << endl

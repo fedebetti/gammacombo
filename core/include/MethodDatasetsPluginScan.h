@@ -35,11 +35,11 @@ public:
     inline  void        setInputFile(TString name) {inputFiles.push_back(name); explicitInputFile = true;};
     inline  void        addFile(TString name) {inputFiles.push_back(name);};
 
-    PDF_Datasets*           pdf;
-    bool                    explicitInputFile;
+    PDF_Datasets*           pdf = nullptr;
+    bool                    explicitInputFile = false;
     std::vector<TString>    inputFiles;
     std::vector<double>     bootstrapPVals;
-    TChain*                 chain;
+    TChain*                 chain = nullptr;
     // RooFitResult*           dataFreeFitResult;
     RooFitResult*           dataBkgFitResult;
 
@@ -55,7 +55,7 @@ private:
     void                setAndPrintFitStatusConstrainedToys(const ToyTree& ToyTree);
     void                setAndPrintFitStatusFreeToys(const ToyTree& ToyTree);
     void                checkExtProfileLH();
-    void                makeControlPlots( std::map<int, std::vector<double> > bVals, std::map<int, std::vector<double> > sbVals );
+    void                makeControlPlots( std::map<int, std::vector<double> > bVals, std::map<int, std::vector<double> > sbVals ) const;
     void                makeControlPlotsBias( std::map<int, std::vector<double> > biasVals);
 };
 

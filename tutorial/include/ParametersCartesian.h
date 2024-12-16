@@ -19,7 +19,7 @@ public:
     inline ~ParametersCartesian(){};
 
 protected:
-    void defineParameters();
+    void defineParameters() override;
 };
 
 #endif

@@ -35,13 +35,12 @@ MethodPluginScan::MethodPluginScan(MethodProbScan* s)
     nPoints1d  = arg->npointstoy;
     nPoints2dx = arg->npointstoy;
     nPoints2dy = arg->npointstoy;
-    BkgToys = nullptr;
 }
 
 ///
 /// Constructor, mainly to ensure compatibility with MethodDatasetsPluginScan
 ///
-MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, OptParser* opt)
+MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, const OptParser* opt)
     : MethodAbsScan(opt),
     nToys(opt->ntoys)
 {
@@ -59,7 +58,6 @@ MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, OptPars
     obsDataset = new RooDataSet("obsDataset", "obsDataset", *w->set(obsName));
     obsDataset->add(*w->set(obsName));
     nToys = opt->ntoys;
-    BkgToys = nullptr;
 };
 
 ///
@@ -466,7 +464,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
     // Create a ToyTree to store the results of all toys
     // (or use the supplied one so we can have a ToyTree
     // that holds a full scan).
-    ToyTree *myTree = 0;
+    ToyTree *myTree = nullptr;
     if ( !t ){
         myTree = new ToyTree(combiner,0,quiet);
         myTree->init();
@@ -476,7 +474,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
     }
 
     // Create a fitter
-    Fitter *myFit = new Fitter(arg, w, combiner->getPdfName());
+    auto myFit = new Fitter(arg, w, combiner->getPdfName());
 
     // Create a progress bar
     ProgressBar *myPb = nullptr;
@@ -1507,7 +1505,7 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax)
 /// \param pvalue The expected p-value, e.g. from the profile likelihood
 /// \return Fraction between 0.1 and 1
 ///
-double MethodPluginScan::importance(double pvalue)
+double MethodPluginScan::importance(double pvalue) const
 {
     double f1 = 0.05;  ///< the minimum fraction we allow
     double co = 1e-5;  ///< the p-value for which we don't generate toys anymore.
@@ -1524,7 +1522,7 @@ double MethodPluginScan::importance(double pvalue)
 /// but for the moment I don't see a way how to put it there.
 /// The Chisquare quantile plots have to be updated as well.
 ///
-void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double> > bVals, map<int, vector<double> > sbVals)
+void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double> > bVals, map<int, vector<double> > sbVals) const
 {
     // the quantiles of the CLb distribution (for expected CLs)
     std::vector<double> probs = { TMath::Prob(4,1), TMath::Prob(1,1), 0.5, 1.-TMath::Prob(1,1), 1.-TMath::Prob(4,1) };

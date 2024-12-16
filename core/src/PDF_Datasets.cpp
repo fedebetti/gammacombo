@@ -12,28 +12,10 @@
 using namespace std;
 using namespace RooFit;
 
-PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt)
+PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, const OptParser* opt)
     : PDF_Abs(nObs) {
-    wspc            = w;//new RooWorkspace(*w);
-    obsName         = "default_internal_observables_set_name";
-    parName         = "default_internal_parameter_set_name";
-    // globalParsName  = "default_internal_global_pars_set_name";
-    globalObsName   = "default_internal_global_obs_set_name";
-    constraintName  = "default_internal_constraint_set_name";
-    dataName        = "default_internal_dataset_name";
-    pdfName         = "default_pdf_workspace_name";
-    pdfBkgName      = "default_pdf_bkg_workspace_name";
-    parName         = "default_internal_parameter_set";
-    areObsSet       = areParsSet = areRangesSet = isPdfSet = isBkgPdfSet = isMultipdfSet = isBkgMultipdfSet = isMultipdfCatSet = isDataSet = isToyDataSet = kFALSE;
+    wspc            = w;
     arg             = opt;
-    fitStatus       = -10;
-    _NLL            = nullptr;
-    minNllFree      = 0;
-    minNllScan      = 0;
-    minNll          = 0;
-    nbkgfits        = 0;
-    nsbfits         = 0;
-    fitStrategy     = 0;
 };
 
 PDF_Datasets::PDF_Datasets(RooWorkspace* w)
@@ -279,7 +261,7 @@ void PDF_Datasets::setBkgToyData(RooAbsData* ds) {
 };
 
 
-void PDF_Datasets::print() {
+void PDF_Datasets::print() const {
     if (isPdfSet) {
         std::cout << "PDF:\t" << this->getPdfName() << std::endl;
     }
@@ -290,10 +272,10 @@ void PDF_Datasets::print() {
     return;
 };
 
-void PDF_Datasets::printParameters() {
+void PDF_Datasets::printParameters() const {
     int parcounter = 0;
     TIterator* it = this->parameters->createIterator();
-    while ( RooRealVar* p = (RooRealVar*)it->Next() ) {
+    while ( auto p = dynamic_cast<RooRealVar*>(it->Next()) ) {
         cout << p->GetName() << " " << p->getVal() << " ";
         parcounter += 1;
         if ( parcounter % 5 == 0 ) cout << endl << "  ";
@@ -304,7 +286,7 @@ void PDF_Datasets::printParameters() {
 
 
 
-OptParser* PDF_Datasets::getArg() {
+const OptParser* PDF_Datasets::getArg() const {
     std::cout << "ERROR: getting the options parser from the pdf has been deprecated" << std::endl;
     std::cout << "(This is up for discussion of course)" << std::endl;
     exit(EXIT_FAILURE);

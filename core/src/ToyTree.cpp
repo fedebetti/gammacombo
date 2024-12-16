@@ -8,17 +8,16 @@ ToyTree::ToyTree(Combiner *c, TChain* t, bool _quiet):
     quiet(_quiet)
 {
     setCombiner(c); // load properties from the combiner
-    this->initMembers(t);
+    this->t = t;
     this->storeObs  = true;
     this->storeTh   = true;
     this->storeGlob = false;
 }
 
-ToyTree::ToyTree(PDF_Datasets *p, OptParser* opt, TChain* t, bool _quiet):
+ToyTree::ToyTree(PDF_Datasets *p, const OptParser* opt, TChain* t, bool _quiet):
     quiet(_quiet)
 {
     assert(p);
-    this->comb = nullptr;
     this->w = p->getWorkspace();
     this->name = p->getName();
     this->arg = opt;
@@ -26,68 +25,12 @@ ToyTree::ToyTree(PDF_Datasets *p, OptParser* opt, TChain* t, bool _quiet):
     this->obsName  = p->getObsName();
     this->parsName = p->getParName();
     this->globName = p->getGlobalObsName();
-    this->thName   = "";
-    this->initMembers(t);
+    this->t = t;
     this->storeObs  = false;
     this->storeTh   = false;
     this->storeGlob = true;
 };
 
-
-ToyTree::~ToyTree()
-{}
-
-///
-/// Initialize the data members.
-///
-void ToyTree::initMembers(TChain* t){
-    this->t = t;
-    scanpointMin        = 0.;
-    scanpointMax        = 0.;
-    scanpointN          = -1;
-    scanpoint           = 0.;
-    scanpointyMin       = 0.;
-    scanpointyMax       = 0.;
-    scanpointyN         = -1;
-    scanpointy          = 0.;
-    chi2min             = 0.;
-    chi2minGlobal       = 0.;
-    chi2minBkg            = 0.;
-    chi2minToy          = 0.;
-    chi2minGlobalToy    = 0.;
-    chi2minBkgToy       = 0.;
-    chi2minGlobalBkgToy = 0.;
-    chi2minBkgBkgToy    = 0.;
-    scanbest            = 0.;
-    scanbesty           = 0.;
-    scanbestBkg         = 0.;
-    scanbestBkgfitBkg   = 0.;
-    nrun                = 0.;
-    ntoy                = 0.;
-    npoint              = 0.;
-    id                  = 0.;
-    statusFree          = -5.;
-    statusScan          = -5.;
-    statusFreeBkg       = -5.;
-    statusScanBkg       = -5.;
-    statusBkgBkg       = -5.;
-    statusScanData      = -5.;
-    nBergerBoos         = 0.;
-    BergerBoos_id       = 0.;
-    genericProbPValue   = 0.;
-    covQualFree         = -2.;
-    covQualScan         = -2.;
-    covQualFreeBkg         = -2.;
-    covQualScanBkg         = -2.;
-    covQualBkgBkg         = -2.;
-    covQualScanData     = -2.;
-    statusFreePDF       = -5.;
-    statusScanPDF       = -5.;
-    chi2minToyPDF       = 0.;
-    chi2minGlobalToyPDF = 0.;
-    chi2minBkgToyPDF    = 0.;
-    bestIndexScanData   = 0;
-};
 
 ///
 /// Set the combiner to work with. When setting a new combiner, different
@@ -424,7 +367,7 @@ void ToyTree::storeObservables()
     delete it;
 }
 
-Long64_t ToyTree::GetEntries()
+Long64_t ToyTree::GetEntries() const
 {
     assert(t);
     return t->GetEntries();
@@ -570,7 +513,7 @@ int ToyTree::getScanpointyN()
 ///
 /// Checks if a certain variable in the work space is an angle.
 ///
-bool ToyTree::isWsVarAngle(TString var)
+bool ToyTree::isWsVarAngle(TString var) const
 {
     if ( !w->var(var) ) {
         cout << "ToyTree::isWsVarAngle() : ERROR : variable not found in workspace." << endl;

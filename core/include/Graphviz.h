@@ -23,19 +23,19 @@ class Graphviz
 {
 public:
 
-  Graphviz(OptParser *arg);
+  Graphviz(const OptParser *arg);
   ~Graphviz();
   
-  void       printCombiner(Combiner* cmb);
-  void       printCombinerLayer(Combiner* cmb);
+  void       printCombiner(Combiner* cmb) const;
+  void       printCombinerLayer(Combiner* cmb) const;
     
 private:
   
-  TString   graphvizString(TString s);
+  TString   graphvizString(TString s) const;
   // TString   graphvizString(string s);
-  bool      isDmixingParameter(TString s);
-  std::ofstream& openFile(TString name);
-  OptParser *arg;                     ///< command line arguments
+  bool      isDmixingParameter(TString s) const;
+  std::ofstream& openFile(TString name) const;
+  const OptParser *arg;                     ///< command line arguments
 };
 
 #endif

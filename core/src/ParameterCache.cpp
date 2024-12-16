@@ -8,8 +8,7 @@ using namespace Utils;
 ///
 /// \param arg - command line options
 ///
-ParameterCache::ParameterCache(OptParser* arg):
-    m_parametersLoaded(false)
+ParameterCache::ParameterCache(OptParser* arg)
 {
     assert(arg);
     m_arg = arg;
@@ -19,7 +18,7 @@ ParameterCache::ParameterCache(OptParser* arg):
 ParameterCache::~ParameterCache(){}
 
 
-void ParameterCache::printFitResultToOutStream(ofstream &out, RooSlimFitResult *slimFitRes) {
+void ParameterCache::printFitResultToOutStream(ofstream &out, RooSlimFitResult *slimFitRes) const {
 
     out << "### FCN: " << slimFitRes->minNll() << ", EDM: " << slimFitRes->edm() << endl;
     out << "### COV quality: " << slimFitRes->covQual() << ", status: " << slimFitRes->status()
@@ -168,23 +167,23 @@ bool ParameterCache::loadPoints(TString fileName){
     return successfullyLoaded;
 }
 
-void ParameterCache::printPoint(){
+void ParameterCache::printPoint() const {
 
     cout << "ParameterCache::printPoint() -- There are " << startingValues.size() << " solutions with values: " << endl;
 
     for (unsigned int i=0; i<startingValues.size(); i++){
         cout << "SOLUTION " << i << endl;
-        for (map<TString,double>::iterator it = startingValues[i].begin(); it != startingValues[i].end(); it++){
+        for (auto it = startingValues[i].begin(); it != startingValues[i].end(); it++){
             cout << Form("%-25s",it->first.Data()) << " " << Form("%12.6f",it->second) << endl;
         }
     }
 }
 
-int ParameterCache::getNPoints(){
+int ParameterCache::getNPoints() const {
     return startingValues.size();
 }
 
-vector<TString> ParameterCache::getFixedNames(vector<FixPar> fixPar){
+vector<TString> ParameterCache::getFixedNames(vector<FixPar> fixPar) const{
     vector<TString> names;
     for (unsigned int i=0; i<fixPar.size(); i++){
         names.push_back(fixPar[i].name);

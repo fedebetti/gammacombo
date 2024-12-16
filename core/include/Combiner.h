@@ -15,8 +15,8 @@
 class Combiner
 {
 public:
-  Combiner(OptParser *arg, TString title);
-  Combiner(OptParser *arg, TString name, TString title);
+  Combiner(const OptParser *arg, TString title);
+  Combiner(const OptParser *arg, TString name, TString title);
   ~Combiner();
 
   void                          addPdf(PDF_Abs *p);
@@ -36,7 +36,7 @@ public:
     void                        delPdf(PDF_Abs *p1, PDF_Abs *p2, PDF_Abs *p3, PDF_Abs *p4);
     void                        delPdf(PDF_Abs *p1, PDF_Abs *p2, PDF_Abs *p3, PDF_Abs *p4, PDF_Abs *p5);
     void                        delPdf(PDF_Abs *p1, PDF_Abs *p2, PDF_Abs *p3, PDF_Abs *p4, PDF_Abs *p5, PDF_Abs *p6);
-  inline OptParser*             getArg(){return arg;};
+  inline const OptParser*       getArg(){return arg;};
   const RooArgSet*              getParameters() const;
   std::vector<std::string>&     getParameterNames() const;
   PDF_Abs*                      getPdfProvidingObservable(TString obsname);
@@ -63,11 +63,11 @@ public:
 private:
   std::vector<PDF_Abs*> pdfs;         // holds all pdfs to be combined
   TString          title;             // title of the combination, used in plots
-  TString          name;              // name of the combination, used to refer to it and as part of file names
-  TString          pdfName;           // Name of combined pdf. Call combine() first.
+  TString          name = "";         // name of the combination, used to refer to it and as part of file names
+  TString          pdfName = "";      // Name of combined pdf. Call combine() first.
   TString          parsName;          // Name of combined parameter set. Call combine() first.
   TString          obsName;           // Name of combined observables set. Call combine() first.
-  OptParser*       arg;               // command line arguments
+  const OptParser* arg;               // command line arguments
   RooWorkspace*    w;                 // holds all input pdfs, parameters, and observables, as well as the combination
   std::vector<std::string> pdfNames;  // hold all unique names of the pdfs to be combined
   bool             _isCombined;       // make sure we'll only combine once - else all PDFs get double counted!

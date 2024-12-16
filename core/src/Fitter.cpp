@@ -3,20 +3,15 @@
 using namespace std;
 using namespace Utils;
 
-Fitter::Fitter(OptParser *arg, RooWorkspace *w, TString name)
+Fitter::Fitter(const OptParser *arg, RooWorkspace *w, TString name)
 {
     this->w = w;
     this->name = name;
     this->arg = arg;
 
-    startparsFirstFit = 0;
-    startparsSecondFit = 0;
-    nFit1Best = 0;
-    nFit2Best = 0;
     pdfName  = "pdf_"+name;
     obsName  = "obs_"+name;
     parsName = "par_"+name;
-    theResult = 0;
 }
 
 Fitter::~Fitter()
@@ -88,7 +83,7 @@ void Fitter::fitForce()
 /// Returns minimum chi2 value obtained by fit().
 /// \return min chi2; 1e6 if fit wasn't performed yet
 ///
-float Fitter::getChi2()
+float Fitter::getChi2() const
 {
     if (!theResult) assert(0);
     if (theResult->minNll()<-10) return -10;  ///< else we have many entries at -1e27 in the ToyTree
@@ -100,7 +95,7 @@ float Fitter::getChi2()
 /// matrix and a reasonable EDM for a status "ok".
 /// \return Status code: 0=ok, 1=error, -1=fit() didn't run
 ///
-int Fitter::getStatus()
+int Fitter::getStatus() const
 {
     if ( !theResult ) return -1;
     if ( theResult->floatParsFinal().getSize()==0 ) return 0;
@@ -119,7 +114,7 @@ void Fitter::fit()
     else fitTwice();
 }
 
-void Fitter::print()
+void Fitter::print() const
 {
     cout << "Fitter: nFit1Best=" << nFit1Best << " nFit2Best=" << nFit2Best << endl;
 }

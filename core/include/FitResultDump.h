@@ -8,10 +8,7 @@
 class FitResultDump {
 
     public:
-        FitResultDump();
-        ~FitResultDump();
-
-        void dumpResult(std::string ofname, MethodAbsScan *scanner);
+        void dumpResult(std::string ofname, MethodAbsScan *scanner) const;
         std::ofstream outf;
 };
 

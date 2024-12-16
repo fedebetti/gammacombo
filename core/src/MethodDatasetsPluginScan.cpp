@@ -35,8 +35,7 @@ using namespace Utils;
 ///
 MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, OptParser* opt):
     MethodPluginScan(probScan, PDF, opt),
-    pdf(PDF),
-    explicitInputFile(false)
+    pdf(PDF)
 {
     chi2minGlobalFound = true; // the free fit to data must be done and must be saved to the workspace before gammacombo is even called
     methodName = "DatasetsPlugin";
@@ -2174,7 +2173,7 @@ void MethodDatasetsPluginScan::setAndPrintFitStatusFreeToys(const ToyTree& toyTr
     }
 }
 
-void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double> > bVals, map<int, vector<double> > sbVals)
+void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double> > bVals, map<int, vector<double> > sbVals) const
 {
     // the quantiles of the CLb distribution (for expected CLs)
     std::vector<double> probs  = { TMath::Prob(4,1), TMath::Prob(1,1), 0.5, 1.-TMath::Prob(1,1), 1.-TMath::Prob(4,1) };

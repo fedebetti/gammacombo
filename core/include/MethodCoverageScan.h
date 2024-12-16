@@ -58,34 +58,34 @@ class MethodCoverageScan : public MethodAbsScan
 {
     public:
         MethodCoverageScan(Combiner* comb);
-        MethodCoverageScan();
+        MethodCoverageScan() = delete;
 
         ~MethodCoverageScan();
 
         void         setParameterCache( ParameterCache *_pCache) { pCache = _pCache; }
         virtual int  scan1d(int nRun=1);
         virtual void readScan1dTrees(int runMin, int runMax);
-        virtual void plot();
-        int          getNtoys(){return nToys;};
+        virtual void plot() const;
+        int          getNtoys() const {return nToys;};
         void         saveScanner(TString fName="");
         bool         loadScanner(TString fName="");
 
     protected:
-        ParameterCache *pCache;
+        ParameterCache *pCache = nullptr;
         int             nToys;  ///< number of toys to be generated at each scan point
 
         // functions
-        std::vector<double> fitHist( TH1* h, TString fitfunc="p1+exp", bool draw=true );
-        double              transform( std::vector<double> fitParams, TString transFunc, double x );
-        void                printLatexLine( float eta, float finProb, float finProbErr, float finPlug, float finPlugErr );
+        std::vector<double> fitHist( TH1* h, TString fitfunc="p1+exp", bool draw=true ) const;
+        double              transform( std::vector<double> fitParams, TString transFunc, double x ) const;
+        void                printLatexLine( float eta, float finProb, float finProbErr, float finPlug, float finPlugErr ) const;
 
         // result histograms
-        TH1F *h_sol;
-        TH1F *h_pvalue_plugin;
-        TH1F *h_pvalue_prob;
-        TH1F *h_pvalue_plugin_notransf;
-        TH1F *h_pvalue_prob_notransf;
-            TTree *t_res;
+        TH1F *h_sol = nullptr;
+        TH1F *h_pvalue_plugin = nullptr;
+        TH1F *h_pvalue_prob = nullptr;
+        TH1F *h_pvalue_plugin_notransf = nullptr;
+        TH1F *h_pvalue_prob_notransf = nullptr;
+        TTree *t_res = nullptr;
 
         // result values
         Long64_t nentries;

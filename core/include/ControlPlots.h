@@ -50,7 +50,7 @@ class ControlPlots
         TString          name;             ///< combiner name, ending up in titles and file names
         ToyTree*         tt;               ///< the toy tree
         TTree*           t;                ///< the tree
-        OptParser*       arg;              ///< command line arguments
+        const OptParser*       arg;              ///< command line arguments
         std::vector<TCanvas*> ctrlPlotCanvases; ///< Pointers to the canvases of the control plots, see selectNewCanvas().
         int              ctrlPadId;        ///< ID of currently selected pad, see selectNewPad().
         TCut             ctrlPlotCuts;     ///< Cuts that are applied to all control plots.

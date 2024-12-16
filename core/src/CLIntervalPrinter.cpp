@@ -3,7 +3,7 @@
 using namespace std;
 using Utils::RadToDeg;
 
-CLIntervalPrinter::CLIntervalPrinter(OptParser *arg, TString name, TString var, TString unit, TString method, int CLsType)
+CLIntervalPrinter::CLIntervalPrinter(const OptParser *arg, TString name, TString var, TString unit, TString method, int CLsType)
 {
     assert(arg);
     _arg = arg;
@@ -12,7 +12,6 @@ CLIntervalPrinter::CLIntervalPrinter(OptParser *arg, TString name, TString var, 
     _unit = unit;
     _method = method;
     _clstype = CLsType;
-    _degrees= false;
 }
 
 CLIntervalPrinter::~CLIntervalPrinter()

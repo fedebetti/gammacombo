@@ -18,7 +18,7 @@ public:
     ParametersTutorial();
 
 protected:
-    void defineParameters();
+    void defineParameters() override;
 };
 
 #endif

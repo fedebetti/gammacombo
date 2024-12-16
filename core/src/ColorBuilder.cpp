@@ -7,12 +7,12 @@ ColorBuilder::ColorBuilder()
 ColorBuilder::~ColorBuilder()
 {}
 
-int ColorBuilder::darkcolor(int n)
+int ColorBuilder::darkcolor(int n) const
 {
     return darklightcolor(n, 0.95);
 }
 
-int ColorBuilder::lightcolor(int n)
+int ColorBuilder::lightcolor(int n) const
 {
     return darklightcolor(n, 1.04);
 }
@@ -21,7 +21,7 @@ int ColorBuilder::lightcolor(int n)
 /// Copied from TColor::GetColorDark(Int_t n), but customized
 /// the 'darkness'.
 ///
-int ColorBuilder::darklightcolor(int n, float scale)
+int ColorBuilder::darklightcolor(int n, float scale) const
 {
     if (n < 0) return -1;
 

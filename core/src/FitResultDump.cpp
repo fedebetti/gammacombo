@@ -5,10 +5,7 @@ using namespace std;
 using Utils::RadToDeg;
 using Utils::isAngle;
 
-FitResultDump::FitResultDump(){}
-FitResultDump::~FitResultDump(){}
-
-void FitResultDump::dumpResult(string ofname, MethodAbsScan *scanner){
+void FitResultDump::dumpResult(string ofname, MethodAbsScan *scanner) const {
 
     ofname = "plots/par/"+ofname+".dat";
     system("mkdir -p plots/par");

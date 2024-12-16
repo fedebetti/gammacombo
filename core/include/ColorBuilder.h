@@ -19,9 +19,9 @@ class ColorBuilder
         ColorBuilder();
         ~ColorBuilder();
 
-        int darkcolor(int n);
-        int darklightcolor(int n, float scale);
-        int lightcolor(int n);
+        int darkcolor(int n) const;
+        int darklightcolor(int n, float scale) const;
+        int lightcolor(int n) const;
 
 };
 
