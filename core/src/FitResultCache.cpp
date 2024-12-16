@@ -2,14 +2,11 @@
 
 using namespace std;
 
-FitResultCache::FitResultCache(OptParser *arg, int roundrobinsize)
+FitResultCache::FitResultCache(const OptParser *arg, int roundrobinsize)
 {
     assert(arg);
     _arg = arg;
     _roundrobinsize = roundrobinsize;
-    _parsAtFunctionCall = 0;
-    _parsAtGlobalMin = 0;
-    _roundrobinid = 0;
     for ( int i=0; i<_roundrobinsize; i++ ) _parsRoundRobin.push_back(0);
 }
 
@@ -89,7 +86,7 @@ void FitResultCache::initRoundRobinDB(const RooArgSet* set)
 ///
 /// \param n - the point we want to get, 0 is the most recent one
 ///
-const RooArgSet* FitResultCache::getRoundRobinNminus(int n)
+const RooArgSet* FitResultCache::getRoundRobinNminus(int n) const
 {
     int id = _roundrobinid-n;
     if ( id<0 ) id += _parsRoundRobin.size();

@@ -16,12 +16,10 @@
 class ParametersAbs
 {
 public:
-  inline              ParametersAbs(){};
-  inline virtual      ~ParametersAbs(){};
   Parameter*          var(TString name);
   RooRealVar*         get(TString name);
   Parameter*          newParameter(TString name);
-  Parameter::Range    range(float min, float max);
+  Parameter::Range    range(float min, float max) const;
 
 protected:
   std::vector<Parameter*> m_parameters;

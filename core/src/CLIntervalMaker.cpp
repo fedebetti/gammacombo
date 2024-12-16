@@ -2,7 +2,7 @@
 
 using namespace std;
 
-CLIntervalMaker::CLIntervalMaker(OptParser *arg, const TH1F &pvalues)
+CLIntervalMaker::CLIntervalMaker(const OptParser *arg, const TH1F &pvalues)
     : _pvalues(pvalues)
 {
     assert(arg);

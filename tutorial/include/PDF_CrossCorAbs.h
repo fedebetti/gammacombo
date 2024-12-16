@@ -21,12 +21,12 @@ class PDF_CrossCorAbs : public PDF_Abs
 {
 public:
   PDF_CrossCorAbs(PDF_Abs* pdf1, PDF_Abs* pdf2);
-  ~PDF_CrossCorAbs();
-  void          buildPdf();
-  void          initObservables();
-  virtual void  initParameters();
-  virtual void  initRelations();
-  virtual void  setCorrelations(config c);
+  virtual ~PDF_CrossCorAbs();
+  void  buildPdf() override;
+  void  initObservables() override;
+  void  initParameters() override;
+  void  initRelations() override;
+  void  setCorrelations(config c);
 
 protected:
     void copyMeasurementCovariance();

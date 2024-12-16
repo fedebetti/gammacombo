@@ -8,7 +8,7 @@ using namespace std;
 /// \param arg - command line options
 /// \param listOfGraphs - list of TGraphs that make up the subcontours
 ///
-Contour::Contour(OptParser *arg, TList *listOfGraphs)
+Contour::Contour(const OptParser *arg, TList *listOfGraphs)
 {
     assert(arg);
     m_arg = arg;
@@ -41,7 +41,7 @@ Contour::~Contour()
 ///
 /// Draw the contours into the currently active Canvas.
 ///
-void Contour::Draw()
+void Contour::Draw() const
 {
     //cout << "Contour::Draw() : drawing contour (sigma=" << m_sigma << ") ..." << endl;
     DrawFilled();
@@ -52,7 +52,7 @@ void Contour::Draw()
 /// Draw filled contours into the currently active Canvas.
 /// This plots the contours in m_contoursHoles.
 ///
-void Contour::DrawFilled()
+void Contour::DrawFilled() const
 {
     for ( int i=0; i<m_contoursHoles.size(); i++ ) {
         TGraph* g = (TGraph*)m_contoursHoles[i]->Clone();
@@ -73,7 +73,7 @@ void Contour::DrawFilled()
 /// Draw line contours into the currently active Canvas.
 /// This plots the contours in m_contours.
 ///
-void Contour::DrawLine()
+void Contour::DrawLine() const
 {
     for ( int i=0; i<m_contours.size(); i++ ) {
         TGraph* g = (TGraph*)m_contours[i]->Clone();

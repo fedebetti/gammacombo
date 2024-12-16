@@ -14,8 +14,6 @@ MethodProbScan::MethodProbScan(Combiner *comb)
 : MethodAbsScan(comb)
 {
     methodName = "Prob";
-    scanDisableDragMode = false;
-    nScansDone = 0;
 }
 
 
@@ -23,8 +21,6 @@ MethodProbScan::MethodProbScan(OptParser* opt)
 : MethodAbsScan(opt)
 {
     methodName = "Prob";
-    scanDisableDragMode = false;
-    nScansDone = 0;
 }
 
 ///
@@ -33,8 +29,6 @@ MethodProbScan::MethodProbScan(OptParser* opt)
 MethodProbScan::MethodProbScan()
 {
     methodName = "Prob";
-    scanDisableDragMode = false;
-    nScansDone = 0;
 }
 
 MethodProbScan::~MethodProbScan()
@@ -365,7 +359,7 @@ bool MethodProbScan::deleteIfNotInCurveResults2d(RooSlimFitResult *r)
 /// \param nTurn number of inner turn to jump to, 1=next-to-outer turn, 2=second-next, etc.
 ///
 bool MethodProbScan::computeInnerTurnCoords(const int iStart, const int jStart,
-        const int i, const int j, int &iResult, int &jResult, int nTurn)
+        const int i, const int j, int &iResult, int &jResult, int nTurn) const
 {
     // compute bin coordinates of start parameters: connect center of
     // the spiral to the scan point with a straight line, go back by sqrt(2)
@@ -391,7 +385,7 @@ bool MethodProbScan::computeInnerTurnCoords(const int iStart, const int jStart,
 }
 
 
-void MethodProbScan::sanityChecks()
+void MethodProbScan::sanityChecks() const
 {
     if ( !w->set(parsName) ){
         cout << "MethodProbScan::sanityChecks() : ERROR : parsName not found: " << parsName << endl;
@@ -764,7 +758,7 @@ void MethodProbScan::saveSolutions2d()
 /// scan point. Requires that the scan was performed before
 /// by scan1d().
 ///
-float MethodProbScan::getChi2min(float scanpoint)
+float MethodProbScan::getChi2min(float scanpoint) const
 {
     assert(hChi2min);
     int iBin = hChi2min->FindBin(scanpoint);

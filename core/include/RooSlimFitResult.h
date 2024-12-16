@@ -32,7 +32,7 @@ class RooSlimFitResult : public TObject
         RooSlimFitResult(RooFitResult* r, bool storeCorrelation=false);
         RooSlimFitResult(RooSlimFitResult* other);
         RooSlimFitResult(const RooSlimFitResult &r);
-        ~RooSlimFitResult();
+        ~RooSlimFitResult() {};
 
         RooSlimFitResult*  Clone();
         RooArgList&        constPars() const;
@@ -45,7 +45,7 @@ class RooSlimFitResult : public TObject
         float              getConstParVal(TString name) const;
         float              getFloatParFinalVal(TString name) const;
         bool               hasParameter(TString name) const;
-        inline bool        isConfirmed(){return _isConfirmed;};
+        inline bool        isConfirmed() const {return _isConfirmed;};
         inline Double_t    minNll() const {return _minNLL;};
         void               Print(bool verbose=false, bool printcor=false) const;
         void               SaveLatex(std::ofstream &outfile, bool verbose=false, bool printcor=false);
@@ -55,7 +55,7 @@ class RooSlimFitResult : public TObject
         // private:
 
         template<class FitResult> void init(const FitResult *r, bool storeCorrelation=false);
-        bool                           isAngle(RooRealVar* v);
+        bool                           isAngle(RooRealVar* v) const;
 
         std::vector<std::string> _parsNames;   // variable names
         std::vector<int>         _parsFloatId; // ID of floating parameter - this corresponds to the correlation matrix position

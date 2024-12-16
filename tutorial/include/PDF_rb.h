@@ -19,13 +19,13 @@ class PDF_rb : public PDF_Abs
     public:
         PDF_rb(TString cObs, TString cErr, TString cCor);
         ~PDF_rb();
-        void          buildPdf();
-        void          initObservables();
-        virtual void  initParameters();
-        virtual void  initRelations();
-        void          setCorrelations(TString c);
-        void          setObservables(TString c);
-        void          setUncertainties(TString c);
+        void          buildPdf() override;
+        void          initObservables() override;
+        void  initParameters() override;
+        void  initRelations() override;
+        void          setCorrelations(TString c) override;
+        void          setObservables(TString c) override;
+        void          setUncertainties(TString c) override;
 };
 
 #endif

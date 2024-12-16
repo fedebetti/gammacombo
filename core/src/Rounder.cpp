@@ -2,7 +2,7 @@
 
 using namespace Utils;
 
-Rounder::Rounder(OptParser *arg, float cllo, float clhi, float central)
+Rounder::Rounder(const OptParser *arg, float cllo, float clhi, float central)
 : m_cllo(cllo), m_clhi(clhi), m_central(central)
 {
   assert(arg);
@@ -12,23 +12,23 @@ Rounder::Rounder(OptParser *arg, float cllo, float clhi, float central)
 Rounder::~Rounder()
 {}
 
-int Rounder::getNsubdigits()
+int Rounder::getNsubdigits() const
 {
   if ( arg->digits>-1 ) return arg->digits;
     return TMath::Max(calcNsubdigits(fabs(m_central-m_cllo)), calcNsubdigits(fabs(m_central-m_clhi)));
 }
 
-float Rounder::CLlo()
+float Rounder::CLlo() const
 {
     return Round(m_cllo, getNsubdigits());
 }
 
-float Rounder::CLhi()
+float Rounder::CLhi() const
 {
     return Round(m_clhi, getNsubdigits());
 }
 
-float Rounder::central()
+float Rounder::central() const
 {
     return Round(m_central, getNsubdigits());
 }
@@ -39,12 +39,12 @@ float Rounder::central()
 /// Would we round the +/- errors themselves, we'd be geting inconsistent intervals!
 /// \return minus error (always positive)
 ///
-float Rounder::errNeg()
+float Rounder::errNeg() const
 {
   return fabs(central()-CLlo());
 }
 
-float Rounder::errPos()
+float Rounder::errPos() const
 {
   return fabs(central()-CLhi());
 }

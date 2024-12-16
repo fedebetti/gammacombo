@@ -18,12 +18,7 @@ using namespace Utils;
 
 MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt)
     : MethodProbScan(opt),
-      pdf              (PDF),
-      probPValues      (nullptr),
-      drawPlots        (false),
-      explicitInputFile(false),
-      bkgOnlyFitResult (nullptr),
-      probScanTree     (nullptr)
+      pdf(PDF)
 {
     chi2minGlobalFound = true; // the free fit to data must be done and must be saved to the workspace before gammacombo is even called
     methodName = "DatasetsProb";
@@ -516,7 +511,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet)
 }
 
 
-int MethodDatasetsProbScan::computeCLvalues(){
+int MethodDatasetsProbScan::computeCLvalues() const {
     std::cout << "Computing CL values based on test statistic decision" << std::endl;
     std::cout << "Using "<< arg->teststatistic <<"-sided test statistic" << std::endl;
     float bestfitpoint = ((RooRealVar*) globalMin->floatParsFinal().find(scanVar1))->getVal();
@@ -541,7 +536,7 @@ int MethodDatasetsProbScan::computeCLvalues(){
 
 
 // sanity Checks for 2D scan \TODO: Idea: enlargen this function to be used for all scans
-void MethodDatasetsProbScan::sanityChecks()
+void MethodDatasetsProbScan::sanityChecks() const
 {
     // if ( !w->set(parsName) ){
     //     cout << "MethodDatasetsProbScan::sanityChecks() : ERROR : parsName not found: " << parsName << endl;
@@ -824,7 +819,7 @@ int MethodDatasetsProbScan::scan2d()
 }
 
 
-double MethodDatasetsProbScan::getPValueTTestStatistic(double test_statistic_value, bool isCLs) {
+double MethodDatasetsProbScan::getPValueTTestStatistic(double test_statistic_value, bool isCLs) const {
     if ( test_statistic_value > 0) {
         // this is the normal case
         return TMath::Prob(test_statistic_value, 1);

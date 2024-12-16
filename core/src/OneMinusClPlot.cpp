@@ -13,7 +13,6 @@ using namespace Utils;
 OneMinusClPlot::OneMinusClPlot(OptParser *arg, TString name, TString title)
     : OneMinusClPlotAbs(arg, name, title)
 {
-    plotPluginMarkers = true;
     plotSolution      = true;
 }
 
@@ -44,7 +43,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
         cout << "OneMinusClPlot::scan1dPlot() : plotting ";
         cout << s->getName() << " (" << s->getMethodName() << ")" << endl;
     }
-    if ( m_mainCanvas==0 ){
+    if ( !m_mainCanvas ){
         m_mainCanvas = newNoWarnTCanvas(name+getUniqueRootName(), title, 800, arg->square ? 800 : 600);
     }
     m_mainCanvas->cd();
@@ -643,7 +642,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan *s, bool smooth, bool obsError)
     m_mainCanvas->SetTicks(false);
 }
 
-void OneMinusClPlot::drawVerticalLine(float x, int color, int style)
+void OneMinusClPlot::drawVerticalLine(float x, int color, int style) const
 {
     m_mainCanvas->cd();
     TLine* l1 = new TLine(x, 0., x, 1.);
@@ -775,7 +774,7 @@ void OneMinusClPlot::drawSolutions()
 /// Draw a horizontal line at given p-value, put a
 /// label on top of it stating the corresponding CL.
 ///
-void OneMinusClPlot::drawCLguideLine(float pvalue)
+void OneMinusClPlot::drawCLguideLine(float pvalue) const
 {
     m_mainCanvas->cd();
     m_mainCanvas->Update();
@@ -830,7 +829,7 @@ void OneMinusClPlot::drawCLguideLine(float pvalue)
 ///
 /// Draw 1, 2, and 3 sigma lines.
 ///
-void OneMinusClPlot::drawCLguideLines()
+void OneMinusClPlot::drawCLguideLines() const
 {
     if ( arg->CL.size()==0){
         drawCLguideLine(0.31731);
@@ -863,7 +862,7 @@ void OneMinusClPlot::Draw()
     bool plotSimple = false;//arg->debug; ///< set to true to use a simpler plot function
                                           ///< which directly plots the 1-CL histograms without beautification
 
-    if ( m_mainCanvas==0 ){
+    if ( !m_mainCanvas ){
         m_mainCanvas = newNoWarnTCanvas(name+getUniqueRootName(), title, 800, arg->square ? 800 : 600);
         // put this in for exponent xaxes
         if ( !arg->isQuickhack(30) ) m_mainCanvas->SetRightMargin(0.1);

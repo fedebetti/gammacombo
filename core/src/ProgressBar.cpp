@@ -2,7 +2,7 @@
 
 using namespace std;
 
-ProgressBar::ProgressBar(OptParser *arg, unsigned int n)
+ProgressBar::ProgressBar(const OptParser *arg, unsigned int n)
 {
     assert(arg);
     _arg = arg;

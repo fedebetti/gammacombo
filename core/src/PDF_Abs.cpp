@@ -18,31 +18,12 @@ PDF_Abs::PDF_Abs(int nObs):
     corSystMatrix(nObs)
 {
     this->nObs  = nObs;
-    parameters  = nullptr;
-    theory      = nullptr;
-    observables = nullptr;
-    pdf         = nullptr;
-    pdfBkg      = nullptr;
-    multipdf    = nullptr;
-    isBkgPdfSet = false;
-    isBkgMultipdfSet = false;
-    toyObservables = nullptr;
-    nToyObs = 1000;
-    iToyObs = 0;
     for ( int i=0; i<nObs; i++ ){
         StatErr.push_back(0.0);
         SystErr.push_back(0.0);
     }
-    title = "(no title)";
-    corSource = "n/a";
-    obsValSource = "n/a";
-    obsErrSource = "n/a";
-    uniqueID = "UID0";
     counter++;
     uniqueGlobalID = counter;
-    m_isCrossCorPdf = false;
-    gcId = -1;
-
 }
 
 unsigned long long PDF_Abs::counter = 0;
@@ -183,7 +164,7 @@ void PDF_Abs::addToTrash(TObject* o)
 /// Return the base name, which is the name without any
 /// unique ID.
 ///
-TString PDF_Abs::getBaseName()
+TString PDF_Abs::getBaseName() const
 {
     TString baseName = name;
     baseName.ReplaceAll(uniqueID,"");
@@ -569,7 +550,7 @@ void PDF_Abs::setUncertainty(TString obsName, float stat, float syst)
 /// - check if all predicted observables end with '_th'
 /// - check if the 'observables' and 'theory' lists are correctly ordered
 ///
-bool PDF_Abs::checkConsistency()
+bool PDF_Abs::checkConsistency() const
 {
     if ( m_isCrossCorPdf ) return true;
     bool allOk = true;
@@ -648,7 +629,7 @@ bool PDF_Abs::test()
 /// \param obsname  - observable name
 /// \return true if found
 ///
-bool PDF_Abs::hasObservable(TString obsname)
+bool PDF_Abs::hasObservable(TString obsname) const
 {
     RooRealVar* obs = (RooRealVar*)observables->find(obsname);
     if ( obs==0 ) return false;
@@ -704,7 +685,7 @@ bool PDF_Abs::ScaleError(TString obsname, float scale)
 /// calling uniquify(), it has to include the unique ID string.
 /// \return         - the value
 ///
-float PDF_Abs::getObservableValue(TString obsname)
+float PDF_Abs::getObservableValue(TString obsname) const
 {
     // check if requested observable exits
     if ( ! hasObservable(obsname) ){

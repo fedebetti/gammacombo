@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Utils;
 
-ConfidenceContours::ConfidenceContours(OptParser *arg)
+ConfidenceContours::ConfidenceContours(const OptParser *arg)
 {
     assert(arg);
     m_arg = arg;

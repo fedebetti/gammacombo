@@ -9,11 +9,6 @@ MethodCoverageScan::MethodCoverageScan(Combiner *comb)
     methodName = "Coverage";
 }
 
-MethodCoverageScan::MethodCoverageScan()
-{
-    exit(1);
-}
-
 MethodCoverageScan::~MethodCoverageScan()
 {
 }
@@ -489,7 +484,7 @@ bool MethodCoverageScan::loadScanner(TString fName)
     return true;
 }
 
-void MethodCoverageScan::plot()
+void MethodCoverageScan::plot() const
 {
     int font       = 133;
     int labelsize  = 35;  ///< axis labels, numeric solutions, CL guide lines
@@ -586,7 +581,7 @@ void MethodCoverageScan::plot()
 
 /// fit p-value histogram with some function
 
-vector<double> MethodCoverageScan::fitHist( TH1* h, TString fitfunc, bool draw )
+vector<double> MethodCoverageScan::fitHist( TH1* h, TString fitfunc, bool draw ) const
 {
     if ( fitfunc!="p1" && fitfunc!="p1+exp" && fitfunc!="p1+1/x" ) {
         cout << "ERROR -- " << fitfunc << " is not a valid function" << endl;
@@ -622,7 +617,7 @@ vector<double> MethodCoverageScan::fitHist( TH1* h, TString fitfunc, bool draw )
 /// apply the appropriate transformation
 ///
 
-double MethodCoverageScan::transform( vector<double> fitParams, TString transFunc, double x )
+double MethodCoverageScan::transform( vector<double> fitParams, TString transFunc, double x ) const
 {
     double y = -999.; // this should be getting returned
 
@@ -660,7 +655,7 @@ double MethodCoverageScan::transform( vector<double> fitParams, TString transFun
 /// Print the results as Latex table line
 ///
 void MethodCoverageScan::printLatexLine(float eta, float finProb, float finProbErr,
-        float finPlug, float finPlugErr)
+        float finPlug, float finPlugErr) const
 {
     printf("$\\eta=%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.2f$ \\\\\n",
             eta, finProb, finProbErr, finProb-eta, finPlug, finPlugErr, finPlug-eta, eta/finPlug);

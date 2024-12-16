@@ -12,12 +12,11 @@ using namespace std;
 /// \param arg - command line parsing object
 /// \param name - the base name, e.g. "gammacombo"
 ///
-FileNameBuilder::FileNameBuilder(OptParser *arg, TString name)
+FileNameBuilder::FileNameBuilder(const OptParser *arg, TString name)
 {
     assert(arg);
     m_arg = arg;
     m_basename = name;
-    m_asimov = "Asimov";
 }
 
 FileNameBuilder::~FileNameBuilder()

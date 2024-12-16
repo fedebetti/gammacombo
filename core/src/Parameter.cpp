@@ -1,23 +1,12 @@
 #include <Parameter.h>
 
+#include <iostream>
+
 using namespace std;
 
-Parameter::Parameter()
-{
-  name = "not initialized";
-  title = "not initialized";
-  unit = "not initialized";
-  startvalue = 0;
-  Parameter::Range r = {-1e4, 1e4};
-  free = r;
-  phys = r;
-  scan = r;
-  force = r;
-  bboos = r;
-}
+const Parameter::Range Parameter::default_range = {-1e4, 1e4};
 
-
-void Parameter::Print()
+void Parameter::Print() const
 {
   cout << " name       = " << name << endl;
   cout << " title      = " << title << endl;

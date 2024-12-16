@@ -19,12 +19,12 @@ class Contour
 {
     public:
 
-        Contour(OptParser *arg, TList *listOfGraphs);
+        Contour(const OptParser *arg, TList *listOfGraphs);
         ~Contour();
-        void        Draw();
-        void        DrawFilled();
-        void        DrawLine();
-        inline int  getSigma(){return m_sigma;};
+        void        Draw() const;
+        void        DrawFilled() const;
+        void        DrawLine() const;
+        inline int  getSigma() const {return m_sigma;};
         void        magneticBoundaries(const TH2F* hCL);
         inline void setSigma(int s){m_sigma=s;};
         void        setStyle(int linecolor, int linestyle, int linewidth, int fillcolor, int fillstyle);
@@ -38,7 +38,7 @@ class Contour
         std::vector<TGraph*> makeHoles(std::vector<TGraph*>& contours);
         void            magneticBoundaries(std::vector<TGraph*>& contours, const TH2F* hCL);
 
-        OptParser*      m_arg;           ///< command line arguments
+        const OptParser*      m_arg;           ///< command line arguments
         std::vector<TGraph*> m_contours;      ///< container for the several disjoint subcontours. Used by DrawLine().
         std::vector<TGraph*> m_contoursHoles; ///< container for contours with holes. Filled by makeHoles(). Used by DrawFilled().
         int             m_sigma;         ///< sigma level of the contour
