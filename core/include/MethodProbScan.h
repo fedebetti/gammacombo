@@ -42,9 +42,6 @@
 #include "MethodAbsScan.h"
 #include "Utils.h"
 
-using namespace RooFit;
-using namespace Utils;
-
 class MethodProbScan : public MethodAbsScan
 {
 public:

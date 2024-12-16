@@ -1,6 +1,7 @@
 #include "ControlPlots.h"
 
 using namespace std;
+using namespace Utils;
 
 ControlPlots::ControlPlots(ToyTree *tt)
 {

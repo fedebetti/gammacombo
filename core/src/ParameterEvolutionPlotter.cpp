@@ -1,6 +1,7 @@
 #include "ParameterEvolutionPlotter.h"
 
 using namespace std;
+using namespace Utils;
 
 ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan *scanner)
 {

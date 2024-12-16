@@ -14,8 +14,6 @@
 #include "CLInterval.h"
 #include "CLIntervalPrinter.h"
 
-using namespace Utils;
-
 ///
 /// Class that makes CL intervals from 1-CL histograms.
 ///

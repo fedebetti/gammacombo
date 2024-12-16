@@ -19,8 +19,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace Utils;
-
 class Graphviz
 {
 public:

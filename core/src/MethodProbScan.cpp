@@ -8,6 +8,7 @@
 #include "MethodProbScan.h"
 
 using namespace std;
+using namespace Utils;
 
 MethodProbScan::MethodProbScan(Combiner *comb)
 : MethodAbsScan(comb)

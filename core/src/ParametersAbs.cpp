@@ -1,6 +1,7 @@
 #include "ParametersAbs.h"
 
 using namespace std;
+using namespace RooFit;
 
 Parameter* ParametersAbs::newParameter(TString name)
 {

@@ -13,6 +13,8 @@
 #include <iomanip>
 
 using namespace std;
+using namespace RooFit;
+using namespace Utils;
 
 MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt)
     : MethodProbScan(opt),

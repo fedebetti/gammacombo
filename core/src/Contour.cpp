@@ -225,7 +225,7 @@ void Contour::findClosestPoints(TGraph *g1, TGraph *g2, int &i1, int &i2)
         for ( int ii2=0; ii2<g2->GetN(); ii2++){
             g1->GetPoint(ii1, x1, y1);
             g2->GetPoint(ii2, x2, y2);
-            double d = sqrt(sq(x1-x2)+sq(y1-y2));
+            double d = sqrt(Utils::sq(x1-x2) + Utils::sq(y1-y2));
             if ( d<distance ){
                 i1 = ii1;
                 i2 = ii2;

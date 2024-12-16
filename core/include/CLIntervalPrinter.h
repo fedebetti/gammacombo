@@ -14,8 +14,6 @@
 #include "CLInterval.h"
 #include <string>
 
-using namespace Utils;
-
 ///
 /// Class that prints CL intervals and saves them to disk.
 ///

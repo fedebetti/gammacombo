@@ -3,6 +3,7 @@
 #include "TFitResult.h"
 
 using namespace std;
+using namespace Utils;
 
 PullPlotter::PullPlotter(MethodAbsScan *cmb)
 {

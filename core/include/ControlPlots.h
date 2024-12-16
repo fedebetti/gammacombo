@@ -21,8 +21,6 @@
 #include "MethodProbScan.h"
 #include "ToyTree.h"
 
-using namespace Utils;
-
 ///
 /// Class to make control plots of Plugin toys.
 ///

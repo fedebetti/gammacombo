@@ -2,6 +2,8 @@
 #include "Utils.h"
 
 using namespace std;
+using Utils::RadToDeg;
+using Utils::isAngle;
 
 FitResultDump::FitResultDump(){}
 FitResultDump::~FitResultDump(){}

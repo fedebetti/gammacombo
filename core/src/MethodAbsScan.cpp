@@ -8,6 +8,8 @@
 #include "MethodAbsScan.h"
 
 using namespace std;
+using namespace RooFit;
+using namespace Utils;
 
 MethodAbsScan::MethodAbsScan() {};
 

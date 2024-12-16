@@ -1,6 +1,7 @@
 #include "ConfidenceContours.h"
 
 using namespace std;
+using namespace Utils;
 
 ConfidenceContours::ConfidenceContours(OptParser *arg)
 {

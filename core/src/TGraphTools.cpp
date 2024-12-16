@@ -1,6 +1,7 @@
 #include "TGraphTools.h"
 
 using namespace std;
+using namespace Utils;
 
 TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew)
 {

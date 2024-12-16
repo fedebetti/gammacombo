@@ -17,9 +17,6 @@
 #include "ColorBuilder.h"
 #include "ConfidenceContours.h"
 
-using namespace Utils;
-using namespace RooFit;
-
 class OneMinusClPlot2d : public OneMinusClPlotAbs
 {
     public:
@@ -57,11 +54,11 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs
     private:
 
         void drawLegend();
-        bool hasHistoType(histogramType t);
+        bool hasHistoType(Utils::histogramType t);
         void makeNewPlotStyle(TString htmlColor, int ROOTColor=-1);
         void makeOneColorPlotStyle(TString htmlColor, int ROOTColor=-1);
 
-        std::vector<histogramType>       histosType;          ///< defines if histogram is interpreted as p-value or chi2
+        std::vector<Utils::histogramType>       histosType;          ///< defines if histogram is interpreted as p-value or chi2
         std::vector<ConfidenceContours*> m_contours;          ///< holds the contours for each scanner
         std::vector<bool>                m_contours_computed; ///< true if the contours were computed for that scanner by computeContours()
         TLegend*                    m_legend;            ///< pointer to the plot legend. Filled by drawLegend().

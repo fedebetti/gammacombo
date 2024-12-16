@@ -368,8 +368,8 @@ void CLIntervalMaker::improveIntervalsPol2fit(vector<CLInterval> &clis) const
 ///
 float CLIntervalMaker::pq(float p0, float p1, float p2, float y, int whichSol) const
 {
-    if ( whichSol == 0 ) return -p1/2./p2 + sqrt( sq(p1/2./p2) - (p0-y)/p2 );
-    else                 return -p1/2./p2 - sqrt( sq(p1/2./p2) - (p0-y)/p2 );
+    if ( whichSol == 0 ) return -p1/2./p2 + sqrt( Utils::sq(p1/2./p2) - (p0-y)/p2 );
+    else                 return -p1/2./p2 - sqrt( Utils::sq(p1/2./p2) - (p0-y)/p2 );
 }
 
 ///
@@ -483,9 +483,9 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float ce
     else             val = sol1;
 
     // try error propagation: sth is wrong in the formulae
-    // float err0 = TMath::Max(sq(val-pq(p[0]+e[0], p[1], p[2], y, useSol)), sq(val-pq(p[0]-e[0], p[1], p[2], y, useSol)));
-    // float err1 = TMath::Max(sq(val-pq(p[0], p[1]+e[1], p[2], y, useSol)), sq(val-pq(p[0], p[1]-e[1], p[2], y, useSol)));
-    // float err2 = TMath::Max(sq(val-pq(p[0], p[1], p[2]+e[2], y, useSol)), sq(val-pq(p[0], p[1], p[2]-e[2], y, useSol)));
+    // float err0 = TMath::Max(Utils::sq(val-pq(p[0]+e[0], p[1], p[2], y, useSol)), Utils::sq(val-pq(p[0]-e[0], p[1], p[2], y, useSol)));
+    // float err1 = TMath::Max(Utils::sq(val-pq(p[0], p[1]+e[1], p[2], y, useSol)), Utils::sq(val-pq(p[0], p[1]-e[1], p[2], y, useSol)));
+    // float err2 = TMath::Max(Utils::sq(val-pq(p[0], p[1], p[2]+e[2], y, useSol)), Utils::sq(val-pq(p[0], p[1], p[2]-e[2], y, useSol)));
     // err = sqrt(err0+err1+err2);
     // printf("%f %f %f\n", val, pq(p[0]+e[0], p[1], p[2], y, useSol), pq(p[0]-e[0], p[1], p[2], y, useSol));
     // printf("%f %f %f\n", val, pq(p[0], p[1]+e[1], p[2], y, useSol), pq(p[0], p[1]-e[1], p[2], y, useSol));

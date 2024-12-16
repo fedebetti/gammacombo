@@ -1,5 +1,7 @@
 #include "Rounder.h"
 
+using namespace Utils;
+
 Rounder::Rounder(OptParser *arg, float cllo, float clhi, float central)
 : m_cllo(cllo), m_clhi(clhi), m_central(central)
 {

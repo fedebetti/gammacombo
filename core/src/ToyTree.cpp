@@ -1,6 +1,8 @@
 #include "ToyTree.h"
 
 using namespace std;
+using namespace RooFit;
+using namespace Utils;
 
 ToyTree::ToyTree(Combiner *c, TChain* t, bool _quiet):
     quiet(_quiet)

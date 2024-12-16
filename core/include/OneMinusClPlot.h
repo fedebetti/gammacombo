@@ -13,9 +13,6 @@
 #include "Utils.h"
 #include "Rounder.h"
 
-using namespace Utils;
-using namespace RooFit;
-
 class OneMinusClPlot : public OneMinusClPlotAbs
 {
     public:

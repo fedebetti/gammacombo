@@ -3,6 +3,8 @@
 #include "PDF_DatasetTutorial.h"
 #include "RooExponential.h"
 
+using namespace RooFit;
+
 PDF_DatasetTutorial::PDF_DatasetTutorial(RooWorkspace* w): PDF_Datasets(w){}
 PDF_DatasetTutorial::~PDF_DatasetTutorial(){};
 
