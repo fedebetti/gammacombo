@@ -36,7 +36,6 @@
 #include "PValueCorrection.h"
 
 using namespace RooFit;
-using namespace std;
 using namespace Utils;
 
 class OneMinusClPlotAbs;
@@ -53,8 +52,8 @@ class MethodAbsScan
         void                            confirmSolutions();
         void                            doInitialFit(bool force=false);
         inline OptParser*               getArg(){return arg;};
-        inline const vector<RooSlimFitResult*>& getAllResults(){return allResults;};
-        inline const vector<RooSlimFitResult*>& getCurveResults(){return curveResults;};
+        inline const std::vector<RooSlimFitResult*>& getAllResults(){return allResults;};
+        inline const std::vector<RooSlimFitResult*>& getCurveResults(){return curveResults;};
         inline float                    getChi2minGlobal(){return chi2minGlobal;}
         inline float                    getChi2minBkg(){return chi2minBkg;}
         float                           getCL(double val);
@@ -97,7 +96,7 @@ class MethodAbsScan
         RooRealVar*                     getScanVar2();
         TString                         getScanVar2Name();
         float                           getScanVar2Solution(int i=0);
-        inline vector<RooSlimFitResult*>    getSolutions(){return solutions;};
+        inline std::vector<RooSlimFitResult*>    getSolutions(){return solutions;};
         RooSlimFitResult*                   getSolution(int i=0);
         inline const RooArgSet*         getTheory(){return w->set(thName);}
         inline int                      getTextColor(){return textColor;};
@@ -135,7 +134,7 @@ class MethodAbsScan
         inline void                     setFillTransparency(float c){fillTransparency = c;};
         inline void                     setTitle(TString s){title = s;};
         void                            setChi2minGlobal(double x);
-        void                            setSolutions(vector<RooSlimFitResult*> s);
+        void                            setSolutions(std::vector<RooSlimFitResult*> s);
         inline void                     setVerbose(bool yesNo=true){verbose = yesNo;};
         inline void                     setHCL( TH1F *h ) { hCL = h; };
         inline void                     setHchisq( TH1F *h ) { hChi2min = h; };
@@ -146,19 +145,19 @@ class MethodAbsScan
         const std::pair<double, double> getBorders_CLs(const TGraph& graph, const double confidence_level, bool qubic=false);
         virtual bool                    checkCLs();
 
-        vector<RooSlimFitResult*> allResults;           ///< All fit results we encounter along the scan.
-        vector<RooSlimFitResult*> curveResults;         ///< All fit results of the the points that make it into the 1-CL curve.
+        std::vector<RooSlimFitResult*> allResults;           ///< All fit results we encounter along the scan.
+        std::vector<RooSlimFitResult*> curveResults;         ///< All fit results of the the points that make it into the 1-CL curve.
         ///< Index is the bin number of hCL bins -1.
-        vector<vector<RooSlimFitResult*> > curveResults2d;  ///< All fit results of the the points that make it into the 1-CL curve.
+        std::vector<std::vector<RooSlimFitResult*> > curveResults2d;  ///< All fit results of the the points that make it into the 1-CL curve.
         ///< Index is the gobal bin number of hCL2d -1.
-        vector<RooSlimFitResult*> solutions;            ///< Local minima filled by saveSolutions() and saveSolutions2d().
+        std::vector<RooSlimFitResult*> solutions;            ///< Local minima filled by saveSolutions() and saveSolutions2d().
 
-        ///< The names of the CL interval vectors might be misleading. They correspond to the default CL intervals.
+        ///< The names of the CL interval std::vectors might be misleading. They correspond to the default CL intervals.
         ///< If the option --CL is given, the 1-3 sigma correspond to the first, second,... given value of the CL.
-        vector<CLInterval> clintervals1sigma;  ///< all 1 sigma intervals that were found by calcCLintervals()
-        vector<CLInterval> clintervals2sigma;  ///< all 2 sigma intervals that were found by calcCLintervals()
-        vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
-        vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by calcCLintervals()
+        std::vector<CLInterval> clintervals1sigma;  ///< all 1 sigma intervals that were found by calcCLintervals()
+        std::vector<CLInterval> clintervals2sigma;  ///< all 2 sigma intervals that were found by calcCLintervals()
+        std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
+        std::vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by calcCLintervals()
         RooFitResult* globalMin = nullptr;     ///< parameter values at a global minimum
 
     protected:

@@ -1,5 +1,7 @@
 #include <ProgressBar.h>
 
+using namespace std;
+
 ProgressBar::ProgressBar(OptParser *arg, unsigned int n)
 {
     assert(arg);

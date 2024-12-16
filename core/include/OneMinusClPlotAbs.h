@@ -20,7 +20,6 @@
 
 using namespace Utils;
 using namespace RooFit;
-using namespace std;
 
 class MethodAbsScan;
 
@@ -34,7 +33,7 @@ public:
     inline void     disableLegend(bool yesNo=false){plotLegend = yesNo;};
     inline void     disableSolution(bool yesNo=false){plotSolution = yesNo;};
     virtual void    drawSolutions();
-    virtual void    drawLabel([[maybe_unused]] float yPos=0.6){cout << "nothing yet" << endl;};
+    virtual void    drawLabel([[maybe_unused]] float yPos=0.6){std::cout << "nothing yet" << std::endl;};
     virtual void    drawGroup(float yPos=0.6);
     inline TString  getName(){return name;};
     void            save();
@@ -50,8 +49,8 @@ public:
     int titlesize;  ///< text size of axis titles in pixels
     int legendsize; ///< text size of legend entries in pixels
 
-    vector<MethodAbsScan*> scanners;
-    vector<int> do_CLs;    ///< vector, which stores the cls method type to be plotted
+    std::vector<MethodAbsScan*> scanners;
+    std::vector<int> do_CLs;    ///< vector, which stores the cls method type to be plotted
     OptParser*  arg; ///< command line options
     TCanvas*    m_mainCanvas;
     TString     name;

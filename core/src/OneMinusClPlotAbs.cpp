@@ -7,6 +7,8 @@
 
 #include <OneMinusClPlotAbs.h>
 
+using namespace std;
+
 OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser *arg, TString name, TString title)
 {
     font       = 133;

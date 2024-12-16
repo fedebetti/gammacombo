@@ -7,6 +7,8 @@
 
 #include <UtilsConfig.h>
 
+using namespace std;
+
 TString Utils::ConfigToTString(config s)
 {
     if ( s == babar )                return "babar";
@@ -28,6 +30,7 @@ TString Utils::ConfigToTString(config s)
     if ( s == belle2014 )            return "belle2014";
     if ( s == belle_dpi0 )           return "belle_dpi0";
     if ( s == belle_dg )             return "belle_dg";
+    if ( s == bes3 )                 return "bes3";
     if ( s == cdf )                  return "cdf";
     if ( s == cdf2007 )              return "cdf2007";
     if ( s == cdf2012 )              return "cdf2012";

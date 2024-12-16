@@ -43,7 +43,6 @@
 #include "Utils.h"
 
 using namespace RooFit;
-using namespace std;
 using namespace Utils;
 
 class MethodProbScan : public MethodAbsScan

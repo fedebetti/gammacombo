@@ -14,8 +14,6 @@
 #include <stdlib.h>
 #include <TString.h>
 
-using namespace std;
-
 class Parameter
 {
 public:

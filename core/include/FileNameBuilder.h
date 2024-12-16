@@ -11,7 +11,6 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-using namespace std;
 using namespace Utils;
 
 // forward declarations - include headers only in
@@ -37,8 +36,8 @@ class FileNameBuilder
         TString getFileNameSolution(const MethodAbsScan *s);
         TString getFileNamePar(const Combiner *c);
         TString getFileNamePar(const MethodAbsScan *s);
-        TString getFileNamePlot(const vector<Combiner*>& cmb);
-        TString getFileNamePlotSingle(const vector<Combiner*>& cmb, int cId);
+        TString getFileNamePlot(const std::vector<Combiner*>& cmb);
+        TString getFileNamePlotSingle(const std::vector<Combiner*>& cmb, int cId);
         TString getFileNameStartPar(const Combiner *c);
         TString getFileNameStartPar(const MethodAbsScan *s);
         TString getFileNameAsimovPar(const Combiner *c);

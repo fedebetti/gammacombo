@@ -1,5 +1,7 @@
 #include <CLInterval.h>
 
+using namespace std;
+
 CLInterval::CLInterval()
 {
     pvalue = -1.;

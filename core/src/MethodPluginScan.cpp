@@ -9,6 +9,7 @@
 #include <TArrow.h>
 #include <TLatex.h>
 
+using namespace std;
 
 ///
 /// Initialize from a previous Prob scan, setting the profile

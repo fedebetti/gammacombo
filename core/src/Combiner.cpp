@@ -1,5 +1,7 @@
 #include <Combiner.h>
 
+using namespace std;
+
 Combiner::Combiner(OptParser *arg, TString title)
     : title(title)
 {
@@ -298,7 +300,7 @@ RooAbsPdf* Combiner::getPdf()
 /// in this combination. This works already before
 /// combine() was called (unline Combiner::getParameters()).
 ///
-vector<string>& Combiner::getParameterNames()
+vector<string>& Combiner::getParameterNames() const
 {
     vector<string>* vars = new vector<string>();
     if ( pdfs.size()==0 ) return *vars;
@@ -336,7 +338,7 @@ vector<string>& Combiner::getParameterNames()
 ///
 /// \return a vector of observable names
 ///
-vector<string>& Combiner::getObservableNames()
+vector<string>& Combiner::getObservableNames() const
 {
     vector<string>* vars = new vector<string>();
     if ( !_isCombined ){
@@ -364,7 +366,7 @@ vector<string>& Combiner::getObservableNames()
 ///
 /// Return a (new?) RooArgSet that contains all parameters.
 ///
-const RooArgSet* Combiner::getParameters()
+const RooArgSet* Combiner::getParameters() const
 {
     if ( !_isCombined ){
         cout << "Combiner::getParameters() : ERROR : Combiner needs to be combined first!" << endl;
@@ -376,7 +378,7 @@ const RooArgSet* Combiner::getParameters()
 ///
 /// Return a (new?) RooArgSet that contains all observables.
 ///
-const RooArgSet* Combiner::getObservables()
+const RooArgSet* Combiner::getObservables() const
 {
     if ( !_isCombined ){
         cout << "Combiner::getObservables() : ERROR : Combiner needs to be combined first!" << endl;
@@ -388,7 +390,7 @@ const RooArgSet* Combiner::getObservables()
 ///
 /// Print the combination setup.
 ///
-void Combiner::print()
+void Combiner::print() const
 {
     if ( pdfs.size()==0 ) return;
     cout << "\nCombiner Configuration: " << title << endl;

@@ -1,5 +1,7 @@
 #include <OptParser.h>
 
+using namespace std;
+
 ///
 /// Organize command line options.
 /// The strategy is to have one object of this class present in the

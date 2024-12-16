@@ -1,5 +1,7 @@
 #include <ControlPlots.h>
 
+using namespace std;
+
 ControlPlots::ControlPlots(ToyTree *tt)
 {
     this->tt = tt;

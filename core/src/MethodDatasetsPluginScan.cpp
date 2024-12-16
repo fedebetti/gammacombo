@@ -27,7 +27,7 @@
 // #include <boost/accumulators/statistics/mean.hpp>
 // #include <boost/accumulators/statistics/variance.hpp>
 
-
+using namespace std;
 
 ///
 /// The default constructor for the dataset plugin scan

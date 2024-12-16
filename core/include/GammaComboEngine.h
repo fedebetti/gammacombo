@@ -30,7 +30,6 @@
 #include "BatchScriptWriter.h"
 #include "LatexMaker.h"
 
-using namespace std;
 using namespace Utils;
 
 ///
@@ -49,7 +48,7 @@ class GammaComboEngine
         void              adjustRanges(Combiner *c, int cId);
         void              setupToyVariationSets(Combiner *c, int cId);
         void              addPdf(int id, PDF_Abs* pdf, TString title="");
-        void              addSubsetPdf(int id, PDF_Abs* pdf, vector<int>& indices, TString title="" );
+        void              addSubsetPdf(int id, PDF_Abs* pdf, std::vector<int>& indices, TString title="" );
         void              addSubsetPdf(int id, PDF_Abs* pdf, int i1, TString title="" );
         void              addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, TString title="" );
         void              addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, TString title="" );
@@ -128,20 +127,20 @@ class GammaComboEngine
         void     runToys( Combiner *c );
 
         OptParser*        arg;
-        vector<Combiner*> cmb;
-        vector<int>     colorsLine;
-        vector<int>     colorsText;
-        vector<int>     fillStyles;
-        vector<int>     fillColors;
-        vector<float>   fillTransparencies;
-        vector<int>     lineColors;
-        vector<int>     lineStyles;
-        vector<int>     lineWidths;
-        vector<MethodProbScan*> comparisonScanners;
+        std::vector<Combiner*> cmb;
+        std::vector<int>     colorsLine;
+        std::vector<int>     colorsText;
+        std::vector<int>     fillStyles;
+        std::vector<int>     fillColors;
+        std::vector<float>   fillTransparencies;
+        std::vector<int>     lineColors;
+        std::vector<int>     lineStyles;
+        std::vector<int>     lineWidths;
+        std::vector<MethodProbScan*> comparisonScanners;
         TString                 execname;
         FileNameBuilder*        m_fnamebuilder;
         BatchScriptWriter*      m_batchscriptwriter;
-        vector<PDF_Abs*>        pdf;
+        std::vector<PDF_Abs*>        pdf;
         OneMinusClPlotAbs*      plot;
         TStopwatch              t;
         TApplication*           theApp;

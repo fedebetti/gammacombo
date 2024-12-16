@@ -14,7 +14,6 @@
 #include "CLInterval.h"
 #include <string>
 
-using namespace std;
 using namespace Utils;
 
 ///
@@ -30,7 +29,7 @@ public:
     void        print();
     void        savePython();
     inline void setDegrees(bool yesno=true){_degrees=yesno;};
-    void        addIntervals(vector<CLInterval> &intervals);
+    void        addIntervals(std::vector<CLInterval> &intervals);
 
 private:
 
@@ -42,7 +41,7 @@ private:
     TString _unit;          ///< unit of scan variable
     TString _method;        ///< method name (e.g. Prob)
     bool _degrees;          ///< convert values into degrees
-    vector< vector<CLInterval> > _intervals;    ///< container of intervals
+    std::vector< std::vector<CLInterval> > _intervals;  ///< container of intervals
     int _clstype;           ///< Type of CLs intervals, 0 means no CLs method
 };
 

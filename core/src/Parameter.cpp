@@ -1,5 +1,6 @@
 #include <Parameter.h>
 
+using namespace std;
 
 Parameter::Parameter()
 {

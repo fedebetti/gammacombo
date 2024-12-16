@@ -7,6 +7,8 @@
 
 #include <OneMinusClPlot.h>
 
+using namespace std;
+
 OneMinusClPlot::OneMinusClPlot(OptParser *arg, TString name, TString title)
     : OneMinusClPlotAbs(arg, name, title)
 {

@@ -1,5 +1,7 @@
 #include <TGraphTools.h>
 
+using namespace std;
+
 TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew)
 {
     // get x and y coordinates as vectors- the TGraph interface is just not suited to

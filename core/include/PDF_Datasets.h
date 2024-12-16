@@ -40,7 +40,7 @@ public:
     virtual void          initObservables();  //overriding the inherited virtual method
     void                  initGlobalObservables(const TString& setName);
     void                  initParameters(const TString& setName);
-    void                  initParameters(const vector<TString>& parNames);
+    void                  initParameters(const std::vector<TString>& parNames);
     virtual void          initParameters(); //overriding the inherited virtual method
     void                  initMultipdfCat(const TString& name);
     void                  initPDF(const TString& name);

@@ -7,6 +7,8 @@
 
 #include <MethodAbsScan.h>
 
+using namespace std;
+
 MethodAbsScan::MethodAbsScan() {};
 
 

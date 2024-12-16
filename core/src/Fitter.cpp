@@ -1,5 +1,7 @@
 #include <Fitter.h>
 
+using namespace std;
+
 Fitter::Fitter(OptParser *arg, RooWorkspace *w, TString name)
 {
     this->w = w;

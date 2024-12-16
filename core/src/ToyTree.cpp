@@ -1,5 +1,7 @@
 #include <ToyTree.h>
 
+using namespace std;
+
 ToyTree::ToyTree(Combiner *c, TChain* t, bool _quiet):
     quiet(_quiet)
 {

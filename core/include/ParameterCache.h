@@ -26,7 +26,7 @@ class ParameterCache {
 
         void cacheParameters(MethodAbsScan *scanner, TString fileName);
         bool loadPoints(TString fileName);
-        void printFitResultToOutStream(ofstream &out, RooSlimFitResult *slimFitResult);
+        void printFitResultToOutStream(std::ofstream &out, RooSlimFitResult *slimFitResult);
         void printPoint();
         int getNPoints();
         void setPoint(Combiner* cmb, int i);

@@ -12,7 +12,7 @@ class FitResultDump {
         ~FitResultDump();
 
         void dumpResult(std::string ofname, MethodAbsScan *scanner);
-        ofstream outf;
+        std::ofstream outf;
 };
 
 #endif

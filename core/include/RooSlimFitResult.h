@@ -19,9 +19,6 @@
 #include <RooRealVar.h>
 #include <TMath.h>
 #include <TDatime.h>
-// #include "Utils.h" // doesn't compile when included
-
-using namespace std;
 
 ///
 /// Class that essentially mimics the functionality of a RooFitResult,
@@ -51,7 +48,7 @@ class RooSlimFitResult : public TObject
         inline bool        isConfirmed(){return _isConfirmed;};
         inline Double_t    minNll() const {return _minNLL;};
         void               Print(bool verbose=false, bool printcor=false) const;
-        void               SaveLatex(ofstream &outfile, bool verbose=false, bool printcor=false);
+        void               SaveLatex(std::ofstream &outfile, bool verbose=false, bool printcor=false);
         inline void        setConfirmed(bool c){_isConfirmed = c;};
         inline Int_t       status() const {return _status;};
 
@@ -60,12 +57,12 @@ class RooSlimFitResult : public TObject
         template<class FitResult> void init(const FitResult *r, bool storeCorrelation=false);
         bool                           isAngle(RooRealVar* v);
 
-        vector<string> _parsNames;   // variable names
-        vector<int>    _parsFloatId; // ID of floating parameter - this corresponds to the correlation matrix position
-        vector<float>  _parsVal;     // values of const parameters, index given by position in _variable names
-        vector<float>  _parsErr;
-        vector<bool>   _parsAngle; // is it an angle?
-        vector<bool>   _parsConst; // is it constant?
+        std::vector<std::string> _parsNames;   // variable names
+        std::vector<int>         _parsFloatId; // ID of floating parameter - this corresponds to the correlation matrix position
+        std::vector<float>       _parsVal;     // values of const parameters, index given by position in _variable names
+        std::vector<float>       _parsErr;
+        std::vector<bool>        _parsAngle; // is it an angle?
+        std::vector<bool>        _parsConst; // is it constant?
         Double_t       _edm;
         Double_t       _minNLL;
         Int_t          _covQual;

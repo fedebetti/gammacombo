@@ -1,5 +1,7 @@
 #include <ParametersAbs.h>
 
+using namespace std;
+
 Parameter* ParametersAbs::newParameter(TString name)
 {
     Parameter *p = new Parameter();

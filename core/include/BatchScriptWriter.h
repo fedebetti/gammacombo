@@ -13,7 +13,6 @@
 #include "Combiner.h"
 #include "PDF_Abs.h"
 
-using namespace std;
 using namespace Utils;
 
 class BatchScriptWriter
@@ -23,12 +22,12 @@ class BatchScriptWriter
     BatchScriptWriter(int argc, char* argv[]);
     ~BatchScriptWriter();
 
-    void writeScripts(OptParser *arg, vector<Combiner*> *cmb);
+    void writeScripts(OptParser *arg, std::vector<Combiner*> *cmb);
     void writeScripts_datasets(OptParser *arg, PDF_Abs* pdf);
     void writeScript(TString fname, TString outfloc, int jobn, OptParser *arg);
     void writeCondorScript(TString fname, OptParser *arg);
-    string exec;
-    string subpkg;
+    std::string exec;
+    std::string subpkg;
 };
 
 #endif
