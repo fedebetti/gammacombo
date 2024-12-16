@@ -1,11 +1,8 @@
 #include <ColorBuilder.h>
 
-ColorBuilder::ColorBuilder()
-{
-}
-
-ColorBuilder::~ColorBuilder()
-{}
+#include <TColor.h>
+#include <TObjArray.h>
+#include <TROOT.h>
 
 int ColorBuilder::darkcolor(int n) const
 {

@@ -11,7 +11,6 @@
 #define Rounder_h
 
 #include "OptParser.h"
-#include "Utils.h"
 
 class Rounder
 {

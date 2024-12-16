@@ -1,4 +1,25 @@
+#include <iostream>
+
+#include <FileNameBuilder.h>
+#include <FitResultCache.h>
 #include <MethodCoverageScan.h>
+#include <MethodProbScan.h>
+#include <MethodPluginScan.h>
+#include <RooSlimFitResult.h>
+#include <ToyTree.h>
+#include <Utils.h>
+
+#include <RooRandom.h>
+#include <RooFitResult.h>
+#include <RooWorkspace.h>
+
+
+#include <TCanvas.h>
+#include <TChain.h>
+#include <TFile.h>
+#include <TLegend.h>
+#include <TMath.h>
+#include <TStyle.h>
 
 using namespace std;
 using namespace Utils;

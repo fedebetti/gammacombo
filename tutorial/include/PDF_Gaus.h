@@ -9,10 +9,6 @@
 #define PDF_Gaus_h
 
 #include <PDF_Abs.h>
-#include "ParametersTutorial.h"
-
-using namespace RooFit;
-using namespace std;
 
 class PDF_Gaus : public PDF_Abs
 {

@@ -2,12 +2,9 @@
 #define ROOCROSSCORPDF
 
 #include <RooAbsPdf.h>
-//#include "RooRealProxy.h"
-//#include "Rtypes.h"
-#include <TMatrixDSym.h>
 #include <RooListProxy.h>
-#include <TVectorD.h>
 
+#include <TMatrixDSym.h>
 
 class RooRealVar;
 

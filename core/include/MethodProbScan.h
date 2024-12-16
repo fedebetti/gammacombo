@@ -8,39 +8,9 @@
 #ifndef MethodProb_h
 #define MethodProb_h
 
-#include <iostream>
-#include <stdlib.h>
-
-#include <RooGlobalFunc.h>
-#include <RooWorkspace.h>
-#include <RooDataSet.h>
-#include <RooRealVar.h>
-#include <RooConstVar.h>
-#include <RooAddition.h>
-#include <RooMultiVarGaussian.h>
-#include "RooSlimFitResult.h"
-#include <RooRandom.h>
-#include <RooDataHist.h>
-#include <RooGaussian.h>
-#include <RooPoisson.h>
-#include <RooProdPdf.h>
-#include <RooPlot.h>
-#include <RooArgSet.h>
-
-#include <TCanvas.h>
-#include <TTree.h>
 #include <TH1F.h>
-#include <TH2F.h>
-#include <TMarker.h>
-#include <TStopwatch.h>
-#include <TMath.h>
-#include <TStyle.h>
-#include <TGaxis.h>
-#include <TRandom3.h>
-#include <TLegend.h>
 
 #include "MethodAbsScan.h"
-#include "Utils.h"
 
 class MethodProbScan : public MethodAbsScan
 {

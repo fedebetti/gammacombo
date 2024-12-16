@@ -10,10 +10,8 @@
 #ifndef PullPlotter_h
 #define PullPlotter_h
 
-#include "Utils.h"
 #include "MethodAbsScan.h"
 #include "OptParser.h"
-#include <TPaveText.h>
 
 class MethodAbsScan;
 

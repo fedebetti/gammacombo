@@ -10,8 +10,8 @@
 #define ParametersAbs_h
 
 #include "Parameter.h"
-#include "OptParser.h"
-#include "Utils.h"
+
+#include <RooRealVar.h>
 
 class ParametersAbs
 {

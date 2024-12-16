@@ -4,8 +4,38 @@
  * Date: August 2012
  *
  */
-#include <TSystem.h>
+#include <RooSlimFitResult.h>
 #include <MethodProbScan.h>
+#include <Utils.h>
+
+#include <RooAddition.h>
+#include <RooArgSet.h>
+#include <RooConstVar.h>
+#include <RooDataSet.h>
+#include <RooGlobalFunc.h>
+#include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
+#include <RooRandom.h>
+#include <RooDataHist.h>
+#include <RooGaussian.h>
+#include <RooPlot.h>
+#include <RooPoisson.h>
+#include <RooProdPdf.h>
+#include <RooWorkspace.h>
+
+#include <TCanvas.h>
+#include <TGaxis.h>
+#include <TH2F.h>
+#include <TLegend.h>
+#include <TMarker.h>
+#include <TMath.h>
+#include <TRandom3.h>
+#include <TStopwatch.h>
+#include <TStyle.h>
+#include <TSystem.h>
+#include <TTree.h>
+
+#include <iostream>
 
 using namespace std;
 using namespace Utils;

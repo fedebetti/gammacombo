@@ -8,8 +8,11 @@
 #ifndef FileNameBuilder_h
 #define FileNameBuilder_h
 
+#include <vector>
+
+#include <TString.h>
+
 #include "OptParser.h"
-#include "Utils.h"
 
 // forward declarations - include headers only in
 // cpp file to deal with circular dependencies

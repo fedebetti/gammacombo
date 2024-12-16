@@ -8,8 +8,10 @@
 #ifndef FitResultCache_h
 #define FitResultCache_h
 
+#include <RooArgSet.h>
+#include <RooDataSet.h>
+
 #include "OptParser.h"
-#include "Utils.h"
 
 ///
 /// Helper class for the scan methods. Store several parameter points

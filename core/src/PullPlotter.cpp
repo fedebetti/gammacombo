@@ -1,5 +1,9 @@
 #include <PullPlotter.h>
+#include <Utils.h>
+
+#include <TGaxis.h>
 #include <TLatex.h>
+#include <TPaveText.h>
 #include <TFitResult.h>
 
 using namespace std;

@@ -9,11 +9,6 @@
 #define PDF_Circle_h
 
 #include <PDF_Abs.h>
-#include "ParametersTutorial.h"
-
-using namespace RooFit;
-using namespace std;
-using namespace Utils;
 
 ///
 /// Part of the tutorial. Just a PDF that defines a circle

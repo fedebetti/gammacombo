@@ -5,7 +5,14 @@
  *
  **/
 
+#include <ParametersTutorial.h>
 #include <PDF_Gaus.h>
+
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+
+using namespace std;
+using namespace RooFit;
 
 PDF_Gaus::PDF_Gaus(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(1)

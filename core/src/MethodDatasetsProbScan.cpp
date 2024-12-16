@@ -7,10 +7,19 @@
  */
 
 #include <MethodDatasetsProbScan.h>
-#include <TRandom3.h>
+#include <ProgressBar.h>
+
 #include <algorithm>
 #include <ios>
 #include <iomanip>
+
+#include <RooPlot.h>
+
+#include <TLeaf.h>
+#include <TLegend.h>
+#include <TMarker.h>
+#include <TStopwatch.h>
+#include <TStyle.h>
 
 using namespace std;
 using namespace RooFit;

@@ -6,12 +6,10 @@
 
 // Your description goes here... 
 
-#include <Riostream.h> 
-
 #include <RooPoly4Var.h> 
+
+#include <cmath> 
 #include <RooAbsReal.h> 
-#include <RooAbsCategory.h> 
-#include <math.h> 
 #include <TMath.h> 
 
 RooPoly4Var:: RooPoly4Var(const char *name, const char *title,

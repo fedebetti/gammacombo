@@ -1,8 +1,21 @@
+#include <ColorBuilder.h>
 #include <GammaComboEngine.h>
+#include <Graphviz.h>
+#include <LatexMaker.h>
 #include <MethodDatasetsPluginScan.h>
 #include <MethodDatasetsProbScan.h>
+#include <OneMinusClPlot.h>
+#include <OneMinusClPlot2d.h>
+#include <ParameterEvolutionPlotter.h>
 #include <PDF_Datasets.h>
+#include <Utils.h>
+
+#include <TColor.h>
+#include <TDatime.h>
 #include <TLatex.h>
+#include <TLine.h>
+#include <TObjString.h>
+#include <TROOT.h>
 
 using namespace std;
 using namespace RooFit;

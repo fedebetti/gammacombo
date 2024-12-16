@@ -1,19 +1,13 @@
 #ifndef PValueCorrection_h
 #define PValueCorrection_h
 
-#include <iostream>
-#include <algorithm>
 #include <vector>
-#include <TString.h>
-#include <TH1.h>
+
 #include <TF1.h>
-#include <TSystemDirectory.h>
-#include <TSystemFile.h>
-#include <TChain.h>
-#include <TIterator.h>
-#include <TList.h>
-#include <TMath.h>
+#include <TH1.h>
+#include <TH1F.h>
 #include <TFile.h>
+#include <TString.h>
 
 class PValueCorrection {
 

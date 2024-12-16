@@ -5,9 +5,16 @@
  *
  */
 
+#include <ControlPlots.h>
+#include <FitResultCache.h>
 #include <MethodPluginScan.h>
+#include <ProgressBar.h>
+
+#include <RooRandom.h>
+
 #include <TArrow.h>
 #include <TLatex.h>
+#include <TLegend.h>
 
 using namespace std;
 using namespace RooFit;

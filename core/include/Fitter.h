@@ -8,9 +8,12 @@
 #ifndef Fitter_h
 #define Fitter_h
 
-#include "PDF_Abs.h"
+#include <RooArgSet.h>
+#include <RooFitResult.h>
+
+#include <TString.h>
+
 #include "OptParser.h"
-#include "Utils.h"
 
 class Fitter
 {

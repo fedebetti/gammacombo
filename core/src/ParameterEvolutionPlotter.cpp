@@ -1,4 +1,10 @@
 #include <ParameterEvolutionPlotter.h>
+#include <Utils.h>
+
+#include <TColor.h>
+#include <TGaxis.h>
+#include <TGraphErrors.h>
+#include <TLine.h>
 
 using namespace std;
 using namespace Utils;

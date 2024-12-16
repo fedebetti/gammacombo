@@ -1,6 +1,8 @@
 #include <FitResultDump.h>
 #include <Utils.h>
 
+#include <iostream>
+
 using namespace std;
 using Utils::RadToDeg;
 using Utils::isAngle;

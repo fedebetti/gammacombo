@@ -9,7 +9,6 @@
 #define ProgressBar_h
 
 #include "OptParser.h"
-#include "Utils.h"
 
 ///
 /// Class showing a progress bar.

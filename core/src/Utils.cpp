@@ -5,10 +5,22 @@
  *
  **/
 
+#include <boost/algorithm/string.hpp>
 #include <string>
 
-#include <Utils.h>
+#include <TColor.h>
+#include <TMatrixDSymEigen.h>
+#include <TPaveText.h>
+#include <TGraphErrors.h>
+#include <TGraphSmooth.h>
+#include <TVectorD.h>
+// #include <TStyle.h>
+
+#include <RooMinimizer.h>
 #include <RooProdPdf.h>
+#include <RooRandom.h>
+
+#include <Utils.h>
 
 using namespace std;
 using namespace RooFit;

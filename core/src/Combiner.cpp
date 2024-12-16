@@ -1,5 +1,10 @@
 #include <Combiner.h>
 
+#include <RooProdPdf.h>
+#include <RooRandom.h>
+
+#include <TObjString.h>
+
 using namespace std;
 using namespace RooFit;
 using namespace Utils;

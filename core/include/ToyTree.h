@@ -8,20 +8,11 @@
 #ifndef ToyTree_h
 #define ToyTree_h
 
-#include <TEnv.h>
-#include <TFile.h>
-#include <TF1.h>
 #include <TChain.h>
-#include <TCut.h>
-#include <TPaveText.h>
-#include "PDF_Abs.h"
-#include "OptParser.h"
-#include "Utils.h"
-#include <TPaveStats.h>
-#include "PDF_Datasets.h"
-#include "ProgressBar.h"
 
-#include "MethodProbScan.h"
+#include "OptParser.h"
+#include "PDF_Datasets.h"
+
 
 ///
 /// Interface class for the root trees that are written

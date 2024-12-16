@@ -1,5 +1,7 @@
 #include <Graphviz.h>
 
+#include <iostream>
+
 using namespace std;
 
 Graphviz::Graphviz(const OptParser *arg)

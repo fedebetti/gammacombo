@@ -4,16 +4,18 @@
 // END_HTML
 //
 
-#include <RooFit.h>
-
-#include <Riostream.h>
-#include <Riostream.h>
-#include <math.h>
-
-#include <RooMultiPdf.h>
-#include <RooRealVar.h>
-#include <RooAddPdf.h>
+#include <cmath>
 #include <stdexcept>
+
+#include <RooAbsPdf.h>
+#include <RooAbsReal.h>
+#include <RooAddPdf.h>
+#include <RooArgList.h>
+#include <RooCategory.h>
+#include <RooConstVar.h>
+#include <RooMultiPdf.h>
+
+#include <TIterator.h>
 
 ClassImp(RooMultiPdf)
 

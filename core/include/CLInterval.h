@@ -8,9 +8,6 @@
 #ifndef CLInterval_h
 #define CLInterval_h
 
-#include <iostream>
-#include <sstream>
-#include <stdlib.h>
 #include <TString.h>
 
 ///

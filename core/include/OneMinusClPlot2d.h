@@ -8,14 +8,9 @@
 #ifndef OneMinusClPlot2d_h
 #define OneMinusClPlot2d_h
 
-#include <TROOT.h>
-#include <TMultiGraph.h>
-#include <TSystem.h>
-
+#include "ConfidenceContours.h"
 #include "OneMinusClPlotAbs.h"
 #include "Utils.h"
-#include "ColorBuilder.h"
-#include "ConfidenceContours.h"
 
 class OneMinusClPlot2d : public OneMinusClPlotAbs
 {

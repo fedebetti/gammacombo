@@ -8,11 +8,8 @@
 #ifndef CLIntervalPrinter_h
 #define CLIntervalPrinter_h
 
-#include "OptParser.h"
-#include "Rounder.h"
-#include "Utils.h"
 #include "CLInterval.h"
-#include <string>
+#include "OptParser.h"
 
 ///
 /// Class that prints CL intervals and saves them to disk.

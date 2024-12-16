@@ -8,27 +8,20 @@
 #ifndef GammaComboEngine_h
 #define GammaComboEngine_h
 
-#include "ColorBuilder.h"
+#include "BatchScriptWriter.h"
 #include "Combiner.h"
 #include "FileNameBuilder.h"
-#include "Graphviz.h"
 #include "MethodPluginScan.h"
 #include "MethodProbScan.h"
 #include "MethodBergerBoosScan.h"
 #include "MethodCoverageScan.h"
-#include "OneMinusClPlot.h"
-#include "OneMinusClPlot2d.h"
 #include "OneMinusClPlotAbs.h"
 #include "OptParser.h"
 #include "PDF_Abs.h"
 #include "ParameterCache.h"
-#include "ParameterEvolutionPlotter.h"
+
 #include <TApplication.h>
-#include <TColor.h>
-#include <TDatime.h>
-#include "Utils.h"
-#include "BatchScriptWriter.h"
-#include "LatexMaker.h"
+#include <TStopwatch.h>
 
 ///
 /// The main GammaCombo scanning engine, controlling

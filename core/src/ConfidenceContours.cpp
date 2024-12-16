@@ -1,5 +1,7 @@
 #include <ConfidenceContours.h>
 
+#include <TROOT.h>
+
 using namespace std;
 using namespace Utils;
 

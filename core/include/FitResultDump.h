@@ -1,8 +1,9 @@
 #ifndef FitResultDump_h
 #define FitResultDump_h
 
-#include <iostream>
 #include <fstream>
+#include <string>
+
 #include "MethodAbsScan.h"
 
 class FitResultDump {

@@ -14,11 +14,9 @@
 
 #include <fstream>
 
-#include <RooFitResult.h>
 #include <RooArgList.h>
+#include <RooFitResult.h>
 #include <RooRealVar.h>
-#include <TMath.h>
-#include <TDatime.h>
 
 ///
 /// Class that essentially mimics the functionality of a RooFitResult,

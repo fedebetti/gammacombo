@@ -1,33 +1,20 @@
 #ifndef ROO_MULTIPDF
 #define ROO_MULTIPDF
 
-#include <RooAbsArg.h>
 #include <RooAbsPdf.h>
-#include <RooAbsReal.h>
-#include <RooRealProxy.h>
-#include <RooRealVar.h>
 #include <RooArgList.h>
-#include <RooAbsCategory.h>
 #include <RooCategory.h>
 #include <RooCategoryProxy.h>
-#include <RooArgProxy.h>
-#include <RooAbsProxy.h>
-#include <RooFormulaVar.h>
-#include <RooLinkedList.h>
-#include <RooConstVar.h>
-
-
-#include <TIterator.h>
 #include <RooListProxy.h>
+// #include <RooAbsArg.h>
+// #include <RooAbsReal.h>
+// #include <RooLinkedList.h>
 
-#include <iostream>
-#include <vector>
 
-class RooAbsArg;
-class RooAbsPdf;
-class RooAbsReal;
-/*class RooRealProxy;*/
-class RooArgList;
+// class RooAbsArg;
+// class RooAbsPdf;
+// class RooAbsReal;
+// class RooArgList;
 
 class RooMultiPdf : public RooAbsPdf {
 public:
@@ -69,8 +56,6 @@ protected:
   RooListProxy c;
   RooListProxy corr;
   RooCategoryProxy x;
-  // RooFormulaVar *cval;
-  // RooRealProxy nllcorr;
   // RooAbsCatgeory *fIndex_r;
 
   int fIndex; // sigh, there should be a better way than this

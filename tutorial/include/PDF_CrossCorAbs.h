@@ -10,12 +10,9 @@
 
 #include <RooGenericPdf.h>
 #include <RooCrossCorPdf.h>
-#include <PDF_Abs.h>
-#include "ParametersTutorial.h"
 
-using namespace RooFit;
-using namespace std;
-using namespace Utils;
+#include <PDF_Abs.h>
+#include <Utils.h>
 
 class PDF_CrossCorAbs : public PDF_Abs
 {
@@ -26,7 +23,7 @@ public:
   void  initObservables() override;
   void  initParameters() override;
   void  initRelations() override;
-  void  setCorrelations(config c);
+  void  setCorrelations(Utils::config c);
 
 protected:
     void copyMeasurementCovariance();

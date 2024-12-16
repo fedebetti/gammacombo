@@ -1,4 +1,9 @@
+#include <Combiner.h>
+#include <ProgressBar.h>
 #include <ToyTree.h>
+#include <Utils.h>
+
+#include <TFile.h>
 
 using namespace std;
 using namespace RooFit;

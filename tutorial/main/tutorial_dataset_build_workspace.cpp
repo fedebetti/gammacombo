@@ -1,20 +1,17 @@
-#include <RooGaussian.h>
-#include <RooLognormal.h>
-#include <RooRealVar.h>
-#include <RooDataSet.h>
-#include <RooFormulaVar.h>
-#include <RooPlot.h>
 #include <RooAddPdf.h>
-#include <RooFormula.h>
+#include <RooArgList.h>
+#include <RooDataSet.h>
 #include <RooExponential.h>
 #include <RooExtendPdf.h>
 #include <RooFitResult.h>
-#include <RooArgList.h>
+#include <RooFormulaVar.h>
+#include <RooGaussian.h>
+#include <RooPlot.h>
+#include <RooRealVar.h>
 #include <RooWorkspace.h>
+
 #include <TFile.h>
 #include <TCanvas.h>
-
-
 
 int main()
 {

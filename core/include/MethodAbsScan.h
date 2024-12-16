@@ -8,31 +8,17 @@
 #ifndef MethodAbsScan_h
 #define MethodAbsScan_h
 
-#include <stdlib.h>
-
 #include <RooDataSet.h>
+
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TRandom3.h>
-#include <TFile.h>
-#include <TPaveText.h>
-#include <TF1.h>
-#include <TDatime.h>
-#include <TSpline.h>
 
-#include "Utils.h"
 #include "OneMinusClPlotAbs.h"
 #include "OptParser.h"
 #include "Combiner.h"
-#include "Fitter.h"
-#include "Rounder.h"
-#include "PullPlotter.h"
 #include "RooSlimFitResult.h"
-#include "FitResultCache.h"
 #include "CLInterval.h"
-#include "CLIntervalPrinter.h"
-#include "CLIntervalMaker.h"
-#include "FileNameBuilder.h"
 #include "PValueCorrection.h"
 
 class OneMinusClPlotAbs;

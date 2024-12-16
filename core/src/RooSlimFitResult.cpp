@@ -1,5 +1,7 @@
 #include <RooSlimFitResult.h>
 
+#include <TMath.h>
+
 using namespace std;
 
 RooSlimFitResult::RooSlimFitResult(RooFitResult* r, bool storeCorrelation)

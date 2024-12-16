@@ -7,7 +7,12 @@
  **/
 
 #include <PDF_Datasets.h>
+
+#include <RooProdPdf.h>
+#include <RooRandom.h>
+
 #include <TIterator.h>
+#include <TObjString.h>
 
 using namespace std;
 using namespace RooFit;

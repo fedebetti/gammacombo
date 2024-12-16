@@ -9,10 +9,6 @@
 #define TGraphTools_h
 
 #include <TGraph.h>
-#include <TGraphErrors.h>
-#include <TGraphAsymmErrors.h>
-#include <TGraphSmooth.h>
-#include "Utils.h"
 
 class TGraphTools
 {

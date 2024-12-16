@@ -5,7 +5,18 @@
  *
  **/
 
+#include <sstream>
+#include <iostream>
+
 #include <PDF_Abs.h>
+#include <Utils.h>
+
+#include <RooArgSet.h>
+#include <RooFormulaVar.h>
+#include <RooMinimizer.h>
+#include <RooRandom.h>
+#include <RooRealVar.h>
+#include <RooWorkspace.h>
 
 using namespace std;
 using namespace RooFit;

@@ -5,7 +5,6 @@
  *
  **/
 
-#include <stdlib.h>
 #include <GammaComboEngine.h>
 
 #include <PDF_Gaus.h>
@@ -13,10 +12,6 @@
 #include <PDF_Gaus2d.h>
 #include <PDF_Circle.h>
 #include <PDF_CrossCor_GausA_vs_GausB.h>
-
-using namespace std;
-using namespace RooFit;
-using namespace Utils;
 
 int main(int argc, char* argv[])
 {

@@ -7,6 +7,8 @@
 
 #include <UtilsConfig.h>
 
+#include <iostream>
+
 using namespace std;
 
 TString Utils::ConfigToTString(config s)

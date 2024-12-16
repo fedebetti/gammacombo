@@ -5,7 +5,20 @@
  *
  */
 
+#include <CLIntervalMaker.h>
+#include <CLIntervalPrinter.h>
+#include <FileNameBuilder.h>
+#include <FitResultCache.h>
 #include <MethodAbsScan.h>
+#include <PullPlotter.h>
+#include <Utils.h>
+
+#include <TDatime.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TGraphErrors.h>
+#include <TSpline.h>
+#include <TStyle.h>
 
 using namespace std;
 using namespace RooFit;

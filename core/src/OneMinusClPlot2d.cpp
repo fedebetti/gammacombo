@@ -6,6 +6,16 @@
  **/
 
 #include <OneMinusClPlot2d.h>
+#include <ColorBuilder.h>
+#include <Utils.h>
+
+#include <TColor.h>
+#include <TGaxis.h>
+#include <TLegend.h>
+#include <TLine.h>
+#include <TMarker.h>
+#include <TPaveText.h>
+#include <TROOT.h>
 
 using namespace std;
 using namespace Utils;

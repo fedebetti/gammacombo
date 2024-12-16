@@ -8,50 +8,11 @@
 #ifndef MethodCoverageScan_h
 #define MethodCoverageScan_h
 
-#include <iostream>
-#include <stdlib.h>
-
-#include <RooAddition.h>
-#include <RooArgSet.h>
-#include <RooConstVar.h>
-#include <RooCustomizer.h>
-#include <RooDataHist.h>
-#include <RooDataSet.h>
-#include <RooGaussian.h>
-#include <RooGlobalFunc.h>
-#include <RooMultiVarGaussian.h>
-#include <RooPlot.h>
-#include <RooPoisson.h>
-#include <RooProdPdf.h>
-#include <RooRandom.h>
-#include <RooRealVar.h>
-#include "RooSlimFitResult.h"
-#include <RooWorkspace.h>
-
-#include <TCanvas.h>
-#include <TChain.h>
-#include <TCut.h>
-#include <TFile.h>
-#include <TGaxis.h>
 #include <TH1F.h>
-#include <TH2F.h>
-#include <TLegend.h>
-#include <TMarker.h>
-#include <TMath.h>
-#include <TRandom3.h>
-#include <TStopwatch.h>
-#include <TStyle.h>
-#include <TTree.h>
+#include <TString.h>
 #include <TTree.h>
 
-#include "ControlPlots.h"
-#include "FitResultCache.h"
 #include "MethodAbsScan.h"
-#include "MethodProbScan.h"
-#include "MethodPluginScan.h"
-#include "ProgressBar.h"
-#include "ToyTree.h"
-#include "Utils.h"
 #include "ParameterCache.h"
 
 class MethodCoverageScan : public MethodAbsScan

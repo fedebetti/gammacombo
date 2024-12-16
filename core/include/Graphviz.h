@@ -14,9 +14,7 @@
 
 #include "Combiner.h"
 #include "OptParser.h"
-#include "Utils.h"
 
-#include <iostream>
 #include <fstream>
 
 class Graphviz

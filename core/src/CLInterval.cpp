@@ -1,5 +1,7 @@
 #include <CLInterval.h>
 
+#include <iostream>
+
 using namespace std;
 
 void CLInterval::print() const

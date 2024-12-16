@@ -5,7 +5,15 @@
  *
  **/
 
+#include <ParametersCartesian.h>
 #include <PDF_Cartesian.h>
+
+#include <RooArgList.h>
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+
+using namespace std;
+using namespace RooFit;
 
 PDF_Cartesian::PDF_Cartesian(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(4) // <-- configure the number of observables
