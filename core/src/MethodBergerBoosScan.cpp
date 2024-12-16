@@ -4,7 +4,14 @@
  * Date: January 2013
  */
 
-#include "MethodBergerBoosScan.h"
+#include <ControlPlots.h>
+#include <FitResultCache.h>
+#include <Fitter.h>
+#include <MethodBergerBoosScan.h>
+
+#include <RooRandom.h>
+
+#include <TLeaf.h>
 
 using namespace std;
 using namespace RooFit;

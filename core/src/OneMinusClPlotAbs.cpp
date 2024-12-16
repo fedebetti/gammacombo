@@ -5,7 +5,11 @@
  *
  **/
 
-#include "OneMinusClPlotAbs.h"
+#include <OneMinusClPlotAbs.h>
+#include <Utils.h>
+
+#include <TPaveText.h>
+#include <TStyle.h>
 
 using namespace std;
 using namespace Utils;

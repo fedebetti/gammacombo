@@ -1,4 +1,8 @@
-#include "TGraphTools.h"
+#include <TGraphTools.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <Utils.h>
+
 
 using namespace std;
 using namespace Utils;

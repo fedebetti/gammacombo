@@ -8,11 +8,8 @@
 #ifndef CLIntervalMaker_h
 #define CLIntervalMaker_h
 
-#include "TF1.h"
-#include "OptParser.h"
-#include "Utils.h"
 #include "CLInterval.h"
-#include "CLIntervalPrinter.h"
+#include "OptParser.h"
 
 ///
 /// Class that makes CL intervals from 1-CL histograms.

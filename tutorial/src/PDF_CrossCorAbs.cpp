@@ -5,7 +5,12 @@
  *
  **/
 
-#include "PDF_CrossCorAbs.h"
+#include <ParametersTutorial.h>
+#include <PDF_CrossCorAbs.h>
+
+#include <Utils.h>
+
+using namespace Utils;
 
 PDF_CrossCorAbs::PDF_CrossCorAbs(PDF_Abs* pdf1, PDF_Abs* pdf2)
     : PDF_Abs(pdf1->getNobs()+pdf2->getNobs())

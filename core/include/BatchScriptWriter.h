@@ -8,9 +8,8 @@
 #ifndef BatchScriptWriter_h
 #define BatchScriptWriter_h
 
-#include "OptParser.h"
-#include "Utils.h"
 #include "Combiner.h"
+#include "OptParser.h"
 #include "PDF_Abs.h"
 
 class BatchScriptWriter

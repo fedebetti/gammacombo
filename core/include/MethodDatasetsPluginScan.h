@@ -9,13 +9,17 @@
 #ifndef MethodDatasetsPluginScan_h
 #define MethodDatasetsPluginScan_h
 
-#include "MethodPluginScan.h"
+#include <map>
+#include <vector>
+
+#include <TChain.h>
+#include <TString.h>
+
 #include "MethodDatasetsProbScan.h"
-#include "ProgressBar.h"
+#include "MethodPluginScan.h"
 #include "PDF_Datasets.h"
 #include "RooSlimFitResult.h"
-#include "TLeaf.h"
-#include "TBranch.h"
+#include "ToyTree.h"
 
 class MethodDatasetsPluginScan : public MethodPluginScan
 {

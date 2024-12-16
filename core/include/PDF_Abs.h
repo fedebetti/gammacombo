@@ -8,44 +8,19 @@
 #ifndef PDF_Abs_h
 #define PDF_Abs_h
 
-#include <sstream>
-#include <iostream>
-#include <stdlib.h>
 #include <vector>
 
-#include "RooFormulaVar.h"
-#include "RooGlobalFunc.h"
-#include "RooWorkspace.h"
-#include "RooDataSet.h"
-#include "RooRealVar.h"
-#include "RooConstVar.h"
-#include "RooAddition.h"
-#include "RooMultiVarGaussian.h"
-#include "RooFitResult.h"
-#include "RooRandom.h"
-#include "RooDataHist.h"
-#include "RooGaussian.h"
-#include "RooLognormal.h"
-#include "RooPoisson.h"
-#include "RooProdPdf.h"
-#include "RooPlot.h"
-#include "RooArgSet.h"
-#include "RooCategory.h"
-#include "RooMultiPdf.h"
+#include <RooAbsData.h>
+#include <RooAbsPdf.h>
+#include <RooArgList.h>
+#include <RooCategory.h>
+#include <RooFitResult.h>
+#include <RooMultiPdf.h>
 
-#include "TCanvas.h"
-#include "TTree.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TMarker.h"
-#include "TStopwatch.h"
-#include "TMath.h"
-#include "TStyle.h"
-#include "TGaxis.h"
-#include "TRandom3.h"
-#include "TLegend.h"
+#include <TMatrixDSym.h>
+#include <TObject.h>
+#include <TString.h>
 
-#include "Utils.h"
 #include "ParametersAbs.h"
 
 class PDF_Abs

@@ -1,7 +1,8 @@
 #include <random>
 
-#include "PDF_DatasetTutorial.h"
-#include "RooExponential.h"
+#include <TRandom3.h>
+
+#include <PDF_DatasetTutorial.h>
 
 using namespace RooFit;
 

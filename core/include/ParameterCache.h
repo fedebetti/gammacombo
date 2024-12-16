@@ -1,21 +1,15 @@
 #ifndef ParameterCache_h
 #define ParameterCache_h
 
-#include <iostream>
+#include <fstream>
 #include <vector>
-#include <algorithm>
 
 #include "Combiner.h"
 #include "MethodAbsScan.h"
-#include "RooAbsArg.h"
 #include "RooSlimFitResult.h"
-#include "TDatime.h"
-#include "TIterator.h"
-#include "TString.h"
 #include "Utils.h"
-#include "boost/algorithm/string/predicate.hpp"
-#include "boost/algorithm/string/split.hpp"
-#include "boost/lexical_cast.hpp"
+
+#include <TString.h>
 
 class ParameterCache {
 

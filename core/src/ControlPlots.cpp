@@ -1,4 +1,14 @@
 #include "ControlPlots.h"
+#include "Utils.h"
+
+#include <TEnv.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TLegend.h>
+#include <TLine.h>
+#include <TPaveStats.h>
+#include <TPaveText.h>
+#include <TStyle.h>
 
 using namespace std;
 using namespace Utils;

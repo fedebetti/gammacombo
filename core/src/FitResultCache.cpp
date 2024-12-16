@@ -1,5 +1,7 @@
 #include "FitResultCache.h"
 
+#include <iostream>
+
 using namespace std;
 
 FitResultCache::FitResultCache(const OptParser *arg, int roundrobinsize)

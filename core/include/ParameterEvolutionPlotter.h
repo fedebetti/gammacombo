@@ -11,11 +11,13 @@
 #ifndef ParameterEvolutionPlotter_h
 #define ParameterEvolutionPlotter_h
 
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TGraphErrors.h"
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TString.h>
+#include <TVirtualPad.h>
+
 #include "MethodProbScan.h"
-#include "Utils.h"
 
 class ParameterEvolutionPlotter
 {

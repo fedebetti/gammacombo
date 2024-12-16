@@ -5,7 +5,14 @@
  *
  **/
 
-#include "PDF_rb.h"
+#include <ParametersCartesian.h>
+#include <PDF_rb.h>
+
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+
+using namespace std;
+using namespace RooFit;
 
 PDF_rb::PDF_rb(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(1)

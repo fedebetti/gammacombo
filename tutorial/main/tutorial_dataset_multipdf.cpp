@@ -1,8 +1,8 @@
-#include "GammaComboEngine.h"
-#include "TFile.h"
-#include "RooGaussian.h"
-#include "RooExponential.h"
-#include "RooWorkspace.h"
+#include <GammaComboEngine.h>
+
+#include <TFile.h>
+
+#include <RooWorkspace.h>
 
 int main(int argc, char* argv[])
 {

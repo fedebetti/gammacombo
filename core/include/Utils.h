@@ -8,38 +8,29 @@
 #ifndef Utils_h
 #define Utils_h
 
-#include "boost/algorithm/string.hpp"
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 #include <sys/stat.h>
 
-// ROOT
-#include "TMath.h"
-#include "TObjString.h"
-#include "TString.h"
-#include "TH2F.h"
-#include "TStyle.h"
-#include "TCanvas.h"
-#include "TPad.h"
-#include "TPaveText.h"
-#include "TMatrixDSym.h"
-#include "TTree.h"
-#include "TH1.h"
-#include "TGraphErrors.h"
-#include "TGraphSmooth.h"
-#include "TMatrixDSymEigen.h"
-#include "TVectorD.h"
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TH1.h>
+#include <TH2F.h>
+#include <TMath.h>
+#include <TMatrixDSym.h>
+#include <TString.h>
+#include <TTree.h>
 
-// RooFit
-#include "RooAbsPdf.h"
-#include "RooWorkspace.h"
-#include "RooFormulaVar.h"
-#include "RooRealVar.h"
-#include "RooFitResult.h"
-#include "RooSlimFitResult.h"
-#include "RooDataSet.h"
-#include "RooRandom.h"
-#include "RooMinimizer.h"
+#include <RooAbsPdf.h>
+#include <RooWorkspace.h>
+#include <RooFormulaVar.h>
+#include <RooRealVar.h>
+#include <RooFitResult.h>
+#include <RooSlimFitResult.h>
+#include <RooDataSet.h>
 
-// Local
 #include "rdtsc.h"
 #include "UtilsConfig.h"
 

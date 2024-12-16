@@ -5,7 +5,19 @@
  *
  **/
 
-#include "OneMinusClPlot.h"
+#include <OneMinusClPlot.h>
+#include <Rounder.h>
+#include <Utils.h>
+
+#include <TColor.h>
+#include <TGaxis.h>
+#include <TGraphAsymmErrors.h>
+#include <TGraphErrors.h>
+#include <TGraphSmooth.h>
+#include <TGraphTools.h>
+#include <TLegend.h>
+#include <TLine.h>
+#include <TPaveText.h>
 
 using namespace std;
 using namespace Utils;

@@ -7,13 +7,8 @@
 
 #ifndef UtilsConfig_h
 #define UtilsConfig_h
-#include <iostream>
-#include <sstream>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <cassert>
 
-#include "TString.h"
+#include <TString.h>
 
 namespace Utils
 {

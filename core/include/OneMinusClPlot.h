@@ -9,9 +9,8 @@
 #define OneMinusClPlot_h
 
 #include "OneMinusClPlotAbs.h"
-#include "TGraphTools.h"
-#include "Utils.h"
-#include "Rounder.h"
+
+#include <TGraph.h>
 
 class OneMinusClPlot : public OneMinusClPlotAbs
 {

@@ -9,49 +9,18 @@
 #define MethodPluginScan_h
 
 #include <iostream>
-#include <stdlib.h>
 
-#include "RooAddition.h"
-#include "RooArgSet.h"
-#include "RooConstVar.h"
-#include "RooCustomizer.h"
-#include "RooDataHist.h"
 #include "RooDataSet.h"
-#include "RooGaussian.h"
-#include "RooGlobalFunc.h"
-#include "RooMultiVarGaussian.h"
-#include "RooPlot.h"
-#include "RooPoisson.h"
-#include "RooProdPdf.h"
-#include "RooRandom.h"
-#include "RooRealVar.h"
-#include "RooSlimFitResult.h"
-#include "RooWorkspace.h"
 
-#include "TCanvas.h"
-#include "TChain.h"
-#include "TCut.h"
-#include "TFile.h"
-#include "TGaxis.h"
 #include "TH1F.h"
-#include "TH2F.h"
-#include "TLegend.h"
-#include "TMarker.h"
-#include "TMath.h"
-#include "TRandom3.h"
-#include "TStopwatch.h"
-#include "TStyle.h"
-#include "TTree.h"
-#include "TTree.h"
+#include "TString.h"
 
-#include "ControlPlots.h"
-#include "FitResultCache.h"
+#include "Fitter.h"
 #include "MethodAbsScan.h"
 #include "MethodProbScan.h"
+#include "PDF_Datasets.h"
 #include "ProgressBar.h"
 #include "ToyTree.h"
-#include "Utils.h"
-#include "PDF_Datasets.h"
 
 class MethodPluginScan : public MethodAbsScan
 {

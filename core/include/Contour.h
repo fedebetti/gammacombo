@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "OptParser.h"
-#include "Utils.h"
 
 class Contour
 {

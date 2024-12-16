@@ -17,6 +17,7 @@
 #ifndef PDF_Datasets_h
 #define PDF_Datasets_h
 
+#include "OptParser.h"
 #include "PDF_Abs.h"
 
 class PDF_Datasets : public PDF_Abs

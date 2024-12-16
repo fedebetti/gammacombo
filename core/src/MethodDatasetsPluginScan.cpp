@@ -13,15 +13,37 @@
  * parameter of interest is fixed to a certain value (scanpoint)
  */
 
-#include "MethodDatasetsPluginScan.h"
-#include "TRandom3.h"
-#include "TArrow.h"
-#include "TLatex.h"
+// #include <ControlPlots.h>
+#include <MethodDatasetsPluginScan.h>
+#include <ProgressBar.h>
+#include <RooSlimFitResult.h>
+#include <Utils.h>
+
 #include <algorithm>
 #include <ios>
 #include <iomanip>
-#include "TFitResultPtr.h"
-#include "TFitResult.h"
+
+#include <RooArgSet.h>
+#include <RooDataHist.h>
+#include <RooRandom.h>
+#include <RooRealVar.h>
+
+#include <TArrow.h>
+#include <TBranch.h>
+#include <TCanvas.h>
+#include <TChain.h>
+#include <TFile.h>
+#include <TFitResult.h>
+#include <TFitResultPtr.h>
+#include <TLatex.h>
+#include <TLeaf.h>
+#include <TLegend.h>
+#include <TMath.h>
+#include <TRandom3.h>
+#include <TStyle.h>
+#include <TTree.h>
+
+
 // #include <boost/accumulators/accumulators.hpp>
 // #include <boost/accumulators/statistics/stats.hpp>
 // #include <boost/accumulators/statistics/mean.hpp>

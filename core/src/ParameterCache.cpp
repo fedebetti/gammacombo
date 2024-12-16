@@ -1,5 +1,20 @@
 #include "ParameterCache.h"
 
+#include <algorithm>
+
+#include <boost/algorithm/string.hpp>
+// #include <boost/algorithm/string/predicate.hpp>
+// #include <boost/algorithm/string/split.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <RooArgList.h>
+#include <RooRealVar.h>
+
+#include <TDatime.h>
+#include <TIterator.h>
+
+
+
 using namespace std;
 using namespace Utils;
 

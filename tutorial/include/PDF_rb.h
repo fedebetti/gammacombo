@@ -8,11 +8,7 @@
 #ifndef PDF_rb_h
 #define PDF_rb_h
 
-#include "PDF_Abs.h"
-#include "ParametersCartesian.h"
-
-using namespace RooFit;
-using namespace std;
+#include <PDF_Abs.h>
 
 class PDF_rb : public PDF_Abs
 {

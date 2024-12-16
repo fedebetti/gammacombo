@@ -1,4 +1,5 @@
 #include "Contour.h"
+#include "Utils.h"
 
 using namespace std;
 

@@ -1,4 +1,7 @@
-#include "ParametersAbs.h"
+#include <ParametersAbs.h>
+
+#include <RooMsgService.h>
+#include <RooRealVar.h>
 
 using namespace std;
 using namespace RooFit;

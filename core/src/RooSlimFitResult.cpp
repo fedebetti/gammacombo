@@ -1,4 +1,6 @@
-#include "RooSlimFitResult.h"
+#include <RooSlimFitResult.h>
+
+#include <TMath.h>
 
 using namespace std;
 

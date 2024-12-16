@@ -7,11 +7,8 @@
 #ifndef ROOPOLY3VAR
 #define ROOPOLY3VAR
 
-#include "RooAbsReal.h"
-#include "RooRealProxy.h"
-#include "RooCategoryProxy.h"
-#include "RooAbsReal.h"
-#include "RooAbsCategory.h"
+#include <RooAbsReal.h>
+#include <RooRealProxy.h>
  
 class RooPoly3Var : public RooAbsReal {
 public:
