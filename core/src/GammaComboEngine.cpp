@@ -4,6 +4,8 @@
 #include "PDF_Datasets.h"
 #include "TLatex.h"
 
+#include <memory>
+
 using namespace std;
 using namespace RooFit;
 using namespace Utils;
@@ -17,24 +19,21 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[])
     printBanner();
 
     // parse the command line options
-    arg = new OptParser();
+    arg = make_unique<OptParser>();
     arg->bookAllOptions();
     arg->parseArguments(argc, argv);
 
     // configure names
     execname = argv[0];
     if (arg->filenameaddition!="") name += "_"+arg->filenameaddition;
-    m_fnamebuilder = new FileNameBuilder(arg, name);
+    m_fnamebuilder = make_unique<FileNameBuilder>(arg.get(), name);
 
     // make batch scripts if appropriate and exit
-    m_batchscriptwriter = new BatchScriptWriter(argc, argv);
+    m_batchscriptwriter = make_unique<BatchScriptWriter>(argc, argv);
 
     // run ROOT in interactive mode, if requested (-i)
     if ( arg->interactive ) theApp = new TApplication("App", &argc, argv);
     else gROOT->SetBatch(false);
-
-    // initialize members
-    plot = 0;
 
     // reconfigure RooFormulaVar output
     RooMsgService::instance().getStream(1).removeTopic(InputArguments);
@@ -49,8 +48,6 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[], bool _r
 
 GammaComboEngine::~GammaComboEngine()
 {
-    delete m_fnamebuilder;
-    delete m_batchscriptwriter;
 }
 
 
@@ -389,7 +386,7 @@ void GammaComboEngine::newCombiner(int id, TString name, TString title,
         cout << "GammaComboEngine::newCombiner() : ERROR : Requested new Combiner id exists already in GammaComboEngine. Exit." << endl;
         exit(1);
     }
-    Combiner *c = new Combiner(arg, name, title);
+    Combiner *c = new Combiner(arg.get(), name, title);
     if ( pdf1 >-1 ) c->addPdf(getPdf(pdf1 ));
     if ( pdf2 >-1 ) c->addPdf(getPdf(pdf2 ));
     if ( pdf3 >-1 ) c->addPdf(getPdf(pdf3 ));
@@ -633,7 +630,7 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId)
 {
     if ( arg->asimov[cId]==0 ) return;
     cout << "\nAsimov point configuration:\n" << endl;
-    ParameterCache *pCache = new ParameterCache(arg);
+    ParameterCache *pCache = new ParameterCache(arg.get());
     TString asimovfile;
     TString asimovfile2 = m_fnamebuilder->getFileNameAsimovPar(c);
     TString asimovfile3 = m_fnamebuilder->getFileNameStartPar(c); // this gets the start parameter file of the Asimov combiner
@@ -824,7 +821,7 @@ void GammaComboEngine::checkColorArg() const
         }
         // colors for two-dimensional plots
         else if ( arg->var.size()==2 ){
-            OneMinusClPlot2d p(arg);
+            OneMinusClPlot2d p(arg.get());
             int nMaxColors = p.getNumberOfDefinedColors();
             if ( nMaxColors<=arg->color[i] ){
                 cout << "Argument error --color: No such color for two-dimensional plots. Please choose a color between 0 and " << nMaxColors-1 << endl;
@@ -903,7 +900,7 @@ void GammaComboEngine::makeAddDelCombinations()
 ///
 void GammaComboEngine::printCombinerStructure(Combiner *c) const
 {
-    Graphviz gviz(arg);
+    Graphviz gviz(arg.get());
     gviz.printCombiner(c);
     gviz.printCombinerLayer(c);
 }
@@ -932,10 +929,10 @@ void GammaComboEngine::customizeCombinerTitles()
 void GammaComboEngine::setUpPlot()
 {
     if ( arg->var.size()==1 ){
-        plot = new OneMinusClPlot(arg, m_fnamebuilder->getFileNamePlot(cmb), "p-value curves");
+        plot = new OneMinusClPlot(arg.get(), m_fnamebuilder->getFileNamePlot(cmb), "p-value curves");
     }
     else{
-        plot = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlot(cmb), "p-value contours");
+        plot = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlot(cmb), "p-value contours");
     }
     plot->disableLegend(arg->plotlegend);
 }
@@ -1101,7 +1098,7 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan *scanner, ParameterCache *p
         cout << "\n1D scan for X variable, " + scanner->getScanVar1Name() + ":\n" << endl;
         if ( runOnDataSet ) {
             const MethodDatasetsProbScan* temp = dynamic_cast<MethodDatasetsProbScan*>(scanner);
-            s1 = new MethodDatasetsProbScan( temp->pdf, arg );
+            s1 = new MethodDatasetsProbScan( temp->pdf, arg.get() );
         }
         else {
             s1 = new MethodProbScan(c);
@@ -1114,7 +1111,7 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan *scanner, ParameterCache *p
         cout << "\n1D scan for Y variable, " + scanner->getScanVar2Name() + ":\n" << endl;
         if ( runOnDataSet ) {
             const MethodDatasetsProbScan* temp = dynamic_cast<MethodDatasetsProbScan*>(scanner);
-            s2 = new MethodDatasetsProbScan( temp->pdf, arg );
+            s2 = new MethodDatasetsProbScan( temp->pdf, arg.get() );
         }
         else {
             s2 = new MethodProbScan(c);
@@ -1160,7 +1157,7 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan *scanner, ParameterCache *p
 void GammaComboEngine::make1dProbScan(MethodProbScan *scanner, int cId)
 {
     // load start parameters
-    ParameterCache *pCache = new ParameterCache(arg);
+    ParameterCache *pCache = new ParameterCache(arg.get());
     loadStartParameters(scanner, pCache, cId);
 
     scanner->initScan();
@@ -1233,7 +1230,7 @@ void GammaComboEngine::make2dPluginScan(MethodPluginScan *scannerPlugin, int cId
         scannerPlugin->saveScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
         // plot chi2
         cout << "making full chi2 plot ..." << endl;
-        OneMinusClPlot2d* plotf = new OneMinusClPlot2d(arg, plot->getName()+"_plugin_full", "p-value histogram: "+scannerPlugin->getTitle());
+        OneMinusClPlot2d* plotf = new OneMinusClPlot2d(arg.get(), plot->getName()+"_plugin_full", "p-value histogram: "+scannerPlugin->getTitle());
         scannerPlugin->plotOn(plotf);
         plotf->DrawFull();
         plotf->save();
@@ -1270,7 +1267,7 @@ void GammaComboEngine::make1dBergerBoosScan(MethodBergerBoosScan *scannerBergerB
 void GammaComboEngine::make1dCoverageScan(MethodCoverageScan *scanner, int cId)
 {
     // load coverage point parameters (this can be done automatically)
-    ParameterCache *pCache = new ParameterCache(arg);
+    ParameterCache *pCache = new ParameterCache(arg.get());
     if ( arg->loadParamsFile.size() != arg->combid.size() ) {
         cout << "\nERROR : For a Coverage scan you must pass a parameter file (--parfile) to throw the toys from. You need one parfile per combiner" << endl;
         exit(1);
@@ -1486,7 +1483,7 @@ void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan *scanner, [[maybe_u
 void GammaComboEngine::make2dProbScan(MethodProbScan *scanner, int cId)
 {
     // load start parameters
-    ParameterCache *pCache = new ParameterCache(arg);
+    ParameterCache *pCache = new ParameterCache(arg.get());
     loadStartParameters(scanner, pCache, cId);
     // scan
     scanner->initScan();
@@ -1505,8 +1502,8 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan *scanner, int cId)
 {
     // plot full
     OneMinusClPlot2d* plotf = nullptr;
-    if (scanner->getMethodName()=="Prob") plotf = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlotSingle(cmb, cId)+"_full", "p-value histogram: "+scanner->getTitle());
-    else if (scanner->getMethodName()=="DatasetsProb") plotf = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlot(cmb)+"_full", "p-value histogram: "+scanner->getTitle());  //Titus: change to make datasets plot possible
+    if (scanner->getMethodName()=="Prob") plotf = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlotSingle(cmb, cId)+"_full", "p-value histogram: "+scanner->getTitle());
+    else if (scanner->getMethodName()=="DatasetsProb") plotf = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlot(cmb)+"_full", "p-value histogram: "+scanner->getTitle());  //Titus: change to make datasets plot possible
     else cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
     scanner->plotOn(plotf,0);
     plotf->DrawFull();
@@ -1514,8 +1511,8 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan *scanner, int cId)
     // plot full CLs
     if ( arg->cls.size()>0 ) {
         OneMinusClPlot2d* plotfcls = nullptr;
-        if (scanner->getMethodName()=="Prob") plotfcls = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlotSingle(cmb, cId)+"_cls_full", "p-value histogram: "+scanner->getTitle());
-        else if (scanner->getMethodName()=="DatasetsProb") plotfcls = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlot(cmb)+"_cls_full", "p-value histogram: "+scanner->getTitle());   //Titus: change to make datasets plot possible
+        if (scanner->getMethodName()=="Prob") plotfcls = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlotSingle(cmb, cId)+"_cls_full", "p-value histogram: "+scanner->getTitle());
+        else if (scanner->getMethodName()=="DatasetsProb") plotfcls = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlot(cmb)+"_cls_full", "p-value histogram: "+scanner->getTitle());   //Titus: change to make datasets plot possible
         else cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
         scanner->plotOn(plotfcls,1);
         plotfcls->DrawFull();
@@ -1744,10 +1741,10 @@ void GammaComboEngine::setObservablesFromFile(Combiner *c, int cId)
 void GammaComboEngine::writebatchscripts()
 {
     if (runOnDataSet){
-        m_batchscriptwriter->writeScripts_datasets(arg, getPdf(0));
+        m_batchscriptwriter->writeScripts_datasets(arg.get(), getPdf(0));
     }
     else{
-        m_batchscriptwriter->writeScripts(arg, &cmb);
+        m_batchscriptwriter->writeScripts(arg.get(), &cmb);
     }
     exit(0);
 }
@@ -2097,7 +2094,7 @@ void GammaComboEngine::scan()
                 //if ( arg->isAction("pluginhybridbatch") ){
                 //// Hybrid Plugin: compute a second profile likelihood to define the parameter evolution
                 //cout << "HYBRID PLUGIN: preparing profile likelihood to be used for parameter evolution:" << endl;
-                //ParameterCache *pCache = new ParameterCache(arg, m_fnamebuilder->getFileBaseName(cmb[arg->pevid[0]]));
+                //ParameterCache *pCache = new ParameterCache(arg.get(), m_fnamebuilder->getFileBaseName(cmb[arg->pevid[0]]));
                 //pCache->loadPoints();
                 //MethodProbScan *scanner3 = new MethodProbScan(cmb[arg->pevid[0]]);
                 //scanner3->initScan();
@@ -2241,7 +2238,7 @@ void GammaComboEngine::scanDataSet()
 
     if ( !arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") && !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch") )
     {
-        MethodDatasetsProbScan* probScanner = new MethodDatasetsProbScan( (PDF_Datasets*) pdf[0], arg);
+        MethodDatasetsProbScan* probScanner = new MethodDatasetsProbScan( (PDF_Datasets*) pdf[0], arg.get());
 
         // 1D SCANS
         if ( arg->var.size()==1 )
@@ -2279,7 +2276,7 @@ void GammaComboEngine::scanDataSet()
         if ( arg->var.size()==1 )
         {
                 if ( arg->isAction("pluginbatch") ){
-                    MethodDatasetsProbScan* scannerProb = new MethodDatasetsProbScan( (PDF_Datasets*) pdf[0], arg);
+                    MethodDatasetsProbScan* scannerProb = new MethodDatasetsProbScan( (PDF_Datasets*) pdf[0], arg.get());
                     if ( FileExists( m_fnamebuilder->getFileNameScanner(scannerProb)) ) {
                             scannerProb->initScan();
                             scannerProb->loadScanner( m_fnamebuilder->getFileNameScanner(scannerProb));
@@ -2292,11 +2289,11 @@ void GammaComboEngine::scanDataSet()
                             cout << endl;
                             make1dProbScan(scannerProb, 0);
                     }
-                    MethodDatasetsPluginScan *scannerPlugin = new MethodDatasetsPluginScan( scannerProb, (PDF_Datasets*) pdf[0], arg);
+                    MethodDatasetsPluginScan *scannerPlugin = new MethodDatasetsPluginScan( scannerProb, (PDF_Datasets*) pdf[0], arg.get());
                     make1dPluginScan(scannerPlugin, 0 );
                 }
                 else if ( arg->isAction("plugin") ) {
-                    MethodDatasetsProbScan* scannerProb = new MethodDatasetsProbScan( (PDF_Datasets*) pdf[0], arg);
+                    MethodDatasetsProbScan* scannerProb = new MethodDatasetsProbScan( (PDF_Datasets*) pdf[0], arg.get());
                     if ( !arg->plotpluginonly || ( arg->plotpluginonly && !arg->isAction("plot") ) ) {
                         if ( FileExists( m_fnamebuilder->getFileNameScanner(scannerProb)) ) {
                             scannerProb->initScan();
@@ -2312,7 +2309,7 @@ void GammaComboEngine::scanDataSet()
                         }
                     }
                     // create Plugin scanner
-                    MethodDatasetsPluginScan *scannerPlugin = new MethodDatasetsPluginScan( scannerProb, (PDF_Datasets*) pdf[0], arg );
+                    MethodDatasetsPluginScan *scannerPlugin = new MethodDatasetsPluginScan( scannerProb, (PDF_Datasets*) pdf[0], arg.get() );
                     if ( arg->isAction("plot") ){
                         scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
                     }
