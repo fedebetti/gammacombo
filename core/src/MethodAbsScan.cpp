@@ -7,12 +7,7 @@
 
 #include "MethodAbsScan.h"
 
-MethodAbsScan::MethodAbsScan()
-    : rndm()
-{
-    methodName = "Abs";
-    drawFilled = true;
-};
+MethodAbsScan::MethodAbsScan() {};
 
 
 MethodAbsScan::MethodAbsScan(Combiner *c):
@@ -37,62 +32,27 @@ MethodAbsScan::MethodAbsScan(Combiner *c):
 }
 
 
-    // constructor without combiner, this is atm still needed for the datasets stuff
-    MethodAbsScan::MethodAbsScan(OptParser* opt):
-    rndm(),
-    methodName("Abs"),
-    combiner(nullptr),
-    w(nullptr),
+// constructor without combiner, this is atm still needed for the datasets stuff
+MethodAbsScan::MethodAbsScan(OptParser* opt):
     arg(opt),
     scanVar1(opt->var[0]),
     verbose(opt->verbose),
-    drawSolution(0),
     nPoints1d(opt->npoints1d),
     nPoints2dx(opt->npoints2dx),
-    nPoints2dy(opt->npoints2dy),
-    pvalueCorrectorSet(false),
-    chi2minGlobal(0.0),
-    chi2minBkg(0.0),
-    chi2minGlobalFound(false),
-    lineStyle(0),
-    lineColor(kBlue-8),
-    lineWidth(2),
-    textColor(kBlack),
-    fillStyle(1001),
-    fillColor(kBlue-8),
-    hCL(0),
-    hCLs(0),
-    hCLsFreq(0),
-    hCLsExp(0),
-    hCLsErr1Up(0),
-    hCLsErr1Dn(0),
-    hCLsErr2Up(0),
-    hCLsErr2Dn(0),
-    hCL2d(0),
-    hCLs2d(0),
-    hChi2min(0),
-    hChi2min2d(0),
-    obsDataset(nullptr),
-    startPars(0),
-    globalMin(0),
-    nWarnings(0),
-    drawFilled(true),
-    m_xrangeset(false),
-    m_yrangeset(false),
-    m_initialized(false)
-    {
-        if ( opt->var.size()>1 ) scanVar2 = opt->var[1];
-        if( opt->CL.size()>0 ){
-            for ( auto level: opt->CL ) {
-                ConfidenceLevels.push_back(level/100.);
-            }
-        }
-        else{
-            ConfidenceLevels.push_back(0.6827); // 1sigma
-            ConfidenceLevels.push_back(0.9545); // 2sigma
-            ConfidenceLevels.push_back(0.9973); // 3sigma
+    nPoints2dy(opt->npoints2dy)
+{
+    if ( opt->var.size()>1 ) scanVar2 = opt->var[1];
+    if( opt->CL.size()>0 ){
+        for ( auto level: opt->CL ) {
+            ConfidenceLevels.push_back(level/100.);
         }
     }
+    else{
+        ConfidenceLevels.push_back(0.6827); // 1sigma
+        ConfidenceLevels.push_back(0.9545); // 2sigma
+        ConfidenceLevels.push_back(0.9973); // 3sigma
+    }
+}
 
 MethodAbsScan::~MethodAbsScan()
 {
@@ -616,7 +576,8 @@ bool MethodAbsScan::interpolate(TH1F* h, int i, float y, float central, bool upp
     f2->SetParameter(0,f1->GetParameter(0));
     f2->SetParameter(1,f1->GetParameter(1));
     g->Fit("f2", "qf+");  // refit with minuit to get more correct errors (TGraph fit errors bug)
-    double p[3], e[3];
+    double p[3];
+    // double e[3];
     // for ( int ii=0; ii<3; ii++ )
     // {
     //  p[ii] = f2->GetParameter(ii);

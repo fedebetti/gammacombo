@@ -222,7 +222,7 @@ void RooSlimFitResult::SaveLatex(ofstream &outfile, bool verbose, bool printcor)
     outfile << endl;
 }
 
-void RooSlimFitResult::Print(bool verbose, bool printcor)
+void RooSlimFitResult::Print(bool verbose, bool printcor) const
 {
     cout << "  FCN: " << minNll() << ", EDM: " << edm() << endl;
     cout << "  COV quality: " << covQual() << ", status: " << status()

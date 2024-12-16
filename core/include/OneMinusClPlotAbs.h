@@ -34,7 +34,7 @@ public:
     inline void     disableLegend(bool yesNo=false){plotLegend = yesNo;};
     inline void     disableSolution(bool yesNo=false){plotSolution = yesNo;};
     virtual void    drawSolutions();
-    virtual void    drawLabel(float yPos=0.6){cout << "nothing yet" << endl;};
+    virtual void    drawLabel([[maybe_unused]] float yPos=0.6){cout << "nothing yet" << endl;};
     virtual void    drawGroup(float yPos=0.6);
     inline TString  getName(){return name;};
     void            save();

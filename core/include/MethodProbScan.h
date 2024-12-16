@@ -52,7 +52,7 @@ public:
     MethodProbScan(Combiner* comb);
     MethodProbScan(OptParser* opt);
     MethodProbScan();
-    ~MethodProbScan();
+    virtual ~MethodProbScan();
 
     virtual int   computeCLvalues();  // compute CL histograms depending on desired test statistic
     float         getChi2min(float scanpoint);

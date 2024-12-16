@@ -50,7 +50,7 @@ class RooSlimFitResult : public TObject
         bool               hasParameter(TString name) const;
         inline bool        isConfirmed(){return _isConfirmed;};
         inline Double_t    minNll() const {return _minNLL;};
-        void               Print(bool verbose=false, bool printcor=false);
+        void               Print(bool verbose=false, bool printcor=false) const;
         void               SaveLatex(ofstream &outfile, bool verbose=false, bool printcor=false);
         inline void        setConfirmed(bool c){_isConfirmed = c;};
         inline Int_t       status() const {return _status;};

@@ -1466,7 +1466,7 @@ void GammaComboEngine::make2dPluginOnlyPlot(MethodPluginScan *sPlugin, int cId)
 /// \param scanner - the coverage scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan *scanner, int cId)
+void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan *scanner, [[maybe_unused]] int cId)
 {
     scanner->plot();
 }
@@ -1501,7 +1501,7 @@ void GammaComboEngine::make2dProbScan(MethodProbScan *scanner, int cId)
 void GammaComboEngine::make2dProbPlot(MethodProbScan *scanner, int cId)
 {
     // plot full
-    OneMinusClPlot2d* plotf;
+    OneMinusClPlot2d* plotf = nullptr;
     if (scanner->getMethodName()=="Prob") plotf = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlotSingle(cmb, cId)+"_full", "p-value histogram: "+scanner->getTitle());
     else if (scanner->getMethodName()=="DatasetsProb") plotf = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlot(cmb)+"_full", "p-value histogram: "+scanner->getTitle());  //Titus: change to make datasets plot possible
     else cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
@@ -1510,7 +1510,7 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan *scanner, int cId)
     plotf->save();
     // plot full CLs
     if ( arg->cls.size()>0 ) {
-        OneMinusClPlot2d* plotfcls;
+        OneMinusClPlot2d* plotfcls = nullptr;
         if (scanner->getMethodName()=="Prob") plotfcls = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlotSingle(cmb, cId)+"_cls_full", "p-value histogram: "+scanner->getTitle());
         else if (scanner->getMethodName()=="DatasetsProb") plotfcls = new OneMinusClPlot2d(arg, m_fnamebuilder->getFileNamePlot(cmb)+"_cls_full", "p-value histogram: "+scanner->getTitle());   //Titus: change to make datasets plot possible
         else cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
