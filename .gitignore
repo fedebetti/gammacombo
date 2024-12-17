@@ -1,6 +1,6 @@
 *.root
 **.swp
-build/
+build*/
 doc/html/
 doc/latex/
 tutorial/bin/
