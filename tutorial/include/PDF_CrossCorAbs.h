@@ -8,29 +8,28 @@
 #ifndef PDF_CrossCorAbs_h
 #define PDF_CrossCorAbs_h
 
-#include <RooGenericPdf.h>
 #include <RooCrossCorPdf.h>
+#include <RooGenericPdf.h>
 
 #include <PDF_Abs.h>
 #include <Utils.h>
 
-class PDF_CrossCorAbs : public PDF_Abs
-{
-public:
+class PDF_CrossCorAbs : public PDF_Abs {
+ public:
   PDF_CrossCorAbs(PDF_Abs* pdf1, PDF_Abs* pdf2);
   virtual ~PDF_CrossCorAbs();
-  void  buildPdf() override;
-  void  initObservables() override;
-  void  initParameters() override;
-  void  initRelations() override;
-  void  setCorrelations(Utils::config c);
+  void buildPdf() override;
+  void initObservables() override;
+  void initParameters() override;
+  void initRelations() override;
+  void setCorrelations(Utils::config c);
 
-protected:
-    void copyMeasurementCovariance();
-    PDF_Abs* pdf1;
-    PDF_Abs* pdf2;
-    int nObs1;
-    int nObs2;
+ protected:
+  void copyMeasurementCovariance();
+  PDF_Abs* pdf1;
+  PDF_Abs* pdf2;
+  int nObs1;
+  int nObs2;
 };
 
 #endif

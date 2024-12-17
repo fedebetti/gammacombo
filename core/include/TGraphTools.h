@@ -10,11 +10,9 @@
 
 #include <TGraph.h>
 
-class TGraphTools
-{
-    public:
-
-        TGraph* addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew);
+class TGraphTools {
+ public:
+  TGraph* addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew);
 };
 
 #endif

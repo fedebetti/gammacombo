@@ -11,13 +11,15 @@
 
 #include <TString.h>
 
-class Parameter
-{
-public:
-  inline void     setVal(double v){startvalue=v;};
-  void            Print() const;
+class Parameter {
+ public:
+  inline void setVal(double v) { startvalue = v; };
+  void Print() const;
 
-  struct Range { float min; float max; };
+  struct Range {
+    float min;
+    float max;
+  };
 
  private:
   const static Range default_range;

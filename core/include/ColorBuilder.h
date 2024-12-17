@@ -8,12 +8,11 @@
 #ifndef ColorBuilder_h
 #define ColorBuilder_h
 
-class ColorBuilder
-{
-    public:
-        int darkcolor(int n) const;
-        int darklightcolor(int n, float scale) const;
-        int lightcolor(int n) const;
+class ColorBuilder {
+ public:
+  int darkcolor(int n) const;
+  int darklightcolor(int n, float scale) const;
+  int lightcolor(int n) const;
 };
 
 #endif
