@@ -26,7 +26,9 @@ A manual is provided in
 Installation
 ============
 
-To build GammaCombo cmake is needed in version 3.0 or higher.
+To build GammaCombo cmake is needed in version 3.4 or higher.
+If [CernVM-FS](https://cvmfs.readthedocs.io/en/stable/) is available on your computer, a suitable environment can be set
+through `. scripts/setup-env-cvmfs.sh`.
 
 Get the source code from GitHub:
 
