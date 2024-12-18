@@ -1067,9 +1067,9 @@ bool Utils::isPosDef(TMatrixDSym* c) {
   for (int k = 0; k < c->GetNcols(); k++) minEigenVal = TMath::Min(minEigenVal, eigenvalues[k]);
   if (minEigenVal < 0) {
     cout << "isPosDef() : ERROR : Matrix not pos. def." << endl;
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
 ///
