@@ -17,8 +17,6 @@ PullPlotter::PullPlotter(MethodAbsScan* cmb) {
   defineOrder();
 }
 
-PullPlotter::~PullPlotter() {}
-
 void PullPlotter::loadParsFromSolution(int n) {
   cmb->loadSolution(n);
   nSolution = n;

@@ -24,7 +24,6 @@
 class ControlPlots {
  public:
   ControlPlots(ToyTree* tt);
-  ~ControlPlots();
 
   void ctrlPlotChi2Distribution();
   void ctrlPlotChi2Parabola();

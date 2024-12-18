@@ -16,7 +16,7 @@ class RooHistPdfAngleVar : public RooAbsReal {
   RooHistPdfAngleVar(const char* name, const char* title, RooAbsReal& _xobs, RooAbsReal& _xth, RooAbsReal& _xshift);
   RooHistPdfAngleVar(const RooHistPdfAngleVar& other, const char* name = 0);
   virtual TObject* clone(const char* newname) const { return new RooHistPdfAngleVar(*this, newname); }
-  virtual ~RooHistPdfAngleVar();
+  virtual ~RooHistPdfAngleVar() = default;
 
  protected:
   RooRealProxy xobs;

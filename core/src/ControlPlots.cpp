@@ -30,8 +30,6 @@ ControlPlots::ControlPlots(ToyTree* tt) {
   }
 }
 
-ControlPlots::~ControlPlots() {}
-
 ///
 /// Make p-value control plots.
 ///

@@ -27,8 +27,6 @@ PDF_CrossCorAbs::PDF_CrossCorAbs(PDF_Abs* pdf1, PDF_Abs* pdf2) : PDF_Abs(pdf1->g
   initObservables();
 }
 
-PDF_CrossCorAbs::~PDF_CrossCorAbs() {}
-
 void PDF_CrossCorAbs::initParameters() {
   ParametersTutorial p;
   parameters = new RooArgList("parameters");

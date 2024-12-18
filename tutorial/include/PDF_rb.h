@@ -13,7 +13,6 @@
 class PDF_rb : public PDF_Abs {
  public:
   PDF_rb(TString cObs, TString cErr, TString cCor);
-  ~PDF_rb();
   void buildPdf() override;
   void initObservables() override;
   void initParameters() override;

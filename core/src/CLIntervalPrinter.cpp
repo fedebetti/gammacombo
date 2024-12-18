@@ -18,8 +18,6 @@ CLIntervalPrinter::CLIntervalPrinter(const OptParser* arg, TString name, TString
   _clstype = CLsType;
 }
 
-CLIntervalPrinter::~CLIntervalPrinter() {}
-
 ///
 /// Set the intervals. If more vectors of intervals are added, each of them will
 /// be printed in order.

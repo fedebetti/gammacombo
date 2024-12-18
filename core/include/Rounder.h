@@ -15,7 +15,6 @@
 class Rounder {
  public:
   Rounder(const OptParser* arg, float cllo, float clhi, float central);
-  ~Rounder();
 
   int getNsubdigits() const;
   float CLlo() const;

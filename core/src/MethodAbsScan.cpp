@@ -24,8 +24,6 @@ using namespace std;
 using namespace RooFit;
 using namespace Utils;
 
-MethodAbsScan::MethodAbsScan(){};
-
 MethodAbsScan::MethodAbsScan(Combiner* c)
     : MethodAbsScan(c->getArg())
 // C++11 onwards, one can delegate constructors,

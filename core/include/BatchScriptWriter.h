@@ -15,7 +15,6 @@
 class BatchScriptWriter {
  public:
   BatchScriptWriter(int argc, char* argv[]);
-  ~BatchScriptWriter();
 
   void writeScripts(const OptParser* arg, std::vector<Combiner*>* cmb);
   void writeScripts_datasets(const OptParser* arg, PDF_Abs* pdf);

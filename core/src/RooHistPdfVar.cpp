@@ -19,8 +19,6 @@ RooHistPdfVar::RooHistPdfVar(const RooHistPdfVar& other, const char* name)
     : RooAbsReal(other, name), xobs("xobs", this, other.xobs), xth("xth", this, other.xth),
       xshift("xshift", this, other.xshift) {}
 
-RooHistPdfVar::~RooHistPdfVar() {}
-
 Double_t RooHistPdfVar::evaluate() const {
   return double(xth) - double(xobs) + double(xshift);
   // return -double(xth) + double(xobs) + double(xshift);

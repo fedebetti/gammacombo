@@ -28,9 +28,6 @@ template <class TYPE>
 SharedArrayImp<TYPE>::SharedArrayImp(unsigned size) : refcount(1), arr(size) {}
 
 template <class TYPE>
-SharedArrayImp<TYPE>::~SharedArrayImp() {}
-
-template <class TYPE>
 SharedArrayImp<TYPE>* SharedArrayImp<TYPE>::Clone(const char*) const {
   return new SharedArrayImp<TYPE>(*this);
 }

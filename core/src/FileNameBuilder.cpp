@@ -16,8 +16,6 @@ FileNameBuilder::FileNameBuilder(const OptParser* arg, TString name) {
   m_basename = name;
 }
 
-FileNameBuilder::~FileNameBuilder() {}
-
 ///
 /// Get base name, e.g. "gammacombo". The base name is set
 /// in the constructor.

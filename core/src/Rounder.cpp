@@ -9,8 +9,6 @@ Rounder::Rounder(const OptParser* arg, float cllo, float clhi, float central)
   this->arg = arg;
 }
 
-Rounder::~Rounder() {}
-
 int Rounder::getNsubdigits() const {
   if (arg->digits > -1) return arg->digits;
   return TMath::Max(calcNsubdigits(fabs(m_central - m_cllo)), calcNsubdigits(fabs(m_central - m_clhi)));

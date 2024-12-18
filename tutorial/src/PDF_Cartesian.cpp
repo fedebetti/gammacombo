@@ -29,8 +29,6 @@ PDF_Cartesian::PDF_Cartesian(TString cObs, TString cErr, TString cCor)
   buildPdf();
 }
 
-PDF_Cartesian::~PDF_Cartesian() {}
-
 void PDF_Cartesian::initParameters() {
   ParametersCartesian p;  // <-- use the project's parameter class
   parameters = new RooArgList("parameters");

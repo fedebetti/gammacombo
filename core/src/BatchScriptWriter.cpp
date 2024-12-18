@@ -17,8 +17,6 @@ BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]) : exec("") {
   subpkg = string(argv[0]);
 }
 
-BatchScriptWriter::~BatchScriptWriter() {}
-
 void BatchScriptWriter::writeScripts(const OptParser* arg, vector<Combiner*>* cmb) {
 
   for (int i = 0; i < arg->combid.size(); i++) {

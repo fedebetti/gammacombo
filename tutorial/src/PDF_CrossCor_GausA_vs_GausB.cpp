@@ -17,8 +17,6 @@ PDF_CrossCor_GausA_vs_GausB::PDF_CrossCor_GausA_vs_GausB(PDF_Abs* pdf1, PDF_Abs*
   buildPdf();
 }
 
-PDF_CrossCor_GausA_vs_GausB::~PDF_CrossCor_GausA_vs_GausB() {}
-
 void PDF_CrossCor_GausA_vs_GausB::setCorrelations(TString c) {
   resetCorrelations();
   copyMeasurementCovariance();

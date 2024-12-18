@@ -17,7 +17,6 @@
 class PDF_Circle : public PDF_Abs {
  public:
   PDF_Circle(TString cObs = "year2013", TString cErr = "year2013", TString cCor = "year2013");
-  ~PDF_Circle();
   void buildPdf() override;
   void initObservables() override;
   void initParameters() override;

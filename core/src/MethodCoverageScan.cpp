@@ -25,8 +25,6 @@ using namespace Utils;
 
 MethodCoverageScan::MethodCoverageScan(Combiner* comb) : MethodAbsScan(comb) { methodName = "Coverage"; }
 
-MethodCoverageScan::~MethodCoverageScan() {}
-
 int MethodCoverageScan::scan1d(int nRun) {
   if (!pCache) {
     cout << "\nERROR : parameterCache has not been in set for the coverage scanner " << endl;

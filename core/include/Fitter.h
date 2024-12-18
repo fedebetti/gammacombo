@@ -18,7 +18,6 @@
 class Fitter {
  public:
   Fitter(const OptParser* arg, RooWorkspace* w, TString name);
-  ~Fitter();
 
   void fit();
   void fitForce();

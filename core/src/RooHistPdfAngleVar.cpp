@@ -19,8 +19,6 @@ RooHistPdfAngleVar::RooHistPdfAngleVar(const RooHistPdfAngleVar& other, const ch
     : RooAbsReal(other, name), xobs("xobs", this, other.xobs), xth("xth", this, other.xth),
       xshift("xshift", this, other.xshift) {}
 
-RooHistPdfAngleVar::~RooHistPdfAngleVar() {}
-
 Double_t RooHistPdfAngleVar::evaluate() const {
   double val = fmod(double(xth) - double(xobs) + double(xshift), 2. * TMath::Pi());
   if (val < 0.0) val = val + 2. * TMath::Pi();

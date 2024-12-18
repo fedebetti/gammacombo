@@ -17,7 +17,7 @@ class MethodProbScan : public MethodAbsScan {
   MethodProbScan(Combiner* comb);
   MethodProbScan(OptParser* opt);
   MethodProbScan();
-  virtual ~MethodProbScan();
+  virtual ~MethodProbScan() = default;
 
   virtual int computeCLvalues();  // compute CL histograms depending on desired test statistic
   float getChi2min(float scanpoint) const;

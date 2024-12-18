@@ -20,8 +20,6 @@ class MethodCoverageScan : public MethodAbsScan {
   MethodCoverageScan(Combiner* comb);
   MethodCoverageScan() = delete;
 
-  ~MethodCoverageScan();
-
   void setParameterCache(ParameterCache* _pCache) { pCache = _pCache; }
   virtual int scan1d(int nRun = 1);
   virtual void readScan1dTrees(int runMin, int runMax);

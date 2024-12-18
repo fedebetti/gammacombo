@@ -16,7 +16,6 @@
 class ProgressBar {
  public:
   ProgressBar(const OptParser* arg, unsigned int n);
-  ~ProgressBar();
 
   void progress();
   void skipSteps(unsigned int n);

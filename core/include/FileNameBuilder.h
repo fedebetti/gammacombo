@@ -27,7 +27,6 @@ class Combiner;
 class FileNameBuilder {
  public:
   FileNameBuilder(const OptParser* arg, TString name = "gammacombo");
-  ~FileNameBuilder();
   TString getBaseName();
   TString getFileBaseName(const Combiner* c);
   TString getFileBaseName(const MethodAbsScan* s);

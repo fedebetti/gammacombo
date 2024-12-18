@@ -13,8 +13,6 @@ CLIntervalMaker::CLIntervalMaker(const OptParser* arg, const TH1F& pvalues) : _p
   //  cout << i << " " << pvalues.GetBinCenter(i) << " " << pvalues.GetBinContent(i) << endl;
 }
 
-CLIntervalMaker::~CLIntervalMaker() {}
-
 ///
 /// Add a maximum (e.g. found by the Prob method) to calculate the
 /// confidence intervals around it.

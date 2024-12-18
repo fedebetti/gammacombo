@@ -34,7 +34,6 @@ class GammaComboEngine {
  public:
   GammaComboEngine(TString name, int argc, char* argv[]);
   GammaComboEngine(TString name, int argc, char* argv[], bool _runOnDataSet);
-  virtual ~GammaComboEngine();
 
   void adjustRanges(Combiner* c, int cId);
   void setupToyVariationSets(Combiner* c, int cId);

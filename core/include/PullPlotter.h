@@ -18,7 +18,6 @@ class MethodAbsScan;
 class PullPlotter {
  public:
   PullPlotter(MethodAbsScan* cmb);
-  ~PullPlotter();
 
   bool hasPullsAboveNsigma(float nsigma) const;
   void loadParsFromSolution(int n);

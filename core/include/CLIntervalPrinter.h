@@ -17,7 +17,6 @@
 class CLIntervalPrinter {
  public:
   CLIntervalPrinter(const OptParser* arg, TString name, TString var, TString unit, TString method, int CLsType = 0);
-  ~CLIntervalPrinter();
 
   void print();
   void savePython();
