@@ -151,10 +151,8 @@ bool ParameterCache::loadPoints(TString fileName) {
     if (infile.is_open()) {
       int nSolutions = 0;
       while (getline(infile, line)) {
-        if (line.empty())
-          continue;  // blank line
-        else if (boost::starts_with(line, "#"))
-          continue;                                   // these are comments
+        if (line.empty() || boost::starts_with(line, "#"))
+          continue;                                   // Skip blank lines and comments
         else if (boost::starts_with(line, "----")) {  // solution here
           nSolutions++;
           startingValues.push_back(map<TString, double>());

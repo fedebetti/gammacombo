@@ -474,8 +474,8 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
     // //make sure the CLs=1 points do NOT get smoothed away
 
     double* xvals = gExp->GetX();
-    double* xvalsRaw = gExpRaw->GetX();
-    double* yvalsRawExp = gExpRaw->GetY();
+    // double* xvalsRaw = gExpRaw->GetX();
+    // double* yvalsRawExp = gExpRaw->GetY();
     double* yvalsRawExpErr1Up = gErr1UpRaw->GetY();
     double* yvalsRawExpErr2Up = gErr2UpRaw->GetY();
 
@@ -699,8 +699,6 @@ void OneMinusClPlot::drawVerticalLine(float x, int color, int style) const {
 void OneMinusClPlot::drawSolutions() {
   m_mainCanvas->cd();
   m_mainCanvas->Update();
-  float ymin = gPad->GetUymin();
-  float ymax = gPad->GetUymax();
   float xmin = gPad->GetUxmin();
   float xmax = gPad->GetUxmax();
   int iDrawn = 0;
@@ -805,8 +803,6 @@ void OneMinusClPlot::drawSolutions() {
 void OneMinusClPlot::drawCLguideLine(float pvalue) const {
   m_mainCanvas->cd();
   m_mainCanvas->Update();
-  float ymin = gPad->GetUymin();
-  float ymax = gPad->GetUymax();
   float xmin = gPad->GetUxmin();
   float xmax = gPad->GetUxmax();
 
@@ -957,10 +953,7 @@ void OneMinusClPlot::Draw() {
 
     if (plotSimple) {
       scan1dPlotSimple(scanners[i], i == 0, do_CLs[i]);
-      if (do_CLs[i])
-        leg->AddEntry(scanners[i]->getHCL(), legTitle, legDrawOption);
-      else
-        leg->AddEntry(scanners[i]->getHCL(), legTitle, legDrawOption);
+      leg->AddEntry(scanners[i]->getHCL(), legTitle, legDrawOption);
     } else {
       if (scanners[i]->getFillStyle() != 0 || scanners[i]->getFillColor() != 0) {
         TGraph* g = scan1dPlot(scanners[i], i == 0, false, scanners[i]->getFilled(), do_CLs[i]);
