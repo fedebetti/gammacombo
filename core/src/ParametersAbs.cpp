@@ -23,7 +23,7 @@ Parameter* ParametersAbs::var(TString name) {
     if (m_parameters[i]->name == name) return m_parameters[i];
   }
   cout << "ParametersAbs::var() : ERROR : no such parameter '" + name + "'." << endl;
-  return 0;
+  return nullptr;
 }
 
 ///
@@ -46,5 +46,5 @@ RooRealVar* ParametersAbs::get(TString name) {
     }
   }
   cout << "ParametersAbs::get() : ERROR : no such parameter '" + name + "'." << endl;
-  return 0;
+  return nullptr;
 }

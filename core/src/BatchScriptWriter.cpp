@@ -57,7 +57,7 @@ void BatchScriptWriter::writeScripts(const OptParser* arg, vector<Combiner*>* cm
     if (arg->isAction("coveragebatch")) { scriptname += arg->id < 0 ? "_id0" : Form("_id%d", arg->id); }
     // if write to eos then make the directory
     if (arg->batchout != "" || arg->batcheos) {
-      time_t t = time(0);
+      time_t t = time(nullptr);
       struct tm* now = localtime(&t);
       int day = now->tm_mday;
       int month = now->tm_mon + 1;
@@ -132,7 +132,7 @@ void BatchScriptWriter::writeScripts_datasets(const OptParser* arg, PDF_Abs* pdf
   if (arg->isAction("coveragebatch")) { scriptname += arg->id < 0 ? "_id0" : Form("_id%d", arg->id); }
   // if write to eos then make the directory
   if (arg->batcheos) {
-    time_t t = time(0);
+    time_t t = time(nullptr);
     struct tm* now = localtime(&t);
     int day = now->tm_mday;
     int month = now->tm_mon + 1;

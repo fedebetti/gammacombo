@@ -167,7 +167,7 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
   TString parsName = "par_" + name;
   TString obsName = "obs_" + name;
   TString pdfName = "pdf_" + name;
-  RooFitResult* r = 0;
+  RooFitResult* r = nullptr;
   int printlevel = -1;
   RooMsgService::instance().setGlobalKillBelow(ERROR);
 
@@ -289,7 +289,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
 
   // step 1: find a minimum to start with
-  RooFitResult* r1 = 0;
+  RooFitResult* r1 = nullptr;
   {
     RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*w->pdf(pdfName)));
     // RooFitResult* r1 = fitToMin(&ll, printlevel);
@@ -325,7 +325,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
   }
 
   // step 2: build and fit the improved fcn
-  RooFitResult* r2 = 0;
+  RooFitResult* r2 = nullptr;
   {
     // create a Hesse PDF, import both PDFs into a new workspace,
     // so that their parameters are linked
@@ -394,7 +394,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
 
   // step 5: chose better minimum
   // cout << r1->minNll() << " " << r3->minNll() << endl;
-  RooFitResult* r = 0;
+  RooFitResult* r = nullptr;
   if (r1->minNll() < r3->minNll()) {
     delete r3;
     r = r1;
@@ -1244,7 +1244,7 @@ TCanvas* Utils::newNoWarnTCanvas(TString name, TString title, int x, int y, int 
 void Utils::HFAGLabel(const TString& label, Double_t xpos, Double_t ypos, Double_t scale) {
   TVirtualPad* thePad;
 
-  if ((thePad = TVirtualPad::Pad()) == 0) return;
+  if (!(thePad = TVirtualPad::Pad())) return;
 
   UInt_t pad_width(thePad->XtoPixel(thePad->GetX2()));
   UInt_t pad_height(thePad->YtoPixel(thePad->GetY1()));

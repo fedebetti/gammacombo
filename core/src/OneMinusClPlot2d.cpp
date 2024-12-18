@@ -581,7 +581,7 @@ void OneMinusClPlot2d::addScanner(MethodAbsScan* s, int CLsType) {
     for (int i = 0; i < arg->nsmooth; i++) { histos[histos.size() - 1]->Smooth(); }
   title = s->getTitle();
   if (CLsType == 1 || CLsType == 2) title = s->getTitle() + " CLs";
-  m_contours.push_back(0);
+  m_contours.push_back(nullptr);
   m_contours_computed.push_back(false);
 }
 
@@ -597,7 +597,7 @@ void OneMinusClPlot2d::addFile(TString fName) {
   if (arg->smooth2d)
     for (int i = 0; i < arg->nsmooth; i++) { histos[histos.size() - 1]->Smooth(); }
   histosType.push_back(kPvalue);
-  m_contours.push_back(0);
+  m_contours.push_back(nullptr);
   m_contours_computed.push_back(false);
 }
 
@@ -754,7 +754,7 @@ void OneMinusClPlot2d::drawLegend() {
 
     if (histos.size() == 1) {
       // no legend symbol if only one scanner to be drawn
-      m_legend->AddEntry((TObject*)0, legTitle, "");
+      m_legend->AddEntry(static_cast<TObject*>(nullptr), legTitle, "");
     } else {
       // construct a dummy TGraph that uses the style of the 1sigma line
       int styleId = i;

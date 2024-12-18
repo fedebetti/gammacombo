@@ -52,10 +52,10 @@ PDF_Abs::~PDF_Abs() {
   delete observables;
 
   // clean pregenerated toys
-  if (toyObservables != 0) delete toyObservables;
+  if (toyObservables) delete toyObservables;
 
   // clean pdf
-  if (pdf != 0) delete pdf;
+  if (pdf) delete pdf;
 
   // empty trash
   map<string, TObject*>::iterator iter;
@@ -106,7 +106,7 @@ void PDF_Abs::setObservablesToy() {
     cout << "PDF_Abs::setObservables(): ERROR: pdf not initialized." << endl;
     exit(1);
   }
-  if (toyObservables == 0 || iToyObs == nToyObs) {
+  if (!toyObservables || iToyObs == nToyObs) {
     RooRandom::randomGenerator()->SetSeed(0);
     if (iToyObs == nToyObs) delete toyObservables;
     toyObservables = pdf->generate(*(RooArgSet*)observables, nToyObs);
@@ -492,7 +492,7 @@ void PDF_Abs::setSystCorrelation(TMatrixDSym& corSystMatrix) {
 ///
 void PDF_Abs::setObservable(TString obsName, float value) {
   RooRealVar* obs = (RooRealVar*)observables->find(obsName);
-  if (obs == 0) {
+  if (!obs) {
     cout << "PDF_Abs::setObservable() : ERROR : observable " + obsName + " not found!" << endl;
     exit(1);
   }
@@ -613,7 +613,7 @@ bool PDF_Abs::test() {
 ///
 bool PDF_Abs::hasObservable(TString obsname) const {
   RooRealVar* obs = (RooRealVar*)observables->find(obsname);
-  if (obs == 0) return false;
+  if (!obs) return false;
   return true;
 }
 

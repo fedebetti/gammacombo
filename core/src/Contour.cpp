@@ -107,7 +107,7 @@ vector<TGraph*> Contour::makeHoles(vector<TGraph*>& contours) {
   bool joined = false;
   int iJoined1;
   int iJoined2;
-  TGraph* gJoined = 0;
+  TGraph* gJoined = nullptr;
   for (int i1 = 0; i1 < n; i1++) {
     if (joined) break;
     TGraph* g1 = contours[i1];
@@ -154,7 +154,7 @@ TGraph* Contour::joinIfInside(TGraph* g1, TGraph* g2) {
     if (g1->IsInside(pointx, pointy)) nG2InsideG1++;
   }
   // they don't contain each other
-  if (nG1InsideG2 == 0 && nG2InsideG1 == 0) return 0;
+  if (nG1InsideG2 == 0 && nG2InsideG1 == 0) return nullptr;
   // they do contain each other: merge them into g1 so that the line
   // will form a hole! We'll merge at the points that are closest.
   int i1, i2;

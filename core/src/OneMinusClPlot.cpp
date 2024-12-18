@@ -307,7 +307,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
 
   if (last) {
     // add right axis
-    TGaxis* axisr = 0;
+    TGaxis* axisr = nullptr;
     if (arg->plotlog) {
       float f3min = 1e-3;
       float f3max = (plotLegend && !arg->isQuickhack(22)) ? 10. : 1.;
