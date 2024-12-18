@@ -10,24 +10,22 @@ class RooRealVar;
 
 class RooCrossCorPdf : public RooAbsPdf {
 
-public:
-    RooCrossCorPdf(const char *name, const char *title,
-        const RooArgList& th, const RooArgList& obs, const TMatrixDSym& invcov, int nObsPdf1);
-    RooCrossCorPdf(const RooCrossCorPdf& other, const char* name = 0);
-    virtual TObject* clone(const char* newname) const { return new RooCrossCorPdf(*this,newname); }
-    inline virtual ~ RooCrossCorPdf() {}
+ public:
+  RooCrossCorPdf(const char* name, const char* title, const RooArgList& th, const RooArgList& obs,
+                 const TMatrixDSym& invcov, int nObsPdf1);
+  RooCrossCorPdf(const RooCrossCorPdf& other, const char* name = 0);
+  virtual TObject* clone(const char* newname) const { return new RooCrossCorPdf(*this, newname); }
+  inline virtual ~RooCrossCorPdf() {}
 
+ protected:
+  RooListProxy _th;
+  RooListProxy _obs;
+  TMatrixDSym _invcov;
+  int _nObsPdf1;
+  Double_t evaluate() const;
 
-protected:
-    RooListProxy _th ;
-    RooListProxy _obs ;
-    TMatrixDSym _invcov ;
-    int _nObsPdf1;
-    Double_t evaluate() const;
-
-
-private:
-    ClassDef( RooCrossCorPdf,2) //  RooCrossCorPdf function PDF
+ private:
+  ClassDef(RooCrossCorPdf, 2)  //  RooCrossCorPdf function PDF
 };
 
 #endif

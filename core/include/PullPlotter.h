@@ -15,28 +15,25 @@
 
 class MethodAbsScan;
 
-class PullPlotter
-{
-public:
+class PullPlotter {
+ public:
+  PullPlotter(MethodAbsScan* cmb);
+  ~PullPlotter();
 
-    PullPlotter(MethodAbsScan *cmb);
-    ~PullPlotter();
+  bool hasPullsAboveNsigma(float nsigma) const;
+  void loadParsFromSolution(int n);
+  void savePulls() const;
+  void plotPulls();
+  void printPulls(float aboveNsigma = -1.) const;
 
-    bool hasPullsAboveNsigma(float nsigma) const;
-    void loadParsFromSolution(int n);
-    void savePulls() const;
-    void plotPulls();
-    void printPulls(float aboveNsigma = -1.) const;
+ private:
+  void defineOrder();
+  void plotPullsCanvas(std::vector<TString>& observables, int currentid, int maxid, int nObs) const;
 
-private:
-
-    void defineOrder();
-    void plotPullsCanvas(std::vector<TString>& observables, int currentid, int maxid, int nObs) const;
-
-    MethodAbsScan *cmb;       // the scanner to plot pulls for
-    const OptParser *arg;           // command line arguments
-    std::vector<TString> obsOrder; // contains observable names in the desired plot order
-    int nSolution = 0;            // index of the solution wrt which the pulls are computed
+  MethodAbsScan* cmb;             // the scanner to plot pulls for
+  const OptParser* arg;           // command line arguments
+  std::vector<TString> obsOrder;  // contains observable names in the desired plot order
+  int nSolution = 0;              // index of the solution wrt which the pulls are computed
 };
 
 #endif

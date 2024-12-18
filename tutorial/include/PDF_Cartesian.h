@@ -11,19 +11,17 @@
 #include <PDF_Abs.h>
 #include <Utils.h>
 
-class PDF_Cartesian : public PDF_Abs
-{
-    public:
-        PDF_Cartesian(TString cObs, TString cErr, TString cCor);
-        ~PDF_Cartesian();
-        void          buildPdf() override;
-        void          initObservables() override;
-        void  initParameters() override;
-        void  initRelations() override;
-        void          setCorrelations(TString c) override;
-        void          setObservables(TString c) override;
-        void          setUncertainties(TString c) override;
+class PDF_Cartesian : public PDF_Abs {
+ public:
+  PDF_Cartesian(TString cObs, TString cErr, TString cCor);
+  ~PDF_Cartesian();
+  void buildPdf() override;
+  void initObservables() override;
+  void initParameters() override;
+  void initRelations() override;
+  void setCorrelations(TString c) override;
+  void setObservables(TString c) override;
+  void setUncertainties(TString c) override;
 };
 
 #endif
-

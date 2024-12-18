@@ -13,15 +13,14 @@
 
 #include <RooRealVar.h>
 
-class ParametersAbs
-{
-public:
-  Parameter*          var(TString name);
-  RooRealVar*         get(TString name);
-  Parameter*          newParameter(TString name);
-  Parameter::Range    range(float min, float max) const;
+class ParametersAbs {
+ public:
+  Parameter* var(TString name);
+  RooRealVar* get(TString name);
+  Parameter* newParameter(TString name);
+  Parameter::Range range(float min, float max) const;
 
-protected:
+ protected:
   std::vector<Parameter*> m_parameters;
   inline virtual void defineParameters(){};
 };

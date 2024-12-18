@@ -12,13 +12,12 @@
 
 #include <ParametersAbs.h>
 
-class ParametersTutorial : public ParametersAbs
-{
-public:
-    ParametersTutorial();
+class ParametersTutorial : public ParametersAbs {
+ public:
+  ParametersTutorial();
 
-protected:
-    void defineParameters() override;
+ protected:
+  void defineParameters() override;
 };
 
 #endif

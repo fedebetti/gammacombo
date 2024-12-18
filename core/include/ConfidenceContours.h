@@ -14,34 +14,32 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-class ConfidenceContours
-{
-    public:
+class ConfidenceContours {
+ public:
+  ConfidenceContours(const OptParser* arg);
+  ~ConfidenceContours();
+  void computeContours(TH2F* hist, Utils::histogramType type, int id = 0);
+  void Draw();
+  void DrawDashedLine();
+  void setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth,
+                std::vector<int>& fillcolor, std::vector<int>& fillstyle);
+  inline void setTransparency(float percent) { m_transparency = percent; };
+  inline void setContoursToPlot(std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
 
-        ConfidenceContours(const OptParser *arg);
-        ~ConfidenceContours();
-        void        computeContours(TH2F* hist, Utils::histogramType type, int id=0);
-        void        Draw();
-        void        DrawDashedLine();
-        void        setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth, std::vector<int>& fillcolor, std::vector<int>& fillstyle);
-        inline void setTransparency(float percent){m_transparency = percent;};
-        inline void setContoursToPlot( std::vector<int>& contstoplot ){ m_contstoplots = contstoplot;};
-
-    private:
-
-        TH2F*            addBoundaryBins(TH2F* hist);
-        void             addFilledPlotArea(TH2F* hist);
-        TH2F*            transformChi2valleyToHill(TH2F* hist,float offset);
-        const OptParser*       m_arg;       ///< command line arguments
-        std::vector<Contour*> m_contours;  ///< container for the 1,...,N sigma contours
-        std::vector<int>      m_linecolor; ///< style for the 1,...,N sigma contours
-        std::vector<int>      m_linestyle;
-        std::vector<int>      m_fillcolor;
-        std::vector<int>      m_fillstyle;
-        std::vector<int>      m_linewidth;
-        float            m_transparency;
-        std::vector<int>      m_contstoplots; ///< container for which contours to actually draw
-        int              m_nMaxContours;
+ private:
+  TH2F* addBoundaryBins(TH2F* hist);
+  void addFilledPlotArea(TH2F* hist);
+  TH2F* transformChi2valleyToHill(TH2F* hist, float offset);
+  const OptParser* m_arg;            ///< command line arguments
+  std::vector<Contour*> m_contours;  ///< container for the 1,...,N sigma contours
+  std::vector<int> m_linecolor;      ///< style for the 1,...,N sigma contours
+  std::vector<int> m_linestyle;
+  std::vector<int> m_fillcolor;
+  std::vector<int> m_fillstyle;
+  std::vector<int> m_linewidth;
+  float m_transparency;
+  std::vector<int> m_contstoplots;  ///< container for which contours to actually draw
+  int m_nMaxContours;
 };
 
 #endif

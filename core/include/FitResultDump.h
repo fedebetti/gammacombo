@@ -8,9 +8,9 @@
 
 class FitResultDump {
 
-    public:
-        void dumpResult(std::string ofname, MethodAbsScan *scanner) const;
-        std::ofstream outf;
+ public:
+  void dumpResult(std::string ofname, MethodAbsScan* scanner) const;
+  std::ofstream outf;
 };
 
 #endif
