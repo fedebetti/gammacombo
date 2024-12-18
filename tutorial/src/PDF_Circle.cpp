@@ -26,8 +26,6 @@ PDF_Circle::PDF_Circle(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   buildPdf();
 }
 
-PDF_Circle::~PDF_Circle() {}
-
 void PDF_Circle::initParameters() {
   ParametersTutorial p;
   parameters = new RooArgList("parameters");

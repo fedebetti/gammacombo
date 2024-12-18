@@ -11,15 +11,9 @@
 #include "RooBinned2DBicubicBase.h"
 
 template <class BASE>
-RooBinned2DBicubicBase<BASE>::BinSizeException::~BinSizeException() throw() {}
-
-template <class BASE>
 const char* RooBinned2DBicubicBase<BASE>::BinSizeException::what() const throw() {
   return "Variable-sized bins not supported!";
 }
-
-template <class BASE>
-RooBinned2DBicubicBase<BASE>::~RooBinned2DBicubicBase() {}
 
 template <class BASE>
 RooBinned2DBicubicBase<BASE>::RooBinned2DBicubicBase(const RooBinned2DBicubicBase<BASE>& other, const char* name)

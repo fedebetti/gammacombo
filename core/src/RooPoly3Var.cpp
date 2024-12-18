@@ -17,8 +17,6 @@ RooPoly3Var::RooPoly3Var(const char* name, const char* title, RooAbsReal& _xobs,
 RooPoly3Var::RooPoly3Var(const RooPoly3Var& other, const char* name)
     : RooAbsReal(other, name), xobs("xobs", this, other.xobs), p0(other.p0), p1(other.p1), p2(other.p2), p3(other.p3) {}
 
-RooPoly3Var::~RooPoly3Var() {}
-
 Double_t RooPoly3Var::evaluate() const {
   double x = double(xobs);
   return p0 + p1 * x + p2 * x * x + p3 * x * x * x;

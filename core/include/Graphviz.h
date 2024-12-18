@@ -20,7 +20,6 @@
 class Graphviz {
  public:
   Graphviz(const OptParser* arg);
-  ~Graphviz();
 
   void printCombiner(Combiner* cmb) const;
   void printCombinerLayer(Combiner* cmb) const;

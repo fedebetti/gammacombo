@@ -7,8 +7,6 @@ LatexMaker::LatexMaker(TString cName, PDF_Abs* _pdf) : pdf(_pdf) {
   outfname = "plots/latex/" + cName + "_" + pdf->getName();
 }
 
-LatexMaker::~LatexMaker() {}
-
 void LatexMaker::writeFile() {
 
   // central values and errors

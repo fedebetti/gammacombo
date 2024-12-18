@@ -9,8 +9,6 @@ Graphviz::Graphviz(const OptParser* arg) {
   this->arg = arg;
 }
 
-Graphviz::~Graphviz() {}
-
 ///
 /// Convert a string so that it compatible with the graphviz
 /// syntax for element names such as nodes or edges.

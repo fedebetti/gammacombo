@@ -24,8 +24,6 @@ ParameterCache::ParameterCache(OptParser* arg) {
   m_arg = arg;
 }
 
-ParameterCache::~ParameterCache() {}
-
 void ParameterCache::printFitResultToOutStream(ofstream& out, RooSlimFitResult* slimFitRes) const {
 
   out << "### FCN: " << slimFitRes->minNll() << ", EDM: " << slimFitRes->edm() << endl;

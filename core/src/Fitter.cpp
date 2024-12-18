@@ -14,8 +14,6 @@ Fitter::Fitter(const OptParser* arg, RooWorkspace* w, TString name) {
   parsName = "par_" + name;
 }
 
-Fitter::~Fitter() {}
-
 ///
 /// Perform two fits, each time using different start parameters,
 /// retain the smallest chi2. Note: To debug the start paramter

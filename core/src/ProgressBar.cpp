@@ -12,8 +12,6 @@ ProgressBar::ProgressBar(const OptParser* arg, unsigned int n) {
   _batch = _arg->isAction("pluginbatch") || _arg->isAction("bbbatch");
 }
 
-ProgressBar::~ProgressBar() {}
-
 ///
 /// Call this from inside the loop.
 ///

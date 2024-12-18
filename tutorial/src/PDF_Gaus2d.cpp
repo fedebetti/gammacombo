@@ -26,8 +26,6 @@ PDF_Gaus2d::PDF_Gaus2d(TString cObs, TString cErr, TString cCor) : PDF_Abs(2) {
   buildPdf();
 }
 
-PDF_Gaus2d::~PDF_Gaus2d() {}
-
 void PDF_Gaus2d::initParameters() {
   ParametersTutorial p;
   parameters = new RooArgList("parameters");

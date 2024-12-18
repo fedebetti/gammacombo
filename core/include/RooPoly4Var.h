@@ -17,7 +17,7 @@ class RooPoly4Var : public RooAbsReal {
               double& _p3, double& _p4);
   RooPoly4Var(const RooPoly4Var& other, const char* name = 0);
   virtual TObject* clone(const char* newname) const { return new RooPoly4Var(*this, newname); }
-  virtual ~RooPoly4Var();
+  virtual ~RooPoly4Var() = default;
 
  protected:
   RooRealProxy xobs;

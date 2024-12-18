@@ -16,7 +16,7 @@ class RooHistPdfVar : public RooAbsReal {
   RooHistPdfVar(const char* name, const char* title, RooAbsReal& _xobs, RooAbsReal& _xth, RooAbsReal& _xshift);
   RooHistPdfVar(const RooHistPdfVar& other, const char* name = 0);
   virtual TObject* clone(const char* newname) const { return new RooHistPdfVar(*this, newname); }
-  virtual ~RooHistPdfVar();
+  virtual ~RooHistPdfVar() = default;
 
  protected:
   RooRealProxy xobs;

@@ -63,8 +63,6 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[], bool _r
   runOnDataSet = _runOnDataSet;
 }
 
-GammaComboEngine::~GammaComboEngine() {}
-
 ///
 /// Check if a PDF with a certain ID exits.
 ///

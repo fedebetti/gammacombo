@@ -12,8 +12,6 @@ ConfidenceContours::ConfidenceContours(const OptParser* arg) {
   m_nMaxContours = 9;
 }
 
-ConfidenceContours::~ConfidenceContours() {}
-
 ///
 /// Helper function for computeContours():
 /// Constructs a new 2D histogram that contains 2 more bins in each

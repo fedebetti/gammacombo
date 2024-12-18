@@ -28,7 +28,7 @@ class SharedArrayImp : public TObject {
   /// clone method
   virtual SharedArrayImp<TYPE>* Clone(const char* newname = 0) const;
   /// destructor
-  virtual ~SharedArrayImp();
+  virtual ~SharedArrayImp() = default;
 
   /// return reference count
   unsigned refCount() const { return refcount; }

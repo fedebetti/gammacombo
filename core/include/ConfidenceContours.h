@@ -17,7 +17,6 @@
 class ConfidenceContours {
  public:
   ConfidenceContours(const OptParser* arg);
-  ~ConfidenceContours();
   void computeContours(TH2F* hist, Utils::histogramType type, int id = 0);
   void Draw();
   void DrawDashedLine();

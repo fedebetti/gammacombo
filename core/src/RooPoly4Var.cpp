@@ -20,8 +20,6 @@ RooPoly4Var::RooPoly4Var(const RooPoly4Var& other, const char* name)
     : RooAbsReal(other, name), xobs("xobs", this, other.xobs), p0(other.p0), p1(other.p1), p2(other.p2), p3(other.p3),
       p4(other.p4) {}
 
-RooPoly4Var::~RooPoly4Var() {}
-
 Double_t RooPoly4Var::evaluate() const {
   double x = double(xobs);
   return p0 + p1 * x + p2 * x * x + p3 * x * x * x + p4 * x * x * x * x;

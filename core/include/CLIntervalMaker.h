@@ -17,7 +17,6 @@
 class CLIntervalMaker {
  public:
   CLIntervalMaker(const OptParser* arg, const TH1F& pvalues);
-  ~CLIntervalMaker();
   void calcCLintervals();
   void findMaxima(float pValueThreshold);
   inline std::vector<CLInterval>& getClintervals1sigma() { return _clintervals1sigma; };

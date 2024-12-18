@@ -15,7 +15,6 @@ class ParameterCache {
 
  public:
   ParameterCache(OptParser* arg);
-  ~ParameterCache();
 
   void cacheParameters(MethodAbsScan* scanner, TString fileName);
   bool loadPoints(TString fileName);

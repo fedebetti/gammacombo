@@ -54,7 +54,7 @@ class RooBinned2DBicubicBase : public BASE {
     /// constructor
     BinSizeException() throw() {}
     /// destructor
-    virtual ~BinSizeException() throw();
+    virtual ~BinSizeException() throw() = default;
     /// description
     virtual const char* what() const throw();
   };
@@ -73,7 +73,7 @@ class RooBinned2DBicubicBase : public BASE {
   virtual RooBinned2DBicubicBase<BASE>* clone(const char* newname = 0) const;
 
   /// destructor
-  virtual ~RooBinned2DBicubicBase();
+  virtual ~RooBinned2DBicubicBase() = default;
 
   /// evaluation of function
   virtual Double_t evaluate() const;

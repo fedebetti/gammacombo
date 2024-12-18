@@ -25,7 +25,7 @@ class OneMinusClPlotAbs;
 
 class MethodAbsScan {
  public:
-  MethodAbsScan();
+  MethodAbsScan() = default;
   MethodAbsScan(Combiner* c);
   MethodAbsScan(const OptParser* opt);
   ~MethodAbsScan();
