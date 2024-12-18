@@ -34,7 +34,7 @@ Combiner::~Combiner() { delete w; }
 /// Clone an existing combiner.
 ///
 Combiner* Combiner::Clone(TString name, TString title) {
-  Combiner* cNew = new Combiner(this->arg, name, title);
+  auto cNew = new Combiner(this->arg, name, title);
   cNew->pdfName = this->pdfName;
   for (int i = 0; i < pdfs.size(); i++) cNew->addPdf(pdfs[i]);
   cNew->_isCombined = this->_isCombined;
@@ -180,7 +180,7 @@ void Combiner::combine() {
 
   // new thing here
   pdfName = "comb";
-  RooArgList* pdfList = new RooArgList();
+  auto pdfList = new RooArgList();
   vector<string> parStr;
   vector<string> obsStr;
   vector<string> thStr;
@@ -199,7 +199,7 @@ void Combiner::combine() {
   }
 
   // make the product
-  RooProdPdf* prod = new RooProdPdf("pdf_" + pdfName, "pdf_" + pdfName, *pdfList);
+  auto prod = new RooProdPdf("pdf_" + pdfName, "pdf_" + pdfName, *pdfList);
 
   // import it into the ws
   RooMsgService::instance().setGlobalKillBelow(WARNING);
@@ -275,14 +275,14 @@ RooAbsPdf* Combiner::getPdf() {
 /// combine() was called (unline Combiner::getParameters()).
 ///
 vector<string>& Combiner::getParameterNames() const {
-  vector<string>* vars = new vector<string>();
+  auto vars = new vector<string>();
   if (pdfs.size() == 0) return *vars;
 
   // 1. make a list of all parameters from the pdfs
   vector<string> varsAll;
   for (int i = 0; i < pdfs.size(); i++) {
     TIterator* it = pdfs[i]->getParameters()->createIterator();
-    while (RooAbsReal* v = (RooAbsReal*)it->Next()) { varsAll.push_back(v->GetName()); }
+    while (auto v = dynamic_cast<RooAbsReal*>(it->Next())) { varsAll.push_back(v->GetName()); }
   }
   // 2. remove duplicates
   sort(varsAll.begin(), varsAll.end());
@@ -310,12 +310,12 @@ vector<string>& Combiner::getParameterNames() const {
 /// \return a vector of observable names
 ///
 vector<string>& Combiner::getObservableNames() const {
-  vector<string>* vars = new vector<string>();
+  auto vars = new vector<string>();
   if (!_isCombined) {
     // collect observables from all PDFs
     for (int i = 0; i < pdfs.size(); i++) {
       TIterator* it = pdfs[i]->getObservables()->createIterator();
-      while (RooRealVar* p = (RooRealVar*)it->Next()) vars->push_back(p->GetName());
+      while (auto p = dynamic_cast<RooRealVar*>(it->Next())) vars->push_back(p->GetName());
       delete it;
     }
   } else {
@@ -327,7 +327,7 @@ vector<string>& Combiner::getObservableNames() const {
       assert(0);
     }
     TIterator* it = obs->createIterator();
-    while (RooRealVar* p = (RooRealVar*)it->Next()) vars->push_back(p->GetName());
+    while (auto p = dynamic_cast<RooRealVar*>(it->Next())) vars->push_back(p->GetName());
     delete it;
   }
   return *vars;
@@ -566,7 +566,7 @@ void Combiner::loadParameterLimits() {
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
   if (arg->debug) cout << "Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
   TIterator* it = w->set("par_" + pdfName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) setLimit(w, p->GetName(), rangeName);
+  while (auto p = dynamic_cast<RooRealVar*>(it->Next())) setLimit(w, p->GetName(), rangeName);
   delete it;
 }
 

@@ -13,7 +13,7 @@ Contour::Contour(const OptParser* arg, TList* listOfGraphs) {
   assert(arg);
   m_arg = arg;
   TIterator* it = listOfGraphs->MakeIterator();
-  while (TGraph* g = (TGraph*)it->Next()) { m_contours.push_back((TGraph*)g->Clone()); }
+  while (auto g = dynamic_cast<TGraph*>(it->Next())) { m_contours.push_back((TGraph*)g->Clone()); }
   delete it;
   m_linecolor = 2;
   m_linestyle = kSolid;
@@ -46,7 +46,7 @@ void Contour::Draw() const {
 ///
 void Contour::DrawFilled() const {
   for (int i = 0; i < m_contoursHoles.size(); i++) {
-    TGraph* g = (TGraph*)m_contoursHoles[i]->Clone();
+    auto g = dynamic_cast<TGraph*>(m_contoursHoles[i]->Clone());
     g->SetFillStyle(1001);  // solid
     // g->SetFillColor(m_fillcolor);
     g->SetFillColorAlpha(m_fillcolor, m_alpha);  // transparency!
@@ -66,7 +66,7 @@ void Contour::DrawFilled() const {
 ///
 void Contour::DrawLine() const {
   for (int i = 0; i < m_contours.size(); i++) {
-    TGraph* g = (TGraph*)m_contours[i]->Clone();
+    auto g = dynamic_cast<TGraph*>(m_contours[i]->Clone());
     g->SetLineWidth(m_linewidth);
     g->SetLineColor(m_linecolor);
     g->SetLineStyle(m_linestyle);
@@ -171,7 +171,7 @@ TGraph* Contour::joinIfInside(TGraph* g1, TGraph* g2) {
   // cout << "g2 ===========" << endl;
   // g2->Print();
   // merge them
-  TGraph* gNew = new TGraph(g1->GetN() + g2->GetN());
+  auto gNew = new TGraph(g1->GetN() + g2->GetN());
   for (int i = 0; i < g1->GetN(); i++) {
     g1->GetPoint(i, pointx, pointy);
     gNew->SetPoint(i, pointx, pointy);
@@ -190,7 +190,7 @@ TGraph* Contour::joinIfInside(TGraph* g1, TGraph* g2) {
 ///
 TGraph* Contour::changePointOrder(TGraph* g, int pointId) {
   Double_t pointx, pointy;
-  TGraph* gNew = new TGraph(g->GetN() + 1);
+  auto gNew = new TGraph(g->GetN() + 1);
   for (int i = pointId; i < g->GetN() + pointId; i++) {
     g->GetPoint(i < g->GetN() ? i : i - g->GetN(), pointx, pointy);
     gNew->SetPoint(i - pointId, pointx, pointy);
@@ -251,7 +251,7 @@ void Contour::magneticBoundaries(vector<TGraph*>& contours, const TH2F* hCL) {
   float ybinwidth = hCL->GetYaxis()->GetBinWidth(1);
   Double_t pointx, pointy;
   for (int j = 0; j < contours.size(); j++) {
-    TGraph* g = (TGraph*)contours[j];
+    auto g = dynamic_cast<TGraph*>(contours[j]);
     for (int i = 0; i < g->GetN(); i++) {
       g->GetPoint(i, pointx, pointy);
       if (abs(pointx - xmin) < xbinwidth * magneticRange) g->SetPoint(i, xmin, pointy);

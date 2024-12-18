@@ -59,11 +59,11 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   bool plotPoints = (s->getMethodName() == "Plugin" || s->getMethodName() == "BergerBoos" ||
                      s->getMethodName() == "DatasetsPlugin") &&
                     plotPluginMarkers;
-  TH1F* hCL = (TH1F*)s->getHCL()->Clone(getUniqueRootName());
+  auto hCL = dynamic_cast<TH1F*>(s->getHCL()->Clone(getUniqueRootName()));
   if (CLsType == 1)
-    hCL = (TH1F*)s->getHCLs()->Clone(getUniqueRootName());
+    hCL = dynamic_cast<TH1F*>(s->getHCLs()->Clone(getUniqueRootName()));
   else if (CLsType == 2)
-    hCL = (TH1F*)s->getHCLsFreq()->Clone(getUniqueRootName());
+    hCL = dynamic_cast<TH1F*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
   // fix inf and nan entries
   for (int i = 1; i <= s->getHCL()->GetNbinsX(); i++) {
     if (s->getHCL()->GetBinContent(i) != s->getHCL()->GetBinContent(i) || std::isinf(s->getHCL()->GetBinContent(i)))
@@ -86,7 +86,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   g->SetName(getUniqueRootName());
   for (int i = 0; i < hCL->GetNbinsX(); i++) {
     g->SetPoint(i, hCL->GetBinCenter(i + 1), hCL->GetBinContent(i + 1));
-    if (plotPoints) ((TGraphErrors*)g)->SetPointError(i, 0.0, hCL->GetBinError(i + 1));
+    if (plotPoints) (dynamic_cast<TGraphErrors*>(g))->SetPointError(i, 0.0, hCL->GetBinError(i + 1));
   }
 
   // add solution -- this does not make sense for the one-sided test statistic, which only gives non-default values for
@@ -116,7 +116,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   // add end points of scan range
   if (!plotPoints) {
     Double_t pointx0, pointy0;
-    TGraph* gNew = new TGraph(g->GetN() + 4);
+    auto gNew = new TGraph(g->GetN() + 4);
     gNew->SetName(getUniqueRootName());
     for (int i = 0; i < g->GetN(); i++) {
       g->GetPoint(i, pointx0, pointy0);
@@ -307,7 +307,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
 
   if (last) {
     // add right axis
-    TGaxis* axisr = nullptr;
+    TGaxis* axisr;
     if (arg->plotlog) {
       float f3min = 1e-3;
       float f3max = (plotLegend && !arg->isQuickhack(22)) ? 10. : 1.;
@@ -344,11 +344,11 @@ void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, bool first, int CLsType)
   }
   m_mainCanvas->cd();
 
-  TH1F* hCL = (TH1F*)s->getHCL()->Clone(getUniqueRootName());
+  auto hCL = dynamic_cast<TH1F*>(s->getHCL()->Clone(getUniqueRootName()));
   if (CLsType == 1)
-    hCL = (TH1F*)s->getHCLs()->Clone(getUniqueRootName());
+    hCL = dynamic_cast<TH1F*>(s->getHCLs()->Clone(getUniqueRootName()));
   else if (CLsType == 2)
-    hCL = (TH1F*)s->getHCLsFreq()->Clone(getUniqueRootName());
+    hCL = dynamic_cast<TH1F*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
 
   // get rid of nan and inf
   for (int i = 1; i <= hCL->GetNbinsX(); i++) {
@@ -416,12 +416,12 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
     return;
   }
 
-  TH1F* hObs = (TH1F*)s->getHCLsFreq()->Clone(getUniqueRootName());
-  TH1F* hExp = (TH1F*)s->getHCLsExp()->Clone(getUniqueRootName());
-  TH1F* hErr1Up = (TH1F*)s->getHCLsErr1Up()->Clone(getUniqueRootName());
-  TH1F* hErr1Dn = (TH1F*)s->getHCLsErr1Dn()->Clone(getUniqueRootName());
-  TH1F* hErr2Up = (TH1F*)s->getHCLsErr2Up()->Clone(getUniqueRootName());
-  TH1F* hErr2Dn = (TH1F*)s->getHCLsErr2Dn()->Clone(getUniqueRootName());
+  auto hObs = dynamic_cast<TH1F*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
+  auto hExp = dynamic_cast<TH1F*>(s->getHCLsExp()->Clone(getUniqueRootName()));
+  auto hErr1Up = dynamic_cast<TH1F*>(s->getHCLsErr1Up()->Clone(getUniqueRootName()));
+  auto hErr1Dn = dynamic_cast<TH1F*>(s->getHCLsErr1Dn()->Clone(getUniqueRootName()));
+  auto hErr2Up = dynamic_cast<TH1F*>(s->getHCLsErr2Up()->Clone(getUniqueRootName()));
+  auto hErr2Dn = dynamic_cast<TH1F*>(s->getHCLsErr2Dn()->Clone(getUniqueRootName()));
 
   if (!hObs) cout << "OneMinusClPlot::scan1dCLsPlot() : problem - can't find histogram hObs" << endl;
   if (!hExp) cout << "OneMinusClPlot::scan1dCLsPlot() : problem - can't find histogram hExp" << endl;

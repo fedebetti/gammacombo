@@ -16,7 +16,7 @@ int ColorBuilder::darklightcolor(int n, float scale) const {
   if (n < 0) return -1;
 
   // Get list of all defined colors
-  TObjArray* colors = (TObjArray*)gROOT->GetListOfColors();
+  auto colors = dynamic_cast<TObjArray*>(gROOT->GetListOfColors());
   Int_t ncolors = colors->GetSize();
   // Get existing color at index n
   TColor* color = nullptr;

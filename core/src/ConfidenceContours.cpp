@@ -116,16 +116,16 @@ void ConfidenceContours::addFilledPlotArea(TH2F* hist) {
   float ymin = hist->GetYaxis()->GetXmin();
   float ymax = hist->GetYaxis()->GetXmax();
   // make new graph covering the plotted area
-  TGraph* g = new TGraph(m_nMaxContours);
+  auto g = new TGraph(m_nMaxContours);
   g->SetPoint(0, xmin, ymin);
   g->SetPoint(1, xmin, ymax);
   g->SetPoint(2, xmax, ymax);
   g->SetPoint(3, xmax, ymin);
   for (int i = 4; i < m_nMaxContours; i++) g->SetPoint(i, xmin, ymin);
   // make a new Contour object from it
-  TList* l = new TList();
+  auto l = new TList();
   l->Add(g);
-  Contour* c = new Contour(m_arg, l);
+  auto c = new Contour(m_arg, l);
   m_contours.push_back(c);
 }
 
@@ -196,7 +196,7 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
   TCanvas* ctmp = newNoWarnTCanvas(getUniqueRootName(), "ctmp");
   histb->Draw("contlist");
   gPad->Update();  // needed to be able to access the contours as TGraphs
-  TObjArray* contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
+  auto contours = dynamic_cast<TObjArray*>(gROOT->GetListOfSpecials()->FindObject("contours"));
   delete ctmp;
   delete histb;
   if (m_arg->interactive)
@@ -213,7 +213,7 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
   }
   for (int ic = m_nMaxContours - 1; ic >= 0; ic--) {
     if (!(((TList*)contours->At(ic))->IsEmpty())) {
-      Contour* cont = new Contour(m_arg, (TList*)contours->At(ic));
+      auto cont = new Contour(m_arg, (TList*)contours->At(ic));
       cont->setSigma(5 - nEmptyContours - ic);
       m_contours.push_back(cont);
     }
