@@ -1099,8 +1099,8 @@ int Utils::makeNewColor(string hex) {
 /// parameter names given by an vector with TStrings
 ///
 void Utils::fillArgList(RooArgList* list, RooWorkspace* w, std::vector<TString> names) {
-  for (std::vector<TString>::iterator it = names.begin(); it != names.end(); ++it) {
-    if (!list->add(*w->var(*it), kTRUE)) {  //> add silent
+  for (auto name : names) {
+    if (!list->add(*w->var(name), kTRUE)) {  //> add silent
       std::cout << "WARNING: Utils::fillArgList - Var either already in ArgList: " << list->GetName()
                 << " or the List does own its vars" << endl;
     };
@@ -1176,10 +1176,10 @@ void Utils::setParametersFloating(RooWorkspace* w, std::vector<TString> names) {
 /// Debug tools: print the content of a vector to stdout.
 ///
 void Utils::dump_vector(const std::vector<int>& l) {
-  for (std::vector<int>::const_iterator it = l.begin(); it != l.end(); it++) { cout << *it << endl; }
+  for (auto const& el : l) { cout << el << endl; }
 }
 void Utils::dump_vector(const std::vector<float>& l) {
-  for (std::vector<float>::const_iterator it = l.begin(); it != l.end(); it++) { cout << *it << endl; }
+  for (auto const& el : l) { cout << el << endl; }
 }
 void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {
   for (int ix = 0; ix < l.size(); ix++) {
@@ -1192,10 +1192,10 @@ void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {
 /// Debug tools: print the content of a 2d map to stdout.
 ///
 void Utils::dump_map(const std::map<int, std::vector<int>>& map) {
-  for (std::map<int, std::vector<int>>::const_iterator it = map.begin(); it != map.end(); it++) {
-    cout << "Key: " << it->first << endl;
+  for (auto const& [key, val] : map) {
+    cout << "Key: " << key << endl;
     cout << "Values" << endl;
-    dump_vector(it->second);
+    dump_vector(val);
   }
 }
 

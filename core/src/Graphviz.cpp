@@ -57,9 +57,9 @@ void Graphviz::printCombiner(Combiner* cmb) const {
   // dotfile << "K=3;\n";
 
   // print measurements (=nodes)
-  for (int i = 0; i < cmb->getPdfs().size(); i++) {
-    TString nodeName = graphvizString(cmb->getPdfs()[i]->getName());
-    TString nodeTitle = graphvizString(cmb->getPdfs()[i]->getTitle());
+  for (auto pdf : cmb->getPdfs()) {
+    TString nodeName = graphvizString(pdf->getName());
+    TString nodeTitle = graphvizString(pdf->getTitle());
     dotfile << nodeName << " [label=\"" << nodeTitle << "\"];\n";
   }
 
@@ -122,9 +122,9 @@ void Graphviz::printCombinerLayer(Combiner* cmb) const {
   dotfile << "node [style=filled,color=white];\n";
   dotfile << "style=filled;\n";
   dotfile << "color=lightgrey;\n";
-  for (int i = 0; i < cmb->getPdfs().size(); i++) {
-    TString nodeName = graphvizString(cmb->getPdfs()[i]->getName());
-    TString nodeTitle = graphvizString(cmb->getPdfs()[i]->getTitle());
+  for (auto pdf : cmb->getPdfs()) {
+    TString nodeName = graphvizString(pdf->getName());
+    TString nodeTitle = graphvizString(pdf->getTitle());
     dotfile << nodeName << " [label=\"" << nodeTitle << "\"];\n";
   }
   dotfile << "label=\"measurements\";\n";
@@ -136,16 +136,16 @@ void Graphviz::printCombinerLayer(Combiner* cmb) const {
   dotfile << "style=filled;\n";
   dotfile << "color=lightgrey;\n";
   vector<string>& pars = cmb->getParameterNames();
-  for (int i = 0; i < pars.size(); i++) { dotfile << graphvizString(pars[i]) << ";\n"; }
+  for (auto par : pars) { dotfile << graphvizString(par) << ";\n"; }
   dotfile << "label=\"parameters\";\n";
   dotfile << "}\n";
 
   // print edges
-  for (int i = 0; i < cmb->getPdfs().size(); i++) {
-    TString nodeNamePdf = graphvizString(cmb->getPdfs()[i]->getName());
+  for (auto pdf : cmb->getPdfs()) {
+    TString nodeNamePdf = graphvizString(pdf->getName());
 
     // loop over parameters of pdf i
-    TIterator* it = cmb->getPdfs()[i]->getParameters()->createIterator();
+    TIterator* it = pdf->getParameters()->createIterator();
     while (RooAbsReal* vi = (RooAbsReal*)it->Next()) {
       TString nodeNamePar = graphvizString(vi->GetName());
       dotfile << nodeNamePdf << " -- " << nodeNamePar;

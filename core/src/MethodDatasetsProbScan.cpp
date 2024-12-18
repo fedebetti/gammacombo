@@ -838,7 +838,7 @@ int MethodDatasetsProbScan::scan2d() {
   // which is not achieved yet
 
   // clean all fit results that didn't make it into the final result
-  for (int i = 0; i < allResults.size(); i++) { deleteIfNotInCurveResults2d(allResults[i]); }
+  for (auto result : allResults) { deleteIfNotInCurveResults2d(result); }
 
   if (bestMinFoundInScan - bestMinOld > 0.1) {
     cout << "MethodDatasetsProbScan::scan2d() : WARNING: Scan didn't find minimum that was found before!" << endl;

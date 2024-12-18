@@ -27,8 +27,8 @@ Contour::Contour(const OptParser* arg, TList* listOfGraphs) {
 }
 
 Contour::~Contour() {
-  for (int i = 0; i < m_contours.size(); i++) { delete m_contours[i]; }
-  for (int i = 0; i < m_contoursHoles.size(); i++) { delete m_contoursHoles[i]; }
+  for (auto contour : m_contours) { delete contour; }
+  for (auto ch : m_contoursHoles) { delete ch; }
 }
 
 ///
@@ -45,14 +45,14 @@ void Contour::Draw() const {
 /// This plots the contours in m_contoursHoles.
 ///
 void Contour::DrawFilled() const {
-  for (int i = 0; i < m_contoursHoles.size(); i++) {
-    auto g = dynamic_cast<TGraph*>(m_contoursHoles[i]->Clone());
+  for (auto ch : m_contoursHoles) {
+    auto g = dynamic_cast<TGraph*>(ch->Clone());
     g->SetFillStyle(1001);  // solid
     // g->SetFillColor(m_fillcolor);
     g->SetFillColorAlpha(m_fillcolor, m_alpha);  // transparency!
     if (!m_arg->isQuickhack(27) && m_fillstyle != 0) g->Draw("F");
     if (m_fillstyle != 1001) {  // if not solid, add the pattern in the line color
-      g = (TGraph*)m_contoursHoles[i]->Clone();
+      g = (TGraph*)ch->Clone();
       g->SetFillStyle(m_fillstyle);  // hatched on top
       g->SetFillColor(m_linecolor);
       g->Draw("F");
@@ -65,8 +65,8 @@ void Contour::DrawFilled() const {
 /// This plots the contours in m_contours.
 ///
 void Contour::DrawLine() const {
-  for (int i = 0; i < m_contours.size(); i++) {
-    auto g = dynamic_cast<TGraph*>(m_contours[i]->Clone());
+  for (auto ch : m_contours) {
+    auto g = dynamic_cast<TGraph*>(ch->Clone());
     g->SetLineWidth(m_linewidth);
     g->SetLineColor(m_linecolor);
     g->SetLineStyle(m_linestyle);
@@ -250,8 +250,8 @@ void Contour::magneticBoundaries(vector<TGraph*>& contours, const TH2F* hCL) {
   float xbinwidth = hCL->GetXaxis()->GetBinWidth(1);
   float ybinwidth = hCL->GetYaxis()->GetBinWidth(1);
   Double_t pointx, pointy;
-  for (int j = 0; j < contours.size(); j++) {
-    auto g = dynamic_cast<TGraph*>(contours[j]);
+  for (auto contour : contours) {
+    auto g = dynamic_cast<TGraph*>(contour);
     for (int i = 0; i < g->GetN(); i++) {
       g->GetPoint(i, pointx, pointy);
       if (abs(pointx - xmin) < xbinwidth * magneticRange) g->SetPoint(i, xmin, pointy);

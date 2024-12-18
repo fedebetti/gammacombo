@@ -35,12 +35,11 @@ void CLIntervalPrinter::addIntervals(vector<CLInterval>& intervals) { _intervals
 bool CLIntervalPrinter::compareByMin(const CLInterval& a, const CLInterval& b) { return a.min < b.min; }
 
 void CLIntervalPrinter::print() {
-  for (int k = 0; k < _intervals.size(); k++) {
-    // sort the intervals
-    vector<CLInterval> sortedIntervals(_intervals[k]);
+  for (auto intervals : _intervals) {
+    vector<CLInterval> sortedIntervals(intervals);
     sort(sortedIntervals.begin(), sortedIntervals.end(), compareByMin);
-    for (int j = 0; j < sortedIntervals.size(); j++) {
-      CLInterval i = sortedIntervals[j];
+    for (auto sInterval : sortedIntervals) {
+      CLInterval i = sInterval;
 
       // convert to degrees if necessary
       if (_degrees) {
@@ -91,9 +90,9 @@ void CLIntervalPrinter::savePython() {
 
   float previousCL = -1.0;
 
-  for (int k = 0; k < _intervals.size(); k++)
-    for (int j = 0; j < _intervals[k].size(); j++) {
-      CLInterval i = _intervals[k][j];
+  for (auto intervals : _intervals)
+    for (auto interval : intervals) {
+      CLInterval i = interval;
 
       // convert to degrees if necessary
       if (_degrees) {

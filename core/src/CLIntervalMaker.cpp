@@ -25,18 +25,18 @@ CLIntervalMaker::~CLIntervalMaker() {}
 void CLIntervalMaker::provideMorePreciseMaximum(float value, TString method) {
   // cout << "CLIntervalMaker::provideMorePreciseMaximum() : " << value << endl;
   float level = 1.;  // accept this many bin sizes deviation
-  for (int i = 0; i < _clintervals1sigma.size(); i++) {
-    if (fabs(_clintervals1sigma[i].central - value) < level * _pvalues.GetBinWidth(1)) {
-      _clintervals1sigma[i].central = value;
-      _clintervals1sigma[i].centralmethod = method;
-      _clintervals1sigma[i].pvalueAtCentral = _pvalues.GetBinContent(valueToBin(value));
+  for (auto cli : _clintervals1sigma) {
+    if (fabs(cli.central - value) < level * _pvalues.GetBinWidth(1)) {
+      cli.central = value;
+      cli.centralmethod = method;
+      cli.pvalueAtCentral = _pvalues.GetBinContent(valueToBin(value));
     }
   }
-  for (int i = 0; i < _clintervals2sigma.size(); i++) {
-    if (fabs(_clintervals2sigma[i].central - value) < level * _pvalues.GetBinWidth(1)) {
-      _clintervals2sigma[i].central = value;
-      _clintervals2sigma[i].centralmethod = method;
-      _clintervals2sigma[i].pvalueAtCentral = _pvalues.GetBinContent(valueToBin(value));
+  for (auto cli : _clintervals2sigma) {
+    if (fabs(cli.central - value) < level * _pvalues.GetBinWidth(1)) {
+      cli.central = value;
+      cli.centralmethod = method;
+      cli.pvalueAtCentral = _pvalues.GetBinContent(valueToBin(value));
     }
   }
 }
@@ -175,35 +175,35 @@ void CLIntervalMaker::findRawIntervals(float pvalue, vector<CLInterval>& clis) {
 /// \param clis - list of confidence intervals holding the central value
 ///
 void CLIntervalMaker::findRawIntervalsForCentralValues(float pvalue, vector<CLInterval>& clis) {
-  for (int i = 0; i < clis.size(); i++) {
-    if (clis[i].pvalueAtCentral < pvalue)
+  for (auto cli : clis) {
+    if (cli.pvalueAtCentral < pvalue)
       continue;  // skip central values that will not going to be included in an interval at this pvalue
-    clis[i].pvalue = pvalue;
-    clis[i].minmethod = "bins";
-    clis[i].maxmethod = "bins";
-    int centralValueBin = valueToBin(clis[i].central);
+    cli.pvalue = pvalue;
+    cli.minmethod = "bins";
+    cli.maxmethod = "bins";
+    int centralValueBin = valueToBin(cli.central);
 
     // find lower interval bound
-    clis[i].min = _pvalues.GetXaxis()->GetXmin();
+    cli.min = _pvalues.GetXaxis()->GetXmin();
     for (int j = centralValueBin; j > 0; j--) {
       if (_pvalues.GetBinContent(j) < pvalue) {
-        clis[i].min = _pvalues.GetBinCenter(j);
+        cli.min = _pvalues.GetBinCenter(j);
         break;
       }
     }
 
     // find upper interval bound
-    clis[i].max = _pvalues.GetXaxis()->GetXmax();
+    cli.max = _pvalues.GetXaxis()->GetXmax();
     for (int j = centralValueBin; j < _pvalues.GetNbinsX(); j++) {
       if (_pvalues.GetBinContent(j) < pvalue) {
-        clis[i].max = _pvalues.GetBinCenter(j);
+        cli.max = _pvalues.GetBinCenter(j);
         break;
       }
     }
 
     // check if both boundaries were found
-    clis[i].minclosed = clis[i].min != _pvalues.GetXaxis()->GetXmin();
-    clis[i].maxclosed = clis[i].max != _pvalues.GetXaxis()->GetXmax();
+    cli.minclosed = cli.min != _pvalues.GetXaxis()->GetXmin();
+    cli.maxclosed = cli.max != _pvalues.GetXaxis()->GetXmax();
   }
 }
 
@@ -215,11 +215,11 @@ void CLIntervalMaker::findRawIntervalsForCentralValues(float pvalue, vector<CLIn
 void CLIntervalMaker::removeBadIntervals() {
   vector<CLInterval> _clintervals1sigmaTmp;
   vector<CLInterval> _clintervals2sigmaTmp;
-  for (int i = 0; i < _clintervals1sigma.size(); i++) {
-    if (_clintervals1sigma[i].pvalue > 0) _clintervals1sigmaTmp.push_back(_clintervals1sigma[i]);
+  for (auto cli : _clintervals1sigma) {
+    if (cli.pvalue > 0) _clintervals1sigmaTmp.push_back(cli);
   }
-  for (int i = 0; i < _clintervals2sigma.size(); i++) {
-    if (_clintervals2sigma[i].pvalue > 0) _clintervals2sigmaTmp.push_back(_clintervals2sigma[i]);
+  for (auto cli : _clintervals2sigma) {
+    if (cli.pvalue > 0) _clintervals2sigmaTmp.push_back(cli);
   }
   _clintervals1sigma = _clintervals1sigmaTmp;
   _clintervals2sigma = _clintervals2sigmaTmp;
@@ -290,26 +290,26 @@ bool CLIntervalMaker::interpolateLine(const TH1F* h, int i, float y, float& val)
 /// \param clis - list of confidence intervals holding the central value and min and max boundaries
 ///
 void CLIntervalMaker::improveIntervalsLine(vector<CLInterval>& clis) const {
-  for (int i = 0; i < clis.size(); i++) {
+  for (auto cli : clis) {
     bool wasImproved;
     float newMin, newMax;
     int binMin, binMax;
     // improve lower boundary
-    if (clis[i].minclosed) {
-      binMin = checkNeighboringBins(valueToBin(clis[i].min), clis[i].pvalue);
-      wasImproved = interpolateLine(&_pvalues, binMin, clis[i].pvalue, newMin);
+    if (cli.minclosed) {
+      binMin = checkNeighboringBins(valueToBin(cli.min), cli.pvalue);
+      wasImproved = interpolateLine(&_pvalues, binMin, cli.pvalue, newMin);
       if (wasImproved) {
-        clis[i].minmethod = "line";
-        clis[i].min = newMin;
+        cli.minmethod = "line";
+        cli.min = newMin;
       }
     }
     // improve upper boundary
-    if (clis[i].maxclosed) {
-      binMax = checkNeighboringBins(valueToBin(clis[i].max), clis[i].pvalue);
-      wasImproved = interpolateLine(&_pvalues, binMax, clis[i].pvalue, newMax);
+    if (cli.maxclosed) {
+      binMax = checkNeighboringBins(valueToBin(cli.max), cli.pvalue);
+      wasImproved = interpolateLine(&_pvalues, binMax, cli.pvalue, newMax);
       if (wasImproved) {
-        clis[i].maxmethod = "line";
-        clis[i].max = newMax;
+        cli.maxmethod = "line";
+        cli.max = newMax;
       }
     }
   }
@@ -321,26 +321,26 @@ void CLIntervalMaker::improveIntervalsLine(vector<CLInterval>& clis) const {
 /// \param clis - list of confidence intervals holding the central value and min and max boundaries
 ///
 void CLIntervalMaker::improveIntervalsPol2fit(vector<CLInterval>& clis) const {
-  for (int i = 0; i < clis.size(); i++) {
+  for (auto cli : clis) {
     bool wasImproved;
     float newMin, newMax, newMinErr, newMaxErr;
     int binMin, binMax;
     // improve lower boundary
-    if (clis[i].minclosed) {
-      binMin = checkNeighboringBins(valueToBin(clis[i].min), clis[i].pvalue);
-      wasImproved = interpolatePol2fit(&_pvalues, binMin, clis[i].pvalue, clis[i].central, false, newMin, newMinErr);
+    if (cli.minclosed) {
+      binMin = checkNeighboringBins(valueToBin(cli.min), cli.pvalue);
+      wasImproved = interpolatePol2fit(&_pvalues, binMin, cli.pvalue, cli.central, false, newMin, newMinErr);
       if (wasImproved) {
-        clis[i].minmethod = "pol2";
-        clis[i].min = newMin;
+        cli.minmethod = "pol2";
+        cli.min = newMin;
       }
     }
     // improve upper boundary
-    if (clis[i].maxclosed) {
-      binMax = checkNeighboringBins(valueToBin(clis[i].max), clis[i].pvalue);
-      wasImproved = interpolatePol2fit(&_pvalues, binMax, clis[i].pvalue, clis[i].central, true, newMax, newMaxErr);
+    if (cli.maxclosed) {
+      binMax = checkNeighboringBins(valueToBin(cli.max), cli.pvalue);
+      wasImproved = interpolatePol2fit(&_pvalues, binMax, cli.pvalue, cli.central, true, newMax, newMaxErr);
       if (wasImproved) {
-        clis[i].maxmethod = "pol2";
-        clis[i].max = newMax;
+        cli.maxmethod = "pol2";
+        cli.max = newMax;
       }
     }
   }

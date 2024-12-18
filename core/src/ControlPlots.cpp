@@ -295,8 +295,8 @@ void ControlPlots::ctrlPlotNuisances() {
     bBaseName.ReplaceAll("_free", "");
 
     bool nameWasUsed = false;
-    for (unsigned int i = 0; i < usedVariableNames.size(); i++)
-      if (usedVariableNames[i] == bBaseName) nameWasUsed = true;
+    for (auto var : usedVariableNames)
+      if (var == bBaseName) nameWasUsed = true;
     if (nameWasUsed) continue;
     usedVariableNames.push_back(bBaseName);
 
@@ -639,12 +639,12 @@ TVirtualPad* ControlPlots::selectNewPad() {
 /// Save all control plots that were created so far.
 ///
 void ControlPlots::saveCtrlPlots() {
-  for (int i = 0; i < ctrlPlotCanvases.size(); i++) {
-    TString fName = ctrlPlotCanvases[i]->GetTitle();
+  for (auto c : ctrlPlotCanvases) {
+    TString fName = c->GetTitle();
     fName.ReplaceAll(name + " ", name + "_" + arg->var[0] + "_");
     fName.ReplaceAll(" ", "_");
     fName = "ctrlPlot_" + fName;
-    savePlot(ctrlPlotCanvases[i], fName);
+    savePlot(c, fName);
   }
 }
 

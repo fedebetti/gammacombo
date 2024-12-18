@@ -71,7 +71,7 @@ void PullPlotter::defineOrder() {
   obsOrder.push_back("           rcpp_dk_obs");
   obsOrder.push_back("       rads_dk_kpi_obs");
   obsOrder.push_back("       aads_dk_kpi_obs");
-  for (int i = 0; i < obsOrder.size(); i++) obsOrder[i].ReplaceAll(" ", "");
+  for (auto oo : obsOrder) oo.ReplaceAll(" ", "");
 }
 
 ///
@@ -276,8 +276,8 @@ void PullPlotter::plotPulls() {
   TIterator* it = cmb->getObservables()->createIterator();
   while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
     bool found = false;
-    for (int i = 0; i < obsOrder.size(); i++) {
-      if (obsOrder[i] == TString(pObs->GetName())) found = true;
+    for (auto oo : obsOrder) {
+      if (oo == TString(pObs->GetName())) found = true;
     }
     if (!found) obsOrder.push_back(pObs->GetName());
   }
