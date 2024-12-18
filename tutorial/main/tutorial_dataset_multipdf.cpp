@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 
   // Load the workspace from its file
   TFile f("multipdfworkspace.root");
-  RooWorkspace* workspace = (RooWorkspace*)f.Get("workspace");
+  auto workspace = dynamic_cast<RooWorkspace*>(f.Get("workspace"));
   if (workspace == nullptr) {
     std::cout << "No workspace found:" << std::endl;
     std::cout << "This tutorial requires a .root file containting a special workspace before running it." << std::endl;
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
   // You can make any changes to your workspace on the fly here
 
-  PDF_Datasets* pdf = new PDF_Datasets(workspace);
+  auto pdf = new PDF_Datasets(workspace);
   pdf->initData("data");        // this is the name of the dataset in the workspace
   pdf->initPDF("roomultipdf");  // this the name of the pdf in the workspace (without the constraints)
   // To compare to the behaviour with a single pdf, you can instead use pdf->initPDF("SBmodel_polynomial") (polynomial

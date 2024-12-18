@@ -10,7 +10,7 @@ ParametersTutorial::ParametersTutorial() { defineParameters(); }
 ///  free:  range applied when no boundary is required - set this far away from any possible value
 ///
 void ParametersTutorial::defineParameters() {
-  Parameter* p = 0;
+  Parameter* p = nullptr;
 
   p = newParameter("a_gaus");
   p->title = "a_{Gaus}";

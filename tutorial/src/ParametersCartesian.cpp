@@ -13,7 +13,7 @@ ParametersCartesian::ParametersCartesian() { defineParameters(); }
 ///  free:  range applied when no boundary is required - set this far away from any possible value
 ///
 void ParametersCartesian::defineParameters() {
-  Parameter* p = 0;
+  Parameter* p = nullptr;
 
   p = newParameter("g");
   p->title = "#gamma";

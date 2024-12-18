@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
 
   // Load the workspace from its file
   TFile f("workspace.root");
-  RooWorkspace* workspace = (RooWorkspace*)f.Get("dataset_workspace");
+  auto workspace = dynamic_cast<RooWorkspace*>(f.Get("dataset_workspace"));
   if (workspace == nullptr) {
     std::cout << "No workspace found:" << std::endl;
     std::cout << "This tutorial requires a .root file containting a special workspace before running it." << std::endl;
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
   //    note that you can write your own PDF_DatasetsTutorial Class which defines your own fitting procedure etc.
   //    this should inherit from PDF_Datasets
 
-  PDF_Datasets* pdf = new PDF_Datasets(workspace);
+  auto pdf = new PDF_Datasets(workspace);
   // PDF_Datasets* pdf = new PDF_DatasetTutorial(workspace); // put your inherited fitter if you want to
   // pdf->setTitle("datasets_combiner"); // give a meaningful title if you want to, default is "PDF_Dataset"
   // pdf->setName("datasets_combiner"); // give a meaningful name if you want to (will enter file names as well),

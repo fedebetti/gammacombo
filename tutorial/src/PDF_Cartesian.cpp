@@ -41,7 +41,7 @@ void PDF_Cartesian::initParameters() {
 
 void PDF_Cartesian::initRelations() {
   theory = new RooArgList("theory");  // <-- the order of this list must match that of the COR matrix!
-  RooArgSet* p = (RooArgSet*)parameters;
+  auto p = dynamic_cast<RooArgSet*>(parameters);
   theory->add(*(new RooFormulaVar("xm_dk_th", "xm_dk_th", "r_dk*cos(d_dk-g)", *p)));
   theory->add(*(new RooFormulaVar("ym_dk_th", "ym_dk_th", "r_dk*sin(d_dk-g)", *p)));
   theory->add(*(new RooFormulaVar("xp_dk_th", "xp_dk_th", "r_dk*cos(d_dk+g)", *p)));
