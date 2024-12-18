@@ -33,7 +33,7 @@ Parameter* ParametersAbs::var(TString name) {
 RooRealVar* ParametersAbs::get(TString name) {
   for (auto par : m_parameters) {
     if (par->name == name) {
-      RooRealVar* r = new RooRealVar(par->name, par->title, par->startvalue, par->unit);
+      auto r = new RooRealVar(par->name, par->title, par->startvalue, par->unit);
       RooMsgService::instance().setGlobalKillBelow(WARNING);  // else we get messages for range creation
       r->setRange("free", par->free.min, par->free.max);
       r->setRange("phys", par->phys.min, par->phys.max);

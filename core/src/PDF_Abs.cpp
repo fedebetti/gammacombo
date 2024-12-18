@@ -90,7 +90,7 @@ void PDF_Abs::build() {
 void PDF_Abs::setObservablesTruth() {
   obsValSource = "truth";
   for (int i = 0; i < nObs; i++) {
-    RooRealVar* pObs = (RooRealVar*)((RooArgList*)observables)->at(i);
+    auto pObs = (RooRealVar*)((RooArgList*)observables)->at(i);
     pObs->setVal(((RooRealVar*)((RooArgList*)theory)->at(i))->getVal());
   }
 }
@@ -113,7 +113,7 @@ void PDF_Abs::setObservablesToy() {
     iToyObs = 0;
   }
   for (int i = 0; i < nObs; i++) {
-    RooRealVar* pObs = (RooRealVar*)((RooArgList*)observables)->at(i);
+    auto pObs = (RooRealVar*)((RooArgList*)observables)->at(i);
     pObs->setVal(((RooRealVar*)toyObservables->get(iToyObs)->find(pObs->GetName()))->getVal());
   }
   iToyObs += 1;
@@ -213,7 +213,7 @@ TString PDF_Abs::uniquifyThisString(TString s, int uID) {
 /// a provided fit result.
 ///
 void PDF_Abs::loadExtParameters(RooFitResult* r) {
-  RooArgSet* tmp = new RooArgSet();
+  auto tmp = new RooArgSet();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
   setParameters(parameters, tmp);
@@ -364,7 +364,7 @@ void PDF_Abs::print() const {
     cout << "      values from: " << obsValSource << endl;
     cout << "      errors from: " << obsErrSource << endl;
     for (int iObs = 0; iObs < nObs; iObs++) {
-      RooRealVar* v = (RooRealVar*)observables->at(iObs);
+      auto v = (RooRealVar*)observables->at(iObs);
       TString obsName = v->GetName();
       obsName.ReplaceAll(uniqueID, "");
       printf("      %-20s = %8.5f +/- %7.5f +/- %7.5f\n", obsName.Data(), v->getVal(), StatErr[iObs], SystErr[iObs]);
@@ -404,7 +404,7 @@ void PDF_Abs::print() const {
       v->printMetaArgs(stream);
       TString formula = stream.str();
       if (formula.Contains("formula=")) {  // this is a RooFormulaVar
-        RooFormulaVar* form = dynamic_cast<RooFormulaVar*>(v);
+        auto form = dynamic_cast<RooFormulaVar*>(v);
         int nFormPars = form->getVariables()->getSize();
         for (int i = 0; i < nFormPars; i++) {
           if (!form->getParameter(i)) continue;
@@ -462,7 +462,7 @@ void PDF_Abs::storeErrorsInObs() {
   }
 
   for (int i = 0; i < nObs; i++) {
-    RooRealVar* pObs = (RooRealVar*)((RooArgList*)observables)->at(i);
+    auto pObs = (RooRealVar*)((RooArgList*)observables)->at(i);
     pObs->setError(sqrt(covMatrix[i][i]));
   }
 }
@@ -485,7 +485,7 @@ void PDF_Abs::setSystCorrelation(TMatrixDSym& corSystMatrix) {
 /// \param value - central value
 ///
 void PDF_Abs::setObservable(TString obsName, float value) {
-  RooRealVar* obs = (RooRealVar*)observables->find(obsName);
+  auto obs = (RooRealVar*)observables->find(obsName);
   if (!obs) {
     cout << "PDF_Abs::setObservable() : ERROR : observable " + obsName + " not found!" << endl;
     exit(1);
@@ -505,7 +505,7 @@ void PDF_Abs::setObservable(TString obsName, float value) {
 ///
 void PDF_Abs::setUncertainty(TString obsName, float stat, float syst) {
   for (int i = 0; i < nObs; i++) {
-    RooRealVar* obs = (RooRealVar*)observables->at(i);
+    auto obs = (RooRealVar*)observables->at(i);
     if (TString(obs->GetName()).EqualTo(obsName)) {
       StatErr[i] = stat;
       SystErr[i] = syst;
@@ -603,7 +603,7 @@ bool PDF_Abs::test() {
 /// \return true if found
 ///
 bool PDF_Abs::hasObservable(TString obsname) const {
-  RooRealVar* obs = (RooRealVar*)observables->find(obsname);
+  auto obs = (RooRealVar*)observables->find(obsname);
   if (!obs) return false;
   return true;
 }

@@ -81,7 +81,7 @@ void OneMinusClPlotAbs::drawGroup(float yPos) const {
     yLow = yPos;
   else
     yLow = arg->plotgroupy;
-  TPaveText* t1 = new TPaveText(xLow, yLow, xLow + 0.225, yLow + 0.08, "BRNDC");
+  auto t1 = new TPaveText(xLow, yLow, xLow + 0.225, yLow + 0.08, "BRNDC");
   t1->SetBorderSize(0);
   t1->SetFillStyle(0);
   t1->SetTextAlign(32);
@@ -90,7 +90,7 @@ void OneMinusClPlotAbs::drawGroup(float yPos) const {
   t1->AddText(arg->group);
   t1->Draw();
   if (arg->plotprelim || arg->plotunoff) {
-    TPaveText* t2 = new TPaveText(xLow, yLow - 0.025, xLow + 0.225, yLow, "BRNDC");
+    auto t2 = new TPaveText(xLow, yLow - 0.025, xLow + 0.225, yLow, "BRNDC");
     t2->SetBorderSize(0);
     t2->SetFillStyle(0);
     t2->SetTextAlign(32);
@@ -103,7 +103,7 @@ void OneMinusClPlotAbs::drawGroup(float yPos) const {
   if (arg->plotdate != "") {
     float yExt = 0.;
     if (arg->plotprelim || arg->plotunoff) yExt += 0.035;
-    TPaveText* t3 = new TPaveText(xLow, yLow - yExt - 0.025, xLow + 0.225, yLow - yExt, "BRNDC");
+    auto t3 = new TPaveText(xLow, yLow - yExt - 0.025, xLow + 0.225, yLow - yExt, "BRNDC");
     t3->SetBorderSize(0);
     t3->SetFillStyle(0);
     t3->SetTextAlign(32);

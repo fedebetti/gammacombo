@@ -587,7 +587,7 @@ void OneMinusClPlot2d::addScanner(MethodAbsScan* s, int CLsType) {
 
 void OneMinusClPlot2d::addFile(TString fName) {
   if (arg->debug) cout << "OneMinusClPlot2d::addFile() : Opening " << fName << endl;
-  TFile* f = TFile::Open(fName, "ro");
+  auto f = TFile::Open(fName, "ro");
   TH2F* hCL = (TH2F*)f->Get("hCL");
   if (!hCL) {
     cout << "OneMinusClPlot2d::addFile() : ERROR : File doesn't contain hCL." << endl;
@@ -631,7 +631,7 @@ void OneMinusClPlot2d::drawCLcontent(bool isFull) {
     xLow = 0.11;
     yLow = 0.11;
   }
-  TPaveText* t1 = new TPaveText(xLow, yLow, xLow + 0.20, yLow + 0.125, "BRNDC");
+  auto t1 = new TPaveText(xLow, yLow, xLow + 0.20, yLow + 0.125, "BRNDC");
   t1->SetBorderSize(0);
   t1->SetFillStyle(0);
   t1->SetTextAlign(12);
@@ -686,7 +686,7 @@ void OneMinusClPlot2d::DrawFull() {
   hChi2->Draw("colz");
 
   // draw contours if requested
-  ConfidenceContours* cont = new ConfidenceContours(arg);
+  auto cont = new ConfidenceContours(arg);
   cont->computeContours(histos[0], histosType[0], 0);
   vector<int> linecolor{kRed, kRed, kRed, kRed, kRed, kRed, kRed};
   // vector<int> linestyle { kDashed, kDashed, kDashed, kDashed, kDashed };
@@ -702,7 +702,7 @@ void OneMinusClPlot2d::DrawFull() {
 
   if (!arg->isQuickhack(15)) drawCLcontent(true);
 
-  TPaveText* title = new TPaveText(.10, .92, .90, .99, "BRNDC");
+  auto title = new TPaveText(.10, .92, .90, .99, "BRNDC");
   title->AddText(
       Form("%s for %s", histosType[0] == kChi2 ? "#Delta#chi^{2}" : "p-value", scanners[0]->getTitle().Data()));
   title->SetBorderSize(0);
@@ -759,7 +759,7 @@ void OneMinusClPlot2d::drawLegend() {
       // construct a dummy TGraph that uses the style of the 1sigma line
       int styleId = i;
       if (arg->color.size() > i) styleId = arg->color[i];
-      TGraph* g = new TGraph(1);
+      auto g = new TGraph(1);
       if (arg->isQuickhack(33))
         g->SetFillStyle(1001);  // solid
       else
@@ -779,7 +779,7 @@ void OneMinusClPlot2d::drawLegend() {
     }
   }
   if (arg->plotlegbox) {
-    TPaveText* legbox =
+    auto legbox =
         new TPaveText(legendXmin, legendYmin, legendXmin + arg->plotlegboxx, legendYmin + arg->plotlegboxy, "ndc");
     legbox->SetFillColorAlpha(0, 0.7);
     legbox->SetFillStyle(1001);
@@ -869,7 +869,7 @@ void OneMinusClPlot2d::Draw() {
   // make contours
   for (int i = 0; i < histos.size(); i++) {
     if (m_contours_computed[i]) continue;
-    ConfidenceContours* cont = new ConfidenceContours(arg);
+    auto cont = new ConfidenceContours(arg);
     cont->computeContours(histos[i], histosType[i], i);
     int styleId = i;
     if (arg->color.size() > i) styleId = arg->color[i];
@@ -942,12 +942,12 @@ void OneMinusClPlot2d::Draw() {
     haxes->GetXaxis()->SetTitle(haxes->GetXaxis()->GetTitle() + TString(" [#circ]"));
 
     // new axis for the top ticks
-    TGaxis* axist = new TGaxis(xmin, ymax, xmax, ymax, RadToDeg(xmin), RadToDeg(xmax), xndiv, xtchopt);
+    auto axist = new TGaxis(xmin, ymax, xmax, ymax, RadToDeg(xmin), RadToDeg(xmax), xndiv, xtchopt);
     axist->SetName("axist");
     axist->Draw();
 
     // new bottom axis
-    TGaxis* axisb = new TGaxis(xmin, ymin, xmax, ymin, RadToDeg(xmin), RadToDeg(xmax), xndiv, xbchopt);
+    auto axisb = new TGaxis(xmin, ymin, xmax, ymin, RadToDeg(xmin), RadToDeg(xmax), xndiv, xbchopt);
     axisb->SetName("axisb");
     axisb->SetLabelOffset(haxes->GetXaxis()->GetLabelOffset());
     axisb->SetLabelFont(font);
@@ -965,12 +965,12 @@ void OneMinusClPlot2d::Draw() {
       nmin *= 100;
       nmax *= 100;
     }
-    TGaxis* axist = new TGaxis(xmin, ymax, xmax, ymax, nmin, nmax, xndiv, xtchopt);
+    auto axist = new TGaxis(xmin, ymax, xmax, ymax, nmin, nmax, xndiv, xtchopt);
     axist->SetName("axist");
     axist->Draw();
 
     // draw a new bottom axis because the confidence contours can cover the old one
-    TGaxis* axisb = new TGaxis(xmin, ymin, xmax, ymin, nmin, nmax, xndiv, xbchopt);
+    auto axisb = new TGaxis(xmin, ymin, xmax, ymin, nmin, nmax, xndiv, xbchopt);
     axisb->SetName("axisb");
     axisb->SetLabelOffset(haxes->GetXaxis()->GetLabelOffset());
     axisb->SetLabelFont(font);
@@ -987,7 +987,7 @@ void OneMinusClPlot2d::Draw() {
     haxes->GetYaxis()->SetTitle(haxes->GetYaxis()->GetTitle() + TString(" [#circ]"));
 
     // new left axis
-    TGaxis* axisl = new TGaxis(xmin, ymin, xmin, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, ylchopt);
+    auto axisl = new TGaxis(xmin, ymin, xmin, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, ylchopt);
     axisl->SetName("axisl");
     axisl->SetLabelOffset(haxes->GetYaxis()->GetLabelOffset());
     axisl->SetLabelFont(font);
@@ -1000,7 +1000,7 @@ void OneMinusClPlot2d::Draw() {
     axisl->Draw();
 
     // new axis for the right ticks
-    TGaxis* axisr = new TGaxis(xmax, ymin, xmax, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, yrchopt);
+    auto axisr = new TGaxis(xmax, ymin, xmax, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, yrchopt);
     axisr->SetName("axisr");
     axisr->Draw();
   } else {
@@ -1012,7 +1012,7 @@ void OneMinusClPlot2d::Draw() {
       nmax *= 100;
     }
     haxes->GetYaxis()->SetNdivisions(0);
-    TGaxis* axisl = new TGaxis(xmin, ymin, xmin, ymax, nmin, nmax, yndiv, ylchopt);
+    auto axisl = new TGaxis(xmin, ymin, xmin, ymax, nmin, nmax, yndiv, ylchopt);
     axisl->SetName("axisl");
     axisl->SetLabelOffset(haxes->GetYaxis()->GetLabelOffset());
     axisl->SetLabelFont(font);
@@ -1025,7 +1025,7 @@ void OneMinusClPlot2d::Draw() {
     axisl->Draw();
 
     // new right axis
-    TGaxis* axisr = new TGaxis(xmax, ymin, xmax, ymax, nmin, nmax, yndiv, yrchopt);
+    auto axisr = new TGaxis(xmax, ymin, xmax, ymax, nmin, nmax, yndiv, yrchopt);
     axisr->SetName("axisr");
     axisr->Draw();
   }

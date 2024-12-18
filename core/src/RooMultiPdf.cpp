@@ -29,7 +29,7 @@ ClassImp(RooMultiPdf)
     // This is done by the user BUT is there a way to do it at construction?
     _x.defineType(Form("_pdf%d", count), count);  //(fPdf->getParameters())->getSize());
     // Isn't there a better wat to hold on to these values?
-    RooConstVar* tmp = new RooConstVar(Form("const%s", fPdf->GetName()), "", fPdf->getVariables()->getSize());
+    auto tmp = new RooConstVar(Form("const%s", fPdf->GetName()), "", fPdf->getVariables()->getSize());
     corr.add(*tmp);
     count++;
   }
@@ -47,7 +47,7 @@ RooMultiPdf::RooMultiPdf(const RooMultiPdf& other, const char* name)
 
   for (const auto fPdf : other.c) {
     c.add(*fPdf);
-    RooConstVar* tmp = new RooConstVar(Form("const%s", fPdf->GetName()), "", fPdf->getVariables()->getSize());
+    auto tmp = new RooConstVar(Form("const%s", fPdf->GetName()), "", fPdf->getVariables()->getSize());
     corr.add(*tmp);
   }
 
@@ -75,12 +75,12 @@ double RooMultiPdf::getCorrection() const {
 //_____________________________________________________________________________
 RooAbsPdf* RooMultiPdf::getCurrentPdf() const {
 
-  RooAbsPdf* cPdf = ((RooAbsPdf*)c.at(x));
+  auto cPdf = ((RooAbsPdf*)c.at(x));
   return cPdf;
 }
 RooAbsPdf* RooMultiPdf::getPdf(int index) const {
 
-  RooAbsPdf* cPdf = ((RooAbsPdf*)c.at(index));
+  auto cPdf = ((RooAbsPdf*)c.at(index));
   return cPdf;
 }
 
@@ -91,7 +91,7 @@ int RooMultiPdf::getCurrentIndex() const {
 
 //_____________________________________________________________________________
 Double_t RooMultiPdf::getValV(const RooArgSet* nset) const {
-  RooAbsPdf* cPdf = ((RooAbsPdf*)c.at(x));
+  auto cPdf = ((RooAbsPdf*)c.at(x));
   double val = cPdf->getVal(nset);
   _oldIndex = x;
   return val;
@@ -108,7 +108,7 @@ Double_t RooMultiPdf::evaluate() const {
 
 //_____________________________________________________________________________
 Double_t RooMultiPdf::getLogVal(const RooArgSet* nset) const {
-  RooAbsPdf* cPdf = ((RooAbsPdf*)c.at(x));
+  auto cPdf = ((RooAbsPdf*)c.at(x));
   double logval = cPdf->getLogVal(nset);
   _oldIndex = x;
   return logval;
