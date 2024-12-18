@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <ios>
+#include <numbers>
 
 #include <RooArgSet.h>
 #include <RooDataHist.h>
@@ -729,8 +730,8 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   double pval_significance = getVectorFracAboveValue(sampledBTeststats, chi2minBkg - chi2minGlobal);
   cout << "MethodDatasetsPluginScan::readScan1dTrees() : signal significance: naive p-val: "
        << TMath::Prob(chi2minBkg - chi2minGlobal, 1) << " (" << sqrt(chi2minBkg - chi2minGlobal) << " sigma)"
-       << " vs. value from toys: " << pval_significance << " (" << sqrt(2) * TMath::ErfInverse(1. - pval_significance)
-       << " sigma)" << endl;
+       << " vs. value from toys: " << pval_significance << " ("
+       << std::numbers::sqrt2 * TMath::ErfInverse(1. - pval_significance) << " sigma)" << endl;
   if (nwrongrun > 0) {
     cout << "\nMethodDatasetsPluginScan::readScan1dTrees() : WARNING : Read toys that differ in global chi2min (wrong "
             "run) : "
