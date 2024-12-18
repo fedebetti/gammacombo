@@ -35,11 +35,11 @@ void PDF_CrossCorAbs::initParameters() {
   // we need the same parameters as both input PDFs:
   // copy over from first PDF
   TIterator* it = pdf1->getParameters()->createIterator();
-  while (RooRealVar* par = (RooRealVar*)it->Next()) { parameters->add(*(p.get(par->GetName()))); }
+  while (auto par = dynamic_cast<RooRealVar*>(it->Next())) { parameters->add(*(p.get(par->GetName()))); }
   delete it;
   // copy over from second PDF
   it = pdf2->getParameters()->createIterator();
-  while (RooRealVar* par = (RooRealVar*)it->Next()) {
+  while (auto par = dynamic_cast<RooRealVar*>(it->Next())) {
     if (parameters->find(par->GetName())) continue;
     parameters->add(*(p.get(par->GetName())));
   }
@@ -51,11 +51,11 @@ void PDF_CrossCorAbs::initRelations() {
   // we need the same theory as both input PDFs:
   // copy over from first PDF
   TIterator* it = pdf1->getTheory()->createIterator();
-  while (RooRealVar* th = (RooRealVar*)it->Next()) { theory->add(*th); }
+  while (auto th = dynamic_cast<RooRealVar*>(it->Next())) { theory->add(*th); }
   delete it;
   // copy over from second PDF
   it = pdf2->getTheory()->createIterator();
-  while (RooRealVar* th = (RooRealVar*)it->Next()) { theory->add(*th); }
+  while (auto th = dynamic_cast<RooRealVar*>(it->Next())) { theory->add(*th); }
   delete it;
 }
 
@@ -64,11 +64,11 @@ void PDF_CrossCorAbs::initObservables() {
   // we need the same observables as both input PDFs:
   // copy over from first PDF
   TIterator* it = pdf1->getObservables()->createIterator();
-  while (RooRealVar* obs = (RooRealVar*)it->Next()) { observables->add(*obs); }
+  while (auto obs = dynamic_cast<RooRealVar*>(it->Next())) { observables->add(*obs); }
   delete it;
   // copy over from second PDF
   it = pdf2->getObservables()->createIterator();
-  while (RooRealVar* obs = (RooRealVar*)it->Next()) { observables->add(*obs); }
+  while (auto obs = dynamic_cast<RooRealVar*>(it->Next())) { observables->add(*obs); }
   delete it;
 }
 

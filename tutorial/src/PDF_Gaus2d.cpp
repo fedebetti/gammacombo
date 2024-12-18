@@ -36,7 +36,7 @@ void PDF_Gaus2d::initParameters() {
 }
 
 void PDF_Gaus2d::initRelations() {
-  RooArgSet* p = (RooArgSet*)parameters;
+  auto p = dynamic_cast<RooArgSet*>(parameters);
   theory = new RooArgList("theory");  ///< the order of this list must match that of the COR matrix!
   theory->add(*(new RooFormulaVar("a_gaus_th", "a_gaus_th", "a_gaus", *p)));
   theory->add(*(new RooFormulaVar("b_gaus_th", "b_gaus_th", "b_gaus", *p)));
