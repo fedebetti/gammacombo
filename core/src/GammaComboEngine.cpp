@@ -144,8 +144,7 @@ void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, vector<int>& indices, 
          << " is bigger than the observables size " << pdf->getObservables()->getSize() << endl;
     exit(1);
   }
-  for (int i = 0; i < indices.size(); i++) {
-    int index = indices[i];
+  for (const auto index : indices) {
     if (index > pdf->getObservables()->getSize() - 1 || index < 0) {
       cout << "GammaComboEngine::addSubsetPdf() : ERROR - one of the subset index values " << index
            << " is larger than the total number of of observables " << pdf->getObservables()->getSize()
@@ -185,8 +184,7 @@ void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, vector<int>& indices, 
   vector<double> oldSystErrs = pdf->SystErr;
   pdf->StatErr.clear();
   pdf->SystErr.clear();
-  for (int i = 0; i < indices.size(); i++) {
-    int index = indices[i];
+  for (const auto index : indices) {
     pdf->StatErr.push_back(oldStatErrs[index]);
     pdf->SystErr.push_back(oldSystErrs[index]);
   }
@@ -459,11 +457,11 @@ void GammaComboEngine::scaleDownErrors() {
 ///
 void GammaComboEngine::scaleStatErrors() {
   cout << "\nConfiguration: Scaling ALL STAT ERRORS by " << arg->scalestaterr << ".\n" << endl;
-  for (int i = 0; i < pdf.size(); i++) {
-    if (!pdf[i]) continue;
-    for (int iObs = 0; iObs < pdf[i]->getNobs(); iObs++) { pdf[i]->StatErr[iObs] *= arg->scalestaterr; }
-    pdf[i]->buildCov();
-    pdf[i]->buildPdf();
+  for (auto p : pdf) {
+    if (!p) continue;
+    for (int iObs = 0; iObs < p->getNobs(); iObs++) { p->StatErr[iObs] *= arg->scalestaterr; }
+    p->buildCov();
+    p->buildPdf();
   }
 }
 
@@ -472,14 +470,14 @@ void GammaComboEngine::scaleStatErrors() {
 ///
 void GammaComboEngine::scaleStatAndSystErrors() {
   cout << "\nConfiguration: Scaling ALL STAT AND SYST ERRORS by " << arg->scaleerr << ".\n" << endl;
-  for (int i = 0; i < pdf.size(); i++) {
-    if (!pdf[i]) continue;
-    for (int iObs = 0; iObs < pdf[i]->getNobs(); iObs++) {
-      pdf[i]->StatErr[iObs] *= arg->scaleerr;
-      pdf[i]->SystErr[iObs] *= arg->scaleerr;
+  for (auto p : pdf) {
+    if (!p) continue;
+    for (int iObs = 0; iObs < p->getNobs(); iObs++) {
+      p->StatErr[iObs] *= arg->scaleerr;
+      p->SystErr[iObs] *= arg->scaleerr;
     }
-    pdf[i]->buildCov();
-    pdf[i]->buildPdf();
+    p->buildCov();
+    p->buildPdf();
   }
 }
 
@@ -488,11 +486,11 @@ void GammaComboEngine::scaleStatAndSystErrors() {
 ///
 void GammaComboEngine::disableSystematics() {
   cout << "\nConfiguration: Setting ALL SYSTEMATICS TO ZERO.\n" << endl;
-  for (int i = 0; i < pdf.size(); i++) {
-    if (!pdf[i]) continue;
-    for (int iObs = 0; iObs < pdf[i]->getNobs(); iObs++) pdf[i]->SystErr[iObs] = 0.;
-    pdf[i]->buildCov();
-    pdf[i]->buildPdf();
+  for (auto p : pdf) {
+    if (!p) continue;
+    for (int iObs = 0; iObs < p->getNobs(); iObs++) p->SystErr[iObs] = 0.;
+    p->buildCov();
+    p->buildPdf();
   }
 }
 
@@ -530,8 +528,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
 
   // write back the asimov values to the PDF object so that when
   // the PDF is printed, the asimov values show up
-  for (int i = 0; i < c->getPdfs().size(); i++) {
-    PDF_Abs* pdf = c->getPdfs()[i];
+  for (auto pdf : c->getPdfs()) {
     pdf->setObservableSourceString("Asimov");
     TIterator* itObs = pdf->getObservables()->createIterator();
     while (auto pObs = dynamic_cast<RooRealVar*>(itObs->Next())) {
@@ -790,13 +787,13 @@ void GammaComboEngine::checkCombinationArg() const {
     printCombinations();
     exit(1);
   }
-  for (int i = 0; i < arg->combid.size(); i++) {
-    if (arg->combid[i] >= cmb.size()) {
+  for (auto cid : arg->combid) {
+    if (cid >= cmb.size()) {
       cout << "Please chose a combination ID (-c) less than " << cmb.size()
            << ".\nUse the -u option to print a list of available combinations." << endl;
       exit(1);
     }
-    if (!cmb[arg->combid[i]]) {
+    if (!cmb[cid]) {
       cout << "You selected an empty combination.\n"
            << "Use the -u option to print a list of available combinations." << endl;
       exit(1);
@@ -873,15 +870,15 @@ void GammaComboEngine::makeAddDelCombinations() {
     // compute name and title of new combiner
     TString nameNew = cOld->getName();
     TString titleNew = cOld->getTitle();
-    for (int j = 0; j < arg->combmodifications[i].size(); j++) {
-      int pdfId = abs(arg->combmodifications[i][j]);
+    for (auto cm : arg->combmodifications[i]) {
+      int pdfId = abs(cm);
       if (!pdfExists(pdfId)) {
         cout << "\nERROR: measurement of given ID does not exist: " << pdfId << endl;
         cout << "       Here is a list of available measurements:" << endl;
         printPdfs();
         exit(1);
       }
-      if (arg->combmodifications[i][j] > 0) {
+      if (cm > 0) {
         nameNew += Form("+%i", pdfId);
         titleNew += Form(", + Meas.%i", pdfId);
       } else {
@@ -892,9 +889,9 @@ void GammaComboEngine::makeAddDelCombinations() {
     // make the new combiner
     Combiner* cNew = cOld->Clone(nameNew, titleNew);
     // add/delete pdfs
-    for (int j = 0; j < arg->combmodifications[i].size(); j++) {
-      int pdfId = abs(arg->combmodifications[i][j]);
-      if (arg->combmodifications[i][j] > 0) {
+    for (auto cm : arg->combmodifications[i]) {
+      int pdfId = abs(cm);
+      if (cm > 0) {
         cout << "... adding measurement " << pdfId << endl;
         cNew->addPdf(pdf[pdfId]);
       } else {
@@ -1235,9 +1232,9 @@ void GammaComboEngine::make1dPluginScan(MethodPluginScan* scannerPlugin, int cId
   } else {
     scannerPlugin->readScan1dTrees(arg->jmin[cId], arg->jmax[cId]);
     scannerPlugin->calcCLintervals();
-    for (int i = 0; i < arg->cls.size(); i++) {
-      scannerPlugin->calcCLintervals(arg->cls[i]);
-      if (arg->cls[i] == 2) scannerPlugin->calcCLintervals(arg->cls[i], true);  // calculate expected upper limit
+    for (const auto cl : arg->cls) {
+      scannerPlugin->calcCLintervals(cl);
+      if (cl == 2) scannerPlugin->calcCLintervals(cl, true);  // calculate expected upper limit
     }
   }
   if (!arg->isAction("pluginbatch")) { scannerPlugin->saveScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin)); }
@@ -1464,7 +1461,7 @@ void GammaComboEngine::make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) 
   sPlugin->setFillStyle(fillStyles[cId]);
   sPlugin->setFillTransparency(fillTransparencies[cId]);
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
-  for (int i = 0; i < arg->cls.size(); i++) sPlugin->plotOn(plot, arg->cls[i]);
+  for (const auto cl : arg->cls) sPlugin->plotOn(plot, cl);
   sPlugin->plotOn(plot);
   plot->Draw();
 }
@@ -1573,9 +1570,7 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
 ///
 void GammaComboEngine::fixParameters(Combiner* c, int cId) {
   if (cId < arg->fixParameters.size()) {
-    for (int j = 0; j < arg->fixParameters[cId].size(); j++) {
-      c->fixParameter(arg->fixParameters[cId][j].name, arg->fixParameters[cId][j].value);
-    }
+    for (const auto fp : arg->fixParameters[cId]) { c->fixParameter(fp.name, fp.value); }
   }
 }
 
@@ -1585,18 +1580,16 @@ void GammaComboEngine::fixParameters(Combiner* c, int cId) {
 ///
 void GammaComboEngine::adjustRanges(Combiner* c, int cId) {
   if (cId < arg->physRanges.size()) {
-    for (int j = 0; j < arg->physRanges[cId].size(); j++) {
-      c->adjustPhysRange(arg->physRanges[cId][j].name, arg->physRanges[cId][j].min, arg->physRanges[cId][j].max);
-    }
+    for (const auto pr : arg->physRanges[cId]) { c->adjustPhysRange(pr.name, pr.min, pr.max); }
   }
   if (cId < arg->removeRanges.size()) {
-    for (int j = 0; j < arg->removeRanges[cId].size(); j++) {
-      if (arg->removeRanges[cId][j] == "all") {
+    for (const auto rr : arg->removeRanges[cId]) {
+      if (rr == "all") {
         const RooArgSet* pars = (RooArgSet*)c->getParameters();
         TIterator* it = pars->createIterator();
         while (RooRealVar* par = (RooRealVar*)it->Next()) { par->removeRange(); }
       } else {
-        c->adjustPhysRange(arg->removeRanges[cId][j], -999, -999);
+        c->adjustPhysRange(rr, -999, -999);
       }
     }
   }
@@ -1638,9 +1631,8 @@ TString GammaComboEngine::getStartParFileName(int cId) const {
 /// \return true if included, else false
 ///
 bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) const {
-  vector<string> obs = c->getObservableNames();
-  for (int i = 0; i < obs.size(); i++) {
-    if (scanVar.Contains(obs[i])) return true;
+  for (const auto obs : c->getObservableNames()) {
+    if (scanVar.Contains(obs)) return true;
   }
   return false;
 }

@@ -19,8 +19,8 @@ Parameter::Range ParametersAbs::range(float min, float max) const {
 }
 
 Parameter* ParametersAbs::var(TString name) {
-  for (int i = 0; i < m_parameters.size(); i++) {
-    if (m_parameters[i]->name == name) return m_parameters[i];
+  for (auto par : m_parameters) {
+    if (par->name == name) return par;
   }
   cout << "ParametersAbs::var() : ERROR : no such parameter '" + name + "'." << endl;
   return nullptr;
@@ -31,16 +31,15 @@ Parameter* ParametersAbs::var(TString name) {
 ///  free - here is where Feldman-Cousins-like forbidden regions get implemented
 ///
 RooRealVar* ParametersAbs::get(TString name) {
-  for (int i = 0; i < m_parameters.size(); i++) {
-    if (m_parameters[i]->name == name) {
-      RooRealVar* r = new RooRealVar(m_parameters[i]->name, m_parameters[i]->title, m_parameters[i]->startvalue,
-                                     m_parameters[i]->unit);
+  for (auto par : m_parameters) {
+    if (par->name == name) {
+      RooRealVar* r = new RooRealVar(par->name, par->title, par->startvalue, par->unit);
       RooMsgService::instance().setGlobalKillBelow(WARNING);  // else we get messages for range creation
-      r->setRange("free", m_parameters[i]->free.min, m_parameters[i]->free.max);
-      r->setRange("phys", m_parameters[i]->phys.min, m_parameters[i]->phys.max);
-      r->setRange("scan", m_parameters[i]->scan.min, m_parameters[i]->scan.max);
-      r->setRange("force", m_parameters[i]->force.min, m_parameters[i]->force.max);
-      r->setRange("bboos", m_parameters[i]->bboos.min, m_parameters[i]->bboos.max);
+      r->setRange("free", par->free.min, par->free.max);
+      r->setRange("phys", par->phys.min, par->phys.max);
+      r->setRange("scan", par->scan.min, par->scan.max);
+      r->setRange("force", par->force.min, par->force.max);
+      r->setRange("bboos", par->bboos.min, par->bboos.max);
       RooMsgService::instance().setGlobalKillBelow(INFO);
       return r;
     }

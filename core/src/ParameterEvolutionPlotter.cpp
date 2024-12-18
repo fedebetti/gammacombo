@@ -24,11 +24,11 @@ ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
   scanVar1 = scanner->getScanVar1()->GetName();
 
   // copy over non-empty curve results
-  for (int i = 0; i < scanner->getAllResults().size(); i++) {
-    if (scanner->getAllResults()[i]) allResults.push_back(scanner->getAllResults()[i]);
+  for (auto result : scanner->getAllResults()) {
+    if (result) allResults.push_back(result);
   }
-  for (int i = 0; i < scanner->getCurveResults().size(); i++) {
-    if (scanner->getCurveResults()[i]) curveResults.push_back(scanner->getCurveResults()[i]);
+  for (auto cr : scanner->getCurveResults()) {
+    if (cr) curveResults.push_back(cr);
   }
 
   // get the chi2 values at the local minima
@@ -57,7 +57,7 @@ void ParameterEvolutionPlotter::getLocalMinPositions() {
 }
 
 void ParameterEvolutionPlotter::drawLinesAtMinima(TVirtualPad* pad) {
-  for (int i = 0; i < m_localMinPositions.size(); i++) { drawVerticalRedLine(pad, m_localMinPositions[i]); }
+  for (auto val : m_localMinPositions) { drawVerticalRedLine(pad, val); }
 }
 
 ///
@@ -81,10 +81,10 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos
 TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlimFitResult*> results, TString parName) {
   TGraphErrors* g = new TGraphErrors(results.size());
   int iGraph = 0;
-  for (int i = 0; i < results.size(); i++) {
-    if (results[i]) {
-      g->SetPoint(iGraph, results[i]->getParVal(scanVar1), results[i]->getParVal(parName));
-      g->SetPointError(iGraph, 0, results[i]->getParErr(parName));
+  for (auto result : results) {
+    if (result) {
+      g->SetPoint(iGraph, result->getParVal(scanVar1), result->getParVal(parName));
+      g->SetPointError(iGraph, 0, result->getParErr(parName));
       iGraph++;
     }
   }
@@ -97,9 +97,9 @@ TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlim
 TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> results, TString parName) {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
-  for (int i = 0; i < results.size(); i++) {
-    if (results[i]) {
-      g->SetPoint(iGraph, results[i]->getParVal(scanVar1), results[i]->getParVal(parName));
+  for (auto result : results) {
+    if (result) {
+      g->SetPoint(iGraph, result->getParVal(scanVar1), result->getParVal(parName));
       iGraph++;
     }
   }
@@ -112,9 +112,9 @@ TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> 
 TGraph* ParameterEvolutionPlotter::makeChi2Graph(vector<RooSlimFitResult*> results) {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
-  for (int i = 0; i < results.size(); i++) {
-    if (results[i]) {
-      g->SetPoint(iGraph, results[i]->getParVal(scanVar1), results[i]->minNll());
+  for (auto result : results) {
+    if (result) {
+      g->SetPoint(iGraph, result->getParVal(scanVar1), result->minNll());
       iGraph++;
     }
   }
@@ -222,14 +222,14 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   TGraphErrors* g = new TGraphErrors(results.size());
   int iGraph = 0;
 
-  for (int i = 0; i < results.size(); i++) {
-    assert(results[i]);
+  for (auto result : results) {
+    assert(result);
     // get value of observable
-    float obsValue = results[i]->getParVal(scanVar1);
+    float obsValue = result->getParVal(scanVar1);
     float obsError = w->var(scanVar1)->getError();
 
     // get value of theory prediction
-    setParameters(w, parsName, results[i]);
+    setParameters(w, parsName, result);
     TString thName = scanVar1;
     thName.ReplaceAll("_obs", "_th");
     if (!w->function(thName)) {

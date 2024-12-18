@@ -184,9 +184,9 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
   affected_var.push_back("kD_k3pi");
   affected_var.push_back("kD_kskpi");
 
-  for (vector<TString>::iterator aff_var_it = affected_var.begin(); aff_var_it != affected_var.end(); aff_var_it++) {
+  for (auto aff_var : affected_var) {
 
-    TString aff_obs = *aff_var_it + "_obs";
+    TString aff_obs = aff_var + "_obs";
 
     bool hasAffObs = false;
     float generatedValues[2];
@@ -206,16 +206,16 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
     // check if they are the same, if so, fluctuate and regenerate
     if (hasAffObs && generatedValues[0] == generatedValues[1]) {
       delete dataset;
-      TString dD_aff_var = *aff_var_it;
+      TString dD_aff_var = aff_var;
       dD_aff_var.ReplaceAll("kD", "dD");
 
-      cout << aff_obs << " GENERATION ERROR AT " << *aff_var_it << "=" << w->var(*aff_var_it)->getVal() << " "
-           << dD_aff_var << "=" << w->var(dD_aff_var)->getVal() << endl;
+      cout << aff_obs << " GENERATION ERROR AT " << aff_var << "=" << w->var(aff_var)->getVal() << " " << dD_aff_var
+           << "=" << w->var(dD_aff_var)->getVal() << endl;
       TRandom3 r;
-      w->var(*aff_var_it)->setVal(r.Gaus(w->var(*aff_var_it)->getVal(), 0.05));
+      w->var(aff_var)->setVal(r.Gaus(w->var(aff_var)->getVal(), 0.05));
       w->var(dD_aff_var)->setVal(r.Gaus(w->var(dD_aff_var)->getVal(), 0.04));
-      cout << aff_obs << " SECOND GENERATION AT " << *aff_var_it << "=" << w->var(*aff_var_it)->getVal() << " "
-           << dD_aff_var << "=" << w->var(dD_aff_var)->getVal() << endl;
+      cout << aff_obs << " SECOND GENERATION AT " << aff_var << "=" << w->var(aff_var)->getVal() << " " << dD_aff_var
+           << "=" << w->var(dD_aff_var)->getVal() << endl;
 
       RooMsgService::instance().setStreamStatus(0, kFALSE);
       RooMsgService::instance().setStreamStatus(1, kFALSE);
@@ -1052,8 +1052,8 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     // CLs values in data
     int nDataAboveBkgExp = 0;
     double dataTestStat = p > 0 ? TMath::ChisquareQuantile(1. - p, 1) : 1.e10;
-    for (int j = 0; j < sampledBValues[i].size(); j++) {
-      if (sampledBValues[i][j] >= dataTestStat) nDataAboveBkgExp += 1;
+    for (const auto val : sampledBValues[i]) {
+      if (val >= dataTestStat) nDataAboveBkgExp += 1;
     }
 
     float dataCLb = p_clb;
@@ -1191,16 +1191,16 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     if (arg->debug) {
       cout << i << endl;
       cout << "Quants: ";
-      for (int k = 0; k < probs.size(); k++) cout << probs[k] << " , ";
+      for (const auto val : probs) cout << val << " , ";
       cout << endl;
       cout << "CLb: ";
-      for (int k = 0; k < quantiles_clb.size(); k++) cout << quantiles_clb[k] << " , ";
+      for (const auto val : quantiles_clb) cout << val << " , ";
       cout << endl;
       cout << "CLsb: ";
-      for (int k = 0; k < quantiles_clsb.size(); k++) cout << quantiles_clsb[k] << " , ";
+      for (const auto val : quantiles_clsb) cout << val << " , ";
       cout << endl;
       cout << "CLs: ";
-      for (int k = 0; k < quantiles_cls.size(); k++) cout << quantiles_cls[k] << " , ";
+      for (const auto val : quantiles_cls) cout << val << " , ";
       cout << endl;
       // for (int k=0; k<quantiles_cls.size(); k++) cout << quantiles_clsb[k]/quantiles_clb[k] << " , ";
       // cout << endl;
@@ -1505,24 +1505,20 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
 
     std::vector<double> quantiles = Quantile<double>(bVals[i], probs);
     std::vector<double> clsb_vals;
-    for (int k = 0; k < quantiles.size(); k++) {
-      clsb_vals.push_back(getVectorFracAboveValue(sbVals[i], quantiles[k]));
-    }
+    for (const auto val : quantiles) { clsb_vals.push_back(getVectorFracAboveValue(sbVals[i], val)); }
     TCanvas* c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
     double max = *(std::max_element(bVals[i].begin(), bVals[i].end()));
     TH1F* hb = new TH1F(Form("hb%d", i), "hbq", 50, 0, max);
     TH1F* hsb = new TH1F(Form("hsb%d", i), "hsbq", 50, 0, max);
 
-    for (int j = 0; j < bVals[i].size(); j++) hb->Fill(bVals[i][j]);
-    for (int j = 0; j < sbVals[i].size(); j++) hsb->Fill(sbVals[i][j]);
+    for (const auto val : bVals[i]) hb->Fill(val);
+    for (const auto val : sbVals[i]) hsb->Fill(val);
 
     double dataVal = TMath::ChisquareQuantile(1. - hCL->GetBinContent(i), 1);
     TArrow* lD = new TArrow(dataVal, 0.6 * hsb->GetMaximum(), dataVal, 0., 0.15, "|>");
 
     vector<TLine*> qLs;
-    for (int k = 0; k < quantiles.size(); k++) {
-      qLs.push_back(new TLine(quantiles[k], 0, quantiles[k], 0.8 * hsb->GetMaximum()));
-    }
+    for (const auto val : quantiles) { qLs.push_back(new TLine(val, 0, val, 0.8 * hsb->GetMaximum())); }
     auto lat = new TLatex();
     lat->SetTextColor(kRed);
     lat->SetTextSize(0.6 * lat->GetTextSize());

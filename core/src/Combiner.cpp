@@ -36,7 +36,7 @@ Combiner::~Combiner() { delete w; }
 Combiner* Combiner::Clone(TString name, TString title) {
   auto cNew = new Combiner(this->arg, name, title);
   cNew->pdfName = this->pdfName;
-  for (int i = 0; i < pdfs.size(); i++) cNew->addPdf(pdfs[i]);
+  for (auto pdf : pdfs) cNew->addPdf(pdf);
   cNew->_isCombined = this->_isCombined;
   return cNew;
 }
@@ -77,9 +77,9 @@ void Combiner::delPdf(PDF_Abs* p) {
     return;
   }
   vector<PDF_Abs*> pdfsNew;
-  for (int i = 0; i < pdfs.size(); i++) {
-    if (pdfs[i]->getUniqueGlobalID() == p->getUniqueGlobalID()) continue;
-    pdfsNew.push_back(pdfs[i]);
+  for (auto pdf : pdfs) {
+    if (pdf->getUniqueGlobalID() == p->getUniqueGlobalID()) continue;
+    pdfsNew.push_back(pdf);
   }
   pdfs = pdfsNew;
 }
@@ -185,17 +185,17 @@ void Combiner::combine() {
   vector<string> obsStr;
   vector<string> thStr;
 
-  for (int i = 0; i < pdfNames.size(); i++) {
+  for (auto name : pdfNames) {
     // add to pdf name
-    pdfName += "_" + pdfNames[i];
+    pdfName += "_" + name;
 
     // add to pdf list
-    pdfList->add(*w->pdf(TString("pdf_" + pdfNames[i])));
+    pdfList->add(*w->pdf(TString("pdf_" + name)));
 
     // now add to set strings
-    addSetNamesToList(parStr, w, "par_" + pdfNames[i]);
-    addSetNamesToList(obsStr, w, "obs_" + pdfNames[i]);
-    addSetNamesToList(thStr, w, "th_" + pdfNames[i]);
+    addSetNamesToList(parStr, w, "par_" + name);
+    addSetNamesToList(obsStr, w, "obs_" + name);
+    addSetNamesToList(thStr, w, "th_" + name);
   }
 
   // make the product
@@ -240,20 +240,20 @@ void Combiner::combine() {
 /// to the "const" set. Later, they are fixed in MethodAbsScan::doInitialFit().
 ///
 void Combiner::setParametersConstant() {
-  for (int i = 0; i < constVars.size(); i++) {
-    if (!w->var(constVars[i].name)) {
+  for (auto constVar : constVars) {
+    if (!w->var(constVar.name)) {
       cout << "Combiner::setParametersConstant() : ERROR : requesting to set a parameter constant\n"
               "  which is not in the workspace: "
-           << constVars[i].name << " . Exit." << endl;
+           << constVar.name << " . Exit." << endl;
       exit(1);
     }
     // add parameter to the list of constant paramters; create the list, if necessary
     if (!w->set("const"))
-      w->defineSet("const", constVars[i].name);
+      w->defineSet("const", constVar.name);
     else
-      w->extendSet("const", constVars[i].name);
+      w->extendSet("const", constVar.name);
     // set the parameter value, if requested
-    if (constVars[i].useValue) w->var(constVars[i].name)->setVal(constVars[i].value);
+    if (constVar.useValue) w->var(constVar.name)->setVal(constVar.value);
   }
 }
 
@@ -280,8 +280,8 @@ vector<string>& Combiner::getParameterNames() const {
 
   // 1. make a list of all parameters from the pdfs
   vector<string> varsAll;
-  for (int i = 0; i < pdfs.size(); i++) {
-    TIterator* it = pdfs[i]->getParameters()->createIterator();
+  for (auto pdf : pdfs) {
+    TIterator* it = pdf->getParameters()->createIterator();
     while (auto v = dynamic_cast<RooAbsReal*>(it->Next())) { varsAll.push_back(v->GetName()); }
   }
   // 2. remove duplicates
@@ -313,8 +313,8 @@ vector<string>& Combiner::getObservableNames() const {
   auto vars = new vector<string>();
   if (!_isCombined) {
     // collect observables from all PDFs
-    for (int i = 0; i < pdfs.size(); i++) {
-      TIterator* it = pdfs[i]->getObservables()->createIterator();
+    for (auto pdf : pdfs) {
+      TIterator* it = pdf->getObservables()->createIterator();
       while (auto p = dynamic_cast<RooRealVar*>(it->Next())) vars->push_back(p->GetName());
       delete it;
     }
@@ -459,8 +459,8 @@ void Combiner::fixParameter(TString var, float value) {
   }
   // check if the parameter is already in the list
   bool save = true;
-  for (int j = 0; j < constVars.size(); j++) {
-    if (constVars[j].name == var) save = false;
+  for (auto constVar : constVars) {
+    if (constVar.name == var) save = false;
   }
   FixPar p;
   p.name = var;
@@ -496,8 +496,8 @@ void Combiner::fixParameters(TString vars) {
     TString var = ((TObjString*)a->At(i))->GetString();
     // add variables to list of constants, if not already in
     bool save = true;
-    for (int j = 0; j < constVars.size(); j++) {
-      if (constVars[j].name == var) save = false;
+    for (auto constVar : constVars) {
+      if (constVar.name == var) save = false;
     }
     FixPar p;
     p.name = var;

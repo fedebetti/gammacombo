@@ -14,8 +14,8 @@ FitResultCache::FitResultCache(const OptParser* arg, int roundrobinsize) {
 FitResultCache::~FitResultCache() {
   if (_parsAtFunctionCall) delete _parsAtFunctionCall;
   if (_parsAtGlobalMin) delete _parsAtGlobalMin;
-  for (int i = 0; i < _parsRoundRobin.size(); i++) {
-    if (_parsRoundRobin[i]) delete _parsRoundRobin[i];
+  for (auto prr : _parsRoundRobin) {
+    if (prr) delete prr;
   }
 }
 

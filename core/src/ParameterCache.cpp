@@ -63,12 +63,12 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
   outfile << Form("%-25s", "# ParameterName") << " " << Form("%12s", "value") << " " << Form("%12s", "errLow") << " "
           << Form("%12s", "errHigh") << endl;
 
-  for (unsigned int i = 0; i < solutions.size(); i++) {
+  for (const auto sol : solutions) {
 
     outfile << endl;
     outfile << "----- SOLUTION " << totalCachedPoints << " -----" << endl;
 
-    RooSlimFitResult* slimFitRes = solutions[i];
+    RooSlimFitResult* slimFitRes = sol;
     printFitResultToOutStream(outfile, slimFitRes);
     totalCachedPoints++;
   }
@@ -79,9 +79,9 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
   // 1D
   if (m_arg->savenuisances1d.size() > 0) {
     vector<float>& points = m_arg->savenuisances1d;
-    for (int i = 0; i < points.size(); i++) {
+    for (auto const& point : points) {
 
-      int iBin = scanner->getHCL()->FindBin(points[i]);
+      int iBin = scanner->getHCL()->FindBin(point);
       RooSlimFitResult* r = scanner->curveResults[iBin - 1];
       if (!r) {
         cout << "ParameterCache::cacheParameters() : ERROR : no fit result at this scan point!" << endl;
@@ -89,7 +89,7 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
       }
       outfile << endl;
       outfile << "----- SOLUTION " << totalCachedPoints << " (--sn at " << scanner->getScanVar1Name() << " = "
-              << Form("%10.5f", points[i]) << ") -----" << endl;
+              << Form("%10.5f", point) << ") -----" << endl;
       printFitResultToOutStream(outfile, r);
       totalCachedPoints++;
     }
@@ -180,8 +180,8 @@ void ParameterCache::printPoint() const {
 
   for (unsigned int i = 0; i < startingValues.size(); i++) {
     cout << "SOLUTION " << i << endl;
-    for (auto it = startingValues[i].begin(); it != startingValues[i].end(); it++) {
-      cout << Form("%-25s", it->first.Data()) << " " << Form("%12.6f", it->second) << endl;
+    for (auto const& [key, val] : startingValues[i]) {
+      cout << Form("%-25s", key.Data()) << " " << Form("%12.6f", val) << endl;
     }
   }
 }
@@ -190,7 +190,7 @@ int ParameterCache::getNPoints() const { return startingValues.size(); }
 
 vector<TString> ParameterCache::getFixedNames(vector<FixPar> fixPar) const {
   vector<TString> names;
-  for (unsigned int i = 0; i < fixPar.size(); i++) { names.push_back(fixPar[i].name); }
+  for (auto fp : fixPar) { names.push_back(fp.name); }
   return names;
 }
 
@@ -213,9 +213,7 @@ void ParameterCache::setPoint(Combiner* cmb, int i) {
   RooWorkspace* w = cmb->getWorkspace();
   if (m_arg->debug) cout << "ParameterCache::setPoint() : Setting parameter values for point " << i + 1 << endl;
 
-  for (map<TString, double>::iterator it = startingValues[i].begin(); it != startingValues[i].end(); it++) {
-    TString name = it->first;
-    double val = it->second;
+  for (auto const& [name, val] : startingValues[i]) {
     if (find(fixNames.begin(), fixNames.end(), name) != fixNames.end()) {
       if (m_arg->debug)
         cout << "\tLeft " << Form("%-15s", name.Data()) << " = " << Form("%12.6f", w->var(name)->getVal())

@@ -74,8 +74,8 @@ MethodAbsScan::MethodAbsScan(const OptParser* opt)
 }
 
 MethodAbsScan::~MethodAbsScan() {
-  for (int i = 0; i < allResults.size(); i++) {
-    if (allResults[i]) delete allResults[i];
+  for (auto result : allResults) {
+    if (result) delete result;
   }
   if (hCL) delete hCL;
   if (hCLs) delete hCLs;
@@ -209,9 +209,7 @@ void MethodAbsScan::initScan() {
     cout << "        Choose an existing one using: --var par" << endl << endl;
     cout << "  Available parameters:" << endl;
     cout << "  ---------------------" << endl << endl;
-    for (int i = 0; i < combiner->getParameterNames().size(); i++) {
-      cout << "    " << combiner->getParameterNames()[i] << endl;
-    }
+    for (const auto name : combiner->getParameterNames()) { cout << "    " << name << endl; }
     cout << endl;
     exit(1);
   }
@@ -249,9 +247,7 @@ void MethodAbsScan::initScan() {
       cout << "        Choose an existing one using: --var par" << endl << endl;
       cout << "  Available parameters:" << endl;
       cout << "  ---------------------" << endl << endl;
-      for (int i = 0; i < combiner->getParameterNames().size(); i++) {
-        cout << "    " << combiner->getParameterNames()[i] << endl;
-      }
+      for (const auto name : combiner->getParameterNames()) { cout << "    " << name << endl; }
       cout << endl;
       exit(1);
     }
@@ -822,9 +818,9 @@ void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet)
       i.minmethod = "largest";
       i.maxmethod = "largest";
       i.min = clintervals1sigma[0].min;
-      for (int j = 0; j < clintervals1sigma.size(); j++) i.min = TMath::Min(i.min, clintervals1sigma[j].min);
+      for (const auto cli : clintervals1sigma) i.min = TMath::Min(i.min, cli.min);
       i.max = clintervals1sigma[0].max;
-      for (int j = 0; j < clintervals1sigma.size(); j++) i.max = TMath::Max(i.max, clintervals1sigma[j].max);
+      for (const auto cli : clintervals1sigma) i.max = TMath::Max(i.max, cli.max);
       clintervals1sigma.push_back(i);
     }
   }
@@ -929,14 +925,14 @@ void MethodAbsScan::printCLintervals(int CLsType, bool calc_expected) {
   for (int i = 0; i < solutions.size(); i++) {
     float sol = getScanVar1Solution(i);
     bool cont = false;
-    for (int j = 0; j < clintervals1sigma.size(); j++)
-      if (clintervals1sigma[j].min < sol && sol < clintervals1sigma[j].max) cont = true;
-    for (int j = 0; j < clintervals2sigma.size(); j++)
-      if (clintervals2sigma[j].min < sol && sol < clintervals2sigma[j].max) cont = true;
-    for (int j = 0; j < clintervals3sigma.size(); j++)
-      if (clintervals3sigma[j].min < sol && sol < clintervals3sigma[j].max) cont = true;
-    for (int j = 0; j < clintervalsuser.size(); j++)
-      if (clintervalsuser[j].min < sol && sol < clintervalsuser[j].max) cont = true;
+    for (const auto cli : clintervals1sigma)
+      if (cli.min < sol && sol < cli.max) cont = true;
+    for (const auto cli : clintervals2sigma)
+      if (cli.min < sol && sol < cli.max) cont = true;
+    for (const auto cli : clintervals3sigma)
+      if (cli.min < sol && sol < cli.max) cont = true;
+    for (const auto cli : clintervalsuser)
+      if (cli.min < sol && sol < cli.max) cont = true;
     if (cont == true) continue;
     if (w->var(scanVar1)->getUnit() == TString("Rad")) sol = RadToDeg(sol);
     int d = arg->digits;
@@ -991,9 +987,9 @@ CLInterval MethodAbsScan::getCLinterval(int iSol, int sigma, bool quiet) {
     CLInterval i;
     i.pvalue = intervals[iSol].pvalue;
     i.min = intervals[iSol].min;
-    for (int j = 0; j < intervals.size(); j++) i.min = TMath::Min(i.min, intervals[j].min);
+    for (const auto interval : intervals) i.min = TMath::Min(i.min, interval.min);
     i.max = intervals[iSol].max;
-    for (int j = 0; j < intervals.size(); j++) i.max = TMath::Max(i.max, intervals[j].max);
+    for (const auto interval : intervals) i.max = TMath::Max(i.max, interval.max);
     return i;
   }
 
@@ -1435,9 +1431,9 @@ RooSlimFitResult* MethodAbsScan::getSolution(int i) {
 /// scanner. Clears the solutions vector and sets the one
 /// given.
 ///
-void MethodAbsScan::setSolutions(vector<RooSlimFitResult*> s) {
+void MethodAbsScan::setSolutions(vector<RooSlimFitResult*> sols) {
   solutions.clear();
-  for (int i = 0; i < s.size(); i++) { solutions.push_back(s[i]); }
+  for (const auto sol : sols) { solutions.push_back(sol); }
 }
 
 ///

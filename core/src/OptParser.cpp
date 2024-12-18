@@ -160,7 +160,7 @@ void OptParser::defineOptions() {
 /// Book all available options, if you are lazy.
 ///
 void OptParser::bookAllOptions() {
-  for (int i = 0; i < availableOptions.size(); i++) bookedOptions.push_back(availableOptions[i]);
+  for (auto opt : availableOptions) bookedOptions.push_back(opt);
 }
 
 ///
@@ -1050,39 +1050,40 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // for ( int i=0; i<resultDelPdf.size(); i++){cout << "resultDelPdf " << resultDelPdf[i] << endl;}
   // exit(0);
   vector<string> tmp = combidArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) {
+  for (auto val : tmp) {
     int resultCmbId = 0;
     vector<int> resultAddDelPdf;
-    parseCombinerString(tmp[i], resultCmbId, resultAddDelPdf);
+    parseCombinerString(val, resultCmbId, resultAddDelPdf);
     combid.push_back(resultCmbId);
     combmodifications.push_back(resultAddDelPdf);
   }
 
   // --action
   tmp = actionArg.getValue();  ///< can't assign directly because of TString cast
-  for (int i = 0; i < tmp.size(); i++) action.push_back(tmp[i]);
+  for (auto val : tmp) action.push_back(val);
 
   // --var
   tmp = varArg.getValue();
-  if (tmp.size() > 2) {
+  if (tmp.size() == 0)
+    var.push_back("g");
+  else if (tmp.size() > 2) {
     cout << "Argument error --var: please give two instances at maximum." << endl;
     exit(1);
   }
-  for (int i = 0; i < tmp.size(); i++) var.push_back(tmp[i]);
-  if (tmp.size() == 0) var.push_back("g");
+  for (auto val : tmp) var.push_back(val);
 
   // --relation
   tmp = relationArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) relation.push_back(tmp[i]);
+  for (auto val : tmp) relation.push_back(val);
   if (tmp.size() == 0) relation.push_back("NoDefaultEquation");
 
   // --readfromfile
   tmp = readfromfileArg.getValue();
   // loop over instances passed
-  for (int i = 0; i < tmp.size(); i++) {
+  for (auto val : tmp) {
     vector<TString> a;
     // split at , and push back
-    TObjArray* assignmentArray = TString(tmp[i]).Tokenize(",");  // split at ","
+    TObjArray* assignmentArray = TString(val).Tokenize(",");  // split at ","
     for (int j = 0; j < assignmentArray->GetEntries(); j++) {
       TString assignmentString = ((TObjString*)assignmentArray->At(j))->GetString();
       a.push_back(assignmentString);
@@ -1098,16 +1099,16 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --title
   tmp = titleArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) title.push_back(tmp[i]);
+  for (auto val : tmp) title.push_back(val);
   if (tmp.size() == 0) title.push_back("default");
 
   // --parfile
   tmp = loadParamsFileArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) loadParamsFile.push_back(tmp[i]);
+  for (auto val : tmp) loadParamsFile.push_back(val);
 
   // --asimovfile
   tmp = asimovFileArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) asimovfile.push_back(tmp[i]);
+  for (auto val : tmp) asimovfile.push_back(val);
 
   // --compare
   compare = compareArg.getValue();
@@ -1125,8 +1126,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   coverageCorrectionPoint = coverageCorrectionPointArg.getValue();
 
   // --sn2d
-  for (int i = 0; i < sn2dArg.getValue().size(); i++) {
-    TString parseMe = sn2dArg.getValue()[i];
+  for (auto val : sn2dArg.getValue()) {
+    TString parseMe = val;
     TString x = parseMe;
     TString y = parseMe;
     x.Replace(x.Index(":"), x.Sizeof(), "");
@@ -1145,13 +1146,13 @@ void OptParser::parseArguments(int argc, char* argv[]) {
     jmin.push_back(1);
     jmax.push_back(1);
   }
-  for (int i = 0; i < jobsArg.getValue().size(); i++) {
+  for (auto val : jobsArg.getValue()) {
     TString usage = "";
     usage += "Required format: '-j N | -j A-B'\n";
     usage += "  Examples:\n";
     usage += "  -j 10\n";
     usage += "  -j 10-20\n";
-    TString parseMe = jobsArg.getValue()[i];
+    TString parseMe = val;
     TRegexp range("^[0-9]+-[0-9]+$");
     if (parseMe.Contains(range)) {
       // range found
@@ -1245,16 +1246,16 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --prange
   tmp = physrangeArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) {  // loop over instances of --prange
+  for (auto val : tmp) {  // loop over instances of --prange
     vector<RangePar> ranges;
     // parse default string
-    if (TString(tmp[i]) == TString("def")) {
+    if (TString(val) == TString("def")) {
       physRanges.push_back(ranges);
       continue;
     }
     // parse list of ranges: "foopar=5:6.2,barpar=7.4:8.5"
-    TObjArray* rangesArray = TString(tmp[i]).Tokenize(",");  // split string at ","
-    for (int j = 0; j < rangesArray->GetEntries(); j++) {    // loop over ranges
+    TObjArray* rangesArray = TString(val).Tokenize(",");   // split string at ","
+    for (int j = 0; j < rangesArray->GetEntries(); j++) {  // loop over ranges
       TString rangeString = ((TObjString*)rangesArray->At(j))->GetString();
       RangePar p;
       TString parsedRangeStr;
@@ -1277,8 +1278,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --randomizeToyVars
   tmp = randomizeToyVarsArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) {                   // loop over instances of --randomizeToyVars
-    TObjArray* parsArray = TString(tmp[i]).Tokenize(",");  // split string at ","
+  for (auto val : tmp) {
+    TObjArray* parsArray = TString(val).Tokenize(",");  // split string at ","
     vector<TString> pars;
     for (int j = 0; j < parsArray->GetEntries(); j++) {
       TString par = ((TObjString*)parsArray->At(j))->GetString();
@@ -1289,8 +1290,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --removeRange
   tmp = removeRangeArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) {                   // loop over instances of --removeRange
-    TObjArray* parsArray = TString(tmp[i]).Tokenize(",");  // split string at ","
+  for (auto val : tmp) {
+    TObjArray* parsArray = TString(val).Tokenize(",");  // split string at ","
     vector<TString> pars;
     for (int j = 0; j < parsArray->GetEntries(); j++) {
       TString par = ((TObjString*)parsArray->At(j))->GetString();
@@ -1301,16 +1302,16 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --fix
   tmp = fixArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) {  // loop over instances of --fix
+  for (auto val : tmp) {
     vector<FixPar> assignments;
     // parse 'none' default string
-    if (TString(tmp[i]) == TString("none")) {
+    if (TString(val) == TString("none")) {
       fixParameters.push_back(assignments);
       continue;
     }
     // parse list of fixed parameters: "foopar=5,barpar=7"
-    TObjArray* assignmentArray = TString(tmp[i]).Tokenize(",");  // split string at ","
-    for (int j = 0; j < assignmentArray->GetEntries(); j++) {    // loop over assignments
+    TObjArray* assignmentArray = TString(val).Tokenize(",");   // split string at ","
+    for (int j = 0; j < assignmentArray->GetEntries(); j++) {  // loop over assignments
       TString assignmentString = ((TObjString*)assignmentArray->At(j))->GetString();
       FixPar p;
       if (parseAssignment(assignmentString, p.name, p.value)) {
@@ -1324,16 +1325,16 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --start
   tmp = startArg.getValue();
-  for (int i = 0; i < tmp.size(); i++) {  // loop over instances of --start
+  for (auto val : tmp) {
     vector<StartPar> assignments;
     // parse 'none' default string
-    if (TString(tmp[i]) == TString("none")) {
+    if (TString(val) == TString("none")) {
       startVals.push_back(assignments);
       continue;
     }
     // parse list of starting values: "foopar=5,barpar=7"
-    TObjArray* assignmentArray = TString(tmp[i]).Tokenize(",");  // split string at ","
-    for (int j = 0; j < assignmentArray->GetEntries(); j++) {    // loop over assignments
+    TObjArray* assignmentArray = TString(val).Tokenize(",");   // split string at ","
+    for (int j = 0; j < assignmentArray->GetEntries(); j++) {  // loop over assignments
       TString assignmentString = ((TObjString*)assignmentArray->At(j))->GetString();
       StartPar p;
       if (parseAssignment(assignmentString, p.name, p.value)) {

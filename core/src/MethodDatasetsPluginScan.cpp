@@ -76,23 +76,21 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
   // implement physical range a la Feldman Cousins
   bool refit_necessary = false;
   if (arg->physRanges.size() > 0) {
-    for (int j = 0; j < arg->physRanges[0].size(); j++) {
-      if (w->var(arg->physRanges[0][j].name)) {
-        if (w->var(arg->physRanges[0][j].name)->getVal() < arg->physRanges[0][j].min) {
+    for (const auto pr : arg->physRanges[0]) {
+      if (w->var(pr.name)) {
+        if (w->var(pr.name)->getVal() < pr.min) {
           if (arg->debug)
-            std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << arg->physRanges[0][j].name << "="
-                      << w->var(arg->physRanges[0][j].name)->getVal() << " out of physics range, fixing to "
-                      << arg->physRanges[0][j].min << std::endl;
-          w->var(arg->physRanges[0][j].name)->setVal(arg->physRanges[0][j].min);
-          w->var(arg->physRanges[0][j].name)->setConstant(true);
+            std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << pr.name << "=" << w->var(pr.name)->getVal()
+                      << " out of physics range, fixing to " << pr.min << std::endl;
+          w->var(pr.name)->setVal(pr.min);
+          w->var(pr.name)->setConstant(true);
           refit_necessary = true;
-        } else if (w->var(arg->physRanges[0][j].name)->getVal() > arg->physRanges[0][j].max) {
+        } else if (w->var(pr.name)->getVal() > pr.max) {
           if (arg->debug)
-            std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << arg->physRanges[0][j].name << "="
-                      << w->var(arg->physRanges[0][j].name)->getVal() << " out of physics range, fixing to "
-                      << arg->physRanges[0][j].max << std::endl;
-          w->var(arg->physRanges[0][j].name)->setVal(arg->physRanges[0][j].max);
-          w->var(arg->physRanges[0][j].name)->setConstant(true);
+            std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << pr.name << "=" << w->var(pr.name)->getVal()
+                      << " out of physics range, fixing to " << pr.max << std::endl;
+          w->var(pr.name)->setVal(pr.max);
+          w->var(pr.name)->setConstant(true);
           refit_necessary = true;
         }
       }
@@ -115,13 +113,12 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
 
   // reset parameters free from the Feldman Cousins behaviour
   if (arg->physRanges.size() > 0) {
-    for (int j = 0; j < arg->physRanges[0].size(); j++) {
-      if (w->var(arg->physRanges[0][j].name) &&
-          w->set(pdf->getParName())->find(arg->physRanges[0][j].name)) {  // if somebody wants to modify a constant
+    for (const auto pr : arg->physRanges[0]) {
+      if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a constant
                                                                           // parameter make sure the parameter
                                                                           // doesn't accidentally become
                                                                           // floating...
-        w->var(arg->physRanges[0][j].name)->setConstant(false);
+        w->var(pr.name)->setConstant(false);
       }
     }
   }
@@ -870,16 +867,16 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     if (arg->debug) {
       cout << i << endl;
       cout << "Quants: ";
-      for (int k = 0; k < probs.size(); k++) cout << probs[k] << " , ";
+      for (const auto val : probs) cout << val << " , ";
       cout << endl;
       cout << "CLb: ";
-      for (int k = 0; k < quantiles_clb.size(); k++) cout << quantiles_clb[k] << " , ";
+      for (const auto val : quantiles_clb) cout << val << " , ";
       cout << endl;
       cout << "CLsb: ";
-      for (int k = 0; k < quantiles_clsb.size(); k++) cout << quantiles_clsb[k] << " , ";
+      for (const auto val : quantiles_clsb) cout << val << " , ";
       cout << endl;
       cout << "CLs: ";
-      for (int k = 0; k < quantiles_cls.size(); k++) cout << quantiles_cls[k] << " , ";
+      for (const auto val : quantiles_cls) cout << val << " , ";
       cout << endl;
     }
 
@@ -944,8 +941,8 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     // CLs values in data
     int nDataAboveBkgExp = 0;
     double dataTestStat = p > 0 ? TMath::ChisquareQuantile(1. - p, 1) : 1.e10;
-    for (int j = 0; j < sampledBValues[i].size(); j++) {
-      if (sampledBValues[i][j] > dataTestStat) nDataAboveBkgExp += 1;
+    for (const auto val : sampledBValues[i]) {
+      if (val > dataTestStat) nDataAboveBkgExp += 1;
     }
     float dataCLb = p_clb;
     float dataCLbErr = sqrt(dataCLb * (1. - dataCLb) / sampledBValues[i].size());
@@ -1308,23 +1305,21 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       // implement physical range a la Feldman Cousins
       bool refit_necessary = false;
       if (arg->physRanges.size() > 0) {
-        for (int j = 0; j < arg->physRanges[0].size(); j++) {
-          if (w->var(arg->physRanges[0][j].name)) {
-            if (w->var(arg->physRanges[0][j].name)->getVal() < arg->physRanges[0][j].min) {
+        for (const auto pr : arg->physRanges[0]) {
+          if (w->var(pr.name)) {
+            if (w->var(pr.name)->getVal() < pr.min) {
               if (arg->debug)
-                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << arg->physRanges[0][j].name << "="
-                          << w->var(arg->physRanges[0][j].name)->getVal() << " out of physics range, fixing to "
-                          << arg->physRanges[0][j].min << std::endl;
-              w->var(arg->physRanges[0][j].name)->setVal(arg->physRanges[0][j].min);
-              w->var(arg->physRanges[0][j].name)->setConstant(true);
+                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << pr.name << "=" << w->var(pr.name)->getVal()
+                          << " out of physics range, fixing to " << pr.min << std::endl;
+              w->var(pr.name)->setVal(pr.min);
+              w->var(pr.name)->setConstant(true);
               refit_necessary = true;
-            } else if (w->var(arg->physRanges[0][j].name)->getVal() > arg->physRanges[0][j].max) {
+            } else if (w->var(pr.name)->getVal() > pr.max) {
               if (arg->debug)
-                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << arg->physRanges[0][j].name << "="
-                          << w->var(arg->physRanges[0][j].name)->getVal() << " out of physics range, fixing to "
-                          << arg->physRanges[0][j].max << std::endl;
-              w->var(arg->physRanges[0][j].name)->setVal(arg->physRanges[0][j].max);
-              w->var(arg->physRanges[0][j].name)->setConstant(true);
+                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << pr.name << "=" << w->var(pr.name)->getVal()
+                          << " out of physics range, fixing to " << pr.max << std::endl;
+              w->var(pr.name)->setVal(pr.max);
+              w->var(pr.name)->setConstant(true);
               refit_necessary = true;
             }
           }
@@ -1379,13 +1374,12 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
       // reset parameters free from the Feldman Cousins behaviour
       if (arg->physRanges.size() > 0) {
-        for (int j = 0; j < arg->physRanges[0].size(); j++) {
-          if (w->var(arg->physRanges[0][j].name) &&
-              w->set(pdf->getParName())->find(arg->physRanges[0][j].name)) {  // if somebody wants to modify a
+        for (const auto pr : arg->physRanges[0]) {
+          if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a
                                                                               // constant parameter make sure the
                                                                               // parameter doesn't accidentally
                                                                               // become floating...
-            w->var(arg->physRanges[0][j].name)->setConstant(false);
+            w->var(pr.name)->setConstant(false);
           }
         }
       }
@@ -1755,25 +1749,23 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       bool refit_necessary = false;
       std::map<TString, double> boundary_vals;
       if (arg->physRanges.size() > 0) {
-        for (int j = 0; j < arg->physRanges[0].size(); j++) {
-          if (w->var(arg->physRanges[0][j].name)) {
-            if (w->var(arg->physRanges[0][j].name)->getVal() < arg->physRanges[0][j].min) {
+        for (const auto pr : arg->physRanges[0]) {
+          if (w->var(pr.name)) {
+            if (w->var(pr.name)->getVal() < pr.min) {
               if (arg->debug)
-                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << arg->physRanges[0][j].name << "="
-                          << w->var(arg->physRanges[0][j].name)->getVal() << " out of physics range, fixing to "
-                          << arg->physRanges[0][j].min << std::endl;
-              w->var(arg->physRanges[0][j].name)->setVal(arg->physRanges[0][j].min);
-              w->var(arg->physRanges[0][j].name)->setConstant(true);
-              boundary_vals[arg->physRanges[0][j].name] = arg->physRanges[0][j].min;
+                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << pr.name << "=" << w->var(pr.name)->getVal()
+                          << " out of physics range, fixing to " << pr.min << std::endl;
+              w->var(pr.name)->setVal(pr.min);
+              w->var(pr.name)->setConstant(true);
+              boundary_vals[pr.name] = pr.min;
               refit_necessary = true;
-            } else if (w->var(arg->physRanges[0][j].name)->getVal() > arg->physRanges[0][j].max) {
+            } else if (w->var(pr.name)->getVal() > pr.max) {
               if (arg->debug)
-                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << arg->physRanges[0][j].name << "="
-                          << w->var(arg->physRanges[0][j].name)->getVal() << " out of physics range, fixing to "
-                          << arg->physRanges[0][j].max << std::endl;
-              w->var(arg->physRanges[0][j].name)->setVal(arg->physRanges[0][j].max);
-              w->var(arg->physRanges[0][j].name)->setConstant(true);
-              boundary_vals[arg->physRanges[0][j].name] = arg->physRanges[0][j].max;
+                std::cout << "MethodDatasetsPluginScan::scan1d()::fit " << pr.name << "=" << w->var(pr.name)->getVal()
+                          << " out of physics range, fixing to " << pr.max << std::endl;
+              w->var(pr.name)->setVal(pr.max);
+              w->var(pr.name)->setConstant(true);
+              boundary_vals[pr.name] = pr.max;
               refit_necessary = true;
             }
           }
@@ -1885,13 +1877,12 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
       // reset parameters free from the Feldman Cousins behaviour
       if (arg->physRanges.size() > 0) {
-        for (int j = 0; j < arg->physRanges[0].size(); j++) {
-          if (w->var(arg->physRanges[0][j].name) &&
-              w->set(pdf->getParName())->find(arg->physRanges[0][j].name)) {  // if somebody wants to modify a
+        for (const auto pr : arg->physRanges[0]) {
+          if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a
                                                                               // constant parameter make sure the
                                                                               // parameter doesn't accidentally
                                                                               // become floating...
-            w->var(arg->physRanges[0][j].name)->setConstant(false);
+            w->var(pr.name)->setConstant(false);
           }
         }
       }
@@ -2297,9 +2288,7 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
 
     std::vector<double> quantiles = Quantile<double>(bVals[i], probs);
     std::vector<double> clsb_vals;
-    for (int k = 0; k < quantiles.size(); k++) {
-      clsb_vals.push_back(getVectorFracAboveValue(sbVals[i], quantiles[k]));
-    }
+    for (const auto val : quantiles) { clsb_vals.push_back(getVectorFracAboveValue(sbVals[i], val)); }
     TCanvas* c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
     double max = *(std::max_element(bVals[i].begin(), bVals[i].end()));
     TH1F* hb = new TH1F(Form("hb%d", i), "hbq", 50, 0, max);
@@ -2308,8 +2297,8 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
     // TH1F *hb = new TH1F( Form("hb%d",i), "hbq", 50,0, 5 );
     // TH1F *hsb = new TH1F( Form("hsb%d",i), "hsbq", 50,0, 5 );
 
-    for (int j = 0; j < bVals[i].size(); j++) hb->Fill(bVals[i][j]);
-    for (int j = 0; j < sbVals[i].size(); j++) hsb->Fill(sbVals[i][j]);
+    for (const auto val : bVals[i]) hb->Fill(val);
+    for (const auto val : sbVals[i]) hsb->Fill(val);
 
     // double dataVal = TMath::ChisquareQuantile( 1.-hCL->GetBinContent(i),1 );
     double dataVal = hChi2min->GetBinContent(i);
@@ -2317,9 +2306,7 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
     TArrow* lD = new TArrow(dataVal, 0.6 * hsb->GetMaximum(), dataVal, 0., 0.15, "|>");
 
     vector<TLine*> qLs;
-    for (int k = 0; k < quantiles.size(); k++) {
-      qLs.push_back(new TLine(quantiles[k], 0, quantiles[k], 0.8 * hsb->GetMaximum()));
-    }
+    for (const auto val : quantiles) { qLs.push_back(new TLine(val, 0, val, 0.8 * hsb->GetMaximum())); }
     TLatex* lat = new TLatex();
     lat->SetTextColor(kRed);
     lat->SetTextSize(0.6 * lat->GetTextSize());
@@ -2434,7 +2421,7 @@ void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, vector<double>> bia
         new TH1F(Form("hsig%d", i), "hsig", 50, range_min + (range_max - range_min) * 0.001,
                  range_max - (range_max - range_min) * 0.001);  // this way we loose a little stats in the tails, but
                                                                 // make sure the overflow bins are not used.
-    for (int j = 0; j < biasVals[i].size(); j++) { hsig->Fill(biasVals[i][j]); }
+    for (const auto val : biasVals[i]) { hsig->Fill(val); }
 
     TFitResultPtr fitresult = hsig->Fit("gaus", "LSQ", "", range_min, range_max);
     hsig->GetXaxis()->SetTitle("POI residual #hat{#alpha} #minus #alpha_{0}");

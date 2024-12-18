@@ -167,8 +167,8 @@ TString FileNameBuilder::getFileNamePlot(const vector<Combiner*>& cmb) {
     return name;
   }
 
-  for (int i = 0; i < m_arg->combid.size(); i++) {
-    name += "_" + cmb[m_arg->combid[i]]->getName();
+  for (auto cid : m_arg->combid) {
+    name += "_" + cmb[cid]->getName();
     // if ( m_arg->isAsimovCombiner(i) ) name += Form("Asimov%i",m_arg->asimov[i]);
   }
   name += "_" + m_arg->var[0];

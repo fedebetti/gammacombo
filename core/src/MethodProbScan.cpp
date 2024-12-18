@@ -359,8 +359,8 @@ bool MethodProbScan::deleteIfNotInCurveResults2d(RooSlimFitResult* r) {
   if (del) {
     delete r;
     // remove also from allResults vector
-    for (int j = 0; j < allResults.size(); j++) {
-      if (r == allResults[j]) allResults[j] = nullptr;
+    for (auto result : allResults) {
+      if (r == result) result = nullptr;
     }
   }
   return del;
@@ -645,7 +645,7 @@ int MethodProbScan::scan2d() {
   if (arg->confirmsols) confirmSolutions();
 
   // clean all fit results that didn't make it into the final result
-  for (int i = 0; i < allResults.size(); i++) { deleteIfNotInCurveResults2d(allResults[i]); }
+  for (auto result : allResults) { deleteIfNotInCurveResults2d(result); }
 
   if (bestMinFoundInScan - bestMinOld > 0.1) {
     cout << "MethodProbScan::scan2d() : WARNING: Scan didn't find minimum that was found before!" << endl;
@@ -722,8 +722,8 @@ void MethodProbScan::saveSolutions2d() {
   if (arg->debug) cout << "MethodProbScan::saveSolutions2d() : searching for minima in hChi2min2d ..." << endl;
 
   // delete old solutions if any
-  for (int j = 0; j < solutions.size(); j++)
-    if (solutions[j]) delete solutions[j];
+  for (auto sol : solutions)
+    if (sol) delete sol;
   solutions.clear();
 
   // loop over chi2 histogram to locate local minima

@@ -134,8 +134,8 @@ float RooSlimFitResult::getParErr(TString name) const {
 /// \return - true if the parameter was found
 ///
 bool RooSlimFitResult::hasParameter(TString name) const {
-  for (int i = 0; i < _parsNames.size(); i++) {
-    if (TString(_parsNames[i]) == name) return true;
+  for (auto pn : _parsNames) {
+    if (TString(pn) == name) return true;
   }
   return false;
 }

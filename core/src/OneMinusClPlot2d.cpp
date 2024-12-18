@@ -42,11 +42,11 @@ OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) 
 
   // fill from the options first
   for (int ncont = 0; ncont < 9; ncont++) {
-    for (int i = 0; i < arg->linecolor.size(); i++) { linecolor[ncont].push_back(arg->linecolor[i]); }
-    for (int i = 0; i < arg->linestyle.size(); i++) { linestyle[ncont].push_back(arg->linestyle[i]); }
-    for (int i = 0; i < arg->linewidth.size(); i++) { linewidth[ncont].push_back(arg->linewidth[i]); }
-    for (int i = 0; i < arg->fillcolor.size(); i++) { fillcolor[ncont].push_back(arg->fillcolor[i]); }
-    for (int i = 0; i < arg->fillstyle.size(); i++) { fillstyle[ncont].push_back(arg->fillstyle[i]); }
+    for (const auto val : arg->linecolor) { linecolor[ncont].push_back(val); }
+    for (const auto val : arg->linestyle) { linestyle[ncont].push_back(val); }
+    for (const auto val : arg->linewidth) { linewidth[ncont].push_back(val); }
+    for (const auto val : arg->fillcolor) { fillcolor[ncont].push_back(val); }
+    for (const auto val : arg->fillstyle) { fillstyle[ncont].push_back(val); }
   }
 
   // otherwise use some defaults
@@ -895,12 +895,12 @@ void OneMinusClPlot2d::Draw() {
 
   // draw filled contours first
   if (!contoursOnly) {
-    for (int i = 0; i < m_contours.size(); i++) { m_contours[i]->Draw(); }
+    for (auto contour : m_contours) { contour->Draw(); }
   }
 
   // draw a second time, this time only the lines
   if (!arg->isQuickhack(11)) {
-    for (int i = 0; i < m_contours.size(); i++) { m_contours[i]->DrawDashedLine(); }
+    for (auto contour : m_contours) { contour->DrawDashedLine(); }
   }
 
   gPad->Update();
