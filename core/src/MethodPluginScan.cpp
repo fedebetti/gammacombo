@@ -1169,7 +1169,7 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
       bkg_pvals_cls->Draw();
       bkg_pvals_clsb->Draw("same");
       bkg_pvals_clb->Draw("same");
-      TLegend* leg = new TLegend(0.65, 0.74, 0.89, 0.95);
+      auto leg = new TLegend(0.65, 0.74, 0.89, 0.95);
       leg->SetHeader("p-value distributions");
       leg->SetFillColor(0);
       leg->AddEntry(bkg_pvals_cls, "CLs", "L");
@@ -1268,7 +1268,7 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
 ///
 void MethodPluginScan::readScan1dTrees(int runMin, int runMax, TString fName) {
 
-  TChain* c = new TChain("plugin");
+  auto c = new TChain("plugin");
   int nFilesMissing = 0;
   int nFilesRead = 0;
   // configure file name
@@ -1332,7 +1332,7 @@ void MethodPluginScan::readScan1dTrees(int runMin, int runMax, TString fName) {
 /// \param runMax Number of lase root file to read.
 ///
 void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
-  TChain* chain = new TChain("plugin");
+  auto chain = new TChain("plugin");
   int nFilesMissing = 0;
   int nFilesRead = 0;
   // configure file name
@@ -1525,7 +1525,7 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
     for (int k = 0; k < quantiles.size(); k++) {
       qLs.push_back(new TLine(quantiles[k], 0, quantiles[k], 0.8 * hsb->GetMaximum()));
     }
-    TLatex* lat = new TLatex();
+    auto lat = new TLatex();
     lat->SetTextColor(kRed);
     lat->SetTextSize(0.6 * lat->GetTextSize());
     lat->SetTextAlign(22);
@@ -1580,7 +1580,7 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
     lD->SetLineWidth(5);
     lD->Draw("same");
 
-    TLegend* leg = new TLegend(0.74, 0.54, 0.94, 0.7);
+    auto leg = new TLegend(0.74, 0.54, 0.94, 0.7);
     leg->SetHeader(Form("p=%4.2g", hCLs->GetBinCenter(i)));
     leg->SetFillColor(0);
     leg->AddEntry(hb, "B-only Toys", "LF");

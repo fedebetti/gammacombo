@@ -97,7 +97,7 @@ void ControlPlots::ctrlPlotPvalue() {
   // rescale pad to have space for the legend
   pad->SetTopMargin(0.2182971);
   // add legend
-  TLegend* leg = new TLegend(0.1599533, 0.803442, 0.9500348, 0.9375);
+  auto leg = new TLegend(0.1599533, 0.803442, 0.9500348, 0.9375);
   leg->AddEntry(hAll, "all toys surviving cuts");
   leg->AddEntry(hFailed, "toys failing cuts");
   leg->AddEntry(hOmcl, "1-CL of 'sig' toys (arb. units)");
@@ -180,7 +180,7 @@ void ControlPlots::ctrlPlotChi2() {
   hChi2free->Draw();
   // move first stat box a little
   gPad->Update();  //  needed else FindObject() returns a null pointer
-  TPaveStats* st = (TPaveStats*)hChi2free->FindObject("stats");
+  auto st = dynamic_cast<TPaveStats*>(hChi2free->FindObject("stats"));
   st->SetName("hChi2freeStats");
   st->SetX1NDC(0.7778305);
   st->SetY1NDC(0.4562937);
@@ -192,7 +192,7 @@ void ControlPlots::ctrlPlotChi2() {
   hChi2BestFit->Draw("sames");  // s adds a second stat box
   // move second stat box a little
   gPad->Update();
-  st = (TPaveStats*)hChi2BestFit->FindObject("stats");
+  st = dynamic_cast<TPaveStats*>(hChi2BestFit->FindObject("stats"));
   st->SetX1NDC(0.7778305);
   st->SetY1NDC(0.6274767);
   st->SetX2NDC(0.9772986);
@@ -200,7 +200,7 @@ void ControlPlots::ctrlPlotChi2() {
   st->SetLineColor(kRed);
   makePlotsNice("hChi2free");
   // add legend
-  TLegend* leg4 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
+  auto leg4 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
   leg4->AddEntry(hChi2free, "#chi^{2} (all scan var values)");
   leg4->AddEntry(hChi2BestFit, "#chi^{2} (at best fit value)");
   leg4->SetFillStyle(1001);
@@ -230,13 +230,13 @@ void ControlPlots::ctrlPlotChi2() {
   pad->SetLogy();
   // move first stat box a little
   gPad->Update();  //  needed else FindObject() returns a null pointer
-  st = (TPaveStats*)h4sig->FindObject("stats");
+  st = dynamic_cast<TPaveStats*>(h4sig->FindObject("stats"));
   st->SetX1NDC(0.7778305);
   st->SetY1NDC(0.4562937);
   st->SetX2NDC(0.9772986);
   st->SetY2NDC(0.6056235);
   // add legend
-  TLegend* leg5 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
+  auto leg5 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
   leg5->AddEntry(h4sig, "#Delta#chi^{2} of 'signal' toys");
   leg5->AddEntry(h4bkg, "#Delta#chi^{2} of 'bg' toys");
   leg5->SetFillStyle(1001);
@@ -258,14 +258,14 @@ void ControlPlots::ctrlPlotChi2() {
   makePlotsNice("h5sig");
   // move stat box a little
   gPad->Update();  //  needed else FindObject() returns a null pointer
-  st = (TPaveStats*)h5sig->FindObject("stats");
+  st = dynamic_cast<TPaveStats*>(h5sig->FindObject("stats"));
   st->SetX1NDC(0.7778305);
   st->SetY1NDC(0.4562937);
   st->SetX2NDC(0.9772986);
   st->SetY2NDC(0.6056235);
   c2->Update();
   // add legend
-  TLegend* leg6 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
+  auto leg6 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
   leg6->AddEntry(h5sig, Form("Prob(#Delta#chi^{2}, ndof=%i)", ndof));
   leg6->SetFillStyle(1001);
   leg6->Draw();
@@ -444,7 +444,7 @@ void ControlPlots::ctrlPlotChi2Distribution() {
         t->Draw("chi2minToy-chi2minGlobalToy",
                 ctrlPlotCuts && bincut && "chi2minToy-chi2minGlobalToy>0 && chi2minToy-chi2minGlobalToy<50");
     if (!gPad->GetPrimitive("htemp")) continue;
-    TPaveText* txt = new TPaveText(0.3, 0.8, 0.9, 0.9, "BRNDC");
+    auto txt = new TPaveText(0.3, 0.8, 0.9, 0.9, "BRNDC");
     txt->AddText(Form("%.3f < %s < %.3f", binMin, arg->var[0].Data(), binMax));
     txt->SetBorderSize(0);
     txt->SetFillStyle(0);
@@ -497,7 +497,7 @@ void ControlPlots::ctrlPlotChi2Parabola() {
     t->Draw(plotExpression, ctrlPlotCuts && bincut && "chi2minToy-chi2minGlobalToy>0 && chi2minToy-chi2minGlobalToy<9",
             "colz");
     if (!gPad->GetPrimitive("htemp")) continue;
-    TPaveText* txt = new TPaveText(0.3, 0.8, 0.9, 0.9, "BRNDC");
+    auto txt = new TPaveText(0.3, 0.8, 0.9, 0.9, "BRNDC");
     txt->AddText(Form("%.3f<var<%.3f", binMin, binMax));
     txt->SetBorderSize(0);
     txt->SetFillStyle(0);
@@ -518,9 +518,9 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // chi2 so we can compare
   if (arg->debug)
     cout << "ControlPlots::ctrlPlotMore() : creating a new TTree that also contains the pll chi2 ..." << endl;
-  TFile* fDummy =
+  auto fDummy =
       new TFile("/tmp/" + getUniqueRootName(), "recreate");  //  dummy file so the new tree is not memory resident
-  TTree* tNew = new TTree("tNew", "tNew");
+  auto tNew = new TTree("tNew", "tNew");
   float tNew_scanpoint = 0.;
   float tNew_chi2min = 0.;
   float tNew_chi2minPLH = 0.;
@@ -601,7 +601,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // draw a horizontal red line at the chi2minGlobal of the current PLH scan
   float xmin = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin();
   float xmax = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
-  TLine* l = new TLine(xmin, profileLH->getChi2minGlobal(), xmax, profileLH->getChi2minGlobal());
+  auto l = new TLine(xmin, profileLH->getChi2minGlobal(), xmax, profileLH->getChi2minGlobal());
   l->SetLineColor(kRed);
   l->Draw();
 

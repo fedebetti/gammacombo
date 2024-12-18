@@ -149,8 +149,8 @@ void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, vector<int>& indices, 
       exit(1);
     }
   }
-  RooArgList* obsToRemove = new RooArgList();
-  RooArgList* theoryToRemove = new RooArgList();
+  auto obsToRemove = new RooArgList();
+  auto theoryToRemove = new RooArgList();
 
   // loop over all observables and remove the ones that aren't in indices
   for (int i = 0; i < pdf->getObservables()->getSize(); i++) {
@@ -165,7 +165,7 @@ void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, vector<int>& indices, 
   delete theoryToRemove;
 
   // now sort out parameters
-  RooArgList* paramsToRemove = new RooArgList();
+  auto paramsToRemove = new RooArgList();
   for (int i = 0; i < pdf->getParameters()->getSize(); i++) {
     bool paramFoundInTheory = false;
     for (int j = 0; j < pdf->getTheory()->getSize(); j++) {
@@ -390,7 +390,7 @@ void GammaComboEngine::newCombiner(int id, TString name, TString title, int pdf1
          << endl;
     exit(1);
   }
-  Combiner* c = new Combiner(arg.get(), name, title);
+  auto c = new Combiner(arg.get(), name, title);
   if (pdf1 > -1) c->addPdf(getPdf(pdf1));
   if (pdf2 > -1) c->addPdf(getPdf(pdf2));
   if (pdf3 > -1) c->addPdf(getPdf(pdf3));
@@ -508,7 +508,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
   // set observables to asimov values in workspace
   RooWorkspace* w = c->getWorkspace();
   TIterator* itObs = c->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)itObs->Next()) {
+  while (auto pObs = dynamic_cast<RooRealVar*>(itObs->Next())) {
     // get theory name from the observable name
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
@@ -530,7 +530,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
     PDF_Abs* pdf = c->getPdfs()[i];
     pdf->setObservableSourceString("Asimov");
     TIterator* itObs = pdf->getObservables()->createIterator();
-    while (RooRealVar* pObs = (RooRealVar*)itObs->Next()) {
+    while (auto pObs = dynamic_cast<RooRealVar*>(itObs->Next())) {
       RooAbsReal* obs = w->var(pObs->GetName());
       if (!obs) {
         cout << "GammaComboEngine::setAsimovObservables() : ERROR : observable not found in workspace: "
@@ -625,7 +625,7 @@ void GammaComboEngine::configureAsimovCombinerNames(Combiner* c, int i) {
 void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId) {
   if (arg->asimov[cId] == 0) return;
   cout << "\nAsimov point configuration:\n" << endl;
-  ParameterCache* pCache = new ParameterCache(arg.get());
+  auto pCache = new ParameterCache(arg.get());
   TString asimovfile;
   TString asimovfile2 = m_fnamebuilder->getFileNameAsimovPar(c);
   TString asimovfile3 =
@@ -1188,7 +1188,7 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
 ///
 void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, int cId) {
   // load start parameters
-  ParameterCache* pCache = new ParameterCache(arg.get());
+  auto pCache = new ParameterCache(arg.get());
   loadStartParameters(scanner, pCache, cId);
 
   scanner->initScan();
@@ -1255,8 +1255,8 @@ void GammaComboEngine::make2dPluginScan(MethodPluginScan* scannerPlugin, int cId
     scannerPlugin->saveScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
     // plot chi2
     cout << "making full chi2 plot ..." << endl;
-    OneMinusClPlot2d* plotf = new OneMinusClPlot2d(arg.get(), plot->getName() + "_plugin_full",
-                                                   "p-value histogram: " + scannerPlugin->getTitle());
+    auto plotf = new OneMinusClPlot2d(arg.get(), plot->getName() + "_plugin_full",
+                                      "p-value histogram: " + scannerPlugin->getTitle());
     scannerPlugin->plotOn(plotf);
     plotf->DrawFull();
     plotf->save();
@@ -1290,7 +1290,7 @@ void GammaComboEngine::make1dBergerBoosScan(MethodBergerBoosScan* scannerBergerB
 /// \param cId - the id of this combination on the command line
 void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, int cId) {
   // load coverage point parameters (this can be done automatically)
-  ParameterCache* pCache = new ParameterCache(arg.get());
+  auto pCache = new ParameterCache(arg.get());
   if (arg->loadParamsFile.size() != arg->combid.size()) {
     cout << "\nERROR : For a Coverage scan you must pass a parameter file (--parfile) to throw the toys from. You need "
             "one parfile per combiner"
@@ -1496,7 +1496,7 @@ void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan* scanner, [[maybe_u
 ///
 void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, int cId) {
   // load start parameters
-  ParameterCache* pCache = new ParameterCache(arg.get());
+  auto pCache = new ParameterCache(arg.get());
   loadStartParameters(scanner, pCache, cId);
   // scan
   scanner->initScan();
@@ -1717,20 +1717,20 @@ void GammaComboEngine::setObservablesFromFile(Combiner* c, int cId) {
         TString typ = els[0];
         if (typ == "obs:") {
           TString name = els[1];
-          double val = boost::lexical_cast<double>(els[2]);
+          auto val = boost::lexical_cast<double>(els[2]);
           pdfs[i]->setObservable(name, val);
           pdfs[i]->obsValSource = "Read from file " + arg->readfromfile[cId][i];
         } else if (typ == "err:") {
           TString name = els[1];
-          double stat = boost::lexical_cast<double>(els[2]);
-          double syst = boost::lexical_cast<double>(els[3]);
+          auto stat = boost::lexical_cast<double>(els[2]);
+          auto syst = boost::lexical_cast<double>(els[3]);
           pdfs[i]->setUncertainty(name, stat, syst);
           pdfs[i]->obsErrSource = "Read from file " + arg->readfromfile[cId][i];
         } else if (typ == "cor:") {
-          int mi = boost::lexical_cast<int>(els[1]);
-          int mj = boost::lexical_cast<int>(els[2]);
-          double corStat = boost::lexical_cast<double>(els[3]);
-          double corSyst = boost::lexical_cast<double>(els[4]);
+          auto mi = boost::lexical_cast<int>(els[1]);
+          auto mj = boost::lexical_cast<int>(els[2]);
+          auto corStat = boost::lexical_cast<double>(els[3]);
+          auto corSyst = boost::lexical_cast<double>(els[4]);
           pdfs[i]->corStatMatrix[mi][mj] = corStat;
           pdfs[i]->corSystMatrix[mi][mj] = corSyst;
           pdfs[i]->corStatMatrix[mj][mi] = corStat;
@@ -1786,7 +1786,7 @@ void GammaComboEngine::saveWorkspace(Combiner* c, int i) {
   const RooArgSet* theParameters = c->getParameters();
   const RooArgSet* theObservables = c->getObservables();
 
-  RooAbsPdf* savePdf = (RooAbsPdf*)thePdf->Clone("ThePdf");
+  auto savePdf = (RooAbsPdf*)thePdf->Clone("ThePdf");
   c->getWorkspace()->import(*savePdf, Silence());
   c->getWorkspace()->defineSet("TheParameters", *theParameters);
   c->getWorkspace()->defineSet("TheObservables", *theObservables);
@@ -1826,7 +1826,7 @@ void GammaComboEngine::compareCombinations() {
       const RooArgSet* sc1obs = comparisonScanners[i]->getObservables();
       const RooArgSet* sc2obs = comparisonScanners[j]->getObservables();
       TIterator* it1 = sc1obs->createIterator();
-      while (RooRealVar* pObs1 = (RooRealVar*)it1->Next()) {
+      while (auto pObs1 = dynamic_cast<RooRealVar*>(it1->Next())) {
         TIterator* it2 = sc2obs->createIterator();
         while (RooRealVar* pObs2 = (RooRealVar*)it2->Next()) {
 
@@ -1901,14 +1901,14 @@ void GammaComboEngine::compareCombinations() {
       pull_corr->GetXaxis()->SetLabelSize(0.045);
       pull_corr->GetYaxis()->SetLabelSize(0.045);
       pull_corr->Draw("scat");
-      TLine* line = new TLine();
+      auto line = new TLine();
       line->DrawLine(-5, 0, 5, 0);
       line->DrawLine(0, -5, 0, 5);
       pull_corr->Draw("scatsame");
       TF1* f1 = new TF1("f1", "[0]*x", -5, 5);
       f1->SetParameter(0, corr);
       f1->Draw("Lsame");
-      TLatex* lat = new TLatex();
+      auto lat = new TLatex();
       lat->DrawLatex(3, 4, Form("#rho = %3.1f", corr));
       lat->DrawLatex(3, 3, Form("#sigma = %3.1f", TMath::Abs(diff) / err));
       Utils::savePlot(canv, Form("pull_corr_%s_%s", comparisonScanners[i]->getName().Data(),
@@ -1925,14 +1925,14 @@ void GammaComboEngine::runToys(Combiner* c) {
   // THIS IS A HACK FOR NOW
   //
   // base scan (overhead here)
-  MethodProbScan* probscan = new MethodProbScan(c);
+  auto probscan = new MethodProbScan(c);
   make1dProbScan(probscan, 0);
 
   TString toydirname = TString("root/scan1dToys_") + probscan->getName() + TString("_") + probscan->getScanVar1Name();
   TString toyfname = toydirname + TString("/scan1dToys_") + probscan->getName() + TString("_") +
                      probscan->getScanVar1Name() + Form("_run%d.root", arg->nrun);
 
-  TTree* tree = new TTree("toys", "toys");
+  auto tree = new TTree("toys", "toys");
   map<TString, double> vals;
   map<TString, double> errs;
   double chi2val = probscan->solutions[0]->minNll();
@@ -1941,7 +1941,7 @@ void GammaComboEngine::runToys(Combiner* c) {
   tree->Branch("chi2min", &chi2val);
   RooArgList fitPars = probscan->solutions[0]->floatParsFinal();
   TIterator* it = fitPars.createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
+  while (auto p = dynamic_cast<RooRealVar*>(it->Next())) {
     cout << "YO:: " << p->GetName() << endl;
     vals[p->GetName()] = p->getVal();
     errs[p->GetName()] = p->getError();
@@ -1954,7 +1954,7 @@ void GammaComboEngine::runToys(Combiner* c) {
   for (int i = 0; i < arg->ntoys; i++) {
     cout << "RUNNING TOY " << i << " / " << arg->ntoys << endl;
     c->setObservablesToToyValues();
-    MethodProbScan* toyscan = new MethodProbScan(c);
+    auto toyscan = new MethodProbScan(c);
     make1dProbScan(toyscan, 0);
     if (toyscan->solutions.size() == 0) continue;
     toyscan->solutions[0]->Print();
@@ -1974,7 +1974,7 @@ void GammaComboEngine::runToys(Combiner* c) {
     delete toyscan;
   }
   system("mkdir -p " + toydirname);
-  TFile* f = new TFile(toyfname, "recreate");
+  auto f = new TFile(toyfname, "recreate");
   tree->Write();
   f->Close();
   delete tree;
@@ -2051,10 +2051,10 @@ void GammaComboEngine::scan() {
 
     if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
         !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
-      MethodProbScan* scannerProb = new MethodProbScan(c);
+      auto scannerProb = new MethodProbScan(c);
       // pvalue corrector
       if (arg->coverageCorrectionID > 0) {
-        PValueCorrection* pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
+        auto pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
         pvalueCorrector->readFiles(m_fnamebuilder->getFileBaseName(c), arg->coverageCorrectionPoint,
                                    false);  // false means for prob
         pvalueCorrector->write("root/pvalueCorrection_prob.root");
@@ -2092,9 +2092,9 @@ void GammaComboEngine::scan() {
       // 1D SCANS
       if (arg->var.size() == 1) {
         if (arg->isAction("pluginbatch")) {
-          MethodProbScan* scannerProb = new MethodProbScan(c);
+          auto scannerProb = new MethodProbScan(c);
           make1dProbScan(scannerProb, i);
-          MethodPluginScan* scannerPlugin = new MethodPluginScan(scannerProb);
+          auto scannerPlugin = new MethodPluginScan(scannerProb);
           make1dPluginScan(scannerPlugin, i);
         }
         // if ( arg->isAction("pluginhybridbatch") ){
@@ -2102,7 +2102,7 @@ void GammaComboEngine::scan() {
         // cout << "HYBRID PLUGIN: preparing profile likelihood to be used for parameter evolution:" << endl;
         // ParameterCache *pCache = new ParameterCache(arg.get(), m_fnamebuilder->getFileBaseName(cmb[arg->pevid[0]]));
         // pCache->loadPoints();
-        // MethodProbScan *scanner3 = new MethodProbScan(cmb[arg->pevid[0]]);
+        // auto scanner3 = new MethodProbScan(cmb[arg->pevid[0]]);
         // scanner3->initScan();
         // scanStrategy1d(scanner3,pCache);
         // scanner3->confirmSolutions();
@@ -2113,7 +2113,7 @@ void GammaComboEngine::scan() {
           // Create the Prob scanner: load from disc if it exists, else redo the scan.
           // We don't need the prob scanner for the plugin only plot, if we either just
           // want to replot it.
-          MethodProbScan* scannerProb = new MethodProbScan(c);
+          auto scannerProb = new MethodProbScan(c);
           if (!arg->plotpluginonly || (arg->plotpluginonly && !arg->isAction("plot"))) {
             if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb))) {
               scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
@@ -2127,12 +2127,12 @@ void GammaComboEngine::scan() {
             }
           }
           // create Plugin scanner
-          MethodPluginScan* scannerPlugin = new MethodPluginScan(scannerProb);
+          auto scannerPlugin = new MethodPluginScan(scannerProb);
           if (arg->isAction("plot")) {
             scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
           } else {
             if (arg->coverageCorrectionID > 0) {
-              PValueCorrection* pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
+              auto pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
               pvalueCorrector->readFiles(m_fnamebuilder->getFileBaseName(c), arg->coverageCorrectionPoint,
                                          true);  // true means for plugin
               pvalueCorrector->write("root/pvalueCorrection_plugin.root");
@@ -2151,17 +2151,17 @@ void GammaComboEngine::scan() {
       // 2D SCANS
       else if (arg->var.size() == 2) {
         if (arg->isAction("pluginbatch")) {
-          MethodProbScan* scannerProb = new MethodProbScan(c);
+          auto scannerProb = new MethodProbScan(c);
           make2dProbScan(scannerProb, i);
-          MethodPluginScan* scannerPlugin = new MethodPluginScan(scannerProb);
+          auto scannerPlugin = new MethodPluginScan(scannerProb);
           make2dPluginScan(scannerPlugin, i);
         } else if (arg->isAction("plugin")) {
-          MethodProbScan* scannerProb = new MethodProbScan(c);
+          auto scannerProb = new MethodProbScan(c);
           if (!(arg->isAction("plot") && arg->plotpluginonly)) {
             // we don't need the prob scanner if we just want to replot the plugin only
             scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
           }
-          MethodPluginScan* scannerPlugin = new MethodPluginScan(scannerProb);
+          auto scannerPlugin = new MethodPluginScan(scannerProb);
           if (arg->isAction("plot")) {
             scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
           } else {
@@ -2187,7 +2187,7 @@ void GammaComboEngine::scan() {
         cerr << "ERROR -- you can only scan in 1D for a coverage check" << endl;
         exit(1);
       }
-      MethodCoverageScan* coverageScan = new MethodCoverageScan(c);
+      auto coverageScan = new MethodCoverageScan(c);
       if (arg->isAction("coveragebatch")) {
         make1dCoverageScan(coverageScan, i);
       } else if (arg->isAction("coverage")) {
@@ -2235,7 +2235,7 @@ void GammaComboEngine::scanDataSet() {
 
   if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
       !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
-    MethodDatasetsProbScan* probScanner = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
+    auto probScanner = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
 
     // 1D SCANS
     if (arg->var.size() == 1) {
@@ -2267,7 +2267,7 @@ void GammaComboEngine::scanDataSet() {
     // 1D SCANS
     if (arg->var.size() == 1) {
       if (arg->isAction("pluginbatch")) {
-        MethodDatasetsProbScan* scannerProb = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
+        auto scannerProb = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
         if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb))) {
           scannerProb->initScan();
           scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
@@ -2279,11 +2279,10 @@ void GammaComboEngine::scanDataSet() {
           cout << endl;
           make1dProbScan(scannerProb, 0);
         }
-        MethodDatasetsPluginScan* scannerPlugin =
-            new MethodDatasetsPluginScan(scannerProb, (PDF_Datasets*)pdf[0], arg.get());
+        auto scannerPlugin = new MethodDatasetsPluginScan(scannerProb, (PDF_Datasets*)pdf[0], arg.get());
         make1dPluginScan(scannerPlugin, 0);
       } else if (arg->isAction("plugin")) {
-        MethodDatasetsProbScan* scannerProb = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
+        auto scannerProb = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
         if (!arg->plotpluginonly || (arg->plotpluginonly && !arg->isAction("plot"))) {
           if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb))) {
             scannerProb->initScan();
@@ -2298,8 +2297,7 @@ void GammaComboEngine::scanDataSet() {
           }
         }
         // create Plugin scanner
-        MethodDatasetsPluginScan* scannerPlugin =
-            new MethodDatasetsPluginScan(scannerProb, (PDF_Datasets*)pdf[0], arg.get());
+        auto scannerPlugin = new MethodDatasetsPluginScan(scannerProb, (PDF_Datasets*)pdf[0], arg.get());
         if (arg->isAction("plot")) {
           scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
         } else {

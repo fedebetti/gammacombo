@@ -387,7 +387,7 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float ce
   }
 
   // create a TGraph that we can fit
-  TGraph* g = new TGraph(3);
+  auto g = new TGraph(3);
   g->SetPoint(0, h->GetBinCenter(i - 1), h->GetBinContent(i - 1));
   g->SetPoint(1, h->GetBinCenter(i), h->GetBinContent(i));
   g->SetPoint(2, h->GetBinCenter(i + 1), h->GetBinContent(i + 1));
@@ -397,7 +397,7 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float ce
     // add a point to the beginning
     if ((h->GetBinContent(i - 2) < h->GetBinContent(i - 1) && h->GetBinContent(i - 1) < h->GetBinContent(i)) ||
         (h->GetBinContent(i - 2) > h->GetBinContent(i - 1) && h->GetBinContent(i - 1) > h->GetBinContent(i))) {
-      TGraph* gNew = new TGraph(g->GetN() + 1);
+      auto gNew = new TGraph(g->GetN() + 1);
       gNew->SetPoint(0, h->GetBinCenter(i - 2), h->GetBinContent(i - 2));
       Double_t pointx, pointy;
       for (int i = 0; i < g->GetN(); i++) {

@@ -3,8 +3,6 @@
 #include <algorithm>
 
 #include <boost/algorithm/string.hpp>
-// #include <boost/algorithm/string/predicate.hpp>
-// #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <RooArgList.h>
@@ -37,7 +35,7 @@ void ParameterCache::printFitResultToOutStream(ofstream& out, RooSlimFitResult* 
   argList.add(slimFitRes->constPars());
   argList.sort();
   TIterator* iter = argList.createIterator();
-  while (RooRealVar* arg = (RooRealVar*)iter->Next()) {
+  while (auto arg = dynamic_cast<RooRealVar*>(iter->Next())) {
     if (TString(arg->GetName()).Contains("obs")) continue;
     out << Form("%-25s", arg->GetName()) << " " << Form("%12.6f", arg->getVal()) << " "
         << Form("%12.6f", arg->getErrorLo()) << " " << Form("%12.6f", arg->getErrorHi()) << endl;
@@ -164,7 +162,7 @@ bool ParameterCache::loadPoints(TString fileName) {
           vector<string> els;
           boost::split(els, line, boost::is_any_of(" "), boost::token_compress_on);
           TString name = els[0];
-          double val = boost::lexical_cast<double>(els[1]);
+          auto val = boost::lexical_cast<double>(els[1]);
           startingValues[nSolutions - 1].insert(make_pair(name, val));
         }
       }

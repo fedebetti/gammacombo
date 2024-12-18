@@ -176,11 +176,11 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
     cout << "MethodProbScan::scan2d() : ERROR : parsName not found: " << parsName << endl;
     exit(1);
   }
-  RooDataSet* startPars = new RooDataSet("startParsForce", "startParsForce", *w->set(parsName));
+  auto startPars = new RooDataSet("startParsForce", "startParsForce", *w->set(parsName));
   startPars->add(*w->set(parsName));
 
   // set up parameters and ranges
-  RooArgList* varyPars = new RooArgList();
+  auto varyPars = new RooArgList();
   TIterator* it = w->set(parsName)->createIterator();
   while (RooRealVar* p = (RooRealVar*)it->Next()) {
     if (p->isConstant()) continue;
@@ -307,7 +307,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     //   float xmax = 3.14;
     //   float ymin = 0.;
     //   float ymax = 0.2;
-    //   TH2F* histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
+    //   auto histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
     //   for ( int ix=0; ix<100; ix++ )
     //   for ( int iy=0; iy<100; iy++ )
     //   {
@@ -332,7 +332,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     RooAbsPdf* hessePdf = r1->createHessePdf(*w->set(parsName));
     if (!hessePdf) return r1;
     // RooWorkspace* wImprove = (RooWorkspace*)w->Clone();
-    RooWorkspace* wImprove = new RooWorkspace();
+    auto wImprove = new RooWorkspace();
     wImprove->import(*w->pdf(pdfName));
     wImprove->import(*hessePdf);
     hessePdf = wImprove->pdf(hessePdf->GetName());
@@ -356,7 +356,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     //   float xmax = 3.14;
     //   float ymin = 0.;
     //   float ymax = 0.2;
-    //   TH2F* histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
+    //   auto histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
     //   for ( int ix=0; ix<100; ix++ )
     //   for ( int iy=0; iy<100; iy++ )
     //   {
@@ -806,7 +806,7 @@ TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, vector<double>& err) {
 /// This is a workaround for changes in RooFormulaVar that break things when
 /// making subset pdfs
 RooFormulaVar* Utils::makeTheoryVar(TString name, TString title, TString formula, RooArgList* pars) {
-  RooArgList* explicitDependents = new RooArgList();
+  auto explicitDependents = new RooArgList();
   for (int i = 0; i < pars->getSize(); i++) {
     if (formula.Contains(TString(pars->at(i)->GetName()))) { explicitDependents->add(*(pars->at(i))); }
   }
@@ -960,7 +960,7 @@ TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
   // set up the TTree based on the content of the first
   // row of the dataset
   map<string, float> variables;  ///< the proxy variables
-  TTree* t = new TTree("tree", "tree");
+  auto t = new TTree("tree", "tree");
   TIterator* it = d->get(0)->createIterator();
   while (RooRealVar* p = (RooRealVar*)it->Next()) {
     variables.insert(pair<string, float>(p->GetName(), p->getVal()));
@@ -998,7 +998,7 @@ TGraph* Utils::convertTH1ToTGraph(TH1* h, bool withErrors) {
 
 /// Smooths a graph
 TGraph* Utils::smoothGraph(TGraph* g, int option) {
-  TGraphSmooth* smoother = new TGraphSmooth();
+  auto smoother = new TGraphSmooth();
   TGraph* gr;
   if (option == 0)
     gr = (TGraph*)smoother->SmoothSuper(g)->Clone(Form("sm%s", g->GetName()));
@@ -1032,7 +1032,7 @@ TH1F* Utils::histHardCopy(const TH1F* h, bool copyContent, bool uniqueName, TStr
   TString name = h->GetTitle();
   if (specName != "") name = specName;
   if (uniqueName) name += getUniqueRootName();
-  TH1F* hNew = new TH1F(name, h->GetTitle(), h->GetNbinsX(), h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
+  auto hNew = new TH1F(name, h->GetTitle(), h->GetNbinsX(), h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
   for (int l = 1; l <= h->GetNbinsX(); l++) {
     if (copyContent)
       hNew->SetBinContent(l, h->GetBinContent(l));
@@ -1050,8 +1050,8 @@ TH2F* Utils::histHardCopy(const TH2F* h, bool copyContent, bool uniqueName, TStr
   TString name = h->GetTitle();
   if (specName != "") name = specName;
   if (uniqueName) name += getUniqueRootName();
-  TH2F* hNew = new TH2F(name, h->GetTitle(), h->GetNbinsX(), h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax(),
-                        h->GetNbinsY(), h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax());
+  auto hNew = new TH2F(name, h->GetTitle(), h->GetNbinsX(), h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax(),
+                       h->GetNbinsY(), h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax());
   for (int k = 1; k <= h->GetNbinsX(); k++)
     for (int l = 1; l <= h->GetNbinsY(); l++) {
       if (copyContent)
@@ -1089,7 +1089,7 @@ int Utils::makeNewColor(string hex) {
   float r = float(ri) / 255.;
   float g = float(gi) / 255.;
   float b = float(bi) / 255.;
-  TColor* col = new TColor(ci, r, g, b);
+  auto col = new TColor(ci, r, g, b);
   cout << ci << " " << hex << " " << r << " " << g << " " << b << endl;
   return col->GetNumber();
 }
@@ -1229,14 +1229,14 @@ std::vector<std::vector<int>> Utils::transpose(std::vector<std::vector<int>>& v)
 
 TCanvas* Utils::newNoWarnTCanvas(TString name, TString title, int width, int height) {
   gErrorIgnoreLevel = kError;
-  TCanvas* c = new TCanvas(name, title, width, height);
+  auto c = new TCanvas(name, title, width, height);
   gErrorIgnoreLevel = kInfo;
   return c;
 }
 
 TCanvas* Utils::newNoWarnTCanvas(TString name, TString title, int x, int y, int width, int height) {
   gErrorIgnoreLevel = kError;
-  TCanvas* c = new TCanvas(name, title, x, y, width, height);
+  auto c = new TCanvas(name, title, x, y, width, height);
   gErrorIgnoreLevel = kInfo;
   return c;
 }
@@ -1273,7 +1273,7 @@ void Utils::HFAGLabel(const TString& label, Double_t xpos, Double_t ypos, Double
     y2 = 1 + ypos;
   }
 
-  TPaveText* tbox1 = new TPaveText(x1, y1, x2, y2, "BRNDC");
+  auto tbox1 = new TPaveText(x1, y1, x2, y2, "BRNDC");
   // tbox1->SetLineColor(1);
   // tbox1->SetLineStyle(1);
   // tbox1->SetLineWidth(2);
@@ -1288,7 +1288,7 @@ void Utils::HFAGLabel(const TString& label, Double_t xpos, Double_t ypos, Double
   tbox1->AddText(TString("HFLAV"));
   tbox1->Draw();
   //
-  TPaveText* tbox2 = new TPaveText(x1, y1 - 0.9 * ysiz, x2, y2 - ysiz, "BRNDC");
+  auto tbox2 = new TPaveText(x1, y1 - 0.9 * ysiz, x2, y2 - ysiz, "BRNDC");
   // tbox2->SetLineColor(1);
   // tbox2->SetLineStyle(1);
   // tbox2->SetLineWidth(2);

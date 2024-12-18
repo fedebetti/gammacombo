@@ -29,7 +29,7 @@ bool Graphviz::isDmixingParameter(TString s) const {
 /// Open a file, return the file handle.
 ///
 ofstream& Graphviz::openFile(TString name) const {
-  ofstream* dotfile = new ofstream();
+  auto dotfile = new ofstream();
   dotfile->open(name);
   if (!dotfile->is_open()) {
     cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << endl;
