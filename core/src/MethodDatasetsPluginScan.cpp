@@ -774,8 +774,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     // get number of background and failed toys
     float nbackground = h_background->GetBinContent(i);
 
-    nfailed = h_failed->GetBinContent(i);
-
+    // nfailed = h_failed->GetBinContent(i);
     // nall = nall - nfailed + nbackground;
     float ntot = h_tot->GetBinContent(i);
     if (nall == 0.) continue;

@@ -133,7 +133,7 @@ void ControlPlots::ctrlPlotChi2() {
   TPad* pad;
 
   // get maximum chi2 to be plotted
-  pad = (TPad*)c2->cd(ip);
+  c2->cd(ip);
   t->Draw("chi2minToy", ctrlPlotCuts && "abs(chi2minToy)<1000");
   float maxPlottedChi2 = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
   maxPlottedChi2 = TMath::Min(maxPlottedChi2, (float)75.);
@@ -148,7 +148,7 @@ void ControlPlots::ctrlPlotChi2() {
   c2->Update();
 
   // plot 2:  chi2 distribution of the SCAN fit
-  pad = (TPad*)c2->cd(ip++);
+  c2->cd(ip++);
   t->Draw("chi2minToy", ctrlPlotCuts && Form("chi2minToy-chi2minGlobalToy>0 && chi2minToy<%f", maxPlottedChi2));
   ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->SetTitle("#chi^{2} scan");
   ((TH1F*)(gPad->GetPrimitive("htemp")))->GetYaxis()->SetTitle("toys");
@@ -156,10 +156,10 @@ void ControlPlots::ctrlPlotChi2() {
   c2->Update();
 
   // plot 3: empty
-  pad = (TPad*)c2->cd(ip++);
+  c2->cd(ip++);
 
   // plot 4: chi2 distribution of the FREE fit
-  pad = (TPad*)c2->cd(ip++);
+  c2->cd(ip++);
   t->Draw("chi2minGlobalToy>>hChi2free",
           ctrlPlotCuts && Form("chi2minToy-chi2minGlobalToy>0 && chi2minGlobalToy<%f", maxPlottedChi2));
   TH1F* hChi2free = (TH1F*)(gPad->GetPrimitive("hChi2free"));
@@ -208,7 +208,7 @@ void ControlPlots::ctrlPlotChi2() {
   c2->Update();
 
   // plot 5: delta chi2
-  pad = (TPad*)c2->cd(ip++);
+  c2->cd(ip++);
   // good toys
   t->Draw("chi2minToy-chi2minGlobalToy",
           ctrlPlotCuts && Form("chi2minToy-chi2minGlobalToy>=0 && chi2minToy<%f && chi2minGlobalToy<%f", maxPlottedChi2,
@@ -244,7 +244,7 @@ void ControlPlots::ctrlPlotChi2() {
   c2->Update();
 
   // plot 6: chi2 p-value distribution
-  pad = (TPad*)c2->cd(ip++);
+  c2->cd(ip++);
   // good toys
   int ndof = arg->var.size();
   t->Draw(Form("TMath::Prob(chi2minToy-chi2minGlobalToy,%i)", ndof),

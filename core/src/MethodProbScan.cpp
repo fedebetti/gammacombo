@@ -10,7 +10,6 @@
 
 #include <RooAddition.h>
 #include <RooArgSet.h>
-#include <RooConstVar.h>
 #include <RooDataHist.h>
 #include <RooDataSet.h>
 #include <RooGaussian.h>

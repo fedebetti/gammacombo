@@ -146,7 +146,6 @@ void CLIntervalMaker::storeRawInterval(int binidLo, int binidHi, float pvalue, v
 void CLIntervalMaker::findRawIntervals(float pvalue, vector<CLInterval>& clis) {
   bool intervalIsOpened = false;
   int intervalBinLo = 1;
-  int intervalBinHi = _pvalues.GetNbinsX();
 
   // check if we start with an opened interval
   if (isInInterval(1, pvalue)) intervalIsOpened = true;
@@ -155,7 +154,7 @@ void CLIntervalMaker::findRawIntervals(float pvalue, vector<CLInterval>& clis) {
   for (int j = 1; j <= _pvalues.GetNbinsX(); j++) {
     if (intervalIsOpened) {
       if (isInInterval(j, pvalue) && j != _pvalues.GetNbinsX()) continue;  // right border will close!
-      intervalBinHi = j;
+      int intervalBinHi = j;
       intervalIsOpened = false;
       storeRawInterval(intervalBinLo, intervalBinHi, pvalue, clis);
     } else {
