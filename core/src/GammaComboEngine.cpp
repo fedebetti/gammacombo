@@ -1585,7 +1585,7 @@ void GammaComboEngine::adjustRanges(Combiner* c, int cId) {
       if (rr == "all") {
         const RooArgSet* pars = (RooArgSet*)c->getParameters();
         TIterator* it = pars->createIterator();
-        while (RooRealVar* par = (RooRealVar*)it->Next()) { par->removeRange(); }
+        while (auto par = (RooRealVar*)it->Next()) { par->removeRange(); }
       } else {
         c->adjustPhysRange(rr, -999, -999);
       }
@@ -1822,7 +1822,7 @@ void GammaComboEngine::compareCombinations() {
       TIterator* it1 = sc1obs->createIterator();
       while (auto pObs1 = dynamic_cast<RooRealVar*>(it1->Next())) {
         TIterator* it2 = sc2obs->createIterator();
-        while (RooRealVar* pObs2 = (RooRealVar*)it2->Next()) {
+        while (auto pObs2 = (RooRealVar*)it2->Next()) {
 
           // look for matches
           TString pTh1Name = pObs1->GetName();
@@ -1840,8 +1840,8 @@ void GammaComboEngine::compareCombinations() {
             pTh1Name.ReplaceAll("obs", "th");
             pTh2Name = pObs2->GetName();
             pTh2Name.ReplaceAll("obs", "th");
-            RooRealVar* pTh1 = (RooRealVar*)comparisonScanners[i]->getTheory()->find(pTh1Name);
-            RooRealVar* pTh2 = (RooRealVar*)comparisonScanners[j]->getTheory()->find(pTh2Name);
+            auto pTh1 = (RooRealVar*)comparisonScanners[i]->getTheory()->find(pTh1Name);
+            auto pTh2 = (RooRealVar*)comparisonScanners[j]->getTheory()->find(pTh2Name);
             assert(pTh1 && pTh2);
             double pull = (pTh1->getVal() - pTh2->getVal()) / pObs2->getError();
             total_pull += pull * pull;
@@ -1959,7 +1959,7 @@ void GammaComboEngine::runToys(Combiner* c) {
     ntoy = i;
     RooArgList toyFitPars = toyscan->solutions[0]->floatParsFinal();
     TIterator* toyit = toyFitPars.createIterator();
-    while (RooRealVar* p = (RooRealVar*)toyit->Next()) {
+    while (auto p = (RooRealVar*)toyit->Next()) {
       // cout << p->GetName() << " " << p->getVal() << " " << p->getError() << endl;
       vals[p->GetName()] = p->getVal();
       errs[p->GetName()] = p->getError();

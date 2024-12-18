@@ -103,7 +103,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
   if (maxid > 1) counter = Form(" (%i of %i)", currentid, maxid);
 
   // draw combiner title
-  TPaveText* t4 = new TPaveText(xminCoords, ymaxCoords - width, xmaxCoords, ymaxCoords, "br");
+  auto t4 = new TPaveText(xminCoords, ymaxCoords - width, xmaxCoords, ymaxCoords, "br");
   t4->SetBorderSize(0);
   t4->SetFillStyle(0);
   t4->SetTextAlign(22);
@@ -112,20 +112,20 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
   t4->Draw();
 
   // add an horizontal pull axis
-  TGaxis* axis = new TGaxis(xminPullAxis, yminCoords + 2 * width + spacing, xmaxPullAxis,
-                            yminCoords + 2 * width + spacing, xminPullAxis, xmaxPullAxis, 510, "");
+  auto axis = new TGaxis(xminPullAxis, yminCoords + 2 * width + spacing, xmaxPullAxis, yminCoords + 2 * width + spacing,
+                         xminPullAxis, xmaxPullAxis, 510, "");
   axis->SetLabelFont(133);
   axis->SetLabelSize(18);
   axis->Draw();
 
   // draw observables, pulls, and migration
   for (int iObs = 0; iObs < observables.size(); iObs++) {
-    RooRealVar* pObs = (RooRealVar*)cmb->getObservables()->find(observables[iObs]);
+    auto pObs = (RooRealVar*)cmb->getObservables()->find(observables[iObs]);
 
     // find associated theory value
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
-    RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
+    auto pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
     if (!pTh) {
       pThName = pObs->GetName();
       pThName.ReplaceAll("_obs", "");
@@ -150,7 +150,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
     TString label = pObs->GetTitle();
     // TString label = pObs->GetName();
     label.ReplaceAll(" obs", "");
-    TPaveText* t1 = new TPaveText(xminCoords, ymin, xminPullAxis, ymax, "br");
+    auto t1 = new TPaveText(xminCoords, ymin, xminPullAxis, ymax, "br");
     t1->AddText(label);
     t1->SetTextAlign(32);
     t1->SetTextFont(133);
@@ -171,7 +171,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
     if (arg->digits > 0) p = arg->digits;
 
     // draw the observable migration
-    TPaveText* t2 = new TPaveText(xmaxPullAxis, ymin, xmaxCoords, ymax, "br");
+    auto t2 = new TPaveText(xmaxPullAxis, ymin, xmaxCoords, ymax, "br");
     // t2->AddText(Form("%s: %.*f #rightarrow %.*f", label.Data(), p, pObsVal, p, pThVal));
     t2->AddText(Form("%.*f #rightarrow %.*f", p, pObsVal, p, pThVal));
     t2->SetTextAlign(12);
@@ -187,7 +187,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
   if (currentid == maxid) {
     float chi2 = cmb->getSolution(nSolution)->minNll();
     int nPar = cmb->getSolution(nSolution)->floatParsFinal().getSize();
-    TPaveText* t3 = new TPaveText(xminCoords, yminCoords, xmaxCoords, yminCoords + width, "br");
+    auto t3 = new TPaveText(xminCoords, yminCoords, xmaxCoords, yminCoords + width, "br");
     t3->SetBorderSize(0);
     t3->SetFillStyle(0);
     t3->SetTextAlign(12);
@@ -224,7 +224,7 @@ void PullPlotter::savePulls() const {
     const RooArgSet* parsMin = combiner->getParameters();
     RooArgList* pars = pdf->getParameters();
     TIterator* it1 = pars->createIterator();
-    while (RooRealVar* pPar = (RooRealVar*)it1->Next()) {
+    while (auto pPar = (RooRealVar*)it1->Next()) {
       pPar->setVal(((RooAbsReal*)parsMin->find(pPar->GetName()))->getVal());
     }
     //
@@ -235,12 +235,12 @@ void PullPlotter::savePulls() const {
     running_chi2 += chi2_contrib;
     // loop observables
     TIterator* it = obs->createIterator();
-    while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+    while (auto pObs = (RooRealVar*)it->Next()) {
       // find associated theory value
       TString pThName = pObs->GetName();
       pThName.ReplaceAll("obs", "th");
-      // RooRealVar* pTh = (RooRealVar*)th->find(pThName);
-      RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
+      // auto pTh = (RooRealVar*)th->find(pThName);
+      auto pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
 
       double pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
       string name = string(pObs->GetName()).substr(0, string(pObs->GetName()).find(string("_obs")));
@@ -272,7 +272,7 @@ void PullPlotter::plotPulls() {
   // add any observables that are not in the ordered list defined above,
   // where the order of certain observables is defined manually
   TIterator* it = cmb->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+  while (auto pObs = (RooRealVar*)it->Next()) {
     bool found = false;
     for (auto oo : obsOrder) {
       if (oo == TString(pObs->GetName())) found = true;
@@ -284,7 +284,7 @@ void PullPlotter::plotPulls() {
   vector<TString> observables;
   if (arg->verbose) cout << endl;
   for (int i = obsOrder.size() - 1; i >= 0; i--) {
-    RooRealVar* pObs = (RooRealVar*)cmb->getObservables()->find(obsOrder[i]);
+    auto pObs = (RooRealVar*)cmb->getObservables()->find(obsOrder[i]);
     if (!pObs) {
       if (arg->debug) cout << "obs not found " << obsOrder[i] << endl;
       continue;
@@ -293,7 +293,7 @@ void PullPlotter::plotPulls() {
     // find associated theory value
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
-    RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
+    auto pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
     if (!pTh) {
       pThName = pObs->GetName();
       pThName.ReplaceAll("_obs", "");
@@ -356,11 +356,11 @@ void PullPlotter::plotPulls() {
 ///
 bool PullPlotter::hasPullsAboveNsigma(float nsigma) const {
   TIterator* it = cmb->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+  while (auto pObs = (RooRealVar*)it->Next()) {
     // find associated theory value
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
-    RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
+    auto pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
     if (!pTh) {
       if (arg->verbose) cout << "hasPullsAboveNsigma() : WARNING : th not found for " << pObs->GetName() << endl;
       continue;
@@ -378,11 +378,11 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma) const {
 ///
 void PullPlotter::printPulls(float aboveNsigma) const {
   TIterator* it = cmb->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+  while (auto pObs = (RooRealVar*)it->Next()) {
     // find associated theory value
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
-    RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
+    auto pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
     if (!pTh) {
       if (arg->verbose) cout << "printPulls() : WARNING : th not found for " << pObs->GetName() << endl;
       continue;

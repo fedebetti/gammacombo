@@ -2,6 +2,8 @@
 #include <CLIntervalPrinter.h>
 #include <Utils.h>
 
+#include <array>
+
 #include <TF1.h>
 
 using namespace std;
@@ -430,8 +432,8 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float ce
   TF1* f1 = new TF1("f1", "pol2", h->GetBinCenter(i - 2), h->GetBinCenter(i + 2));
   g->Fit("f1", "q");    // fit linear to get decent start parameters
   g->Fit("f1", "qf+");  // refit with minuit to get more correct errors (TGraph fit errors bug)
-  float p[3], e[3];
-  for (int ii = 0; ii < 3; ii++) {
+  array<float, 3> p, e;
+  for (int ii = 0; ii < p.size(); ii++) {
     p[ii] = f1->GetParameter(ii);
     e[ii] = f1->GetParError(ii);
   }

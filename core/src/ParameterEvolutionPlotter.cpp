@@ -68,7 +68,7 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos
   pad->Update();
   float ymin = pad->GetUymin();
   float ymax = pad->GetUymax();
-  TLine* l1 = new TLine(xpos, ymin, xpos, ymax);
+  auto l1 = new TLine(xpos, ymin, xpos, ymax);
   l1->SetLineWidth(1);
   l1->SetLineColor(kRed);
   l1->SetLineStyle(kSolid);
@@ -79,7 +79,7 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos
 /// Make an evolution graph for one parameter.
 ///
 TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlimFitResult*> results, TString parName) {
-  TGraphErrors* g = new TGraphErrors(results.size());
+  auto g = new TGraphErrors(results.size());
   int iGraph = 0;
   for (auto result : results) {
     if (result) {
@@ -95,7 +95,7 @@ TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlim
 /// Make an evolution graph for one parameter.
 ///
 TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> results, TString parName) {
-  TGraph* g = new TGraph(results.size());
+  auto g = new TGraph(results.size());
   int iGraph = 0;
   for (auto result : results) {
     if (result) {
@@ -110,7 +110,7 @@ TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> 
 /// Make a chi2 graph.
 ///
 TGraph* ParameterEvolutionPlotter::makeChi2Graph(vector<RooSlimFitResult*> results) {
-  TGraph* g = new TGraph(results.size());
+  auto g = new TGraph(results.size());
   int iGraph = 0;
   for (auto result : results) {
     if (result) {
@@ -138,14 +138,14 @@ void ParameterEvolutionPlotter::plotParEvolution() {
 
   // get all parameters, loop over them
   TIterator* it = w->set(parsName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
+  while (auto p = (RooRealVar*)it->Next()) {
     if (p->isConstant() && p->GetName() != scanVar1) continue;
     if (arg->debug) cout << "ParameterEvolutionPlotter::plotParEvolution() : var = " << p->GetName() << endl;
     TVirtualPad* pad = selectNewPad();
     pad->SetLeftMargin(0.25);
     pad->SetTopMargin(0.10);
     // create a graph of the nominal evolution of one parameter
-    TGraph* g = makeEvolutionGraph(curveResults, p->GetName());
+    auto g = makeEvolutionGraph(curveResults, p->GetName());
     g->SetTitle(p->GetTitle());
     g->GetXaxis()->SetTitle(scanVar1);
     g->GetXaxis()->SetTitleSize(0.08);
@@ -160,12 +160,12 @@ void ParameterEvolutionPlotter::plotParEvolution() {
     TGaxis::SetMaxDigits(3);  // forces scienfific notation
     g->Draw("al");
     // add error bands
-    TGraphErrors* g2 = makeEvolutionGraphErrors(curveResults, p->GetName());
+    auto g2 = makeEvolutionGraphErrors(curveResults, p->GetName());
     g2->SetFillColorAlpha(kBlue, 0.15);
     g2->Draw("3");
     // create a graph of the full evolution of one parameter
     if (arg->isQuickhack(16)) {
-      TGraph* g3 = makeEvolutionGraph(allResults, p->GetName());
+      auto g3 = makeEvolutionGraph(allResults, p->GetName());
       g3->Draw("p");
     }
     updateCurrentCanvas();
@@ -176,7 +176,7 @@ void ParameterEvolutionPlotter::plotParEvolution() {
   // plot the chi2 to the last pad
   TVirtualPad* pad = selectNewPad();
   pad->SetLeftMargin(0.25);
-  TGraph* g = makeChi2Graph(curveResults);
+  auto g = makeChi2Graph(curveResults);
   g->SetLineWidth(2);
   g->SetTitle("chi2");
   g->GetXaxis()->SetTitle(scanVar1);
@@ -219,7 +219,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   c2->SetLeftMargin(0.2);
 
   // get observable
-  TGraphErrors* g = new TGraphErrors(results.size());
+  auto g = new TGraphErrors(results.size());
   int iGraph = 0;
 
   for (auto result : results) {
@@ -249,7 +249,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   g->GetYaxis()->SetTitleOffset(1.5);
   g->GetYaxis()->SetTitle(scanVar1);
   Int_t ci = 927;
-  TColor* col = new TColor(ci, 0, 0, 1, " ", 0.5);
+  auto col = new TColor(ci, 0, 0, 1, " ", 0.5);
   g->SetFillColor(ci);
   g->SetFillStyle(1001);
   g->Draw("a3");

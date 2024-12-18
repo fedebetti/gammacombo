@@ -10,6 +10,8 @@
 #include <MethodPluginScan.h>
 #include <ProgressBar.h>
 
+#include <array>
+
 #include <RooRandom.h>
 
 #include <TArrow.h>
@@ -189,8 +191,8 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
     TString aff_obs = aff_var + "_obs";
 
     bool hasAffObs = false;
-    float generatedValues[2];
-    for (int i = 0; i < 2; i++) {
+    array<float, 2> generatedValues;
+    for (int i = 0; i < generatedValues.size(); i++) {
       const RooArgSet* toyData = dataset->get(i);
       TIterator* it = toyData->createIterator();
       while (RooRealVar* var = (RooRealVar*)it->Next()) {

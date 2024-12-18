@@ -13,6 +13,8 @@
 #include <PullPlotter.h>
 #include <Utils.h>
 
+#include <array>
+
 #include <TDatime.h>
 #include <TF1.h>
 #include <TFile.h>
@@ -340,7 +342,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
          << endl;
     exit(1);
   }
-  TFile* f = new TFile(fName, "ro");  // don't delete this later else the objects die
+  auto f = new TFile(fName, "ro");  // don't delete this later else the objects die
   // load 1-CL histograms
   TObject* obj = f->Get("hCL");
   if (!obj) {
@@ -447,7 +449,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
   solutions.clear();
   int nSol = 100;
   for (int i = 0; i < nSol; i++) {
-    RooSlimFitResult* r = (RooSlimFitResult*)f->Get(Form("sol%i", i));
+    auto r = (RooSlimFitResult*)f->Get(Form("sol%i", i));
     if (!r) break;
     solutions.push_back(r);
   }
@@ -524,7 +526,7 @@ bool MethodAbsScan::interpolate(TH1F* h, int i, float y, float central, bool upp
   }
 
   // compute pol2 fit interpolation
-  TGraphErrors* g = new TGraphErrors(3);
+  auto g = new TGraphErrors(3);
   g->SetPoint(0, h->GetBinCenter(i - 1), h->GetBinContent(i - 1));
   g->SetPointError(0, h->GetBinWidth(i - 1) / 2., h->GetBinError(i - 1));
   g->SetPoint(1, h->GetBinCenter(i), h->GetBinContent(i));
@@ -541,7 +543,7 @@ bool MethodAbsScan::interpolate(TH1F* h, int i, float y, float central, bool upp
         !upper)  // don't use for upper limit calculation if point is equal or below central value
     {
       // add to the beginning
-      TGraphErrors* gNew = new TGraphErrors(g->GetN() + 1);
+      auto gNew = new TGraphErrors(g->GetN() + 1);
       gNew->SetPoint(0, h->GetBinCenter(i - 2), h->GetBinContent(i - 2));
       gNew->SetPointError(0, h->GetBinWidth(i - 2) / 2., h->GetBinError(i - 2));
       Double_t pointx, pointy;
@@ -582,7 +584,7 @@ bool MethodAbsScan::interpolate(TH1F* h, int i, float y, float central, bool upp
   f2->SetParameter(0, f1->GetParameter(0));
   f2->SetParameter(1, f1->GetParameter(1));
   g->Fit("f2", "qf+");  // refit with minuit to get more correct errors (TGraph fit errors bug)
-  double p[3];
+  array<double, 3> p;
   // double e[3];
   // for ( int ii=0; ii<3; ii++ )
   // {
@@ -1088,7 +1090,7 @@ bool MethodAbsScan::loadSolution(int i) {
     cout << "MethodAbsScan::loadSolution() : ERROR : solution ID out of range." << endl;
     return false;
   }
-  RooArgSet* tmp = new RooArgSet();
+  auto tmp = new RooArgSet();
   tmp->add(solutions[i]->floatParsFinal());
   tmp->add(solutions[i]->constPars());
   setParameters(w, parsName, tmp);
@@ -1101,7 +1103,7 @@ bool MethodAbsScan::loadSolution(int i) {
 ///
 void MethodAbsScan::loadParameters(RooSlimFitResult* r) {
   if (arg->debug) cout << "MethodAbsScan::loadParameters() : loading a RooSlimFitResult " << endl;
-  RooArgSet* tmp = new RooArgSet();
+  auto tmp = new RooArgSet();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
   setParameters(w, parsName, tmp);
@@ -1260,15 +1262,15 @@ void MethodAbsScan::confirmSolutions() {
     if (arg->var.size() == 1) {
       // 1d scan
       float par1stepsize = (par1->getMax("scan") - par1->getMin("scan")) / arg->npoints1d;
-      RooRealVar* par1New = (RooRealVar*)r->floatParsFinal().find(par1->GetName());
+      auto par1New = (RooRealVar*)r->floatParsFinal().find(par1->GetName());
       float par1stepsizeInSigma = par1New->getError() > 0 ? par1stepsize / par1New->getError() : 0.2;
       allowedSigma = 3. * par1stepsizeInSigma;
     } else if (arg->var.size() == 2) {
       // 2d scan
       float par1stepsize = (par1->getMax("scan") - par1->getMin("scan")) / arg->npoints2dx;
       float par2stepsize = (par2->getMax("scan") - par2->getMin("scan")) / arg->npoints2dy;
-      RooRealVar* par1New = (RooRealVar*)r->floatParsFinal().find(par1->GetName());
-      RooRealVar* par2New = (RooRealVar*)r->floatParsFinal().find(par2->GetName());
+      auto par1New = (RooRealVar*)r->floatParsFinal().find(par1->GetName());
+      auto par2New = (RooRealVar*)r->floatParsFinal().find(par2->GetName());
       float par1stepsizeInSigma = par1New->getError() > 0 ? par1stepsize / par1New->getError() : 1.;
       float par2stepsizeInSigma = par2New->getError() > 0 ? par2stepsize / par2New->getError() : 1.;
       allowedSigma = TMath::Max(3. * par1stepsizeInSigma, 3. * par2stepsizeInSigma);
@@ -1277,7 +1279,7 @@ void MethodAbsScan::confirmSolutions() {
     TIterator* it = nullptr;
     // Warn if a parameter is close to its limit
     it = r->floatParsFinal().createIterator();
-    while (RooRealVar* p = (RooRealVar*)it->Next()) {
+    while (auto p = (RooRealVar*)it->Next()) {
       if (p->getMax() - p->getVal() < p->getError() || p->getVal() - p->getMin() < p->getError()) {
         cout << "\nMethodAbsScan::confirmSolutions() : WARNING : " << p->GetName() << " is close to its limit!" << endl;
         cout << "                                  : ";
@@ -1295,9 +1297,9 @@ void MethodAbsScan::confirmSolutions() {
     it = w->set(parsName)->createIterator();
     bool isConfirmed = true;
     TString rejectReason = "";
-    while (RooRealVar* p = (RooRealVar*)it->Next()) {
-      RooRealVar* pOld = (RooRealVar*)listOld.find(p->GetName());
-      RooRealVar* pNew = (RooRealVar*)listNew.find(p->GetName());
+    while (auto p = (RooRealVar*)it->Next()) {
+      auto pOld = (RooRealVar*)listOld.find(p->GetName());
+      auto pNew = (RooRealVar*)listNew.find(p->GetName());
       if (!pOld && !pNew) {
         cout << "MethodAbsScan::confirmSolutions() : ERROR : parameter not found: " << p->GetName() << endl;
         continue;
@@ -1324,7 +1326,7 @@ void MethodAbsScan::confirmSolutions() {
     }
     if (isConfirmed) {
       if (arg->debug) cout << "MethodAbsScan::confirmSolutions() : solution " << i << " accepted." << endl;
-      RooSlimFitResult* sr = new RooSlimFitResult(r, true);  // true saves correlation matrix
+      auto sr = new RooSlimFitResult(r, true);  // true saves correlation matrix
       sr->setConfirmed(true);
       confirmedSolutions.push_back(sr);
       delete r;
@@ -1395,9 +1397,9 @@ bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2)
   list2.add(r2->constPars());
   // compare each parameter
   TIterator* it = w->set(parsName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
-    RooRealVar* p1 = (RooRealVar*)list1.find(p->GetName());
-    RooRealVar* p2 = (RooRealVar*)list2.find(p->GetName());
+  while (auto p = (RooRealVar*)it->Next()) {
+    auto p1 = (RooRealVar*)list1.find(p->GetName());
+    auto p2 = (RooRealVar*)list2.find(p->GetName());
     if (!p1 && !p2) {
       cout << "MethodAbsScan::compareSolutions() : ERROR : parameter not found: " << p->GetName() << endl;
       continue;

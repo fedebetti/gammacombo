@@ -19,7 +19,7 @@ void LatexMaker::writeFile() {
   outfile << "\\begin{alignat}{3}" << endl;
   for (int i = 0; i < pdf->getNobs(); i++) {
 
-    RooRealVar* var = (RooRealVar*)observables->at(i);
+    auto var = (RooRealVar*)observables->at(i);
 
     TString title = var->GetTitle();
     title.ReplaceAll("#", "\\");
