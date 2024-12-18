@@ -48,7 +48,7 @@ ParameterEvolutionPlotter::~ParameterEvolutionPlotter() { delete w; }
 void ParameterEvolutionPlotter::getLocalMinPositions() {
   m_localMinPositions.clear();
   for (int i = 1; i < curveResults.size() - 1; i++) {
-    if (curveResults[i - 1] == 0 || curveResults[i] == 0) continue;
+    if (!curveResults[i - 1] || !curveResults[i]) continue;
     if (curveResults[i - 1]->minNll() > curveResults[i]->minNll() &&
         curveResults[i]->minNll() < curveResults[i + 1]->minNll()) {
       m_localMinPositions.push_back(curveResults[i]->getParVal(scanVar1));

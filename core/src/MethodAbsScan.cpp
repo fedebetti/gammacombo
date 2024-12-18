@@ -276,13 +276,13 @@ void MethodAbsScan::initScan() {
 
   // 1d:
   curveResults.clear();
-  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(0);
+  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(nullptr);
 
   // 2d:
   curveResults2d.clear();
   for (int i = 0; i < nPoints2dx; i++) {
     vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(0);
+    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
     curveResults2d.push_back(tmp);
   }
 
@@ -349,7 +349,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
   TFile* f = new TFile(fName, "ro");  // don't delete this later else the objects die
   // load 1-CL histograms
   TObject* obj = f->Get("hCL");
-  if (obj == 0) {
+  if (!obj) {
     cout << "MethodAbsScan::loadScanner() : ERROR : 'hCL' not found in root file " << fName << endl;
     exit(1);
   }
@@ -362,7 +362,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
   }
   // load chi2 histograms
   obj = f->Get("hChi2min");
-  if (obj == 0) {
+  if (!obj) {
     cout << "MethodAbsScan::loadScanner() : ERROR : 'hChi2min' not found in root file " << fName << endl;
     // exit(1);
     // return false;
@@ -377,7 +377,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
   // load CLs histograms
   if (std::find(arg->cls.begin(), arg->cls.end(), 1) != arg->cls.end()) {
     obj = f->Get("hCLs");
-    if (obj == 0) {
+    if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLs' not found in root file - you can ignore this if you're "
               "not running in dataset mode "
            << fName << endl;
@@ -395,7 +395,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
       std::find(arg->cls.begin(), arg->cls.end(), 2) != arg->cls.end() && !methodName.Contains("Prob");
   if (lookForMixedCLs) {
     obj = f->Get("hCLsFreq");
-    if (obj == 0) {
+    if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsFreq' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
@@ -404,7 +404,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
       hCLsFreq->SetName("hCLsFreq" + getUniqueRootName());
     }
     obj = f->Get("hCLsExp");
-    if (obj == 0) {
+    if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsExp' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
@@ -413,7 +413,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
       hCLsExp->SetName("hCLsExp" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr1Up");
-    if (obj == 0) {
+    if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Up' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
@@ -422,7 +422,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
       hCLsErr1Up->SetName("hCLsErr1Up" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr1Dn");
-    if (obj == 0) {
+    if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Dn' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
@@ -431,7 +431,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
       hCLsErr1Dn->SetName("hCLsErr1Dn" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr2Up");
-    if (obj == 0) {
+    if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Up' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
@@ -440,7 +440,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
       hCLsErr2Up->SetName("hCLsErr2Up" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr2Dn");
-    if (obj == 0) {
+    if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Dn' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
@@ -1280,7 +1280,7 @@ void MethodAbsScan::confirmSolutions() {
       allowedSigma = TMath::Max(3. * par1stepsizeInSigma, 3. * par2stepsizeInSigma);
     }
 
-    TIterator* it = 0;
+    TIterator* it = nullptr;
     // Warn if a parameter is close to its limit
     it = r->floatParsFinal().createIterator();
     while (RooRealVar* p = (RooRealVar*)it->Next()) {
@@ -1425,7 +1425,7 @@ bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2)
 RooSlimFitResult* MethodAbsScan::getSolution(int i) {
   if (i >= solutions.size()) {
     cout << Form("MethodAbsScan::getSolution() : ERROR : No solution with id %i.", i) << endl;
-    return 0;
+    return nullptr;
   }
   return solutions[i];
 }

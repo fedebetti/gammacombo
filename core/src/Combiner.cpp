@@ -248,7 +248,7 @@ void Combiner::setParametersConstant() {
       exit(1);
     }
     // add parameter to the list of constant paramters; create the list, if necessary
-    if (w->set("const") == 0)
+    if (!w->set("const"))
       w->defineSet("const", constVars[i].name);
     else
       w->extendSet("const", constVars[i].name);
@@ -598,19 +598,19 @@ PDF_Abs* Combiner::getPdfProvidingObservable(TString obsname) {
   if (!obsnameparse.Contains(UID)) {
     cout << "Combiner::getPdfProvidingObservable() : ERROR : observable name doesn't contain the string " << UID
          << endl;
-    return 0;
+    return nullptr;
   }
   obsnameparse.Replace(0, obsnameparse.Index(UID) + UID.Length(),
                        "");  // deleting from beginning of string until end of UID. That should leave only the number.
   if (!obsnameparse.IsDigit()) {
     cout << "Combiner::getPdfProvidingObservable() : ERROR : observable name doesn't end with an integer ID" << endl;
-    return 0;
+    return nullptr;
   }
   int id = obsnameparse.Atoi();
   // get the PDF of given ID
   if (id < 0 || id >= pdfs.size()) {
     cout << "Combiner::getPdfProvidingObservable() : ERROR : observable ID not found in Combiner: ID=" << id << endl;
-    return 0;
+    return nullptr;
   }
   PDF_Abs* foundpdf = pdfs[id];
   // check that the observable name exists in the PDF
@@ -620,7 +620,7 @@ PDF_Abs* Combiner::getPdfProvidingObservable(TString obsname) {
   if (!(foundpdf->hasObservable(obsname) || foundpdf->hasObservable(obsnameparse))) {
     cout << "Combiner::getPdfProvidingObservable() : ERROR : observable '" << obsname << "' not found in PDF '"
          << foundpdf->getName() << "'" << endl;
-    return 0;
+    return nullptr;
   }
   return foundpdf;
 }

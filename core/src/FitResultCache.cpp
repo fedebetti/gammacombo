@@ -8,7 +8,7 @@ FitResultCache::FitResultCache(const OptParser* arg, int roundrobinsize) {
   assert(arg);
   _arg = arg;
   _roundrobinsize = roundrobinsize;
-  for (int i = 0; i < _roundrobinsize; i++) _parsRoundRobin.push_back(0);
+  for (int i = 0; i < _roundrobinsize; i++) _parsRoundRobin.push_back(nullptr);
 }
 
 FitResultCache::~FitResultCache() {
@@ -83,7 +83,7 @@ void FitResultCache::initRoundRobinDB(const RooArgSet* set) {
 const RooArgSet* FitResultCache::getRoundRobinNminus(int n) const {
   int id = _roundrobinid - n;
   if (id < 0) id += _parsRoundRobin.size();
-  if (id < 0 || id >= _parsRoundRobin.size() || _parsRoundRobin[id] == 0) {
+  if (id < 0 || id >= _parsRoundRobin.size() || !_parsRoundRobin[id]) {
     cout << "FitResultCache::getRoundRobinNminus() : ERROR : "
             "Trying to access a round robin point that doesn't exist: id="
          << id << ". Exit." << endl;

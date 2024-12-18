@@ -206,7 +206,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
                << flush;
 
       // fit!
-      RooFitResult* fr = 0;
+      RooFitResult* fr = nullptr;
       if (arg->probforce)
         fr = fitToMinForce(w, combiner->getPdfName());
       else if (arg->probimprove)
@@ -348,7 +348,7 @@ int MethodProbScan::computeCLvalues() {
 /// \return true if r was deleted, or if it is 0
 ///
 bool MethodProbScan::deleteIfNotInCurveResults2d(RooSlimFitResult* r) {
-  if (r == 0) return true;
+  if (!r) return true;
   bool del = true;
   for (int j = 0; j < hCL2d->GetNbinsX(); j++)
     for (int k = 0; k < hCL2d->GetNbinsY(); k++) {
@@ -361,7 +361,7 @@ bool MethodProbScan::deleteIfNotInCurveResults2d(RooSlimFitResult* r) {
     delete r;
     // remove also from allResults vector
     for (int j = 0; j < allResults.size(); j++) {
-      if (r == allResults[j]) allResults[j] = 0;
+      if (r == allResults[j]) allResults[j] = nullptr;
     }
   }
   return del;
@@ -445,7 +445,7 @@ int MethodProbScan::scan2d() {
   vector<vector<RooSlimFitResult*>> mycurveResults2d;
   for (int i = 0; i < nPoints2dx; i++) {
     vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(0);
+    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
     mycurveResults2d.push_back(tmp);
   }
 
@@ -546,7 +546,7 @@ int MethodProbScan::scan2d() {
         bool innerTurnExists = computeInnerTurnCoords(iStart, jStart, i, j, iOld, jOld, 2);
         if (innerTurnExists) {
           deleteIfNotInCurveResults2d(mycurveResults2d[iOld - 1][jOld - 1]);
-          mycurveResults2d[iOld - 1][jOld - 1] = 0;
+          mycurveResults2d[iOld - 1][jOld - 1] = nullptr;
         }
         tMemory.Stop();
 

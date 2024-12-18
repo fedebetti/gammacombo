@@ -142,14 +142,14 @@ void MethodDatasetsProbScan::initScan() {
   // Note that allResults still needs to hold all results, so don't delete the RooFitResults.
 
   curveResults.clear();
-  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(0);
+  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(nullptr);
 
   //////////////////////////////////////////////////////////
   // Titus: 2d:
   curveResults2d.clear();
   for (int i = 0; i < nPoints2dx; i++) {
     vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(0);
+    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
     curveResults2d.push_back(tmp);
   }
   //////////////////////////////////////////////////////////
@@ -605,7 +605,7 @@ int MethodDatasetsProbScan::scan2d() {
   vector<vector<RooSlimFitResult*>> mycurveResults2d;
   for (int i = 0; i < nPoints2dx; i++) {
     vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(0);
+    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
     mycurveResults2d.push_back(tmp);
   }
 
@@ -721,7 +721,7 @@ int MethodDatasetsProbScan::scan2d() {
         bool innerTurnExists = computeInnerTurnCoords(iStart, jStart, i, j, iOld, jOld, 2);
         if (innerTurnExists) {
           deleteIfNotInCurveResults2d(mycurveResults2d[iOld - 1][jOld - 1]);
-          mycurveResults2d[iOld - 1][jOld - 1] = 0;
+          mycurveResults2d[iOld - 1][jOld - 1] = nullptr;
         }
         tMemory.Stop();
 

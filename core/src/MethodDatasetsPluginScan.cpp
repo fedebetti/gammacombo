@@ -224,7 +224,7 @@ void MethodDatasetsPluginScan::initScan() {
   // Note that allResults still needs to hold all results, so don't delete the RooFitResults.
 
   curveResults.clear();
-  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(0);
+  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(nullptr);
 
   // turn off some messages
   RooMsgService::instance().setStreamStatus(0, kFALSE);
@@ -1033,9 +1033,9 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     leg->SetHeader("Bkg-only");
     leg->SetFillColor(0);
     leg->AddEntry(h_sig_bkgtoys, "POI residual", "LF");
-    leg->AddEntry((TObject*)0, Form("#mu=%4.2g +/- %4.2g", h_sig_bkgtoys->GetMean(), h_sig_bkgtoys->GetMeanError()),
-                  "");
-    leg->AddEntry((TObject*)0,
+    leg->AddEntry(static_cast<TObject*>(nullptr),
+                  Form("#mu=%4.2g +/- %4.2g", h_sig_bkgtoys->GetMean(), h_sig_bkgtoys->GetMeanError()), "");
+    leg->AddEntry(static_cast<TObject*>(nullptr),
                   Form("#sigma=%4.2g +/- %4.2g", h_sig_bkgtoys->GetStdDev(), h_sig_bkgtoys->GetStdDevError()), "");
     leg->Draw("same");
     savePlot(biascanv, "BiasControlPlot_bkg-only_" + scanVar1);
@@ -2462,8 +2462,10 @@ void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, vector<double>> bia
     leg->SetHeader(Form("p=%4.2g", hCLs->GetBinCenter(i)));
     leg->SetFillColor(0);
     leg->AddEntry(hsig, "POI residual", "LF");
-    leg->AddEntry((TObject*)0, Form("#mu=%4.2g +/- %4.2g", fitresult->Parameter(1), fitresult->ParError(1)), "");
-    leg->AddEntry((TObject*)0, Form("#sigma=%4.2g +/- %4.2g", fitresult->Parameter(2), fitresult->ParError(2)), "");
+    leg->AddEntry(static_cast<TObject*>(nullptr),
+                  Form("#mu=%4.2g +/- %4.2g", fitresult->Parameter(1), fitresult->ParError(1)), "");
+    leg->AddEntry(static_cast<TObject*>(nullptr),
+                  Form("#sigma=%4.2g +/- %4.2g", fitresult->Parameter(2), fitresult->ParError(2)), "");
     leg->Draw("same");
     savePlot(c, TString(Form("BiasControlPlot_p%d", i)) + "_" + scanVar1);
   }

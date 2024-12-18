@@ -92,7 +92,7 @@ int MethodCoverageScan::scan1d(int nRun) {
 
   // set up a ToyTree to save the results from the
   // plugin toys
-  ToyTree* myTree = new ToyTree(combiner, 0, true);
+  auto myTree = new ToyTree(combiner, nullptr, true);
   myTree->init();
 
   // for testing purposes we can fully scan the first 10 toys, set up a plot for this

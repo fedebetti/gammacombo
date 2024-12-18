@@ -19,7 +19,7 @@ int ColorBuilder::darklightcolor(int n, float scale) const {
   TObjArray* colors = (TObjArray*)gROOT->GetListOfColors();
   Int_t ncolors = colors->GetSize();
   // Get existing color at index n
-  TColor* color = 0;
+  TColor* color = nullptr;
   if (n < ncolors) color = (TColor*)colors->At(n);
   if (!color) return -1;
 
@@ -29,7 +29,7 @@ int ColorBuilder::darklightcolor(int n, float scale) const {
 
   // Build the dark color (unless the slot nd is already used)
   Int_t nd = scale < 1. ? n + 100 : n + 150;
-  TColor* colord = 0;
+  TColor* colord = nullptr;
   if (nd < ncolors) colord = (TColor*)colors->At(nd);
   if (colord) return nd;
   colord = new TColor(nd, r, g, b);

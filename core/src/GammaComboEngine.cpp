@@ -67,7 +67,7 @@ GammaComboEngine::~GammaComboEngine() {}
 bool GammaComboEngine::pdfExists(int id) const {
   if (id < 0) return false;
   if (id >= this->pdf.size()) return false;
-  if (this->pdf[id] == 0) return false;
+  if (!this->pdf[id]) return false;
   return true;
 }
 
@@ -77,7 +77,7 @@ bool GammaComboEngine::pdfExists(int id) const {
 bool GammaComboEngine::combinerExists(int id) const {
   if (id < 0) return false;
   if (id >= this->cmb.size()) return false;
-  if (this->cmb[id] == 0) return false;
+  if (!this->cmb[id]) return false;
   return true;
 }
 
@@ -96,7 +96,7 @@ void GammaComboEngine::setPdf(PDF_Abs* pdf) {
          << " cannot be cast to a PDF_Datasets object" << endl;
     exit(1);
   }
-  if (pdf == 0) {
+  if (!pdf) {
     cout << "GammaComboEngine::setPdf() : ERROR : Trying to add zero pointer as the PDF. Exit." << endl;
     exit(1);
   }
@@ -112,7 +112,7 @@ void GammaComboEngine::setPdf(PDF_Abs* pdf) {
 ///
 void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
   if (arg->debug) { cout << "GammaComboEngine::addPdf() : INFO  : Adding pdf " << id << " = " << title << endl; }
-  if (pdf == 0) {
+  if (!pdf) {
     cout << "GammaComboEngine::addPdf() : ERROR : Trying to add zero pointer as the PDF. Exit." << endl;
     exit(1);
   }
@@ -124,7 +124,7 @@ void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
   }
   // check if storage is large enough, enlarge if necessary
   if (id >= this->pdf.size()) {
-    for (int i = this->pdf.size(); i <= id; i++) this->pdf.push_back(0);
+    for (int i = this->pdf.size(); i <= id; i++) this->pdf.push_back(nullptr);
   }
   this->pdf[id] = pdf;
   if (title != "") this->pdf[id]->setTitle(title);
@@ -298,7 +298,7 @@ void GammaComboEngine::addCombiner(int id, Combiner* cmb) {
     exit(1);
   }
 
-  if (cmb == 0) {
+  if (!cmb) {
     cout << "GammaComboEngine::addCombiner() : ERROR : Trying to add zero pointer as the Combiner. Exit." << endl;
     exit(1);
   }
@@ -310,7 +310,7 @@ void GammaComboEngine::addCombiner(int id, Combiner* cmb) {
   }
   // check if storage is large enough, enlarge if necessary
   if (id >= this->cmb.size()) {
-    for (int i = this->cmb.size(); i <= id; i++) this->cmb.push_back(0);
+    for (int i = this->cmb.size(); i <= id; i++) this->cmb.push_back(nullptr);
   }
   this->cmb[id] = cmb;
 }
@@ -456,7 +456,7 @@ void GammaComboEngine::scaleDownErrors() {
 void GammaComboEngine::scaleStatErrors() {
   cout << "\nConfiguration: Scaling ALL STAT ERRORS by " << arg->scalestaterr << ".\n" << endl;
   for (int i = 0; i < pdf.size(); i++) {
-    if (pdf[i] == 0) continue;
+    if (!pdf[i]) continue;
     for (int iObs = 0; iObs < pdf[i]->getNobs(); iObs++) { pdf[i]->StatErr[iObs] *= arg->scalestaterr; }
     pdf[i]->buildCov();
     pdf[i]->buildPdf();
@@ -469,7 +469,7 @@ void GammaComboEngine::scaleStatErrors() {
 void GammaComboEngine::scaleStatAndSystErrors() {
   cout << "\nConfiguration: Scaling ALL STAT AND SYST ERRORS by " << arg->scaleerr << ".\n" << endl;
   for (int i = 0; i < pdf.size(); i++) {
-    if (pdf[i] == 0) continue;
+    if (!pdf[i]) continue;
     for (int iObs = 0; iObs < pdf[i]->getNobs(); iObs++) {
       pdf[i]->StatErr[iObs] *= arg->scaleerr;
       pdf[i]->SystErr[iObs] *= arg->scaleerr;
@@ -485,7 +485,7 @@ void GammaComboEngine::scaleStatAndSystErrors() {
 void GammaComboEngine::disableSystematics() {
   cout << "\nConfiguration: Setting ALL SYSTEMATICS TO ZERO.\n" << endl;
   for (int i = 0; i < pdf.size(); i++) {
-    if (pdf[i] == 0) continue;
+    if (!pdf[i]) continue;
     for (int iObs = 0; iObs < pdf[i]->getNobs(); iObs++) pdf[i]->SystErr[iObs] = 0.;
     pdf[i]->buildCov();
     pdf[i]->buildPdf();
@@ -514,7 +514,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
     pThName.ReplaceAll("obs", "th");
     // get the theory relation
     RooAbsReal* th = w->function(pThName);
-    if (th == 0) {
+    if (!th) {
       cout << "GammaComboEngine::setAsimovObservables() : ERROR : theory relation not found in workspace: " << pThName
            << endl;
       exit(1);
@@ -532,7 +532,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
     TIterator* itObs = pdf->getObservables()->createIterator();
     while (RooRealVar* pObs = (RooRealVar*)itObs->Next()) {
       RooAbsReal* obs = w->var(pObs->GetName());
-      if (obs == 0) {
+      if (!obs) {
         cout << "GammaComboEngine::setAsimovObservables() : ERROR : observable not found in workspace: "
              << pObs->GetName() << endl;
         exit(1);
@@ -735,7 +735,7 @@ void GammaComboEngine::printPdfs() const {
   cout << "AVAILABLE MEASUREMENTS" << endl;
   cout << endl;
   for (int i = 0; i < pdf.size(); i++) {
-    if (pdf[i] == 0) continue;
+    if (!pdf[i]) continue;
     if (i < 10)
       printf("   (%i) %s\n", i, pdf[i]->getTitle().Data());
     else if (i < 100)
@@ -753,7 +753,7 @@ void GammaComboEngine::printCombinations() const {
   cout << "AVAILABLE COMBINATIONS" << endl;
   cout << endl;
   for (int i = 0; i < cmb.size(); i++) {
-    if (cmb[i] == 0) continue;
+    if (!cmb[i]) continue;
     if (i < 10)
       printf("   (%i) %s\n", i, cmb[i]->getTitle().Data());
     else if (i < 100)
@@ -792,7 +792,7 @@ void GammaComboEngine::checkCombinationArg() const {
            << ".\nUse the -u option to print a list of available combinations." << endl;
       exit(1);
     }
-    if (cmb[arg->combid[i]] == 0) {
+    if (!cmb[arg->combid[i]]) {
       cout << "You selected an empty combination.\n"
            << "Use the -u option to print a list of available combinations." << endl;
       exit(1);
@@ -1651,7 +1651,7 @@ bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) const {
 void GammaComboEngine::tightenChi2Constraint(Combiner* c, TString scanVar) {
   cout << "\n--var " << scanVar << ": Setting up a scan for an observable ..." << endl;
   PDF_Abs* pdf = c->getPdfProvidingObservable(scanVar);
-  if (pdf == 0) {
+  if (!pdf) {
     cout << "GammaComboEngine::tightenChi2Constraint() : ERROR : no PDF found that contains the observable '" << scanVar
          << "'. Exit." << endl;
     exit(1);

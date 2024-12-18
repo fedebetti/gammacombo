@@ -73,8 +73,8 @@ MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, const O
 MethodPluginScan::MethodPluginScan(Combiner* comb) : MethodAbsScan(comb) {
   methodName = "Plugin";
   title = comb->getTitle();
-  profileLH = 0;
-  parevolPLH = 0;
+  profileLH = nullptr;
+  parevolPLH = nullptr;
   obsDataset = new RooDataSet("obsDataset", "obsDataset", *comb->getWorkspace()->set(obsName));
   obsDataset->add(*comb->getWorkspace()->set(obsName));
   nToys = arg->ntoys;
@@ -455,7 +455,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
   // that holds a full scan).
   ToyTree* myTree = nullptr;
   if (!t) {
-    myTree = new ToyTree(combiner, 0, quiet);
+    myTree = new ToyTree(combiner, nullptr, quiet);
     myTree->init();
   } else {
     myTree = t;
@@ -667,7 +667,7 @@ void MethodPluginScan::scan2d(int nRun) {
 
       // Get nuisances. This is the point in parameter space where
       // the toys need to be generated.
-      RooArgList* extCurveResult = 0;
+      RooArgList* extCurveResult = nullptr;
       {
         int iCurveRes1 = profileLH->getHCL2d()->GetXaxis()->FindBin(scanpoint1) - 1;
         int iCurveRes2 = profileLH->getHCL2d()->GetYaxis()->FindBin(scanpoint2) - 1;
