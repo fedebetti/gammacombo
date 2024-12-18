@@ -21,7 +21,7 @@ RooPoly4Var::RooPoly4Var(const RooPoly4Var& other, const char* name)
       p4(other.p4) {}
 
 Double_t RooPoly4Var::evaluate() const {
-  double x = double(xobs);
+  auto x = double(xobs);
   return p0 + p1 * x + p2 * x * x + p3 * x * x * x + p4 * x * x * x * x;
 }
 

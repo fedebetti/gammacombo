@@ -35,12 +35,12 @@ int MethodCoverageScan::scan1d(int nRun) {
   TString forceVariables = "";
 
   // set up a graph of chi2 of best solution
-  TCanvas* c2 = new TCanvas("c2runToys", "chi2");
+  auto c2 = new TCanvas("c2runToys", "chi2");
   TH1F* hDeltaChi2 = new TH1F("hDeltaChi2", "Delta Chi2 (PLH) of toys", 50, 0, 25);
   hDeltaChi2->Draw();
 
   // set up a graph of p-values
-  TCanvas* c3 = new TCanvas("c3runToys", "p-values");
+  auto c3 = new TCanvas("c3runToys", "p-values");
   TH1F* hPvalues = new TH1F("hPvalues", "p-values", 60, -0.1, 1.1);
   hPvalues->Draw();
 
@@ -61,7 +61,7 @@ int MethodCoverageScan::scan1d(int nRun) {
   float tPvalue;
   float tId;
   int tnRun;
-  TTree* t = new TTree("coverage", "Coverage Toys Tree");
+  auto t = new TTree("coverage", "Coverage Toys Tree");
   t->Branch("sol", &tSol, "sol/F");                                   // central value
   t->Branch("solScan", &tSolScan, "solScan/F");                       // central value
   t->Branch("solProbErr1Low", &tSolProbErr1Low, "solProbErr1Low/F");  // 1 sigma err
@@ -153,7 +153,7 @@ int MethodCoverageScan::scan1d(int nRun) {
     w->var(varName)->setConstant(false);
     RooFitResult* rToyFreeFull = fitToMinForce(w, pdfName, forceVariables, false);
     if (!rToyFreeFull) continue;
-    RooSlimFitResult* rToyFree = new RooSlimFitResult(rToyFreeFull);
+    auto rToyFree = new RooSlimFitResult(rToyFreeFull);
     tChi2free = rToyFree->minNll();  ///< save for tree
     tSol = w->var(varName)->getVal();
     if (arg->verbose) rToyFree->Print();
@@ -169,7 +169,7 @@ int MethodCoverageScan::scan1d(int nRun) {
     w->var(varName)->setConstant(true);
     RooFitResult* rToyScanFull = fitToMinForce(w, pdfName, forceVariables, false);
     if (!rToyScanFull) continue;
-    RooSlimFitResult* rToyScan = new RooSlimFitResult(rToyScanFull);
+    auto rToyScan = new RooSlimFitResult(rToyScanFull);
     tChi2scan = rToyScan->minNll();  ///< save for tree
     if (arg->verbose) rToyScan->Print();
     w->var(varName)->setConstant(false);
@@ -189,7 +189,7 @@ int MethodCoverageScan::scan1d(int nRun) {
     // compute p-value of the Plugin method
     //
     cout << "PLUGIN...";
-    MethodPluginScan* scanner = new MethodPluginScan(combiner);
+    auto scanner = new MethodPluginScan(combiner);
     scanner->initScan();
     tPvalue = scanner->getPvalue1d(rToyScan, tChi2free, myTree, i, !arg->verbose);
     cout << "Done" << endl;
@@ -201,7 +201,7 @@ int MethodCoverageScan::scan1d(int nRun) {
 
     // now do the uncertainty scan for the Prob method
     cout << "PROB" << endl;
-    MethodProbScan* probScanner = new MethodProbScan(combiner);
+    auto probScanner = new MethodProbScan(combiner);
     probScanner->initScan();
     probScanner->loadParameters(rToyFree);  // load parameters from forced fit
     probScanner->scan1d(false, false, true);
@@ -238,8 +238,8 @@ int MethodCoverageScan::scan1d(int nRun) {
   TString idStr = arg->id < 0 ? "0" : Form("%d", arg->id);
   TString dirname = "root/scan1dCoverage_" + name + "_" + scanVar1 + "_id" + idStr;
   system("mkdir -p " + dirname);
-  TFile* f = new TFile(Form(dirname + "/scan1dCoverage_" + name + "_" + scanVar1 + "_id" + idStr + "_run%i.root", nRun),
-                       "recreate");
+  auto f = new TFile(Form(dirname + "/scan1dCoverage_" + name + "_" + scanVar1 + "_id" + idStr + "_run%i.root", nRun),
+                     "recreate");
   t->Write();
   f->Close();
   return 0;
@@ -408,7 +408,7 @@ void MethodCoverageScan::saveScanner(TString fName) {
   t_res->Write();
 
   // save result values
-  TTree* outTree = new TTree("result_values", "Coverage Result Values");
+  auto outTree = new TTree("result_values", "Coverage Result Values");
   outTree->Branch("nentries", &nentries, "nentries/L");
   outTree->Branch("nfailed", &nfailed, "nfailed/L");
   outTree->Branch("n68plugin", &n68plugin, "n68plugin/F");
@@ -436,7 +436,7 @@ bool MethodCoverageScan::loadScanner(TString fName) {
          << endl;
     exit(1);
   }
-  TFile* f = new TFile(fName, "ro");  // don't delete this later else the objects die
+  auto f = new TFile(fName, "ro");  // don't delete this later else the objects die
   h_sol = (TH1F*)f->Get("h_sol");
   h_pvalue_plugin = (TH1F*)f->Get("h_pvalue_plugin");
   h_pvalue_prob = (TH1F*)f->Get("h_pvalue_prob");
@@ -464,7 +464,7 @@ bool MethodCoverageScan::loadScanner(TString fName) {
     exit(1);
   }
 
-  TTree* loadTree = (TTree*)f->Get("result_values");
+  auto loadTree = (TTree*)f->Get("result_values");
   if (!loadTree) {
     cout << "\nERROR : Tree \'result_values\' not found in saved coverage scanner : " << fName << endl;
     exit(1);
@@ -496,7 +496,7 @@ void MethodCoverageScan::plot() const {
   gStyle->SetLabelOffset(0.005, "X");
   gStyle->SetLabelOffset(0.010, "Y");
 
-  TCanvas* c1 = newNoWarnTCanvas(name + getUniqueRootName(), "Coverage Solution", 800, 600);
+  auto c1 = newNoWarnTCanvas(name + getUniqueRootName(), "Coverage Solution", 800, 600);
   h_sol->SetTitle(combiner->getTitle());
   h_sol->GetXaxis()->SetTitle("#gamma mod #pi [#circ]");
   h_sol->GetYaxis()->SetTitle("toys");
@@ -514,7 +514,7 @@ void MethodCoverageScan::plot() const {
   savePlot(c1, name + "_bestfit" + arg->plotext);
 
   // plot p-values
-  TCanvas* c2 = newNoWarnTCanvas(name + getUniqueRootName(), "Coverage p-value (Prob)", 800, 600);
+  auto c2 = newNoWarnTCanvas(name + getUniqueRootName(), "Coverage p-value (Prob)", 800, 600);
   h_pvalue_prob->SetTitle(combiner->getTitle());
   h_pvalue_prob->GetXaxis()->SetTitle("p-value");
   h_pvalue_prob->GetYaxis()->SetTitle("toys");
@@ -538,7 +538,7 @@ void MethodCoverageScan::plot() const {
   h_pvalue_plugin->SetFillColor(ci);
   h_pvalue_plugin->SetFillStyle(3004);
   h_pvalue_plugin->Draw("same");
-  TLegend* leg = new TLegend(0.6810345, 0.7357294, 0.9353448, 0.8900634, nullptr, "brNDC");
+  auto leg = new TLegend(0.6810345, 0.7357294, 0.9353448, 0.8900634, nullptr, "brNDC");
   leg->SetBorderSize(1);
   leg->SetLineColor(0);
   leg->SetLineStyle(1);
@@ -553,7 +553,7 @@ void MethodCoverageScan::plot() const {
   savePlot(c2, name + "_pvalue" + arg->plotext);
 
   // compute coverage
-  float n = (float)(nentries - nfailed);
+  auto n = (float)(nentries - nfailed);
   cout << "coverage test nToys=" << n << endl;
   cout << "Plugin:" << endl;
   cout << " eta=68.27%: alpha=" << Form("%.4f", 1. * n68plugin / n) << " +/- "

@@ -120,7 +120,7 @@ void PValueCorrection::printCoverage(float n68, float n95, float n99, float n, T
 }
 
 void PValueCorrection::write(TString fname) {
-  TFile* f = TFile::Open(fname.Data(), "RECREATE");
+  auto f = TFile::Open(fname.Data(), "RECREATE");
   write(f);
   f->Close();
   delete f;
@@ -141,7 +141,7 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
   name = "root/" + name;
   TSystemDirectory dir(name, name);
   TList* files = dir.GetListOfFiles();
-  TChain* fChain = new TChain("tree");
+  auto fChain = new TChain("tree");
   int foundFiles = 0;
   if (files) {
     TSystemFile* file;

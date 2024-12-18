@@ -267,7 +267,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
       // new top axis
       TString chopt = "-U";  // - = downward ticks, U = unlabeled, http://root.cern.ch/root/html534/TGaxis.html
       if (!optimizeNdiv) chopt += "N";  // n = no bin optimization
-      TGaxis* axist = new TGaxis(xmin, 1, xmax, 1, RadToDeg(xmin), RadToDeg(xmax), xndiv, chopt);
+      auto axist = new TGaxis(xmin, 1, xmax, 1, RadToDeg(xmin), RadToDeg(xmax), xndiv, chopt);
       axist->SetName("axist");
       axist->Draw();
 
@@ -280,7 +280,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
       }
       chopt = "";  // - = downward ticks, U = unlabeled, http://root.cern.ch/root/html534/TGaxis.html
       if (!optimizeNdiv) chopt += "N";  // n = no bin optimization
-      TGaxis* axisb = new TGaxis(xmin, ymin, xmax, ymin, axisbMin, axisbMax, xndiv, chopt);
+      auto axisb = new TGaxis(xmin, ymin, xmax, ymin, axisbMin, axisbMax, xndiv, chopt);
       axisb->SetName("axisb");
       axisb->SetLabelFont(font);
       axisb->SetLabelSize(labelsize);
@@ -298,7 +298,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
       // add top axis
       TString chopt = "-U";  // - = downward ticks, U = unlabeled, http://root.cern.ch/root/html534/TGaxis.html
       if (!optimizeNdiv) chopt += "N";  // n = no bin optimization
-      TGaxis* axist = new TGaxis(xmin, 1.0, xmax, 1.0, xmin, xmax, xndiv, chopt);
+      auto axist = new TGaxis(xmin, 1.0, xmax, 1.0, xmin, xmax, xndiv, chopt);
       axist->SetName("axist");
       axist->SetLineWidth(1);
       axist->Draw();
@@ -448,7 +448,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   TGraph* gErr2Up;
   TGraph* gErr2Dn;
 
-  TGraphSmooth* smoother = new TGraphSmooth();
+  auto smoother = new TGraphSmooth();
   if (smooth) {
     if (arg->debug) cout << "OneMinusClPlot::scan1dCLsPlot() : smoothing graphs" << endl;
     // gExp    = (TGraph*)smoother->SmoothSuper( gExpRaw    )->Clone("gExp");
@@ -514,7 +514,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
       }
       // std::cout << "Found entries for obs " << valabove << "\t" << nentries << std::endl;
 
-      TGraphErrors* gObs_new = new TGraphErrors(valabove);
+      auto gObs_new = new TGraphErrors(valabove);
       int k = 0;
       for (int i = 0; i < nentries; i++) {
         if (xvalsobs[i] < (xCentral + (hObs->GetBinWidth(1) / 2.))) {
@@ -555,9 +555,9 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   gErr2Dn->SetName("gErr2Dn");
 
   // now make the graphs for the error bands
-  TGraphAsymmErrors* gErr1 = new TGraphAsymmErrors(gExp->GetN());
+  auto gErr1 = new TGraphAsymmErrors(gExp->GetN());
   gErr1->SetName("gErr1");
-  TGraphAsymmErrors* gErr2 = new TGraphAsymmErrors(gExp->GetN());
+  auto gErr2 = new TGraphAsymmErrors(gExp->GetN());
   gErr2->SetName("gErr2");
 
   double x, y, yerrUp, yerrDn;
@@ -634,7 +634,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   float legendYmin = 0.58;
   float legendXmax = legendXmin + 0.25;
   float legendYmax = legendYmin + 0.22;
-  TLegend* leg = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
+  auto leg = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
   leg->SetFillColor(kWhite);
   leg->SetFillStyle(0);
   leg->SetLineColor(kWhite);
@@ -684,7 +684,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
 
 void OneMinusClPlot::drawVerticalLine(float x, int color, int style) const {
   m_mainCanvas->cd();
-  TLine* l1 = new TLine(x, 0., x, 1.);
+  auto l1 = new TLine(x, 0., x, 1.);
   l1->SetLineWidth(1);
   l1->SetLineColor(color);
   l1->SetLineStyle(style);
@@ -772,7 +772,7 @@ void OneMinusClPlot::drawSolutions() {
       xNumberMax = arg->printSolX + diff;
     }
 
-    TPaveText* t1 = new TPaveText(xNumberMin, yNumberMin, xNumberMax, yNumberMax, "BR");
+    auto t1 = new TPaveText(xNumberMin, yNumberMin, xNumberMax, yNumberMax, "BR");
     t1->SetBorderSize(0);
     t1->SetFillStyle(0);
     t1->SetTextAlign(13);
@@ -834,7 +834,7 @@ void OneMinusClPlot::drawCLguideLine(float pvalue) const {
     labelPosYmax = labelPosYmin + 0.05;
   }
 
-  TPaveText* t = new TPaveText(labelPos, labelPosYmin, labelPos + (xmax - xmin) * 0.5, labelPosYmax, "BR");
+  auto t = new TPaveText(labelPos, labelPosYmin, labelPos + (xmax - xmin) * 0.5, labelPosYmax, "BR");
   t->SetBorderSize(0);
   t->SetFillStyle(0);
   t->SetTextAlign(12);
@@ -843,7 +843,7 @@ void OneMinusClPlot::drawCLguideLine(float pvalue) const {
   t->AddText(Form("%.1f%%", (1. - pvalue) * 100.));
   t->Draw();
 
-  TLine* l = new TLine(xmin, pvalue, xmax, pvalue);
+  auto l = new TLine(xmin, pvalue, xmax, pvalue);
   l->SetLineWidth(1);
   l->SetLineColor(kBlack);
   l->SetLineStyle(kDotted);
@@ -899,7 +899,7 @@ void OneMinusClPlot::Draw() {
   float legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.78;
   float legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.31);
   float legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.1640559);
-  TLegend* leg = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
+  auto leg = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
   leg->Clear();
   leg->SetNColumns(arg->plotlegcols);
   leg->SetFillColorAlpha(kWhite, 1.);

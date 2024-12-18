@@ -122,7 +122,7 @@ RooSlimFitResult* MethodPluginScan::getParevolPoint(float scanpoint) {
   // check that the scan variable is indeed present
   RooArgList list = parevolPLH->curveResults[iCurveRes]->floatParsFinal();
   list.add(parevolPLH->curveResults[iCurveRes]->constPars());
-  RooRealVar* var = (RooRealVar*)list.find(scanVar1);
+  auto var = (RooRealVar*)list.find(scanVar1);
   if (!var) {
     cout << "MethodPluginScan::getParevolPoint() : ERROR : "
             "scan variable not found in parameter evolution, var="
@@ -507,7 +507,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
 /// \param nRun Part of the root tree file name to facilitate parallel production.
 ///
 int MethodPluginScan::scan1d(int nRun) {
-  Fitter* myFit = new Fitter(arg, w, combiner->getPdfName());
+  auto myFit = new Fitter(arg, w, combiner->getPdfName());
   RooRandom::randomGenerator()->SetSeed(0);
 
   // Set limit to all parameters.
@@ -544,7 +544,7 @@ int MethodPluginScan::scan1d(int nRun) {
 
   // for the progress bar: if more than 100 steps, show 50 status messages.
   int allSteps = nPoints1d * nToys;
-  ProgressBar* pb = new ProgressBar(arg, allSteps);
+  auto pb = new ProgressBar(arg, allSteps);
 
   // start scan
   if (arg->debug) cout << "MethodPluginScan::scan1d() : ";
@@ -635,7 +635,7 @@ void MethodPluginScan::scan2d(int nRun) {
 
   // for the status bar
   int allSteps = nPoints2dx * nPoints2dy * nToys;
-  ProgressBar* pb = new ProgressBar(arg, allSteps);
+  auto pb = new ProgressBar(arg, allSteps);
 
   // limit number of warnings
   int nWarnExtPointDiffer = 0;
@@ -721,8 +721,8 @@ void MethodPluginScan::scan2d(int nRun) {
           // the external curve
           RooArgList list = profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal();
           list.add(profileLH->curveResults2d[iCurveRes1][iCurveRes2]->constPars());
-          RooRealVar* var1 = (RooRealVar*)list.find(scanVar1);
-          RooRealVar* var2 = (RooRealVar*)list.find(scanVar2);
+          auto var1 = (RooRealVar*)list.find(scanVar1);
+          auto var2 = (RooRealVar*)list.find(scanVar2);
           if (var1 && var2) {
             // print warnings
             if (fabs((scanpoint1 - var1->getVal()) / scanpoint1) > 0.01 ||
@@ -1512,7 +1512,7 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
     for (const auto val : sbVals[i]) hsb->Fill(val);
 
     double dataVal = TMath::ChisquareQuantile(1. - hCL->GetBinContent(i), 1);
-    TArrow* lD = new TArrow(dataVal, 0.6 * hsb->GetMaximum(), dataVal, 0., 0.15, "|>");
+    auto lD = new TArrow(dataVal, 0.6 * hsb->GetMaximum(), dataVal, 0., 0.15, "|>");
 
     vector<TLine*> qLs;
     for (const auto val : quantiles) { qLs.push_back(new TLine(val, 0, val, 0.8 * hsb->GetMaximum())); }
