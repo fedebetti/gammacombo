@@ -246,7 +246,7 @@ void MethodDatasetsPluginScan::checkExtProfileLH() {
 
   // make sure that the scan points in the tree match number
   // of scan points and the scan range that we are using now.
-  TBranch* b = (TBranch*)tree->GetBranch("scanpoint");
+  auto b = (TBranch*)tree->GetBranch("scanpoint");
   int entriesInTree = b->GetEntries();
   if (nPoints1d != entriesInTree) {
     std::cout
@@ -328,7 +328,7 @@ void MethodDatasetsPluginScan::loadParameterLimits() {
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
   if (arg->debug) cout << "DEBUG in Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
   TIterator* it = w->set(pdf->getParName())->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) setLimit(w, p->GetName(), rangeName);
+  while (auto p = (RooRealVar*)it->Next()) setLimit(w, p->GetName(), rangeName);
   delete it;
 }
 
@@ -383,8 +383,7 @@ void MethodDatasetsPluginScan::print() {
 /// \param runMax   defines highest run number of toy jobs to read in
 TChain* MethodDatasetsPluginScan::readFiles(int runMin, int runMax, int& nFilesRead, int& nFilesMissing,
                                             TString fileNameBaseIn) {
-  ///
-  TChain* c = new TChain("plugin");
+  auto c = new TChain("plugin");
   int _nFilesRead = 0;
 
   TString dirname = "root/scan1dDatasetsPlugin_" + this->pdf->getName() + "_" + scanVar1;
@@ -431,7 +430,7 @@ TChain* MethodDatasetsPluginScan::readFiles(int runMin, int runMax, int& nFilesR
 /////////////
 void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString fileNameBaseIn) {
   int nFilesRead, nFilesMissing;
-  TChain* c = this->readFiles(runMin, runMax, nFilesRead, nFilesMissing, fileNameBaseIn);
+  auto c = this->readFiles(runMin, runMax, nFilesRead, nFilesMissing, fileNameBaseIn);
   ToyTree t(this->pdf, this->arg, c);
   t.open();
 
@@ -843,11 +842,11 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
 
     if (arg->debug || arg->controlplot) {
 
-      TCanvas* canvasdebug = newNoWarnTCanvas("canvasdebug", "canvas1", 1200, 1000);
+      auto canvasdebug = newNoWarnTCanvas("canvasdebug", "canvas1", 1200, 1000);
       bkg_pvals_cls->Draw();
       bkg_pvals_clsb->Draw("same");
       bkg_pvals_clb->Draw("same");
-      TLegend* leg = new TLegend(0.65, 0.74, 0.89, 0.95);
+      auto leg = new TLegend(0.65, 0.74, 0.89, 0.95);
       leg->SetHeader("p-value distributions");
       leg->SetFillColor(0);
       leg->AddEntry(bkg_pvals_cls, "CLs", "L");
@@ -987,7 +986,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   // mederr_asymptotic->Draw("SAME");
   // mederr_poisson_cls->Draw("SAME");
   // mederr_poisson_clsb_clb->Draw("SAME");
-  // TLegend *leg_medianerr = new TLegend(0.5,0.74,0.89,0.95);
+  // auto leg_medianerr = new TLegend(0.5,0.74,0.89,0.95);
   // leg_medianerr->SetHeader("Median uncertainties");
   // leg_medianerr->SetFillColor(0);
   // leg_medianerr->AddEntry(mederr_bootstrap,"from bootstrapping (optimal)","PE");
@@ -1025,7 +1024,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     h_sig_bkgtoys->SetFillStyle(3003);
     h_sig_bkgtoys->SetLineColor(kBlue);
     h_sig_bkgtoys->Draw();
-    TLegend* leg = new TLegend(0.65, 0.74, 0.89, 0.95);
+    auto leg = new TLegend(0.65, 0.74, 0.89, 0.95);
     leg->SetHeader("Bkg-only");
     leg->SetFillColor(0);
     leg->AddEntry(h_sig_bkgtoys, "POI residual", "LF");
@@ -1051,7 +1050,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
 
     // Bkg-only p-values distribution. assuming first scan point ~ bkg-only.
     // Should be flat. Large peaks at 0/1 indicate negative test statistics.
-    TCanvas* canvas1 = newNoWarnTCanvas("canvas1", "canvas1");
+    auto canvas1 = newNoWarnTCanvas("canvas1", "canvas1");
     bkg_pvals->SetLineWidth(2);
     bkg_pvals->SetXTitle("bkg-only p value");
     bkg_pvals->Draw();
@@ -1094,7 +1093,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     h_failed->Draw("PE");
     h_failed_bkg->Draw("SAMESPE");
 
-    TLegend* leg = new TLegend(0.7, 0.8, 0.89, 0.95);
+    auto leg = new TLegend(0.7, 0.8, 0.89, 0.95);
     leg->SetHeader(("   " + std::to_string(int((double)nentries / (double)nPoints1d)) + " toys").c_str());
     leg->SetFillColorAlpha(0, 0.5);
     leg->AddEntry(h_failed, "plugin toys", "PE");
@@ -1104,7 +1103,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     // Distribution of good plugin toys
     // Values should be 1. and flat.
     savePlot(canvas1, "failed_toys_plugin_" + scanVar1);
-    TCanvas* can = newNoWarnTCanvas("can", "can");
+    auto can = newNoWarnTCanvas("can", "can");
     can->cd();
     gStyle->SetOptTitle(0);
     gStyle->SetPadTopMargin(0.05);
@@ -1118,7 +1117,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     h_fracGoodToys->Draw("PE");
     savePlot(can, "good toys_" + scanVar1);
 
-    TCanvas* canvas = newNoWarnTCanvas("canvas", "canvas");
+    auto canvas = newNoWarnTCanvas("canvas", "canvas");
     canvas->Divide(2, 2);
     canvas->cd(1);
     h_all->SetXTitle(w->var(scanVar1)->GetTitle());
@@ -1133,7 +1132,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     h_gof->SetXTitle(w->var(scanVar1)->GetTitle());
     h_gof->SetYTitle("(-2*NLL(toy,free)) - (-2*NLL(data,free)) (goodness of fit)");
     h_gof->Draw();
-    TLegend* leg_gof = new TLegend(0.16, 0.8, 0.89, 0.95);
+    auto leg_gof = new TLegend(0.16, 0.8, 0.89, 0.95);
     leg_gof->SetHeader("Should be smooth close to best fit point");
     leg_gof->SetFillColorAlpha(0, 0.5);
     leg_gof->Draw("same");
@@ -1157,7 +1156,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     h_negtest_bkg->SetLineWidth(2);
     h_negtest_bkg->Draw("SAMESPE");
 
-    TLegend* leg_neg = new TLegend(0.7, 0.8, 0.89, 0.95);
+    auto leg_neg = new TLegend(0.7, 0.8, 0.89, 0.95);
     leg_neg->SetHeader(("   " + std::to_string(int((double)nentries / (double)nPoints1d)) + " toys").c_str());
     leg_neg->SetFillColorAlpha(0, 0.5);
     leg_neg->AddEntry(h_background, "plugin toys", "PE");
@@ -1991,7 +1990,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
 void MethodDatasetsPluginScan::drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn) {
   int nFilesRead, nFilesMissing;
-  TChain* c = this->readFiles(runMin, runMax, nFilesRead, nFilesMissing, fileNameBaseIn);
+  auto c = this->readFiles(runMin, runMax, nFilesRead, nFilesMissing, fileNameBaseIn);
   // ToyTree t(this->pdf, c);
   // t.open();
   cout << "does it take long?" << endl;
@@ -1999,11 +1998,11 @@ void MethodDatasetsPluginScan::drawDebugPlots(int runMin, int runMax, TString fi
   TString cut =
       "scanpoint == 0 && statusScan == 0 && statusFree == 0 && abs(chi2minToy)<300e3 && abs(chi2minGlobalToy)<300e3";
   TString isphysical = "(chi2minToy-chi2minGlobalToy)>=0";
-  TCanvas* can = new TCanvas("can", "DChi2Nominal", 1024, 786);
-  TCanvas* can1 = new TCanvas("can1", "BR_{Bd}", 1024, 786);
-  TCanvas* can3 = new TCanvas("can3", "Chi2distr", 1024, 786);
+  auto can = new TCanvas("can", "DChi2Nominal", 1024, 786);
+  auto can1 = new TCanvas("can1", "BR_{Bd}", 1024, 786);
+  auto can3 = new TCanvas("can3", "Chi2distr", 1024, 786);
 
-  TCanvas* can2 = new TCanvas("can2", "DChi2False", 1024, 786);
+  auto can2 = new TCanvas("can2", "DChi2False", 1024, 786);
   can->cd();
   chain->Draw("chi2minToy-chi2minGlobalToy", cut + "&&" + isphysical + " && abs(chi2minToy-chi2minGlobalToy)<1e2",
               "norm");
@@ -2133,7 +2132,7 @@ RooSlimFitResult* MethodDatasetsPluginScan::getParevolPoint([[maybe_unused]] flo
 void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
 
   this->getProfileLH()->probScanTree->t->GetEntry(index);
-  RooArgSet* pars = (RooArgSet*)this->pdf->getWorkspace()->set(pdf->getParName());
+  auto pars = (RooArgSet*)this->pdf->getWorkspace()->set(pdf->getParName());
 
   //\todo: make sure this is checked during pdf init, do not check again here
   if (!pars) {
@@ -2143,7 +2142,7 @@ void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
   }
 
   TIterator* it = pars->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
+  while (auto p = (RooRealVar*)it->Next()) {
     TString parName = p->GetName();
     TLeaf* parLeaf = (TLeaf*)this->getProfileLH()->probScanTree->t->GetLeaf(parName + "_scan");
     if (!parLeaf) {
@@ -2362,7 +2361,7 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
     lD->SetLineWidth(5);
     lD->Draw("same");
 
-    TLegend* leg = new TLegend(0.74, 0.54, 0.94, 0.7);
+    auto leg = new TLegend(0.74, 0.54, 0.94, 0.7);
     leg->SetHeader(Form("p=%4.2g", hCLs->GetBinCenter(i)));
     leg->SetFillColor(0);
     leg->AddEntry(hb, "B-only Toys", "LF");
@@ -2444,7 +2443,7 @@ void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, vector<double>> bia
     // gb->Draw("Lsame");
     // gsb->Draw("Lsame");
 
-    TLegend* leg = new TLegend(0.65, 0.74, 0.89, 0.95);
+    auto leg = new TLegend(0.65, 0.74, 0.89, 0.95);
     leg->SetHeader(Form("p=%4.2g", hCLs->GetBinCenter(i)));
     leg->SetFillColor(0);
     leg->AddEntry(hsig, "POI residual", "LF");

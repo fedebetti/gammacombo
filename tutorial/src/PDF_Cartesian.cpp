@@ -92,22 +92,26 @@ void PDF_Cartesian::setCorrelations(TString c) {
   resetCorrelations();
   if (c.EqualTo("year2014")) {
     corSource = "arxiv:1408.2748";
-    double dataStat[] = {
+    std::vector<double> dataStat = {
+        // clang-format off
         // xm      ym      xp      yp
         1.,     -0.247, 0.038,  -0.003,  // xm
-        -0.247, 1.,     -0.011, 0.012,   // ym
-        0.038,  -0.011, 1.,     0.002,   // xp
-        -0.003, 0.012,  0.002,  1.       // yp
+                1.,     -0.011, 0.012,   // ym
+                        1.,     0.002,   // xp
+                                1.       // yp
+        // clang-format on
     };
-    corStatMatrix = TMatrixDSym(nObs, dataStat);
-    double dataSyst[] = {
+    corStatMatrix = Utils::buildCorMatrix(nObs, dataStat);
+    std::vector<double> dataSyst = {
+        // clang-format off
         // xm      ym      xp      yp
         1.,     0.005,  -0.025, 0.070,   // xm
-        0.005,  1.,     0.009,  -0.141,  // ym
-        -0.025, 0.009,  1.,     0.008,   // xp
-        0.070,  -0.141, 0.008,  1.       // yp
+                1.,     0.009,  -0.141,  // ym
+                        1.,     0.008,   // xp
+                                1.       // yp
+        // clang-format on
     };
-    corSystMatrix = TMatrixDSym(nObs, dataSyst);
+    corSystMatrix = Utils::buildCorMatrix(nObs, dataSyst);
   } else {
     cout << "PDF_Cartesian::initCorrelations() : ERROR : config not found: " << c << endl;
     exit(1);

@@ -78,7 +78,7 @@ TH2F* MethodBergerBoosScan::calcPValues(TH2F better, TH2F all, TH2F bg) {
 /// Draws a 2D Histogram in var1:var2 space
 ///
 void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, int runMax, bool save) const {
-  TChain* c = new TChain("plugin");
+  auto c = new TChain("plugin");
   int nFilesMissing = 0;
   int nFilesRead = 0;
 
@@ -172,7 +172,7 @@ void MethodBergerBoosScan::getBestPValue(TH1F* h, TH2F* pValues) {
 /// to account for BergerBoos specifications
 ///
 void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
-  TChain* c = new TChain("plugin");
+  auto c = new TChain("plugin");
   int nFilesMissing = 0;
   int nFilesRead = 0;
   TString fileNameBase = "root/scan1dBergerBoos_" + name + "_" + scanVar1 + "_run";
@@ -315,9 +315,9 @@ int MethodBergerBoosScan::scan1d(int nRun) {
     fName = this->dir + Form("root/scan1dBergerBoos_" + name + "_" + scanVar1 + "_run%i.root", nRun);
   }
 
-  TFile* f2 = new TFile(fName, "recreate");
+  auto f2 = new TFile(fName, "recreate");
 
-  Fitter* myFit = new Fitter(arg, w, combiner->getPdfName());
+  auto myFit = new Fitter(arg, w, combiner->getPdfName());
   RooRandom::randomGenerator()->SetSeed(0);
 
   // Set limit to all parameters.
@@ -470,7 +470,7 @@ void MethodBergerBoosScan::setNewBergerBoosPoint(int m) {
   // Get new BB Point from BBTree Class member
   TIterator* iter = w->set(parsName)->createIterator();
   // int p=0;
-  while (RooRealVar* par = (RooRealVar*)iter->Next()) {
+  while (auto par = (RooRealVar*)iter->Next()) {
     // Set new parameter values by reading the BBTree
     float VAL = -666;
     BBtree->GetBranch(par->GetName())->GetEntry(m - 1);
