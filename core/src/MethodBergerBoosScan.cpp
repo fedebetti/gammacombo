@@ -57,10 +57,10 @@ TH2F* MethodBergerBoosScan::calcPValues(TH2F better, TH2F all, TH2F bg) {
     for (int j = 1; j <= better.GetNbinsY(); ++j) {
       float nbetter = better.GetBinContent(i, j);
       float nall = all.GetBinContent(i, j);
-      float nbackground = bg.GetBinContent(i, j);
       if (nall == 0.) continue;
 
       // subtract background
+      // auto nbackground = bg.GetBinContent(i, j);
       // float p = (nbetter-nbackground)/(nall-nbackground);
       // hCL->SetBinContent(i, p);
       // hCL->SetBinError(i, sqrt(p * (1.-p)/(nall-nbackground)));

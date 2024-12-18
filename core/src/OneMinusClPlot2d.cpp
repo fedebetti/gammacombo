@@ -1053,10 +1053,6 @@ void OneMinusClPlot2d::drawMarker(float x, float y, int color, int style, float 
 void OneMinusClPlot2d::drawSolutions() {
   m_mainCanvas->cd();
   m_mainCanvas->Update();
-  float ymin = gPad->GetUymin();
-  float ymax = gPad->GetUymax();
-  float xmin = gPad->GetUxmin();
-  float xmax = gPad->GetUxmax();
 
   for (int i = 0; i < scanners.size(); i++) {
     if (scanners[i]->getDrawSolution() == 0) continue;

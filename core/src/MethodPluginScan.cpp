@@ -1031,10 +1031,10 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     float nbetter_clb = h_better_clb->GetBinContent(i);
     float nall = h_all->GetBinContent(i);
     float nall_bkg = h_all_bkg->GetBinContent(i);
-    float nbackground = h_background->GetBinContent(i);
     if (nall == 0.) continue;
 
     // subtract background
+    // auto nbackground = h_background->GetBinContent(i);
     // float p = (nbetter-nbackground)/(nall-nbackground);
     // hCL->SetBinContent(i, p);
     // hCL->SetBinError(i, sqrt(p * (1.-p)/(nall-nbackground)));
@@ -1386,9 +1386,7 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
   }
 
   float halfBinWidthx = (t.getScanpointMax() - t.getScanpointMin()) / (float)t.getScanpointN() / 2;
-  float halfBinWidthy = (t.getScanpointyMax() - t.getScanpointyMin()) / (float)t.getScanpointyN() / 2;
   if (t.getScanpointN() == 1) halfBinWidthx = 1.;
-  if (t.getScanpointyN() == 1) halfBinWidthy = 1.;
   if (hCL2d) delete hCL2d;
   hCL2d = new TH2F(getUniqueRootName(), "hCL2d", t.getScanpointN(), t.getScanpointMin() - halfBinWidthx,
                    t.getScanpointMax() + halfBinWidthx, t.getScanpointyN(), t.getScanpointyMin() - halfBinWidthx,

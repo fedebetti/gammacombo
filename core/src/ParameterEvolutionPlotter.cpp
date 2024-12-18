@@ -68,8 +68,6 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos
   pad->Update();
   float ymin = pad->GetUymin();
   float ymax = pad->GetUymax();
-  float xmin = pad->GetUxmin();
-  float xmax = pad->GetUxmax();
   TLine* l1 = new TLine(xpos, ymin, xpos, ymax);
   l1->SetLineWidth(1);
   l1->SetLineColor(kRed);

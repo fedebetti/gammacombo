@@ -1917,7 +1917,7 @@ void GammaComboEngine::compareCombinations() {
       lat->DrawLatex(3, 3, Form("#sigma = %3.1f", TMath::Abs(diff) / err));
       Utils::savePlot(canv, Form("pull_corr_%s_%s", comparisonScanners[i]->getName().Data(),
                                  comparisonScanners[j]->getName().Data()));
-      total_pull = sqrt(total_pull) / nmatch;
+      // total_pull = sqrt(total_pull) / nmatch;
     }
   }
 }
