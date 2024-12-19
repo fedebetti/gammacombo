@@ -8,3 +8,7 @@ repos:
         exclude: "\\.clang-format$"
     -   id: check-toml
     -   id: check-added-large-files
+-   repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
+    hooks:
+    -   id: cmake-format
