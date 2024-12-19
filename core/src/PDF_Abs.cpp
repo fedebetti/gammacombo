@@ -684,7 +684,7 @@ float PDF_Abs::getObservableValue(TString obsname) const {
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, vector<int>& indices) {
+void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, const vector<int>& indices) {
   if (indices.size() == 0) {
     cout << "PDF_Abs::getSubMatrix() : vector 'indices' can't be empty" << endl;
     exit(1);
@@ -715,7 +715,7 @@ void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, vector<int>
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, vector<int>& indices) {
+void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, const vector<int>& indices) {
   getSubMatrix(target, corStatMatrix, indices);
 }
 
@@ -726,6 +726,6 @@ void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, vector<int>& indices) {
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, vector<int>& indices) {
+void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, const vector<int>& indices) {
   getSubMatrix(target, corSystMatrix, indices);
 }
