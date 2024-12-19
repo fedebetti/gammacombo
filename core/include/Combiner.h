@@ -82,7 +82,7 @@ class Combiner {
   const OptParser* arg;               // command line arguments
   RooWorkspace* w;                    // holds all input pdfs, parameters, and observables, as well as the combination
   std::vector<std::string> pdfNames;  // hold all unique names of the pdfs to be combined
-  bool _isCombined;                   // make sure we'll only combine once - else all PDFs get double counted!
+  bool _isCombined = false;           // make sure we'll only combine once - else all PDFs get double counted!
   std::vector<Utils::FixPar> constVars;  // hold variables that will be set constant (filled by fixParameter())
 };
 

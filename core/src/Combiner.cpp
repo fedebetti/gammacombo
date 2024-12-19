@@ -17,7 +17,6 @@ Combiner::Combiner(const OptParser* arg, TString title) : title(title) {
   this->arg = arg;
   TString wsname = "w" + getUniqueRootName();
   w = new RooWorkspace(wsname, wsname);
-  _isCombined = false;
 }
 
 Combiner::Combiner(const OptParser* arg, TString name, TString title) : title(title), name(name) {
@@ -25,7 +24,6 @@ Combiner::Combiner(const OptParser* arg, TString name, TString title) : title(ti
   this->arg = arg;
   TString wsname = "w" + getUniqueRootName();
   w = new RooWorkspace(wsname, wsname);
-  _isCombined = false;
 }
 
 Combiner::~Combiner() { delete w; }
