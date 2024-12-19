@@ -33,7 +33,7 @@ Combiner::~Combiner() { delete w; }
 ///
 /// Clone an existing combiner.
 ///
-Combiner* Combiner::Clone(TString name, TString title) {
+Combiner* Combiner::Clone(const TString name, const TString title) {
   auto cNew = new Combiner(this->arg, name, title);
   cNew->pdfName = this->pdfName;
   for (auto pdf : pdfs) cNew->addPdf(pdf);
@@ -369,7 +369,7 @@ void Combiner::print() const {
 /// Adjust the physical range of a parameter as requested. Only possible
 /// after combining.
 ///
-void Combiner::adjustPhysRange(TString varName, float min, float max) {
+void Combiner::adjustPhysRange(const TString varName, const float min, const float max) {
   if (!_isCombined) {
     cout << "Combiner::adjustPhysRange() : ERROR : Can't adjust parameters range before ";
     cout << "combine() was called. Skipping." << endl;
@@ -516,7 +516,7 @@ void Combiner::loadParameterLimits() {
 ///
 /// Set the combiner name. Only possible before combine() was called.
 ///
-void Combiner::setName(TString name) {
+void Combiner::setName(const TString name) {
   if (_isCombined) {
     cout << "Combiner::setName() : ERROR : Name can only be changed before combiner is combined. Exit." << endl;
     exit(1);
@@ -534,7 +534,7 @@ void Combiner::setName(TString name) {
 /// \param obsname  - name of the observable including the unique string
 /// \return pointer to the PDF
 ///
-PDF_Abs* Combiner::getPdfProvidingObservable(TString obsname) {
+PDF_Abs* Combiner::getPdfProvidingObservable(const TString obsname) {
   // find PDF ID from the unique string
   TString obsnameparse = obsname;
   TString UID = "UID";

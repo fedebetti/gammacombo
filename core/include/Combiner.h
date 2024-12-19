@@ -28,8 +28,8 @@ class Combiner {
     addPdf(args...);
   }
 
-  void adjustPhysRange(TString varName, float min, float max);
-  Combiner* Clone(TString name, TString title);
+  void adjustPhysRange(const TString varName, const float min, const float max);
+  Combiner* Clone(const TString name, const TString title);
   void combine();
   void fixParameter(const TString var, const float value);
   void fixParameters(TString vars);
@@ -47,7 +47,7 @@ class Combiner {
   inline const OptParser* getArg() { return arg; };
   const RooArgSet* getParameters() const;
   std::vector<std::string>& getParameterNames() const;
-  PDF_Abs* getPdfProvidingObservable(TString obsname);
+  PDF_Abs* getPdfProvidingObservable(const TString obsname);
   const RooArgSet* getObservables() const;
   std::vector<std::string>& getObservableNames() const;
   inline TString getTitle() const { return title; };
@@ -66,10 +66,10 @@ class Combiner {
   void loadParameterLimits();
   void print() const;
   void replacePdf(PDF_Abs* from, PDF_Abs* to);
-  void setName(TString name);
+  void setName(const TString name);
   void setObservablesToToyValues();
   void setParametersConstant();  // helper function for combine()
-  inline void setTitle(TString title) { this->title = title; };
+  inline void setTitle(const TString title) { this->title = title; };
   inline std::vector<Utils::FixPar> getConstVars() { return constVars; };
 
  private:
