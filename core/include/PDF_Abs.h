@@ -52,8 +52,8 @@ class PDF_Abs {
   inline RooAbsPdf* getBkgPdf() { return pdfBkg; };
   inline RooMultiPdf* getMultipdf() { return multipdf; };
   inline RooMultiPdf* getBkgMultipdf() { return multipdfBkg; };
-  void getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indices);
-  void getSubCorrelationSyst(TMatrixDSym& target, std::vector<int>& indices);
+  void getSubCorrelationStat(TMatrixDSym& target, const std::vector<int>& indices);
+  void getSubCorrelationSyst(TMatrixDSym& target, const std::vector<int>& indices);
   inline RooArgList* getTheory() { return theory; };
   inline TString getTitle() const { return title; };
   bool hasObservable(TString obsname) const;
@@ -98,7 +98,7 @@ class PDF_Abs {
 
  protected:
   void addToTrash(TObject*);
-  void getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector<int>& indices);
+  void getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, const std::vector<int>& indices);
 
   RooArgList* parameters = nullptr;   // holds all fit parameters of this PDF
   RooArgList* theory = nullptr;       // holds all truth relations
