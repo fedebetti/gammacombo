@@ -85,14 +85,6 @@ endforeach()
 # Create output directories
 # -----------------------------------------------------------------------------
 
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/root)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/C)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/cl)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/dot)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/eps)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/par)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/pdf)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/png)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/root)
-install(DIRECTORY DESTINATION ${COMBINER_NAME}/plots/scanner)
+foreach(folder ${OUTPUT_FOLDERS})
+  install(DIRECTORY DESTINATION ${COMBINER_NAME}/${folder})
+endforeach()

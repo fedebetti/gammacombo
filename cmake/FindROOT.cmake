@@ -59,7 +59,6 @@ if(ROOT_CONFIG_EXECUTABLE)
         -lRooFit
         -lRooFitCore
         -lRooFitMore
-        -lHtml
         -lMinuit
         -lThread
         -lRooStats
@@ -77,7 +76,6 @@ if(ROOT_CONFIG_EXECUTABLE)
         ${ROOT_LIBRARIES}
         -lRooFit
         -lRooFitCore
-        -lHtml
         -lMinuit
         -lThread
         -lRooStats

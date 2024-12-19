@@ -1,13 +1,6 @@
-# require a certain cmake version
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.30)
 
-# declare the project name
-project(gammacomboCore)
-
-# set project version
-set(${PROJECT_NAME}_VERSION_MAJOR 1)
-set(${PROJECT_NAME}_VERSION_MINOR 0)
-set(${PROJECT_NAME}_VERSION_PATCH 0)
+project(GammaCombo VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -41,8 +34,7 @@ endif(CCACHE_FOUND)
 find_package(Freetype REQUIRED)
 message("FREETYPE_LIBRARIES: " ${FREETYPE_LIBRARIES})
 
-# ROOT 6.24.06 ensures that the compiler is at least C++17
-find_package(ROOT 6.24.06 REQUIRED)
+find_package(ROOT 6.34 REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O3 ${ROOT_CXX_FLAGS}")
 message("ROOT_INCLUDE_DIR: " ${ROOT_INCLUDE_DIR})
 message("ROOT_LIBRARIES: " ${ROOT_LIBRARIES})
@@ -133,6 +125,19 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Dict_rdict.pcm
 # -----------------------------------------------------------------------------
 # Subdirectorys for the combiners
 # -----------------------------------------------------------------------------
+
+set(OUTPUT_FOLDERS
+    root
+    plots
+    plots/C
+    plots/cl
+    plots/dot
+    plots/eps
+    plots/par
+    plots/pdf
+    plots/png
+    plots/root
+    plots/scanner)
 
 foreach(dir ${COMBINER_MODULES})
   add_subdirectory(${dir})
