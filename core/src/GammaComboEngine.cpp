@@ -19,6 +19,7 @@
 #include <TObjString.h>
 #include <TROOT.h>
 
+#include <format>
 #include <memory>
 #include <vector>
 
@@ -670,16 +671,11 @@ void GammaComboEngine::usage() const {
 /// Print the available PDFs.
 ///
 void GammaComboEngine::printPdfs() const {
-  cout << "AVAILABLE MEASUREMENTS" << endl;
-  cout << endl;
+  cout << "AVAILABLE MEASUREMENTS\n\n";
   for (int i = 0; i < pdf.size(); i++) {
     if (!pdf[i]) continue;
-    if (i < 10)
-      printf("   (%i) %s\n", i, pdf[i]->getTitle().Data());
-    else if (i < 100)
-      printf("  (%2i) %s\n", i, pdf[i]->getTitle().Data());
-    else
-      printf(" (%3i) %s\n", i, pdf[i]->getTitle().Data());
+    auto indexStr = format("({:d})", i);
+    cout << format("{:>7s} {:s}\n", indexStr, pdf[i]->getTitle().Data());
   }
   cout << endl;
 }
@@ -688,22 +684,17 @@ void GammaComboEngine::printPdfs() const {
 /// Print the availabe Combinations.
 ///
 void GammaComboEngine::printCombinations() const {
-  cout << "AVAILABLE COMBINATIONS" << endl;
-  cout << endl;
+  cout << "AVAILABLE COMBINATIONS\n\n";
   for (int i = 0; i < cmb.size(); i++) {
     if (!cmb[i]) continue;
-    if (i < 10)
-      printf("   (%i) %s\n", i, cmb[i]->getTitle().Data());
-    else if (i < 100)
-      printf("  (%2i) %s\n", i, cmb[i]->getTitle().Data());
-    else
-      printf(" (%3i) %s\n", i, cmb[i]->getTitle().Data());
+    auto indexStr = format("({:d})", i);
+    cout << format("{:>7s} {:s}\n", indexStr, cmb[i]->getTitle().Data());
   }
   cout << endl;
 }
 
 ///
-/// Print the content of this engine.
+/// Print the content of this engine (available PDFs and combinations).
 ///
 void GammaComboEngine::print() const {
   printPdfs();
