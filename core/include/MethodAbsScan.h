@@ -146,41 +146,41 @@ class MethodAbsScan
 		const std::pair<double, double> getBorders_CLs(const TGraph& graph, const double confidence_level, bool qubic=false);
     	virtual bool                    checkCLs();
 
-		vector<RooSlimFitResult*> allResults;           ///< All fit results we encounter along the scan.
-		vector<RooSlimFitResult*> curveResults;         ///< All fit results of the the points that make it into the 1-CL curve.
-		///< Index is the bin number of hCL bins -1.
-		vector<vector<RooSlimFitResult*> > curveResults2d;  ///< All fit results of the the points that make it into the 1-CL curve.
-		///< Index is the gobal bin number of hCL2d -1.
-		vector<RooSlimFitResult*> solutions;            ///< Local minima filled by saveSolutions() and saveSolutions2d().
+        vector<RooSlimFitResult*> allResults;           ///< All fit results we encounter along the scan.
+        vector<RooSlimFitResult*> curveResults;         ///< All fit results of the the points that make it into the 1-CL curve.
+        ///< Index is the bin number of hCL bins -1.
+        vector<vector<RooSlimFitResult*> > curveResults2d;  ///< All fit results of the the points that make it into the 1-CL curve.
+        ///< Index is the gobal bin number of hCL2d -1.
+        vector<RooSlimFitResult*> solutions;            ///< Local minima filled by saveSolutions() and saveSolutions2d().
 
-		///< The names of the CL interval vectors might be misleading. They correspond to the default CL intervals.
-		///< If the option --CL is given, the 1-3 sigma correspond to the first, second,... given value of the CL.
-		vector<CLInterval> clintervals1sigma;           ///< all 1 sigma intervals that were found by calcCLintervals()
-		vector<CLInterval> clintervals2sigma;           ///< all 2 sigma intervals that were found by calcCLintervals()
-		vector<CLInterval> clintervals3sigma;           ///< all 3 sigma intervals that were found by calcCLintervals()
-		vector<CLInterval> clintervalsuser;           ///< all intervals with an additional user specific CL that were found by calcCLintervals()
-		RooFitResult* globalMin;    ///< parameter values at a global minimum
+        ///< The names of the CL interval vectors might be misleading. They correspond to the default CL intervals.
+        ///< If the option --CL is given, the 1-3 sigma correspond to the first, second,... given value of the CL.
+        vector<CLInterval> clintervals1sigma;  ///< all 1 sigma intervals that were found by calcCLintervals()
+        vector<CLInterval> clintervals2sigma;  ///< all 2 sigma intervals that were found by calcCLintervals()
+        vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
+        vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by calcCLintervals()
+        RooFitResult* globalMin;               ///< parameter values at a global minimum
 
-	protected:
+    protected:
 
-		void    sortSolutions();
+        void    sortSolutions();
 
-		TString name;       ///< basename, e.g. ggsz
-		TString title;      ///< nice string for the legends
-		TString methodName; ///< Prob, ...
-		TString pdfName;    ///< PDF name in workspace, derived from name
-		TString obsName;    ///< dataset name of observables, derived from name
-		TString parsName;   ///< set name of physics parameters, derived from name
-		TString thName;     ///< set name of theory parameters, derived from name
-		TString toysName;   ///< set name of parameters to vary in toys
-		TString scanVar1;   ///< scan parameter
-		TString scanVar2;   ///< second scan parameter if we're scanning 2d
-		int nPoints1d;      ///< number of scan points used by 1d scan
-		int nPoints2dx;     ///< number of scan points used by 2d scan, x axis
-		int nPoints2dy;     ///< number of scan points used by 2d scan, y axis
+        TString name;       ///< basename, e.g. ggsz
+        TString title;      ///< nice string for the legends
+        TString methodName; ///< Prob, ...
+        TString pdfName;    ///< PDF name in workspace, derived from name
+        TString obsName;    ///< dataset name of observables, derived from name
+        TString parsName;   ///< set name of physics parameters, derived from name
+        TString thName;     ///< set name of theory parameters, derived from name
+        TString toysName;   ///< set name of parameters to vary in toys
+        TString scanVar1;   ///< scan parameter
+        TString scanVar2;   ///< second scan parameter if we're scanning 2d
+        int nPoints1d;      ///< number of scan points used by 1d scan
+        int nPoints2dx;     ///< number of scan points used by 2d scan, x axis
+        int nPoints2dy;     ///< number of scan points used by 2d scan, y axis
 
-		PValueCorrection* pvalueCorrector; // object which can correct the pvalue for undercoverage if required
-		bool pvalueCorrectorSet;
+        PValueCorrection* pvalueCorrector; // object which can correct the pvalue for undercoverage if required
+        bool pvalueCorrectorSet;
 
 		TRandom3 rndm;
 		RooWorkspace* w;
@@ -222,13 +222,13 @@ class MethodAbsScan
 		bool m_initialized; 		///< true if initScan() was called
 		std::vector<double> ConfidenceLevels;	///< container of the confidence levels to be computed
 
-	private:
+    private:
 
-		bool    compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2);
-		float   pq(float p0, float p1, float p2, float y, int whichSol=0);
-		void    removeDuplicateSolutions();
-		bool    interpolate(TH1F* h, int i, float y, float central, bool upper, float &val, float &err);
-		void    interpolateSimple(TH1F* h, int i, float y, float &val);
+        bool  compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2);
+        float pq(float p0, float p1, float p2, float y, int whichSol=0);
+        void  removeDuplicateSolutions();
+        bool  interpolate(TH1F* h, int i, float y, float central, bool upper, float &val, float &err);
+        void  interpolateSimple(TH1F* h, int i, float y, float &val);
 };
 
 #endif
