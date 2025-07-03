@@ -23,7 +23,7 @@ class OneMinusClPlot : public OneMinusClPlotAbs {
   };
   inline TString getName() const { return name; }
   inline void setPluginMarkers(bool yesNo = true) { plotPluginMarkers = yesNo; }
-  void Draw();
+  void Draw() override;
 
  private:
   void drawCLguideLine(float pvalue) const;

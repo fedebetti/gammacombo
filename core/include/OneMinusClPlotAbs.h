@@ -37,7 +37,7 @@ class OneMinusClPlotAbs {
   inline void setLabelSize(int lnum) { labelsize = lnum; };
   inline void setPlotLabel(TString& lname) { label = lname; };
   inline void Show() const { m_mainCanvas->Show(); };
-  virtual void Draw() const;
+  virtual void Draw() = 0;
 
   int font = 133;       ///< font code. The last digit disables scaling with the canvas size.
   int labelsize = 35;   ///< text size of axis labels, numeric solutions, CL guide lines (in pixels)
