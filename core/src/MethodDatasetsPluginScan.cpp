@@ -327,9 +327,7 @@ RooFitResult* MethodDatasetsPluginScan::loadAndFitBkg(PDF_Datasets* pdf) {
 void MethodDatasetsPluginScan::loadParameterLimits() {
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
   if (arg->debug) cout << "DEBUG in Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
-  TIterator* it = w->set(pdf->getParName())->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) setLimit(w, p->GetName(), rangeName);
-  delete it;
+  for (const auto p : *w->set(pdf->getParName())) setLimit(w, p->GetName(), rangeName);
 }
 
 ///
@@ -2141,8 +2139,7 @@ void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
     exit(EXIT_FAILURE);
   }
 
-  TIterator* it = pars->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto p : *pars) {
     TString parName = p->GetName();
     TLeaf* parLeaf = (TLeaf*)this->getProfileLH()->probScanTree->t->GetLeaf(parName + "_scan");
     if (!parLeaf) {
@@ -2151,7 +2148,7 @@ void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
       exit(EXIT_FAILURE);
     }
     float scanParVal = parLeaf->GetValue();
-    p->setVal(scanParVal);
+    static_cast<RooRealVar*>(p)->setVal(scanParVal);
   }
 }
 

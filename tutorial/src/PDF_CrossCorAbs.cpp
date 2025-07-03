@@ -32,42 +32,30 @@ void PDF_CrossCorAbs::initParameters() {
   parameters = new RooArgList("parameters");
   // we need the same parameters as both input PDFs:
   // copy over from first PDF
-  TIterator* it = pdf1->getParameters()->createIterator();
-  while (auto par = dynamic_cast<RooRealVar*>(it->Next())) { parameters->add(*(p.get(par->GetName()))); }
-  delete it;
+  for (const auto par : *pdf1->getParameters()) { parameters->add(*(p.get(par->GetName()))); }
   // copy over from second PDF
-  it = pdf2->getParameters()->createIterator();
-  while (auto par = dynamic_cast<RooRealVar*>(it->Next())) {
+  for (const auto par : *pdf2->getParameters()) {
     if (parameters->find(par->GetName())) continue;
     parameters->add(*(p.get(par->GetName())));
   }
-  delete it;
 }
 
 void PDF_CrossCorAbs::initRelations() {
   theory = new RooArgList("theory");
   // we need the same theory as both input PDFs:
   // copy over from first PDF
-  TIterator* it = pdf1->getTheory()->createIterator();
-  while (auto th = dynamic_cast<RooRealVar*>(it->Next())) { theory->add(*th); }
-  delete it;
+  for (const auto th : *pdf1->getTheory()) { theory->add(*th); }
   // copy over from second PDF
-  it = pdf2->getTheory()->createIterator();
-  while (auto th = dynamic_cast<RooRealVar*>(it->Next())) { theory->add(*th); }
-  delete it;
+  for (const auto th : *pdf2->getTheory()) { theory->add(*th); }
 }
 
 void PDF_CrossCorAbs::initObservables() {
   observables = new RooArgList("observables");
   // we need the same observables as both input PDFs:
   // copy over from first PDF
-  TIterator* it = pdf1->getObservables()->createIterator();
-  while (auto obs = dynamic_cast<RooRealVar*>(it->Next())) { observables->add(*obs); }
-  delete it;
+  for (const auto obs : *pdf1->getObservables()) { observables->add(*obs); }
   // copy over from second PDF
-  it = pdf2->getObservables()->createIterator();
-  while (auto obs = dynamic_cast<RooRealVar*>(it->Next())) { observables->add(*obs); }
-  delete it;
+  for (const auto obs : *pdf2->getObservables()) { observables->add(*obs); }
 }
 
 void PDF_CrossCorAbs::copyMeasurementCovariance() {
