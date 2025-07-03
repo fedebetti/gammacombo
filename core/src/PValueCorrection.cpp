@@ -1,5 +1,6 @@
 #include <PValueCorrection.h>
 
+#include <algorithm>
 #include <cassert>
 
 #include <TChain.h>
@@ -53,7 +54,7 @@ void PValueCorrection::setFitParam(int i, double val) {
 }
 
 void PValueCorrection::checkValid() {
-  if (find(allowedFuncs.begin(), allowedFuncs.end(), transFunc) == allowedFuncs.end()) {
+  if (std::ranges::find(allowedFuncs, transFunc) == allowedFuncs.end()) {
     cout << "ERROR -- " << transFunc << " is not a valid transform function" << endl;
     exit(1);
   }

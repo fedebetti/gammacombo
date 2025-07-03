@@ -2,6 +2,7 @@
 #include <Rounder.h>
 #include <Utils.h>
 
+#include <algorithm>
 #include <string>
 
 using namespace std;
@@ -35,7 +36,7 @@ bool CLIntervalPrinter::compareByMin(const CLInterval& a, const CLInterval& b) {
 void CLIntervalPrinter::print() {
   for (auto intervals : _intervals) {
     vector<CLInterval> sortedIntervals(intervals);
-    sort(sortedIntervals.begin(), sortedIntervals.end(), compareByMin);
+    std::ranges::sort(sortedIntervals, compareByMin);
     for (auto sInterval : sortedIntervals) {
       CLInterval i = sInterval;
 

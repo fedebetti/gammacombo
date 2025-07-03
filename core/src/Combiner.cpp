@@ -1,5 +1,7 @@
 #include <Combiner.h>
 
+#include <algorithm>
+
 #include <RooProdPdf.h>
 #include <RooRandom.h>
 
@@ -124,7 +126,7 @@ void Combiner::combine() {
   }
 
   // sort pdfs alphabetically
-  sort(pdfNames.begin(), pdfNames.end());
+  std::ranges::sort(pdfNames);
 
   // new thing here
   pdfName = "comb";
@@ -232,7 +234,7 @@ vector<string>& Combiner::getParameterNames() const {
     for (const auto v : *pdf->getParameters()) { varsAll.push_back(v->GetName()); }
   }
   // 2. remove duplicates
-  sort(varsAll.begin(), varsAll.end());
+  std::ranges::sort(varsAll);
   vars->push_back(varsAll[0]);
   string previous = varsAll[0];
   for (int i = 1; i < varsAll.size(); i++) {

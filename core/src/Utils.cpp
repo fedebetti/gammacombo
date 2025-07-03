@@ -6,6 +6,9 @@
  **/
 
 #include <boost/algorithm/string.hpp>
+
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -825,7 +828,7 @@ void Utils::addSetNamesToList(vector<string>& list, RooWorkspace* w, TString set
 void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, vector<string>& names) {
 
   // 1. remove duplicates
-  sort(names.begin(), names.end());
+  std::ranges::sort(names);
   vector<string> vars;
   vars.push_back(names[0]);
   string previous = names[0];
@@ -855,7 +858,7 @@ void Utils::mergeNamedSets(RooWorkspace* w, TString mergedSet, TString set1, TSt
   for (const auto p : *w->set(set2)) varsAll.push_back(p->GetName());
 
   // 2. remove duplicates
-  sort(varsAll.begin(), varsAll.end());
+  std::ranges::sort(varsAll);
   vector<string> vars;
   vars.push_back(varsAll[0]);
   string previous = varsAll[0];

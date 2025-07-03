@@ -1,4 +1,5 @@
 #include <iostream>
+#include <numbers>
 
 #include <FileNameBuilder.h>
 #include <FitResultCache.h>
@@ -359,7 +360,7 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
     // draw best fit points
     // assume the variable is an angle (=gamma) and bring it back
     // to the [0,pi] range
-    h_sol->Fill(RadToDeg(fmod((double)tSol, 3.14152)));
+    h_sol->Fill(RadToDeg(fmod((double)tSol, std::numbers::pi)));
 
     // attempt a coverage correction
     // float a = -35.3458/76.1644;

@@ -13,6 +13,7 @@
 #include <PullPlotter.h>
 #include <Utils.h>
 
+#include <algorithm>
 #include <array>
 
 #include <RooRealVar.h>
@@ -373,7 +374,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
     hChi2min->SetName("hChi2min" + getUniqueRootName());
   }
   // load CLs histograms
-  if (std::find(arg->cls.begin(), arg->cls.end(), 1) != arg->cls.end()) {
+  if (std::ranges::find(arg->cls, 1) != arg->cls.end()) {
     obj = f->Get("hCLs");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLs' not found in root file - you can ignore this if you're "
@@ -389,8 +390,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
     }
   }
   // load CLs histograms
-  bool lookForMixedCLs =
-      std::find(arg->cls.begin(), arg->cls.end(), 2) != arg->cls.end() && !methodName.Contains("Prob");
+  bool lookForMixedCLs = std::ranges::find(arg->cls, 2) != arg->cls.end() && !methodName.Contains("Prob");
   if (lookForMixedCLs) {
     obj = f->Get("hCLsFreq");
     if (!obj) {
