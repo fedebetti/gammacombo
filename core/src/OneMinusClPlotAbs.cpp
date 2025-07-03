@@ -117,7 +117,3 @@ void OneMinusClPlotAbs::drawGroup(float yPos) const {
 void OneMinusClPlotAbs::drawSolutions() const {
   // not implemented
 }
-
-void OneMinusClPlotAbs::Draw() const {
-  // not implemented
-}

@@ -18,7 +18,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
 
   void addScanner(MethodAbsScan* s, int CLsType = 0);
   void addFile(TString fName);
-  void Draw();
+  void Draw() override;
   void DrawFull();
   void drawCLcontent(bool isFull = false);
   void drawMarker(float x, float y, int color = 0, int style = 3, float size = 2.0) const;
