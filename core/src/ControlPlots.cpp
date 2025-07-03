@@ -1,6 +1,8 @@
 #include <ControlPlots.h>
 #include <Utils.h>
 
+#include <numbers>
+
 #include <TEnv.h>
 #include <TF1.h>
 #include <TFile.h>
@@ -314,7 +316,7 @@ void ControlPlots::ctrlPlotNuisances() {
       varFree = "fmod(" + varFree + ",3.14152)";
       varStart = "fmod(" + varStart + ",3.14152)";
       customRangeLo = 0.0;
-      customRangeHi = 3.14152;
+      customRangeHi = std::numbers::pi;
     }
 
     gStyle->SetOptStat(10000);  //  print overflow bins!

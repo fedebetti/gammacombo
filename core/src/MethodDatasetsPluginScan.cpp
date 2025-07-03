@@ -2082,9 +2082,7 @@ void MethodDatasetsPluginScan::performBootstrapTest(int nSamples, const TString&
     for (int j = 0; j < numberOfToys; j++) {
 
       int rndmInt = -1;
-      do {
-        rndmInt = rndm.Integer(numberOfToys);
-      } while (std::find(failed.begin(), failed.end(), rndmInt) != failed.end());
+      do { rndmInt = rndm.Integer(numberOfToys); } while (std::ranges::find(failed, rndmInt) != failed.end());
 
       if ((q[rndmInt]) > q_data) nbetter += 1;
     }

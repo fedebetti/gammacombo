@@ -7,6 +7,9 @@
 
 #include <TFile.h>
 
+#include <algorithm>
+#include <ranges>
+
 using namespace std;
 using namespace RooFit;
 using namespace Utils;
@@ -384,8 +387,8 @@ void ToyTree::computeMinMaxN() {
     pointsx.push_back(scanpoint);
     pointsy.push_back(scanpointy);
   }
-  sort(pointsx.begin(), pointsx.end());
-  sort(pointsy.begin(), pointsy.end());
+  std::ranges::sort(pointsx);
+  std::ranges::sort(pointsy);
   float binWidthx = -1;
   float binWidthy = -1;
   bool foundDifferentBinWidths = false;

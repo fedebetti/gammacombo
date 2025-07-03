@@ -210,7 +210,7 @@ void ParameterCache::setPoint(Combiner* cmb, int i) {
   if (m_arg->debug) cout << "ParameterCache::setPoint() : Setting parameter values for point " << i + 1 << endl;
 
   for (auto const& [name, val] : startingValues[i]) {
-    if (find(fixNames.begin(), fixNames.end(), name) != fixNames.end()) {
+    if (std::ranges::find(fixNames, name) != fixNames.end()) {
       if (m_arg->debug)
         cout << "\tLeft " << Form("%-15s", name.Data()) << " = " << Form("%12.6f", w->var(name)->getVal())
              << " constant" << endl;

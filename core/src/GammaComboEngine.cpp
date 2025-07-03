@@ -19,6 +19,7 @@
 #include <TObjString.h>
 #include <TROOT.h>
 
+#include <algorithm>
 #include <format>
 #include <memory>
 #include <vector>
@@ -153,7 +154,7 @@ void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const vector<int
 
   // loop over all observables and remove the ones that aren't in indices
   for (int i = 0; i < pdf->getObservables()->getSize(); i++) {
-    if (std::find(indices.begin(), indices.end(), i) == indices.end()) {
+    if (std::ranges::find(indices, i) == indices.end()) {
       obsToRemove->add(*(pdf->getObservables()->at(i)));
       theoryToRemove->add(*(pdf->getTheory()->at(i)));
     }

@@ -5,6 +5,7 @@
  *
  **/
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -254,7 +255,7 @@ void PDF_Abs::buildCov() {
       !corr_source.Contains("correlations are off", TString::kIgnoreCase)) {
     // check that off-diagonal terms of the correlation matrices are not all zero
     auto is_nonzero = [](double x) { return std::abs(x) > 1e-6; };
-    if (std::find_if(StatErr.begin(), StatErr.end(), is_nonzero) != StatErr.end()) {
+    if (std::ranges::find_if(StatErr, is_nonzero) != StatErr.end()) {
       bool warn = false;
       for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
@@ -263,7 +264,7 @@ void PDF_Abs::buildCov() {
       }
       if (warn) warning("All off-diagonal elements of the stat. corr. matrix are zero. Is this OK?");
     }
-    if (std::find_if(SystErr.begin(), SystErr.end(), is_nonzero) != SystErr.end()) {
+    if (std::ranges::find_if(SystErr, is_nonzero) != SystErr.end()) {
       bool warn = false;
       for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
