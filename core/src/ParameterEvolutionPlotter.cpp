@@ -137,8 +137,7 @@ void ParameterEvolutionPlotter::plotParEvolution() {
   selectNewCanvas(title + " 1");
 
   // get all parameters, loop over them
-  TIterator* it = w->set(parsName)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto p : *w->set(parsName)) {
     if (p->isConstant() && p->GetName() != scanVar1) continue;
     if (arg->debug) cout << "ParameterEvolutionPlotter::plotParEvolution() : var = " << p->GetName() << endl;
     TVirtualPad* pad = selectNewPad();

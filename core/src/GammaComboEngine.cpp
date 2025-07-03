@@ -10,6 +10,8 @@
 #include <ParameterEvolutionPlotter.h>
 #include <Utils.h>
 
+#include <RooRealVar.h>
+
 #include <TColor.h>
 #include <TDatime.h>
 #include <TLatex.h>
@@ -507,8 +509,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
 
   // set observables to asimov values in workspace
   RooWorkspace* w = c->getWorkspace();
-  TIterator* itObs = c->getObservables()->createIterator();
-  while (auto pObs = dynamic_cast<RooRealVar*>(itObs->Next())) {
+  for (const auto pObs : *c->getObservables()) {
     // get theory name from the observable name
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
@@ -520,16 +521,14 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
       exit(1);
     }
     // set the observable to what the theory relation predicts
-    pObs->setVal(th->getVal());
+    static_cast<RooRealVar*>(pObs)->setVal(th->getVal());
   }
-  delete itObs;
 
   // write back the asimov values to the PDF object so that when
   // the PDF is printed, the asimov values show up
   for (auto pdf : c->getPdfs()) {
     pdf->setObservableSourceString("Asimov");
-    TIterator* itObs = pdf->getObservables()->createIterator();
-    while (auto pObs = dynamic_cast<RooRealVar*>(itObs->Next())) {
+    for (const auto pObs : *pdf->getObservables()) {
       RooAbsReal* obs = w->var(pObs->GetName());
       if (!obs) {
         cout << "GammaComboEngine::setAsimovObservables() : ERROR : observable not found in workspace: "
@@ -538,7 +537,6 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
       }
       pdf->setObservable(pObs->GetName(), obs->getVal());
     }
-    delete itObs;
   }
 }
 
@@ -1584,8 +1582,7 @@ void GammaComboEngine::adjustRanges(Combiner* c, int cId) {
     for (const auto rr : arg->removeRanges[cId]) {
       if (rr == "all") {
         const RooArgSet* pars = (RooArgSet*)c->getParameters();
-        TIterator* it = pars->createIterator();
-        while (auto par = (RooRealVar*)it->Next()) { par->removeRange(); }
+        for (const auto par : *pars) static_cast<RooRealVar*>(par)->removeRange();
       } else {
         c->adjustPhysRange(rr, -999, -999);
       }
@@ -1819,10 +1816,10 @@ void GammaComboEngine::compareCombinations() {
       comparisonScanners[j]->loadSolution(0);
       const RooArgSet* sc1obs = comparisonScanners[i]->getObservables();
       const RooArgSet* sc2obs = comparisonScanners[j]->getObservables();
-      TIterator* it1 = sc1obs->createIterator();
-      while (auto pObs1 = dynamic_cast<RooRealVar*>(it1->Next())) {
-        TIterator* it2 = sc2obs->createIterator();
-        while (auto pObs2 = (RooRealVar*)it2->Next()) {
+      for (const auto pAbsObs1 : *sc1obs) {
+        for (const auto pAbsObs2 : *sc2obs) {
+          const auto pObs1 = static_cast<RooRealVar*>(pAbsObs1);
+          const auto pObs2 = static_cast<RooRealVar*>(pAbsObs2);
 
           // look for matches
           TString pTh1Name = pObs1->GetName();
@@ -1934,8 +1931,8 @@ void GammaComboEngine::runToys(Combiner* c) {
   tree->Branch("ntoy", &ntoy);
   tree->Branch("chi2min", &chi2val);
   RooArgList fitPars = probscan->solutions[0]->floatParsFinal();
-  TIterator* it = fitPars.createIterator();
-  while (auto p = dynamic_cast<RooRealVar*>(it->Next())) {
+  for (const auto pAbs : fitPars) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     cout << "YO:: " << p->GetName() << endl;
     vals[p->GetName()] = p->getVal();
     errs[p->GetName()] = p->getError();
@@ -1958,9 +1955,8 @@ void GammaComboEngine::runToys(Combiner* c) {
     chi2val = toyscan->solutions[0]->minNll();
     ntoy = i;
     RooArgList toyFitPars = toyscan->solutions[0]->floatParsFinal();
-    TIterator* toyit = toyFitPars.createIterator();
-    while (auto p = (RooRealVar*)toyit->Next()) {
-      // cout << p->GetName() << " " << p->getVal() << " " << p->getError() << endl;
+    for (const auto pAbs : toyFitPars) {
+      const auto p = static_cast<RooRealVar*>(pAbs);
       vals[p->GetName()] = p->getVal();
       errs[p->GetName()] = p->getError();
     }

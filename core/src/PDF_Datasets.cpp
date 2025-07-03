@@ -10,8 +10,8 @@
 
 #include <RooProdPdf.h>
 #include <RooRandom.h>
+#include <RooRealVar.h>
 
-#include <TIterator.h>
 #include <TObjString.h>
 
 using namespace std;
@@ -294,13 +294,12 @@ void PDF_Datasets::print() const {
 
 void PDF_Datasets::printParameters() const {
   int parcounter = 0;
-  TIterator* it = this->parameters->createIterator();
-  while (auto p = dynamic_cast<RooRealVar*>(it->Next())) {
+  for (const auto pAbs : *this->parameters) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     cout << p->GetName() << " " << p->getVal() << " ";
     parcounter += 1;
     if (parcounter % 5 == 0) cout << endl << "  ";
   }
-  delete it;
   cout << endl << endl;
 };
 
@@ -321,8 +320,8 @@ void PDF_Datasets::generateBkgToysGlobalObservables(int SeedShift, int index) {
 
   // iterate over the generated values and use them to update the actual global observables in the workspace
 
-  TIterator* it = set->createIterator();
-  while (RooRealVar* genVal = dynamic_cast<RooRealVar*>(it->Next())) {
+  for (const auto genValAbs : *set) {
+    const auto genVal = static_cast<RooRealVar*>(genValAbs);
     wspc->var(genVal->GetName())->setVal(genVal->getVal());
   }
   TString index_string;
@@ -341,8 +340,8 @@ void PDF_Datasets::generateToysGlobalObservables(int SeedShift) {
   if (wspc->set(globalObsName)->getSize() > 0) set = _constraintPdf->generate(*(wspc->set(globalObsName)), 1)->get(0);
   // iterate over the generated values and use them to update the actual global observables in the workspace
 
-  TIterator* it = set->createIterator();
-  while (RooRealVar* genVal = dynamic_cast<RooRealVar*>(it->Next())) {
+  for (const auto genValAbs : *set) {
+    const auto genVal = static_cast<RooRealVar*>(genValAbs);
     wspc->var(genVal->GetName())->setVal(genVal->getVal());
   }
 
@@ -663,8 +662,7 @@ void PDF_Datasets::unblind(TString var, TString unblindRegs) {
               << std::endl;
     if (observables) {
       std::cerr << "Candidates are:";
-      TIterator* it = observables->createIterator();
-      while (RooRealVar* obs = dynamic_cast<RooRealVar*>(it->Next())) { std::cerr << " " << obs->GetName(); }
+      for (const auto obs : *observables) { std::cerr << " " << obs->GetName(); }
       std::cerr << "." << std::endl;
     }
     exit(EXIT_FAILURE);

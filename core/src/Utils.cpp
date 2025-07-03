@@ -20,6 +20,7 @@
 #include <RooMinimizer.h>
 #include <RooProdPdf.h>
 #include <RooRandom.h>
+#include <RooRealVar.h>
 
 #include <Utils.h>
 
@@ -76,11 +77,9 @@ RooFitResult* Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
     // It's not there when we run minos only on selected parameters- so select them all!
     // //m.minos();
     // RooArgSet floatingPars;
-    // TIterator* it = pdf->getVariables()->createIterator();
-    // while ( auto p = (RooRealVar*)it->Next() ){
+    // for ( const auto p : *pdf->getVariables()) {
     //   if ( !p->isConstant() ) floatingPars.add(*p);
     // }
-    // delete it;
     // m.minos(floatingPars);
     // IMPROVE doesn't really improve much
     // //m.improve();
@@ -129,8 +128,8 @@ RooFitResult* Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int 
   countAllFitBringBackAngle++;
   RooFitResult* r = fitToMin(pdf, thorough, printLevel);
   bool refit = false;
-  TIterator* it = r->floatParsFinal().createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : r->floatParsFinal()) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     if (!isAngle(p)) continue;
     if (p->getVal() < 0.0 || p->getVal() > 2. * TMath::Pi()) {
       RooArgSet* pdfPars = pdf->getParameters(RooArgSet());
@@ -145,7 +144,6 @@ RooFitResult* Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int 
     delete r;
     r = fitToMin(pdf, thorough, printLevel);
   }
-  delete it;
   return r;
 }
 
@@ -182,8 +180,7 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
 
   // set up parameters and ranges
   auto varyPars = new RooArgList();
-  TIterator* it = w->set(parsName)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto p : *w->set(parsName)) {
     if (p->isConstant()) continue;
     if (forceVariables == "" &&
         (false ||
@@ -199,7 +196,6 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
       varyPars->add(*p);
     }
   }
-  delete it;
   int nPars = varyPars->getSize();
   if (debug) cout << "Utils::fitToMinForce() : nPars = " << nPars << " => " << pow(2., nPars) << " fits" << endl;
   if (debug) cout << "Utils::fitToMinForce() : varying ";
@@ -422,8 +418,8 @@ double Utils::getChi2(RooAbsPdf* pdf) {
 // workspace.
 //
 void Utils::randomizeParameters(RooWorkspace* w, TString setname) {
-  TIterator* it = w->set(setname)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : *w->set(setname)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     if (p->isConstant()) continue;
     // sample from uniform distribution
     p->randomize();
@@ -436,8 +432,8 @@ void Utils::randomizeParameters(RooWorkspace* w, TString setname) {
 //
 void Utils::randomizeParametersGaussian(RooWorkspace* w, TString setname, RooSlimFitResult* r) {
   RooArgList list = r->floatParsFinal();
-  TIterator* it = list.createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : list) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     auto var = (RooRealVar*)w->var(p->GetName());
     if (w->set(setname)) {
       if (!w->set(setname)->find(p->GetName())) continue;
@@ -461,8 +457,8 @@ void Utils::randomizeParametersGaussian(RooWorkspace* w, TString setname, RooSli
 //
 void Utils::randomizeParametersUniform(RooWorkspace* w, TString setname, RooSlimFitResult* r, double sigmaRange) {
   RooArgList list = r->floatParsFinal();
-  TIterator* it = list.createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : list) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     auto var = (RooRealVar*)w->var(p->GetName());
     if (p->isConstant()) {
       var->setVal(p->getVal());
@@ -485,8 +481,8 @@ void Utils::randomizeParametersUniform(RooWorkspace* w, TString setname, RooSlim
 void Utils::setParameters(RooWorkspace* w, RooFitResult* values) {
   RooArgList list = values->floatParsFinal();
   list.add(values->constPars());
-  TIterator* it = list.createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : list) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     auto var = dynamic_cast<RooRealVar*>(w->allVars().find(p->GetName()));
     if (!(var)) {
       std::cout << "WARNING in Utils::setParameters(RooWorkspace,RooFitResult) -- no Var found with name "
@@ -495,7 +491,6 @@ void Utils::setParameters(RooWorkspace* w, RooFitResult* values) {
       var->setVal(p->getVal());
     }
   }
-  delete it;
   return;
 };
 
@@ -504,12 +499,11 @@ void Utils::setParameters(RooWorkspace* w, RooFitResult* values) {
 /// Do nothing if parameter is not found in values.
 ///
 void Utils::setParameters(const RooAbsCollection* setMe, const RooAbsCollection* values) {
-  TIterator* it = setMe->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : *setMe) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     auto var = (RooRealVar*)values->find(p->GetName());
     if (var) p->setVal(var->getVal());
   }
-  delete it;
 }
 
 ///
@@ -517,13 +511,12 @@ void Utils::setParameters(const RooAbsCollection* setMe, const RooAbsCollection*
 /// Do nothing if parameter is not found in values.
 ///
 void Utils::setParametersFloating(const RooAbsCollection* setMe, const RooAbsCollection* values) {
-  TIterator* it = setMe->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : *setMe) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     if (p->isConstant()) continue;
     auto var = (RooRealVar*)values->find(p->GetName());
     if (var) p->setVal(var->getVal());
   }
-  delete it;
 }
 
 ///
@@ -617,21 +610,27 @@ void Utils::fixParameters(RooWorkspace* w, TString parname) {
 }
 
 void Utils::fixParameters(const RooAbsCollection* set) {
-  TIterator* it = set->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) { p->setConstant(true); }
+  for (const auto pAbs : *set) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    p->setConstant(true);
+  }
 }
 
 ///
 /// Float each parameter in the named set "parname" inside workspace "w".
 ///
 void Utils::floatParameters(RooWorkspace* w, TString parname) {
-  TIterator* it = w->set(parname)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) { p->setConstant(false); }
+  for (const auto pAbs : *w->set(parname)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    p->setConstant(false);
+  }
 }
 
 void Utils::floatParameters(const RooAbsCollection* set) {
-  TIterator* it = set->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) { p->setConstant(false); }
+  for (const auto pAbs : *set) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    p->setConstant(false);
+  }
 }
 
 ///
@@ -668,8 +667,10 @@ void Utils::setLimit(RooWorkspace* w, TString parname, TString limitname) {
 ///
 void Utils::setLimit(const RooAbsCollection* set, TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
-  TIterator* it = set->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) { p->setRange(p->getMin(limitname), p->getMax(limitname)); }
+  for (const auto pAbs : *set) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    p->setRange(p->getMin(limitname), p->getMax(limitname));
+  }
   RooMsgService::instance().setGlobalKillBelow(INFO);
 }
 
@@ -815,10 +816,7 @@ RooFormulaVar* Utils::makeTheoryVar(TString name, TString title, TString formula
 }
 
 void Utils::addSetNamesToList(vector<string>& list, RooWorkspace* w, TString setName) {
-
-  TIterator* it = w->set(setName)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) list.push_back(p->GetName());
-  delete it;
+  for (const auto p : *w->set(setName)) list.push_back(p->GetName());
 }
 
 ///
@@ -853,12 +851,8 @@ void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, vector<string>& nam
 void Utils::mergeNamedSets(RooWorkspace* w, TString mergedSet, TString set1, TString set2) {
   // 1. fill all variables into a vector
   vector<string> varsAll;
-  TIterator* it = w->set(set1)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) varsAll.push_back(p->GetName());
-  delete it;
-  it = w->set(set2)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) varsAll.push_back(p->GetName());
-  delete it;
+  for (const auto p : *w->set(set1)) varsAll.push_back(p->GetName());
+  for (const auto p : *w->set(set2)) varsAll.push_back(p->GetName());
 
   // 2. remove duplicates
   sort(varsAll.begin(), varsAll.end());
@@ -962,19 +956,19 @@ TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
   // row of the dataset
   map<string, float> variables;  ///< the proxy variables
   auto t = new TTree("tree", "tree");
-  TIterator* it = d->get(0)->createIterator();
-  while (auto p = (RooRealVar*)it->Next()) {
+  for (const auto pAbs : *d->get(0)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     variables.insert(pair<string, float>(p->GetName(), p->getVal()));
     t->Branch(p->GetName(), &variables[p->GetName()], TString(p->GetName()) + "/F");
   }
-  delete it;
 
   // loop over the dataset, filling the tree
   int nEntries = d->sumEntries();
   for (int i = 0; i < nEntries; i++) {
-    it = d->get(i)->createIterator();
-    while (auto p = (RooRealVar*)it->Next()) { variables[p->GetName()] = p->getVal(); }
-    delete it;
+    for (const auto pAbs : *d->get(i)) {
+      const auto p = static_cast<RooRealVar*>(pAbs);
+      variables[p->GetName()] = p->getVal();
+    }
     t->Fill();
   }
 
@@ -1113,8 +1107,7 @@ void Utils::fillArgList(RooArgList* list, RooWorkspace* w, std::vector<TString> 
 ///
 void Utils::getParameters(const RooFitResult& result, std::vector<TString>& names) {
   RooArgList pars = result.floatParsFinal();
-  TIterator* it = pars.createIterator();
-  while (auto p = (RooRealVar*)it->Next()) { names.push_back(TString(p->GetName())); }
+  for (const auto p : pars) { names.push_back(TString(p->GetName())); }
 };
 
 ///
@@ -1141,8 +1134,8 @@ bool Utils::checkBoundary(const RooSlimFitResult& r, std::vector<TString> lowPro
   lowProb.clear();
   highProb.clear();
   RooArgList floats = r.floatParsFinal();
-  TIterator* floatIt = floats.createIterator();
-  while (auto var = (RooRealVar*)floatIt->Next()) {
+  for (const auto varAbs : floats) {
+    const auto var = static_cast<RooRealVar*>(varAbs);
     // check lower bound
     if (var->getVal() < var->getMin("phys")) { lowProb.push_back(var->GetName()); }
     // check higher bound

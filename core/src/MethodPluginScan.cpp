@@ -13,6 +13,7 @@
 #include <array>
 
 #include <RooRandom.h>
+#include <RooRealVar.h>
 
 #include <TArrow.h>
 #include <TLatex.h>
@@ -194,15 +195,13 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
     array<float, 2> generatedValues;
     for (int i = 0; i < generatedValues.size(); i++) {
       const RooArgSet* toyData = dataset->get(i);
-      TIterator* it = toyData->createIterator();
-      while (RooRealVar* var = (RooRealVar*)it->Next()) {
+      for (const auto var : *toyData) {
         if (TString(var->GetName()).Contains(aff_obs)) {
           hasAffObs = true;
-          generatedValues[i] = var->getVal();
+          generatedValues[i] = static_cast<RooRealVar*>(var)->getVal();
           continue;
         }
       }
-      delete it;
     }
 
     // check if they are the same, if so, fluctuate and regenerate
@@ -226,14 +225,12 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
       RooMsgService::instance().setStreamStatus(1, kTRUE);
       for (int i = 0; i < 2; i++) {
         const RooArgSet* toyData = dataset->get(i);
-        TIterator* it = toyData->createIterator();
-        while (RooRealVar* var = (RooRealVar*)it->Next()) {
+        for (const auto var : *toyData) {
           if (TString(var->GetName()).Contains(aff_obs)) {
-            generatedValues[i] = var->getVal();
+            generatedValues[i] = static_cast<RooRealVar*>(var)->getVal();
             continue;
           }
         }
-        delete it;
       }
       cout << aff_obs << " NEW VALUES : toy 0: " << generatedValues[0] << " toy 1: " << generatedValues[1] << endl;
     }
@@ -299,8 +296,7 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   if (arg->isAction("uniform")) {
     // set parameter ranges to their bb range (should be something wide 95, 99% CL)
     const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
-    TIterator* it = pars->createIterator();
-    while (RooRealVar* var = (RooRealVar*)it->Next()) { setLimit(var, "bboos"); }
+    for (const auto var : *pars) { setLimit(static_cast<RooRealVar*>(var), "bboos"); }
     if (verbose) {
       cout << "Uniform generating from:" << endl;
       pars->Print("v");
@@ -693,8 +689,7 @@ void MethodPluginScan::scan2d(int nRun) {
           if (arg->isAction("uniform")) {
             // set parameter ranges to their bb range (should be something wide 95, 99% CL)
             const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
-            TIterator* it = pars->createIterator();
-            while (RooRealVar* var = (RooRealVar*)it->Next()) { setLimit(var, "bboos"); }
+            for (const auto var : *pars) { setLimit(static_cast<RooRealVar*>(var), "bboos"); }
             if (verbose) {
               cout << "Uniform generating from:" << endl;
               pars->Print("v");
