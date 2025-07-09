@@ -1,14 +1,9 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #ifndef PDF_GausB_h
 #define PDF_GausB_h
 
 #include <PDF_Abs.h>
+
+#include <TString.h>
 
 class PDF_GausB : public PDF_Abs {
  public:

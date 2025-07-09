@@ -1,18 +1,16 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: November 2014
- *
- **/
-
 #include <PDF_Gaus2d.h>
 #include <ParametersTutorial.h>
+#include <Utils.h>
 
+#include <RooArgList.h>
+#include <RooArgSet.h>
 #include <RooFormulaVar.h>
 #include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
+
+#include <TString.h>
 
 using namespace std;
-using namespace RooFit;
 
 PDF_Gaus2d::PDF_Gaus2d(TString cObs, TString cErr, TString cCor) : PDF_Abs(2) {
   name = "Gaus2D";
@@ -22,8 +20,7 @@ PDF_Gaus2d::PDF_Gaus2d(TString cObs, TString cErr, TString cCor) : PDF_Abs(2) {
   setObservables(cObs);
   setUncertainties(cErr);
   setCorrelations(cCor);
-  buildCov();
-  buildPdf();
+  build();
 }
 
 void PDF_Gaus2d::initParameters() {
@@ -34,10 +31,10 @@ void PDF_Gaus2d::initParameters() {
 }
 
 void PDF_Gaus2d::initRelations() {
-  auto p = dynamic_cast<RooArgSet*>(parameters);
   theory = new RooArgList("theory");  ///< the order of this list must match that of the COR matrix!
-  theory->add(*(new RooFormulaVar("a_gaus_th", "a_gaus_th", "a_gaus", *p)));
-  theory->add(*(new RooFormulaVar("b_gaus_th", "b_gaus_th", "b_gaus", *p)));
+  using Utils::makeTheoryVar;
+  theory->add(*(makeTheoryVar("a_gaus_th", "a_gaus_th", "a_gaus", parameters)));
+  theory->add(*(makeTheoryVar("b_gaus_th", "b_gaus_th", "b_gaus", parameters)));
 }
 
 void PDF_Gaus2d::initObservables() {

@@ -3,6 +3,8 @@
 
 #include <PDF_Datasets.h>
 
+#include <RooFitResult.h>
+
 class PDF_DatasetTutorial : public PDF_Datasets {
  public:
   PDF_DatasetTutorial(RooWorkspace* w);
@@ -10,7 +12,7 @@ class PDF_DatasetTutorial : public PDF_Datasets {
   void generateToys(int SeedShift = 0) override;
 
  private:
-  bool drawFitsDebug;  //> for visualizing toys and fit results, only changeable in the code
+  bool drawFitsDebug;  ///< for visualizing toys and fit results, only changeable in the code
 };
 
 #endif

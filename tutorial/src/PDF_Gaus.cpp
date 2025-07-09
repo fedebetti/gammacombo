@@ -1,18 +1,14 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: November 2014
- *
- **/
-
 #include <PDF_Gaus.h>
 #include <ParametersTutorial.h>
 
+#include <Utils.h>
+
+#include <RooArgList.h>
+#include <RooArgSet.h>
 #include <RooFormulaVar.h>
 #include <RooMultiVarGaussian.h>
 
 using namespace std;
-using namespace RooFit;
 
 PDF_Gaus::PDF_Gaus(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   name = "Gaus";
@@ -22,8 +18,7 @@ PDF_Gaus::PDF_Gaus(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   setObservables(cObs);
   setUncertainties(cErr);
   setCorrelations(cCor);
-  buildCov();
-  buildPdf();
+  build();
 }
 
 void PDF_Gaus::initParameters() {
@@ -34,7 +29,7 @@ void PDF_Gaus::initParameters() {
 
 void PDF_Gaus::initRelations() {
   theory = new RooArgList("theory");  ///< the order of this list must match that of the COR matrix!
-  theory->add(*(new RooFormulaVar("a_gaus_th", "a_gaus_th", "a_gaus", *(RooArgSet*)parameters)));
+  theory->add(*(Utils::makeTheoryVar("a_gaus_th", "a_gaus_th", "a_gaus", parameters)));
 }
 
 void PDF_Gaus::initObservables() {
@@ -76,9 +71,7 @@ void PDF_Gaus::setUncertainties(TString c) {
 
 void PDF_Gaus::setCorrelations(TString c) {
   resetCorrelations();
-  if (c.EqualTo("year2013")) {
-    corSource = "no correlations for 1 obs";
-  } else if (c.EqualTo("year2014")) {
+  if (c.EqualTo("year2013") || c.EqualTo("year2014")) {
     corSource = "no correlations for 1 obs";
   } else {
     cout << "PDF_Gaus::setCorrelations() : ERROR : config " + c + " not found." << endl;

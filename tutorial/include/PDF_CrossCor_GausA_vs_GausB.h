@@ -3,6 +3,8 @@
 
 #include <PDF_CrossCorAbs.h>
 
+#include <TString.h>
+
 class PDF_CrossCor_GausA_vs_GausB : public PDF_CrossCorAbs {
  public:
   PDF_CrossCor_GausA_vs_GausB(PDF_Abs* pdf1, PDF_Abs* pdf2, TString cCor = "lumi1fb");

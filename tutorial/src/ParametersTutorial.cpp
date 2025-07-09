@@ -2,13 +2,13 @@
 
 ParametersTutorial::ParametersTutorial() { defineParameters(); }
 
-///
-/// Define all (nuisance) parameters.
-///
-///  scan:      defines scan range (for Prob and Plugin methods)
-///  phys:      physically allowed range (needs to be set!)
-///  free:  range applied when no boundary is required - set this far away from any possible value
-///
+/**
+ * Define all (nuisance) parameters.
+ *
+ *  scan: scan range (for Prob and Plugin methods)
+ *  phys: physically allowed range (needs to be set!)
+ *  free: range applied when no boundary is required (set this far away from any possible value)
+ */
 void ParametersTutorial::defineParameters() {
   Parameter* p = nullptr;
 
@@ -17,8 +17,8 @@ void ParametersTutorial::defineParameters() {
   p->startvalue = -0.5;
   p->unit = "";
   p->scan = range(-2.5, 2.5);
-  p->phys = range(-1e4, 1e4);  // to implement a Feldman-Cousins like forbidden region, set the allowed region here and
-                               // use --pr
+  // to implement a Feldman-Cousins like forbidden region, set the allowed region here and use `--pr`
+  p->phys = range(-1e4, 1e4);
   p->free = range(-1e4, 1e4);
 
   p = newParameter("b_gaus");

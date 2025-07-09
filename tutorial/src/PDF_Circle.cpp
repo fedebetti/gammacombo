@@ -1,13 +1,8 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: July 2014
- *
- **/
-
 #include <PDF_Circle.h>
 #include <ParametersTutorial.h>
 
+#include <RooArgList.h>
+#include <RooArgSet.h>
 #include <RooFormulaVar.h>
 #include <RooMultiVarGaussian.h>
 
@@ -22,8 +17,7 @@ PDF_Circle::PDF_Circle(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   setObservables(cObs);
   setUncertainties(cErr);
   setCorrelations(cCor);
-  buildCov();
-  buildPdf();
+  build();
 }
 
 void PDF_Circle::initParameters() {

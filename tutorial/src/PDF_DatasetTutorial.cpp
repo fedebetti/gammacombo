@@ -1,10 +1,14 @@
 #include <random>
 
-#include <TRandom3.h>
-
 #include <PDF_DatasetTutorial.h>
 
-using namespace RooFit;
+#include <RooArgSet.h>
+#include <RooDataSet.h>
+#include <RooFitResult.h>
+#include <RooMsgService.h>
+#include <RooWorkspace.h>
+
+#include <TRandom3.h>
 
 PDF_DatasetTutorial::PDF_DatasetTutorial(RooWorkspace* w) : PDF_Datasets(w) {}
 
@@ -28,7 +32,7 @@ RooFitResult* PDF_DatasetTutorial::fit(RooDataSet* dataToFit) {
   }
 
   // Turn off RooMsg
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   RooMsgService::instance().setSilentMode(kTRUE);
 
   RooFitResult* result = pdf->fitTo(
@@ -36,7 +40,7 @@ RooFitResult* PDF_DatasetTutorial::fit(RooDataSet* dataToFit) {
       RooFit::Minos(kFALSE), RooFit::Hesse(kFALSE), RooFit::Strategy(3), RooFit::Minimizer("Minuit2", "minimize"));
 
   RooMsgService::instance().setSilentMode(kFALSE);
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
   this->fitStatus = result->status();
   return result;
 };

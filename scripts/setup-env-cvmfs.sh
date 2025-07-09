@@ -246,7 +246,7 @@ setup_custom_lcg_view() {
 
 # Setup the LCG version and binary tag ---------------------------------------------------------------------------------
 
-echo "Will build Kepler with the following configuration:"
+echo "Will build GammaCombo with the following configuration:"
 if grep -q "Red Hat Enterprise Linux 9\|AlmaLinux 9" /etc/os-release; then
   echo "  OS:           RHEL9/Alma9"
   if [ ${lcg_setup} = false ]; then

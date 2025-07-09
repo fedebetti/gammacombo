@@ -28,7 +28,6 @@ set(COMBINER_INCLUDE_DIR ./include)
 set(COMBINER_SOURCE_DIR ./src)
 set(COMBINER_MAIN_DIR ./main)
 
-# include directories
 include_directories(BEFORE ${ROOT_INCLUDE_DIR} ${CORE_INC_DIR}
                     ${COMBINER_INCLUDE_DIR})
 
@@ -54,7 +53,7 @@ if(HAS_CUSTOMROOTOBJECTS)
   set(COMBINER_LIB_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${COMBINER_NAME}Dict.cxx
                            ${COMBINER_LIB_SOURCES})
 endif()
-add_shared_library(${COMBINER_NAME}Components ${COMBINER_LIB_SOURCES})
+add_library(${COMBINER_NAME}Components SHARED ${COMBINER_LIB_SOURCES})
 if(HAS_CUSTOMROOTOBJECTS)
   add_dependencies(${COMBINER_NAME}Components ${COMBINER_NAME}Dict)
 endif()
