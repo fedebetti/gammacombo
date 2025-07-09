@@ -1,11 +1,8 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: July 2014
- *
- **/
-
 #include <PDF_CrossCor_GausA_vs_GausB.h>
+
+#include <PDF_Abs.h>
+
+#include <TString.h>
 
 using namespace std;
 
@@ -13,8 +10,7 @@ PDF_CrossCor_GausA_vs_GausB::PDF_CrossCor_GausA_vs_GausB(PDF_Abs* pdf1, PDF_Abs*
     : PDF_CrossCorAbs(pdf1, pdf2) {
   name = "CrossCor_GausA_vs_GausB";
   setCorrelations(cCor);
-  buildCov();
-  buildPdf();
+  build();
 }
 
 void PDF_CrossCor_GausA_vs_GausB::setCorrelations(TString c) {

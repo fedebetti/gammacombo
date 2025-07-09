@@ -1,16 +1,10 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: July 2014
- *
- **/
-
 #include <PDF_CrossCorAbs.h>
 #include <ParametersTutorial.h>
 
-#include <Utils.h>
+#include <UtilsConfig.h>
 
-using namespace Utils;
+#include <RooArgList.h>
+#include <RooCrossCorPdf.h>
 
 PDF_CrossCorAbs::PDF_CrossCorAbs(PDF_Abs* pdf1, PDF_Abs* pdf2) : PDF_Abs(pdf1->getNobs() + pdf2->getNobs()) {
   name = "CrossCorAbs";
@@ -84,7 +78,7 @@ void PDF_CrossCorAbs::copyMeasurementCovariance() {
     }
 }
 
-void PDF_CrossCorAbs::setCorrelations(config c) { assert(0); };
+void PDF_CrossCorAbs::setCorrelations(Utils::config c) { assert(0); };
 
 void PDF_CrossCorAbs::buildPdf() {
   TMatrixDSym covInverse = covMatrix;

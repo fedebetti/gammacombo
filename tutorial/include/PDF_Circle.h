@@ -1,19 +1,13 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: July 2014
- *
- **/
-
 #ifndef PDF_Circle_h
 #define PDF_Circle_h
 
 #include <PDF_Abs.h>
 
-///
-/// Part of the tutorial. Just a PDF that defines a circle
-/// in a_gaus and b_gaus.
-///
+#include <TString.h>
+
+/**
+ * PDF that defines a circle in a_gaus and b_gaus.
+ */
 class PDF_Circle : public PDF_Abs {
  public:
   PDF_Circle(TString cObs = "year2013", TString cErr = "year2013", TString cCor = "year2013");

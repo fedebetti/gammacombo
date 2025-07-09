@@ -1,19 +1,14 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: Dec 2014
- *
- **/
-
 #include <PDF_Cartesian.h>
 #include <ParametersCartesian.h>
+#include <Utils.h>
 
 #include <RooArgList.h>
+#include <RooArgSet.h>
 #include <RooFormulaVar.h>
 #include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
 
 using namespace std;
-using namespace RooFit;
 
 PDF_Cartesian::PDF_Cartesian(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(4)  // <-- configure the number of observables
@@ -25,8 +20,7 @@ PDF_Cartesian::PDF_Cartesian(TString cObs, TString cErr, TString cCor)
   setObservables(cObs);
   setUncertainties(cErr);
   setCorrelations(cCor);
-  buildCov();
-  buildPdf();
+  build();
 }
 
 void PDF_Cartesian::initParameters() {

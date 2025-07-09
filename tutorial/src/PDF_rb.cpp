@@ -1,18 +1,14 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: November 2014
- *
- **/
-
 #include <PDF_rb.h>
 #include <ParametersCartesian.h>
 
+#include <RooArgList.h>
+#include <RooArgSet.h>
 #include <RooFormulaVar.h>
 #include <RooMultiVarGaussian.h>
 
+#include <TString.h>
+
 using namespace std;
-using namespace RooFit;
 
 PDF_rb::PDF_rb(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   name = "rb";
@@ -22,8 +18,7 @@ PDF_rb::PDF_rb(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   setObservables(cObs);
   setUncertainties(cErr);
   setCorrelations(cCor);
-  buildCov();
-  buildPdf();
+  build();
 }
 
 void PDF_rb::initParameters() {

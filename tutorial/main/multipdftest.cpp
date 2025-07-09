@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
   RooGaussian signal("signal", "signal", mass, MH, sigma);
 
   // Save to a new workspace
-  TFile* fout = new TFile("workspace.root", "RECREATE");
+  TFile fout("workspace.root", "RECREATE");
   RooWorkspace wout("workspace", "workspaace");
 
   data->SetName("data");

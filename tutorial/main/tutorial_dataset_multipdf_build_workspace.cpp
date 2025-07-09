@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
   //   multipdf.setCorrectionFactor(penalty)
 
   // Save to a new workspace
-  auto fout = new TFile("multipdfworkspace.root", "RECREATE");
+  TFile fout("multipdfworkspace.root", "RECREATE");
   RooWorkspace wout("workspace", "workspaace");
 
   // Define the RooArgSets

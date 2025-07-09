@@ -1,18 +1,19 @@
-#include "Utils.h"
 #include <ParametersCartesian.h>
 
-using namespace Utils;
+#include <Utils.h>
 
 ParametersCartesian::ParametersCartesian() { defineParameters(); }
 
-///
-/// Define all (nuisance) parameters.
-///
-///  scan:      defines scan range (for Prob and Plugin methods)
-///  phys:      physically allowed range (needs to be set!)
-///  free:  range applied when no boundary is required - set this far away from any possible value
-///
+/**
+ * Define all (nuisance) parameters.
+ *
+ *  scan: scan range (for Prob and Plugin methods)
+ *  phys: physically allowed range (needs to be set!)
+ *  free: range applied when no boundary is required (set this far away from any possible value)
+ */
 void ParametersCartesian::defineParameters() {
+  using Utils::DegToRad;
+
   Parameter* p = nullptr;
 
   p = newParameter("g");

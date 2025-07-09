@@ -1,10 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: Oct 2014
- *
- **/
-
 #include <GammaComboEngine.h>
 #include <PDF_Cartesian.h>
 #include <PDF_rb.h>
@@ -12,7 +5,7 @@
 int main(int argc, char* argv[]) {
   GammaComboEngine gc("cartesian", argc, argv);
 
-  // define PDFs
+  // Define PDFs
   gc.addPdf(1, new PDF_Cartesian("year2014", "year2014", "year2014"), "Cartesian");
   gc.addPdf(2, new PDF_rb("year2013", "year2013", "year2013"), "rb");
 
