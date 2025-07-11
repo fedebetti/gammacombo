@@ -71,8 +71,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   if (arg->probforce) scanDisableDragMode = true;
 
   // Save parameter values that were active at function call.
-  if (startPars) delete startPars;
-  startPars = new RooDataSet("startPars", "startPars", *w->set(parsName));
+  startPars = std::make_unique<RooDataSet>("startPars", "startPars", *w->set(parsName));
   startPars->add(*w->set(parsName));
 
   // // start scan from global minimum (not always a good idea as we need to set from other places as well)
@@ -429,7 +428,6 @@ int MethodProbScan::scan2d() {
   if (arg->debug) cout << "MethodProbScan::scan2d() : starting ..." << endl;
   nScansDone++;
   sanityChecks();
-  if (startPars) delete startPars;
 
   // Define whether the 2d contours in hCL are "1D sigma" (ndof=1) or "2D sigma" (ndof=2).
   // Leave this at 1 for now, as the "2D sigma" contours are computed from hChi2min2d, not hCL.
@@ -447,7 +445,7 @@ int MethodProbScan::scan2d() {
   }
 
   // store start parameters so we can reset them later
-  startPars = new RooDataSet("startPars", "startPars", *w->set(parsName));
+  startPars = std::make_unique<RooDataSet>("startPars", "startPars", *w->set(parsName));
   startPars->add(*w->set(parsName));
 
   // // start scan from global minimum (not always a good idea as we need to set from other places as well)

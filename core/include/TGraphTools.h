@@ -1,18 +1,13 @@
-/**
- * \brief Tools to handle TGraphs
- * \author Till Moritz Karbach, moritz.karbach@cern.ch
- * \date March 2015
- *
- **/
-
 #ifndef TGraphTools_h
 #define TGraphTools_h
 
 #include <TGraph.h>
 
+#include <memory>
+
 class TGraphTools {
  public:
-  TGraph* addPointToGraphAtFirstMatchingX(TGraph* g, double xNew, double yNew);
+  std::unique_ptr<TGraph> addPointToGraphAtFirstMatchingX(const TGraph* g, double xNew, double yNew);
 };
 
 #endif

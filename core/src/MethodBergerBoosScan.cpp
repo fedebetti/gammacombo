@@ -311,9 +311,9 @@ int MethodBergerBoosScan::scan1d(int nRun) {
     fName = this->dir + Form("root/scan1dBergerBoos_" + name + "_" + scanVar1 + "_run%i.root", nRun);
   }
 
-  auto f2 = new TFile(fName, "recreate");
+  TFile f2(fName, "recreate");
 
-  auto myFit = new Fitter(arg, w, combiner->getPdfName());
+  auto myFit = std::make_unique<Fitter>(arg, w, combiner->getPdfName());
   RooRandom::randomGenerator()->SetSeed(0);
 
   // Set limit to all parameters.
@@ -401,7 +401,8 @@ int MethodBergerBoosScan::scan1d(int nRun) {
       t.chi2minGlobal = profileLH->getChi2minGlobal();
 
       // Draw all toy datasets in advance. This is much faster.
-      RooDataSet* toyDataSet = w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false));
+      auto toyDataSet =
+          std::unique_ptr<RooDataSet>(w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false)));
 
       for (int j = 0; j < nToys; j++) {
         curStep++;
@@ -450,14 +451,11 @@ int MethodBergerBoosScan::scan1d(int nRun) {
       // reset
       setParameters(w, parsName, frCache.getParsAtFunctionCall());
       setParameters(w, obsName, obsDataset->get(0));
-      delete toyDataSet;
     }
   }
   myFit->print();
   t.writeToFile();
-  f2->Close();
-  delete f2;
-  delete myFit;
+  f2.Close();
   readScan1dTrees(nRun, nRun);
   return nBBPoints;
 }

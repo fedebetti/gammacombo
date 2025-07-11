@@ -979,16 +979,16 @@ TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
 
 /// Converts a TH1* to a TGraph*
 /// doesn't take responsibilty for ownership
-TGraph* Utils::convertTH1ToTGraph(TH1* h, bool withErrors) {
-  TGraph* g;
+std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(TH1* h, bool withErrors) {
+  std::unique_ptr<TGraph> g = nullptr;
   if (withErrors)
-    g = new TGraphErrors(h->GetNbinsX());
+    g = std::make_unique<TGraphErrors>(h->GetNbinsX());
   else
-    g = new TGraph(h->GetNbinsX());
+    g = std::make_unique<TGraph>(h->GetNbinsX());
   g->SetName(getUniqueRootName());
   for (int i = 0; i < h->GetNbinsX(); i++) {
     g->SetPoint(i, h->GetBinCenter(i + 1), h->GetBinContent(i + 1));
-    if (withErrors) ((TGraphErrors*)g)->SetPointError(i, 0.0, h->GetBinError(i + 1));
+    if (withErrors) (static_cast<TGraphErrors*>(g.get()))->SetPointError(i, 0.0, h->GetBinError(i + 1));
   }
   return g;
 }
@@ -1010,8 +1010,8 @@ TGraph* Utils::smoothGraph(TGraph* g, int option) {
 
 // Smooths a histogram
 TGraph* Utils::smoothHist(TH1* h, int option) {
-  TGraph* g = convertTH1ToTGraph(h);
-  return smoothGraph(g);
+  auto g = convertTH1ToTGraph(h);
+  return smoothGraph(g.get());
 }
 
 ///

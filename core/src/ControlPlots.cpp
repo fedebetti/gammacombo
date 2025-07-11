@@ -1,6 +1,7 @@
 #include <ControlPlots.h>
 #include <Utils.h>
 
+#include <memory>
 #include <numbers>
 
 #include <TEnv.h>
@@ -11,6 +12,7 @@
 #include <TPaveStats.h>
 #include <TPaveText.h>
 #include <TStyle.h>
+#include <TTree.h>
 
 using namespace std;
 using namespace Utils;
@@ -520,7 +522,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
     cout << "ControlPlots::ctrlPlotMore() : creating a new TTree that also contains the pll chi2 ..." << endl;
   auto fDummy =
       new TFile("/tmp/" + getUniqueRootName(), "recreate");  //  dummy file so the new tree is not memory resident
-  auto tNew = new TTree("tNew", "tNew");
+  auto tNew = std::make_unique<TTree>("tNew", "tNew");
   double tNew_scanpoint = 0.;
   double tNew_chi2min = 0.;
   double tNew_chi2minPLH = 0.;
@@ -606,7 +608,6 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   l->Draw();
 
   if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plots done.        " << endl;
-  delete tNew;
 }
 
 TCanvas* ControlPlots::selectNewCanvas(TString title) {

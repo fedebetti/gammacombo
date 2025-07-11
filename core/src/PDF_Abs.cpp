@@ -214,11 +214,10 @@ TString PDF_Abs::uniquifyThisString(TString s, int uID) {
 /// a provided fit result.
 ///
 void PDF_Abs::loadExtParameters(RooFitResult* r) {
-  auto tmp = new RooArgSet();
+  auto tmp = std::make_unique<RooArgSet>();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
-  setParameters(parameters, tmp);
-  delete tmp;
+  setParameters(parameters, tmp.get());
 }
 
 ///
@@ -589,10 +588,9 @@ bool PDF_Abs::test() {
   m.setStrategy(2);
   // m.setProfile(1);
   m.migrad();
-  RooFitResult* f = m.save();
+  std::unique_ptr<RooFitResult> f(m.save());
   bool status = !(f->edm() < 1 && f->status() == 0);
   if (!quiet) f->Print("v");
-  delete f;
   if (quiet) RooMsgService::instance().setGlobalKillBelow(INFO);
   if (!quiet) cout << "pdf->getVal() = " << pdf->getVal() << endl;
   return status;
