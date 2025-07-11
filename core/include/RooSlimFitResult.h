@@ -26,10 +26,9 @@
 class RooSlimFitResult : public TObject {
  public:
   RooSlimFitResult();
-  RooSlimFitResult(RooFitResult* r, bool storeCorrelation = false);
-  RooSlimFitResult(RooSlimFitResult* other);
+  RooSlimFitResult(const RooFitResult* r, bool storeCorrelation = false);
+  RooSlimFitResult(const RooSlimFitResult* other);
   RooSlimFitResult(const RooSlimFitResult& r);
-  ~RooSlimFitResult(){};
 
   RooSlimFitResult* Clone();
   RooArgList& constPars() const;

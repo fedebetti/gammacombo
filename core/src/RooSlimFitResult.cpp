@@ -4,9 +4,9 @@
 
 using namespace std;
 
-RooSlimFitResult::RooSlimFitResult(RooFitResult* r, bool storeCorrelation) { init(r, storeCorrelation); }
+RooSlimFitResult::RooSlimFitResult(const RooFitResult* r, bool storeCorrelation) { init(r, storeCorrelation); }
 
-RooSlimFitResult::RooSlimFitResult(RooSlimFitResult* r) { init(r); }
+RooSlimFitResult::RooSlimFitResult(const RooSlimFitResult* r) { init(r); }
 
 ///
 /// copy constructor

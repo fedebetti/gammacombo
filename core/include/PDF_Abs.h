@@ -61,7 +61,7 @@ class PDF_Abs {
   virtual void initParameters();
   virtual void initRelations();
   virtual void initObservables();
-  void loadExtParameters(RooFitResult* r);
+  void loadExtParameters(const RooFitResult* r);
   void print() const;
   void printParameters();
   void printObservables();

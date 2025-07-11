@@ -1088,7 +1088,7 @@ bool MethodAbsScan::loadSolution(int i) {
 ///
 /// Load the values given by an (external) fit result.
 ///
-void MethodAbsScan::loadParameters(RooSlimFitResult* r) {
+void MethodAbsScan::loadParameters(const RooSlimFitResult* r) {
   if (arg->debug) cout << "MethodAbsScan::loadParameters() : loading a RooSlimFitResult " << endl;
   auto tmp = std::make_unique<RooArgSet>();
   tmp->add(r->floatParsFinal());

@@ -213,7 +213,7 @@ TString PDF_Abs::uniquifyThisString(TString s, int uID) {
 /// Set all parameters to values found in
 /// a provided fit result.
 ///
-void PDF_Abs::loadExtParameters(RooFitResult* r) {
+void PDF_Abs::loadExtParameters(const RooFitResult* r) {
   auto tmp = std::make_unique<RooArgSet>();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());

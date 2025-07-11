@@ -316,7 +316,7 @@ void ToyTree::storeParsScan() {
 /// Store the fit result parameters as the
 /// scan fit result.
 ///
-void ToyTree::storeParsScan(RooFitResult* values) {
+void ToyTree::storeParsScan(const RooFitResult* values) {
   RooArgList list = values->floatParsFinal();
   list.add(values->constPars());
   for (const auto pAbs : list) {

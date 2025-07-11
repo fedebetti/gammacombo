@@ -89,7 +89,7 @@ class MethodAbsScan {
   inline TString getTitle() const { return title; };
   inline RooWorkspace* getWorkspace() { return w; };
   virtual void initScan();
-  void loadParameters(RooSlimFitResult* r);
+  void loadParameters(const RooSlimFitResult* r);
   bool loadSolution(int i = 0);
   virtual bool loadScanner(TString fName = "");
   void plot2d(TString varx, TString vary);
