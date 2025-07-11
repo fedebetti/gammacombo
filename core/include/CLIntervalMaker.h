@@ -16,7 +16,7 @@
 ///
 class CLIntervalMaker {
  public:
-  CLIntervalMaker(const OptParser* arg, const TH1F& pvalues);
+  CLIntervalMaker(const OptParser* arg, const TH1* pvalues);
   void calcCLintervals();
   void findMaxima(double pValueThreshold);
   inline std::vector<CLInterval>& getClintervals1sigma() { return _clintervals1sigma; };
@@ -30,8 +30,8 @@ class CLIntervalMaker {
   double binToValue(int bin) const;
   void findRawIntervals(double pvalue, std::vector<CLInterval>& clis);
   void findRawIntervalsForCentralValues(double pvalue, std::vector<CLInterval>& clis);
-  bool interpolateLine(const TH1F* h, int i, double y, double& val) const;
-  bool interpolatePol2fit(const TH1F* h, int i, double y, double central, bool upper, double& val, double& err) const;
+  bool interpolateLine(const TH1* h, int i, double y, double& val) const;
+  bool interpolatePol2fit(const TH1* h, int i, double y, double central, bool upper, double& val, double& err) const;
   bool isInInterval(int binid, double pvalue) const;
   void improveIntervalsLine(std::vector<CLInterval>& clis) const;
   void improveIntervalsPol2fit(std::vector<CLInterval>& clis) const;
@@ -42,7 +42,7 @@ class CLIntervalMaker {
   int valueToBin(double val) const;
 
   const OptParser* _arg;                       ///< command line arguments
-  const TH1F& _pvalues;                        ///< the pvalue histogram
+  const TH1* _pvalues;                         ///< the pvalue histogram
   std::vector<CLInterval> _clintervals1sigma;  ///< 1 sigma intervals
   std::vector<CLInterval> _clintervals2sigma;  ///< 2 sigma intervals
 };

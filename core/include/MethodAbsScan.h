@@ -8,10 +8,14 @@
 #ifndef MethodAbsScan_h
 #define MethodAbsScan_h
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include <RooDataSet.h>
 
-#include <TH1F.h>
-#include <TH2F.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <TRandom3.h>
 
 #include "CLInterval.h"
@@ -28,7 +32,7 @@ class MethodAbsScan {
   MethodAbsScan() = default;
   MethodAbsScan(Combiner* c);
   MethodAbsScan(const OptParser* opt);
-  ~MethodAbsScan();
+  virtual ~MethodAbsScan();
 
   virtual void calcCLintervals(int CLsType = 0, bool calc_expected = false, bool quiet = false);
   void confirmSolutions();
@@ -44,18 +48,18 @@ class MethodAbsScan {
   inline Combiner* getCombiner() const { return combiner; };
   int getDrawSolution() const { return drawSolution; }
   inline bool getFilled() const { return drawFilled; };
-  inline TH1F* getHCL() { return hCL; };
-  inline TH1F* getHCLs() { return hCLs; };
-  inline TH1F* getHCLsFreq() { return hCLsFreq; };
-  inline TH1F* getHCLsExp() { return hCLsExp; };
-  inline TH1F* getHCLsErr1Up() { return hCLsErr1Up; };
-  inline TH1F* getHCLsErr1Dn() { return hCLsErr1Dn; };
-  inline TH1F* getHCLsErr2Up() { return hCLsErr2Up; };
-  inline TH1F* getHCLsErr2Dn() { return hCLsErr2Dn; };
-  inline TH2F* getHCL2d() { return hCL2d; };
-  inline TH2F* getHCLs2d() { return hCLs2d; };
-  inline TH1F* getHchisq() { return hChi2min; };
-  inline TH2F* getHchisq2d() { return hChi2min2d; };
+  inline TH1* getHCL() { return hCL.get(); };
+  inline TH1* getHCLs() { return hCLs.get(); };
+  inline TH1* getHCLsFreq() { return hCLsFreq.get(); };
+  inline TH1* getHCLsExp() { return hCLsExp.get(); };
+  inline TH1* getHCLsErr1Up() { return hCLsErr1Up.get(); };
+  inline TH1* getHCLsErr1Dn() { return hCLsErr1Dn.get(); };
+  inline TH1* getHCLsErr2Up() { return hCLsErr2Up.get(); };
+  inline TH1* getHCLsErr2Dn() { return hCLsErr2Dn.get(); };
+  inline TH2* getHCL2d() { return hCL2d.get(); };
+  inline TH2* getHCLs2d() { return hCLs2d.get(); };
+  inline TH1* getHchisq() { return hChi2min.get(); };
+  inline TH2* getHchisq2d() { return hChi2min2d.get(); };
   inline int getLineColor() const { return lineColor; };
   inline int getLineStyle() const { return lineStyle; };
   inline int getLineWidth() const { return lineWidth; };
@@ -121,8 +125,8 @@ class MethodAbsScan {
   void setChi2minGlobal(double x);
   void setSolutions(std::vector<RooSlimFitResult*> s);
   inline void setVerbose(bool yesNo = true) { verbose = yesNo; };
-  inline void setHCL(TH1F* h) { hCL = h; };
-  inline void setHchisq(TH1F* h) { hChi2min = h; };
+  inline void setHCL(TH1* h) { hCL = std::unique_ptr<TH1>(h); };
+  inline void setHchisq(TH1* h) { hChi2min = std::unique_ptr<TH1>(h); };
   void setXscanRange(double min, double max);
   void setYscanRange(double min, double max);
   void calcCLintervalsSimple(int CLsType = 0, bool calc_expected = false);
@@ -173,21 +177,21 @@ class MethodAbsScan {
   RooWorkspace* w = nullptr;
   RooDataSet* obsDataset = nullptr;  ///< save the nominal observables so we can restore them after we have fitted toys
   RooDataSet* startPars = nullptr;   ///< save the start parameter values before any scan
-  TH1F* hCL = nullptr;               ///< 1-CL curve
-  TH1F* hCLs = nullptr;              ///< 1-CL curve
-  TH1F* hCLsFreq = nullptr;          ///< 1-CL curve
-  TH1F* hCLsExp = nullptr;           ///< 1-CL curve
-  TH1F* hCLsErr1Up = nullptr;        ///< 1-CL curve
-  TH1F* hCLsErr1Dn = nullptr;        ///< 1-CL curve
-  TH1F* hCLsErr2Up = nullptr;        ///< 1-CL curve
-  TH1F* hCLsErr2Dn = nullptr;        ///< 1-CL curve
-  TH2F* hCL2d = nullptr;             ///< 1-CL curve
-  TH2F* hCLs2d = nullptr;            ///< 1-CL curve
-  TH1F* hChi2min = nullptr;          ///< histogram for the chi2min values before Prob()
-  TH2F* hChi2min2d = nullptr;        ///< histogram for the chi2min values before Prob()
-  double chi2minGlobal = 0.;         ///< chi2 value at global minimum
-  double chi2minBkg = 0.;            ///< chi2 value at global minimum
-  bool chi2minGlobalFound = false;   ///< flag to avoid finding minimum twice
+  std::unique_ptr<TH1> hCL = nullptr;         ///< 1-CL curve
+  std::unique_ptr<TH1> hCLs = nullptr;        ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsFreq = nullptr;    ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsExp = nullptr;     ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr1Up = nullptr;  ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr1Dn = nullptr;  ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr2Up = nullptr;  ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr2Dn = nullptr;  ///< 1-CL curve
+  std::unique_ptr<TH2> hCL2d = nullptr;       ///< 1-CL curve
+  std::unique_ptr<TH2> hCLs2d = nullptr;      ///< 1-CL curve
+  std::unique_ptr<TH1> hChi2min = nullptr;    ///< histogram for the chi2min values before Prob()
+  std::unique_ptr<TH2> hChi2min2d = nullptr;  ///< histogram for the chi2min values before Prob()
+  double chi2minGlobal = 0.;                  ///< chi2 value at global minimum
+  double chi2minBkg = 0.;                     ///< chi2 value at global minimum
+  bool chi2minGlobalFound = false;            ///< flag to avoid finding minimum twice
   int lineColor = kBlue - 8;
   int textColor = kBlack;  ///< color used for plotted central values
   int lineStyle = 0;
@@ -212,8 +216,8 @@ class MethodAbsScan {
   bool compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2) const;
   double pq(double p0, double p1, double p2, double y, int whichSol = 0) const;
   void removeDuplicateSolutions();
-  bool interpolate(TH1F* h, int i, double y, double central, bool upper, double& val, double& err) const;
-  void interpolateSimple(TH1F* h, int i, double y, double& val) const;
+  bool interpolate(TH1* h, int i, double y, double central, bool upper, double& val, double& err) const;
+  void interpolateSimple(TH1* h, int i, double y, double& val) const;
 };
 
 #endif

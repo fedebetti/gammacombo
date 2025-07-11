@@ -12,6 +12,8 @@
 
 #include <vector>
 
+#include <TH2.h>
+
 #include "OptParser.h"
 
 class Contour {
@@ -22,7 +24,7 @@ class Contour {
   void DrawFilled() const;
   void DrawLine() const;
   inline int getSigma() const { return m_sigma; };
-  void magneticBoundaries(const TH2F* hCL);
+  void magneticBoundaries(const TH2* hCL);
   inline void setSigma(int s) { m_sigma = s; };
   void setStyle(int linecolor, int linestyle, int linewidth, int fillcolor, int fillstyle);
   void setTransparency(double percent);
@@ -32,7 +34,7 @@ class Contour {
   void findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2);
   TGraph* joinIfInside(TGraph* g1, TGraph* g2);
   std::vector<TGraph*> makeHoles(std::vector<TGraph*>& contours);
-  void magneticBoundaries(std::vector<TGraph*>& contours, const TH2F* hCL);
+  void magneticBoundaries(std::vector<TGraph*>& contours, const TH2* hCL);
 
   const OptParser* m_arg;                ///< command line arguments
   std::vector<TGraph*> m_contours;       ///< container for the several disjoint subcontours. Used by DrawLine().

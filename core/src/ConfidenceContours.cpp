@@ -64,13 +64,14 @@ ConfidenceContours::ConfidenceContours(const OptParser* arg) {
 //}
 // return hBoundaries;
 //}
-TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist) {
+std::unique_ptr<TH2F> ConfidenceContours::addBoundaryBins(const TH2* hist) {
   double boundary = hist->GetMinimum();
-  TH2F* hBoundaries = new TH2F(getUniqueRootName(), getUniqueRootName(), hist->GetNbinsX() + 2,
-                               hist->GetXaxis()->GetXmin() - hist->GetXaxis()->GetBinWidth(1),
-                               hist->GetXaxis()->GetXmax() + hist->GetXaxis()->GetBinWidth(1), hist->GetNbinsY() + 2,
-                               hist->GetYaxis()->GetXmin() - hist->GetYaxis()->GetBinWidth(1),
-                               hist->GetYaxis()->GetXmax() + hist->GetYaxis()->GetBinWidth(1));
+  auto hBoundaries =
+      std::make_unique<TH2F>(getUniqueRootName(), getUniqueRootName(), hist->GetNbinsX() + 2,
+                             hist->GetXaxis()->GetXmin() - hist->GetXaxis()->GetBinWidth(1),
+                             hist->GetXaxis()->GetXmax() + hist->GetXaxis()->GetBinWidth(1), hist->GetNbinsY() + 2,
+                             hist->GetYaxis()->GetXmin() - hist->GetYaxis()->GetBinWidth(1),
+                             hist->GetYaxis()->GetXmax() + hist->GetYaxis()->GetBinWidth(1));
   for (int ix = 1; ix <= hBoundaries->GetXaxis()->GetNbins(); ix++) {
     for (int iy = 1; iy <= hBoundaries->GetYaxis()->GetNbins(); iy++) {
       if (ix == 1 || ix == hBoundaries->GetXaxis()->GetNbins() || iy == 1 || iy == hBoundaries->GetYaxis()->GetNbins())
@@ -90,10 +91,10 @@ TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist) {
 /// \param offset - a chi2 offset, usually 30 units
 /// \return - the transformed 2D histogram
 ///
-TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, double offset) {
+std::unique_ptr<TH2> ConfidenceContours::transformChi2valleyToHill(const TH2* hist, double offset) {
   double chi2min = hist->GetMinimum();
   // cout << "ConfidenceContours::transformChi2valleyToHill() : chi2min=" << chi2min << endl;
-  TH2F* newHist = histHardCopy(hist, false, true);
+  auto newHist = histHardCopy(hist, false, true);
   for (int ix = 1; ix <= hist->GetXaxis()->GetNbins(); ix++) {
     for (int iy = 1; iy <= hist->GetYaxis()->GetNbins(); iy++) {
       newHist->SetBinContent(ix, iy, -hist->GetBinContent(ix, iy) + offset + chi2min);
@@ -107,12 +108,11 @@ TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, double offset) {
 ///
 /// \param hist - histogram providing the dimensions of the plotted area
 ///
-void ConfidenceContours::addFilledPlotArea(TH2F* hist) {
-  // get boundaries
-  double xmin = hist->GetXaxis()->GetXmin();
-  double xmax = hist->GetXaxis()->GetXmax();
-  double ymin = hist->GetYaxis()->GetXmin();
-  double ymax = hist->GetYaxis()->GetXmax();
+void ConfidenceContours::addFilledPlotArea(const TH2* hist) {
+  auto xmin = hist->GetXaxis()->GetXmin();
+  auto xmax = hist->GetXaxis()->GetXmax();
+  auto ymin = hist->GetYaxis()->GetXmin();
+  auto ymax = hist->GetYaxis()->GetXmax();
   // make new graph covering the plotted area
   auto g = new TGraph(m_nMaxContours);
   g->SetPoint(0, xmin, ymin);
@@ -135,7 +135,8 @@ void ConfidenceContours::addFilledPlotArea(TH2F* hist) {
 /// \param hist - the 2D histogram
 /// \param type - the type of the 2D histogram, either chi2 or p-value
 ///
-void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id) {
+void ConfidenceContours::computeContours(const TH2* inHist, histogramType type, int id) {
+  auto hist = std::unique_ptr<TH2>(static_cast<TH2*>(inHist->Clone()));
   if (m_arg->debug) {
     cout << "ConfidenceContours::computeContours() : making contours of histogram ";
     cout << hist->GetName();
@@ -146,10 +147,10 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
 
   // transform chi2 from valley to hill
   double offset = 100.;
-  if (type == kChi2) hist = transformChi2valleyToHill(hist, offset);
+  if (type == kChi2) hist = transformChi2valleyToHill(hist.get(), offset);
 
   // add boundaries
-  TH2F* histb = addBoundaryBins(hist);
+  auto histb = addBoundaryBins(hist.get());
 
   // make contours
   histb->SetContour(m_nMaxContours);
@@ -196,7 +197,6 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
   gPad->Update();  // needed to be able to access the contours as TGraphs
   auto contours = dynamic_cast<TObjArray*>(gROOT->GetListOfSpecials()->FindObject("contours"));
   delete ctmp;
-  delete histb;
   if (m_arg->interactive)
     gROOT->SetBatch(false);  // it's important to only unset batch mode if we're interactive! Else some canvases get
                              // screwed up badly resulting in corrupted PDF files.
@@ -219,18 +219,15 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
 
   // add the entire plotted area, if one requested contour
   // is empty, i.e. it contains the entire plot range
-  if (nEmptyContours > 0) { addFilledPlotArea(hist); }
+  if (nEmptyContours > 0) { addFilledPlotArea(hist.get()); }
 
   // magnetic boundaries
   if (m_arg->plotmagnetic) {
     for (int ic = m_nMaxContours - 1; ic >= 0; ic--) {
       if (ic >= m_contours.size()) continue;
-      m_contours[ic]->magneticBoundaries(hist);
+      m_contours[ic]->magneticBoundaries(hist.get());
     }
   }
-
-  // clean up
-  if (type == kChi2) delete hist;  // a copy was made earlier in this case
 }
 
 ///

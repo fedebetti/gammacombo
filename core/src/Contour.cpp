@@ -241,7 +241,7 @@ void Contour::findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2) {
 /// \param contour - input contours
 /// \param hCL - a histogram defining the boundaries
 ///
-void Contour::magneticBoundaries(vector<TGraph*>& contours, const TH2F* hCL) {
+void Contour::magneticBoundaries(vector<TGraph*>& contours, const TH2* hCL) {
   double magneticRange = 0.75;
   double xmin = hCL->GetXaxis()->GetXmin();
   double xmax = hCL->GetXaxis()->GetXmax();
@@ -265,7 +265,7 @@ void Contour::magneticBoundaries(vector<TGraph*>& contours, const TH2F* hCL) {
   }
 }
 
-void Contour::magneticBoundaries(const TH2F* hCL) {
+void Contour::magneticBoundaries(const TH2* hCL) {
   magneticBoundaries(m_contours, hCL);
   magneticBoundaries(m_contoursHoles, hCL);
 }

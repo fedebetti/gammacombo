@@ -12,6 +12,8 @@
 #include "OneMinusClPlotAbs.h"
 #include "Utils.h"
 
+#include <TH2.h>
+
 class OneMinusClPlot2d : public OneMinusClPlotAbs {
  public:
   OneMinusClPlot2d(OptParser* arg, TString name = "c1", TString title = "c1");
@@ -30,7 +32,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   inline void setYaxisTitle(TString s) { yTitle = s; };
 
  protected:
-  std::vector<TH2F*> histos;
+  std::vector<TH2*> histos;
   TString xTitle;
   TString yTitle;
   bool contoursOnly = false;

@@ -78,7 +78,6 @@ void MethodDatasetsProbScan::initScan() {
   if (!m_xrangeset && arg->scanrangeMin != arg->scanrangeMax) { setXscanRange(arg->scanrangeMin, arg->scanrangeMax); }
   // setLimit(w, scanVar1, "scan");
 
-  if (hCL) delete hCL;
   // Titus: small change for consistency
   // double min1 = par1->getMin();
   // double max1 = par1->getMax();
@@ -91,12 +90,10 @@ void MethodDatasetsProbScan::initScan() {
     max1 = arg->scanrangeyMax;
   }
 
-  hCL = new TH1F("hCL" + getUniqueRootName(), "hCL" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hChi2min) delete hChi2min;
-  hChi2min = new TH1F("hChi2min" + getUniqueRootName(), "hChi2min" + pdf->getPdfName(), nPoints1d, min1, max1);
-
-  if (hCLs) delete hCLs;
-  hCLs = new TH1F("hCLs" + getUniqueRootName(), "hCLs" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hCL = std::make_unique<TH1F>("hCL" + getUniqueRootName(), "hCL" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hChi2min =
+      std::make_unique<TH1F>("hChi2min" + getUniqueRootName(), "hChi2min" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hCLs = std::make_unique<TH1F>("hCLs" + getUniqueRootName(), "hCLs" + pdf->getPdfName(), nPoints1d, min1, max1);
 
   // fill the chi2 histogram with very unlikely values such
   // that inside scan1d() the if clauses work correctly
@@ -124,11 +121,12 @@ void MethodDatasetsProbScan::initScan() {
     double min2 = arg->scanrangeyMin;
     double max2 = arg->scanrangeyMax;
 
-    hCL2d = new TH2F("hCL2d" + getUniqueRootName(), "hCL2d" + pdfName, nPoints2dx, min1, max1, nPoints2dy, min2, max2);
-    hCLs2d =
-        new TH2F("hCLs2d" + getUniqueRootName(), "hCLs2d" + pdfName, nPoints2dx, min1, max1, nPoints2dy, min2, max2);
-    hChi2min2d =
-        new TH2F("hChi2min2d" + getUniqueRootName(), "hChi2min", nPoints2dx, min1, max1, nPoints2dy, min2, max2);
+    hCL2d = std::make_unique<TH2F>("hCL2d" + getUniqueRootName(), "hCL2d" + pdfName, nPoints2dx, min1, max1, nPoints2dy,
+                                   min2, max2);
+    hCLs2d = std::make_unique<TH2F>("hCLs2d" + getUniqueRootName(), "hCLs2d" + pdfName, nPoints2dx, min1, max1,
+                                    nPoints2dy, min2, max2);
+    hChi2min2d = std::make_unique<TH2F>("hChi2min2d" + getUniqueRootName(), "hChi2min", nPoints2dx, min1, max1,
+                                        nPoints2dy, min2, max2);
 
     for (int i = 1; i <= nPoints2dx; i++)
       for (int j = 1; j <= nPoints2dy; j++) hChi2min2d->SetBinContent(i, j, 1e6);
@@ -259,18 +257,16 @@ void MethodDatasetsProbScan::sethCLFromProbScanTree() {
   /// the scan range, so that the axis won't show the lowest and highest number.
   /// \todo If the scan range was changed after the toys were generate, we absolutely have
   /// to derive the range from the root files - else we'll have bining effects.
-  delete hCL;
-  this->hCL =
-      new TH1F("hCL", "hCL", this->probScanTree->getScanpointN(), this->probScanTree->getScanpointMin() - halfBinWidth,
-               this->probScanTree->getScanpointMax() + halfBinWidth);
+  this->hCL = std::make_unique<TH1F>("hCL", "hCL", this->probScanTree->getScanpointN(),
+                                     this->probScanTree->getScanpointMin() - halfBinWidth,
+                                     this->probScanTree->getScanpointMax() + halfBinWidth);
   if (arg->debug)
     printf("DEBUG %i %f %f %f\n", this->probScanTree->getScanpointN(),
            this->probScanTree->getScanpointMin() - halfBinWidth, this->probScanTree->getScanpointMax() + halfBinWidth,
            halfBinWidth);
-  delete hCLs;
-  this->hCLs = new TH1F("hCLs", "hCLs", this->probScanTree->getScanpointN(),
-                        this->probScanTree->getScanpointMin() - halfBinWidth,
-                        this->probScanTree->getScanpointMax() + halfBinWidth);
+  this->hCLs = std::make_unique<TH1F>("hCLs", "hCLs", this->probScanTree->getScanpointN(),
+                                      this->probScanTree->getScanpointMin() - halfBinWidth,
+                                      this->probScanTree->getScanpointMax() + halfBinWidth);
   if (arg->debug)
     printf("DEBUG %i %f %f %f\n", this->probScanTree->getScanpointN(),
            this->probScanTree->getScanpointMin() - halfBinWidth, this->probScanTree->getScanpointMax() + halfBinWidth,
@@ -656,13 +652,13 @@ int MethodDatasetsProbScan::scan2d() {
   cDbg->SetMargin(0.1, 0.15, 0.1, 0.1);
   double hChi2min2dMin = hChi2min2d->GetMinimum();
   bool firstScanDone = hChi2min2dMin < 1e5;
-  TH2F* hDbgChi2min2d = histHardCopy(hChi2min2d, firstScanDone, true);
+  auto hDbgChi2min2d = histHardCopy(hChi2min2d.get(), firstScanDone, true);
   hDbgChi2min2d->SetTitle(Form("#Delta#chi^{2} for scan %i, %s", nScansDone, title.Data()));
   if (firstScanDone) hDbgChi2min2d->GetZaxis()->SetRangeUser(hChi2min2dMin, hChi2min2dMin + 25);
   hDbgChi2min2d->GetXaxis()->SetTitle(par1->GetTitle());
   hDbgChi2min2d->GetYaxis()->SetTitle(par2->GetTitle());
   hDbgChi2min2d->GetZaxis()->SetTitle("#Delta#chi^{2}");
-  TH2F* hDbgStart = histHardCopy(hChi2min2d, false, true);
+  auto hDbgStart = histHardCopy(hChi2min2d.get(), false, true);
 
   // start coordinates //Titus: start at the global minimum
   // don't allow the under/overflow bins
@@ -846,10 +842,6 @@ int MethodDatasetsProbScan::scan2d() {
          << ", old min chi2: " << bestMinOld << endl;
     return 1;
   }
-
-  // cleanup
-  if (hDbgChi2min2d) delete hDbgChi2min2d;
-  if (hDbgStart) delete hDbgStart;
 
   return 0;
 }

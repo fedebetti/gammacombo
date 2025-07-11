@@ -17,7 +17,7 @@
 class ConfidenceContours {
  public:
   ConfidenceContours(const OptParser* arg);
-  void computeContours(TH2F* hist, Utils::histogramType type, int id = 0);
+  void computeContours(const TH2* hist, Utils::histogramType type, int id = 0);
   void Draw();
   void DrawDashedLine();
   void setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth,
@@ -26,9 +26,9 @@ class ConfidenceContours {
   inline void setContoursToPlot(std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
 
  private:
-  TH2F* addBoundaryBins(TH2F* hist);
-  void addFilledPlotArea(TH2F* hist);
-  TH2F* transformChi2valleyToHill(TH2F* hist, double offset);
+  std::unique_ptr<TH2F> addBoundaryBins(const TH2* hist);
+  void addFilledPlotArea(const TH2* hist);
+  std::unique_ptr<TH2> transformChi2valleyToHill(const TH2* hist, double offset);
   const OptParser* m_arg;            ///< command line arguments
   std::vector<Contour*> m_contours;  ///< container for the 1,...,N sigma contours
   std::vector<int> m_linecolor;      ///< style for the 1,...,N sigma contours

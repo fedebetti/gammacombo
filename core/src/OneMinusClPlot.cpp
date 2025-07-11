@@ -10,6 +10,7 @@
 #include <Utils.h>
 
 #include <algorithm>
+#include <memory>
 
 #include <TColor.h>
 #include <TGaxis.h>
@@ -61,11 +62,11 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   bool plotPoints = (s->getMethodName() == "Plugin" || s->getMethodName() == "BergerBoos" ||
                      s->getMethodName() == "DatasetsPlugin") &&
                     plotPluginMarkers;
-  auto hCL = dynamic_cast<TH1F*>(s->getHCL()->Clone(getUniqueRootName()));
+  auto hCL = std::unique_ptr<TH1>(dynamic_cast<TH1*>(s->getHCL()->Clone(getUniqueRootName())));
   if (CLsType == 1)
-    hCL = dynamic_cast<TH1F*>(s->getHCLs()->Clone(getUniqueRootName()));
+    hCL = std::unique_ptr<TH1>(dynamic_cast<TH1*>(s->getHCLs()->Clone(getUniqueRootName())));
   else if (CLsType == 2)
-    hCL = dynamic_cast<TH1F*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
+    hCL = std::unique_ptr<TH1>(dynamic_cast<TH1*>(s->getHCLsFreq()->Clone(getUniqueRootName())));
   // fix inf and nan entries
   for (int i = 1; i <= s->getHCL()->GetNbinsX(); i++) {
     if (s->getHCL()->GetBinContent(i) != s->getHCL()->GetBinContent(i) || std::isinf(s->getHCL()->GetBinContent(i)))
@@ -73,7 +74,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   }
 
   // remove errors the hard way, else root ALWAYS plots them
-  if (!plotPoints) hCL = histHardCopy(hCL, true, true);
+  if (!plotPoints) hCL = histHardCopy(hCL.get(), true, true);
 
   // disable any statistics box
   hCL->SetStats(0);
@@ -188,9 +189,9 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   }
 
   // build a histogram which holds the axes
-  double min = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
-  double max = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
-  TH1F* haxes = new TH1F("haxes" + getUniqueRootName(), "", 100, min, max);
+  auto min = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
+  auto max = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
+  auto haxes = std::make_unique<TH1F>("haxes" + getUniqueRootName(), "", 100, min, max);
   haxes->SetStats(0);
   if (arg->xtitle == "")
     haxes->GetXaxis()->SetTitle(s->getScanVar1()->GetTitle());
@@ -238,7 +239,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
 
   haxes->GetYaxis()->SetRangeUser(plotYMin, plotYMax);
   haxes->Draw("axissame");
-  g->SetHistogram(haxes);
+  g->SetHistogram(haxes.get());
 
   TString drawOption = "";
   if (plotPoints)
@@ -346,11 +347,11 @@ void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, bool first, int CLsType)
   }
   m_mainCanvas->cd();
 
-  auto hCL = dynamic_cast<TH1F*>(s->getHCL()->Clone(getUniqueRootName()));
+  auto hCL = dynamic_cast<TH1*>(s->getHCL()->Clone(getUniqueRootName()));
   if (CLsType == 1)
-    hCL = dynamic_cast<TH1F*>(s->getHCLs()->Clone(getUniqueRootName()));
+    hCL = dynamic_cast<TH1*>(s->getHCLs()->Clone(getUniqueRootName()));
   else if (CLsType == 2)
-    hCL = dynamic_cast<TH1F*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
+    hCL = dynamic_cast<TH1*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
 
   // get rid of nan and inf
   for (int i = 1; i <= hCL->GetNbinsX(); i++) {
@@ -418,12 +419,12 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
     return;
   }
 
-  auto hObs = dynamic_cast<TH1F*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
-  auto hExp = dynamic_cast<TH1F*>(s->getHCLsExp()->Clone(getUniqueRootName()));
-  auto hErr1Up = dynamic_cast<TH1F*>(s->getHCLsErr1Up()->Clone(getUniqueRootName()));
-  auto hErr1Dn = dynamic_cast<TH1F*>(s->getHCLsErr1Dn()->Clone(getUniqueRootName()));
-  auto hErr2Up = dynamic_cast<TH1F*>(s->getHCLsErr2Up()->Clone(getUniqueRootName()));
-  auto hErr2Dn = dynamic_cast<TH1F*>(s->getHCLsErr2Dn()->Clone(getUniqueRootName()));
+  auto hObs = dynamic_cast<TH1*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
+  auto hExp = dynamic_cast<TH1*>(s->getHCLsExp()->Clone(getUniqueRootName()));
+  auto hErr1Up = dynamic_cast<TH1*>(s->getHCLsErr1Up()->Clone(getUniqueRootName()));
+  auto hErr1Dn = dynamic_cast<TH1*>(s->getHCLsErr1Dn()->Clone(getUniqueRootName()));
+  auto hErr2Up = dynamic_cast<TH1*>(s->getHCLsErr2Up()->Clone(getUniqueRootName()));
+  auto hErr2Dn = dynamic_cast<TH1*>(s->getHCLsErr2Dn()->Clone(getUniqueRootName()));
 
   if (!hObs) cout << "OneMinusClPlot::scan1dCLsPlot() : problem - can't find histogram hObs" << endl;
   if (!hExp) cout << "OneMinusClPlot::scan1dCLsPlot() : problem - can't find histogram hExp" << endl;
@@ -607,7 +608,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
 
   double min = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmin() : arg->scanrangeMin;
   double max = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmax() : arg->scanrangeMax;
-  TH1F* haxes = new TH1F("haxes" + getUniqueRootName(), "", 100, min, max);
+  auto haxes = std::make_unique<TH1F>("haxes" + getUniqueRootName(), "", 100, min, max);
   haxes->SetStats(0);
   if (arg->xtitle == "")
     haxes->GetXaxis()->SetTitle(s->getScanVar1()->GetTitle());

@@ -9,8 +9,11 @@
 #include <OneMinusClPlot2d.h>
 #include <Utils.h>
 
+#include <memory>
+
 #include <TColor.h>
 #include <TGaxis.h>
+#include <TH2F.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TMarker.h>
@@ -670,7 +673,7 @@ void OneMinusClPlot2d::DrawFull() {
   m_mainCanvas->SetMargin(0.1, 0.15, 0.1, 0.1);
   if (histos.size() == 0) std::cout << "OneMinusClPlot2d::DrawFull() : No histogram to plot!" << std::endl;
   if (!histos[0]) std::cout << "OneMinusClPlot2d::DrawFull() : Histogram broken!" << std::endl;
-  TH2F* hChi2 = histos[0];
+  auto hChi2 = histos[0];
   hChi2->SetContour(95);
   hChi2->GetXaxis()->SetTitle(xTitle != "" ? xTitle : (TString)scanners[0]->getScanVar1()->GetTitle());
   hChi2->GetYaxis()->SetTitle(yTitle != "" ? yTitle : (TString)scanners[0]->getScanVar2()->GetTitle());
@@ -813,14 +816,14 @@ void OneMinusClPlot2d::Draw() {
 
   if (arg->grid) m_mainCanvas->SetGrid();
 
-  TH2F* hCL = histos[0];
+  auto hCL = histos[0];
   double min1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
   double max1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
   double min2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmin() : arg->scanrangeyMin;
   double max2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmax() : arg->scanrangeyMax;
 
   // build a histogram which holds the axes
-  TH1* haxes = new TH2F("haxes" + getUniqueRootName(), "haxes", 100, min1, max1, 100, min2, max2);
+  auto haxes = std::make_unique<TH2F>("haxes" + getUniqueRootName(), "haxes", 100, min1, max1, 100, min2, max2);
   haxes->GetXaxis()->SetTitle(xTitle != "" ? xTitle : (TString)scanners[0]->getScanVar1()->GetTitle());
   haxes->GetYaxis()->SetTitle(yTitle != "" ? yTitle : (TString)scanners[0]->getScanVar2()->GetTitle());
   haxes->GetXaxis()->SetLabelFont(font);
