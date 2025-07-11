@@ -40,7 +40,7 @@ int Utils::countAllFitBringBackAngle;  ///< counts how many times fitBringBackAn
 /// \param thorough Activate Hesse and Minos
 /// \param printLevel -1 = no output, 1 verbose output
 ///
-RooFitResult* Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
+std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
 
   // pdf->Print("v");
@@ -90,7 +90,7 @@ RooFitResult* Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
   }
   unsigned long long stop = rdtsc();
   if (!quiet) std::printf("Fit took %llu clock cycles.\n", stop - start);
-  RooFitResult* r = m.save();
+  std::unique_ptr<RooFitResult> r(m.save());
   // if (!quiet) r->Print("v");
   RooMsgService::instance().setGlobalKillBelow(INFO);
   return r;
@@ -128,9 +128,9 @@ double Utils::angularDifference(double angle1, double angle2) {
 /// interval, add multiples of 2pi to bring it back. Then, refit.
 /// All variables that have unit 'rad' are taken to be angles.
 ///
-RooFitResult* Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel) {
+std::unique_ptr<RooFitResult> Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel) {
   countAllFitBringBackAngle++;
-  RooFitResult* r = fitToMin(pdf, thorough, printLevel);
+  auto r = fitToMin(pdf, thorough, printLevel);
   bool refit = false;
   for (const auto pAbs : r->floatParsFinal()) {
     const auto p = static_cast<RooRealVar*>(pAbs);
@@ -144,7 +144,6 @@ RooFitResult* Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int 
   }
   if (refit) {
     countFitBringBackAngle++;
-    delete r;
     r = fitToMin(pdf, thorough, printLevel);
   }
   return r;
@@ -165,11 +164,10 @@ RooFitResult* Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int 
 /// "var1,var2,var3," (list must end with comma). Default is to apply for all angles,
 /// all ratios except rD_k3pi and rD_kpi, and the k3pi coherence factor.
 ///
-RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceVariables, bool debug) {
+std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceVariables, bool debug) {
   TString parsName = "par_" + name;
   TString obsName = "obs_" + name;
   TString pdfName = "pdf_" + name;
-  RooFitResult* r = nullptr;
   int printlevel = -1;
   RooMsgService::instance().setGlobalKillBelow(ERROR);
 
@@ -206,7 +204,7 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
 
   //////////
 
-  r = fitToMinBringBackAngles(w->pdf(pdfName), false, printlevel);
+  auto r = fitToMinBringBackAngles(w->pdf(pdfName), false, printlevel);
 
   //////////
 
@@ -236,20 +234,16 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
     }
 
     // refit
-    RooFitResult* r2 = fitToMinBringBackAngles(w->pdf(pdfName), false, printlevel);
+    auto r2 = fitToMinBringBackAngles(w->pdf(pdfName), false, printlevel);
 
     // In case the initial fit failed, accept the second one.
     // If both failed, still select the second one and hope the
     // next fit succeeds.
     if (!(r->edm() < 1 && r->covQual() == 3)) {
-      delete r;
-      r = r2;
+      r = std::move(r2);
     } else if (r2->edm() < 1 && r2->covQual() == 3 && r2->minNll() < r->minNll()) {
       // better minimum found!
-      delete r;
-      r = r2;
-    } else {
-      delete r2;
+      r = std::move(r2);
     }
   }
 
@@ -259,7 +253,7 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
   RooMsgService::instance().setGlobalKillBelow(INFO);
 
   // (re)set to best parameters
-  setParameters(w, parsName, r);
+  setParameters(w, parsName, r.get());
 
   return r;
 }
@@ -280,7 +274,7 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
 /// So far it is only available for the Prob method, via the probimprove
 /// command line flag.
 ///
-RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
+std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, TString name) {
   TString parsName = "par_" + name;
   TString obsName = "obs_" + name;
   TString pdfName = "pdf_" + name;
@@ -288,15 +282,15 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
 
   // step 1: find a minimum to start with
-  RooFitResult* r1 = nullptr;
+  std::unique_ptr<RooFitResult> r1 = nullptr;
   {
     RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*w->pdf(pdfName)));
-    // RooFitResult* r1 = fitToMin(&ll, printlevel);
+    // auto r1 = fitToMin(&ll, printlevel);
     RooMinimizer m(ll);
     m.setPrintLevel(-2);
     m.setErrorLevel(4.0);  ///< define 2 sigma errors. This will make the hesse PDF 2 sigma wide!
     int status = m.migrad();
-    r1 = m.save();
+    r1 = std::unique_ptr<RooFitResult>(m.save());
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
     //   cout << "step 1" << endl;
@@ -324,7 +318,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
   }
 
   // step 2: build and fit the improved fcn
-  RooFitResult* r2 = nullptr;
+  std::unique_ptr<RooFitResult> r2 = nullptr;
   {
     // create a Hesse PDF, import both PDFs into a new workspace,
     // so that their parameters are linked
@@ -337,12 +331,12 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     RooAbsPdf* fullPdf = wImprove->pdf(pdfName);
 
     RooFormulaVar ll("ll", "ll", "-2*log(@0) +16*@1", RooArgSet(*fullPdf, *hessePdf));
-    // RooFitResult *r2 = fitToMin(&ll, printlevel);
+    // auto r2 = fitToMin(&ll, printlevel);
     RooMinimizer m(ll);
     m.setPrintLevel(-2);
     m.setErrorLevel(1.0);
     int status = m.migrad();
-    r2 = m.save();
+    r2 = std::unique_ptr<RooFitResult>(m.save());
 
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
@@ -373,15 +367,15 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
 
   // step 3: use the fit result of the improved fit as
   // start parameters for the nominal fcn
-  RooFitResult* r3;
+  std::unique_ptr<RooFitResult> r3 = nullptr;
   {
-    setParameters(w, parsName, r2);
+    setParameters(w, parsName, r2.get());
     RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*w->pdf(pdfName)));
     RooMinimizer m(ll);
     m.setPrintLevel(-2);
     m.setErrorLevel(1.0);
     int status = m.migrad();
-    r3 = m.save();
+    r3 = std::unique_ptr<RooFitResult>(m.save());
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
     //   cout << "step 3" << endl;
@@ -391,20 +385,18 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
 
   // step 5: chose better minimum
   // cout << r1->minNll() << " " << r3->minNll() << endl;
-  RooFitResult* r = nullptr;
+  std::unique_ptr<RooFitResult> r;
   if (r1->minNll() < r3->minNll()) {
-    delete r3;
-    r = r1;
+    r = std::move(r1);
   } else {
-    delete r1;
-    r = r3;
+    r = std::move(r3);
     // cout << "Utils::fitToMinImprove() : improved fit is better!" << endl;
   }
 
   RooMsgService::instance().setGlobalKillBelow(INFO);
 
   // set to best parameters
-  setParameters(w, parsName, r);
+  setParameters(w, parsName, r.get());
   return r;
 }
 

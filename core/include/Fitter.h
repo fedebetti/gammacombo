@@ -1,12 +1,7 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #ifndef Fitter_h
 #define Fitter_h
+
+#include <memory>
 
 #include <RooArgSet.h>
 #include <RooFitResult.h>
@@ -42,7 +37,7 @@ class Fitter {
   TString pdfName;                                ///< PDF name in workspace, derived from name
   TString obsName;                                ///< dataset name of observables
   TString parsName;                               ///< set name of physics parameters
-  RooFitResult* theResult = nullptr;              ///< the final result
+  std::unique_ptr<RooFitResult> theResult = nullptr;  ///< the final result
 };
 
 #endif

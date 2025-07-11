@@ -167,7 +167,8 @@ void MethodDatasetsProbScan::initScan() {
   std::cout << "=============== Global minimum (2*-Log(Likelihood)) is: " << chi2minGlobal << endl;
   // background only
   // if ( !pdf->getBkgPdf() )
-  bkgOnlyFitResult = pdf->fitBkg(pdf->getData(), arg->var[0]);  // fit on data w/ bkg only hypoth
+  // fit on data w/ bkg only hypoth
+  bkgOnlyFitResult = std::unique_ptr<RooFitResult>(pdf->fitBkg(pdf->getData(), arg->var[0]));
   assert(bkgOnlyFitResult);
   bkgOnlyFitResult->SetName("bkgOnlyFitResult");
   // chi2minBkg = 2 * bkgOnlyFitResult->minNll();
@@ -226,11 +227,11 @@ void MethodDatasetsProbScan::loadScanFromFile(TString fileNameBaseIn) {
 void MethodDatasetsProbScan::loadFitResults(TString file) {
 
   Utils::assertFileExists(file);
-  auto tf = TFile::Open(file);
+  std::unique_ptr<TFile> f(TFile::Open(file));
 
   if (pdf->getBkgPdf()) {
-    bkgOnlyFitResult =
-        (RooFitResult*)((RooFitResult*)tf->Get("bkgOnlyFitResult"))->Clone("bkgOnlyFitResult" + getUniqueRootName());
+    bkgOnlyFitResult = std::unique_ptr<RooFitResult>(
+        static_cast<RooFitResult*>(f->Get("bkgOnlyFitResult")->Clone("bkgOnlyFitResult" + getUniqueRootName())));
 
     if (!bkgOnlyFitResult) {
       cout << "MethodDatasetsProbScan::loadFitResults() : ERROR - bkgOnlyFitResult not found in file " << file << endl;
@@ -238,14 +239,14 @@ void MethodDatasetsProbScan::loadFitResults(TString file) {
     }
   }
 
-  globalMin = (RooFitResult*)((RooFitResult*)tf->Get("globalMin"))->Clone("globalMin" + getUniqueRootName());
+  globalMin = std::unique_ptr<RooFitResult>(
+      static_cast<RooFitResult*>(f->Get("globalMin")->Clone("globalMin" + getUniqueRootName())));
 
   if (!globalMin) {
     cout << "MethodDatasetsProbScan::loadFitResults() : ERROR - globalMin not found in file " << file << endl;
   }
 
-  tf->Close();
-  delete tf;
+  f->Close();
 }
 
 void MethodDatasetsProbScan::sethCLFromProbScanTree() {
@@ -320,7 +321,7 @@ void MethodDatasetsProbScan::sethCLFromProbScanTree() {
 /// \param pdf      the pdf that is to be fitted.
 ///
 ////////////////////////////////////////////////////
-RooFitResult* MethodDatasetsProbScan::loadAndFit(PDF_Datasets* pdf) {
+std::unique_ptr<RooFitResult> MethodDatasetsProbScan::loadAndFit(PDF_Datasets* pdf) {
 
   // we want to fit to data
   // first, try to load the measured values of the global observables from a snapshot
@@ -330,7 +331,7 @@ RooFitResult* MethodDatasetsProbScan::loadAndFit(PDF_Datasets* pdf) {
     exit(EXIT_FAILURE);
   };
   // then, fit the pdf while passing it the dataset
-  return pdf->fit(pdf->getData());
+  return std::unique_ptr<RooFitResult>(pdf->fit(pdf->getData()));
 };
 
 ///
@@ -400,13 +401,13 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   double parameterToScan_max = hCL->GetXaxis()->GetXmax();
 
   // do a free fit
-  RooFitResult* result = this->loadAndFit(this->pdf);  // fit on data
+  auto result = this->loadAndFit(this->pdf);  // fit on data
   assert(result);
-  auto slimresult = new RooSlimFitResult(result, true);
+  auto slimresult = new RooSlimFitResult(result.get(), true);
   slimresult->setConfirmed(true);
   solutions.push_back(slimresult);
-  Utils::setParameters(w, result);  // Set parameters to result (necessary to get correct freeDataFitValue if using a
-                                    // multipdf)
+  Utils::setParameters(w, result.get());  // Set parameters to result (necessary to get correct freeDataFitValue if
+                                          // using a multipdf)
   double freeDataFitValue = w->var(scanVar1)->getVal();
 
   // Define outputfile
@@ -465,7 +466,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
     parameterToScan->setVal(scanpoint);
     parameterToScan->setConstant(true);
 
-    RooFitResult* result = this->loadAndFit(this->pdf);  // fit on data
+    auto result = this->loadAndFit(this->pdf);  // fit on data
     assert(result);
 
     if (arg->debug) {
@@ -498,7 +499,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
     // to storeParsScan()
     this->probScanTree->storeParsScan();  // \todo : figure out which one of these is semantically the right one
     this->probScanTree->storeParsScan();
-    this->probScanTree->storeParsScan(result);
+    this->probScanTree->storeParsScan(result.get());
     this->probScanTree->bestIndexScanData = pdf->getBestIndex();
 
     this->pdf->deleteNLL();
@@ -730,30 +731,29 @@ int MethodDatasetsProbScan::scan2d() {
 
         // fit!
         tFit.Start(false);
-        RooFitResult* fr;
         // if ( !arg->probforce ) fr = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
         // else                   fr = fitToMinForce(w, combiner->getPdfName());
 
-        fr = this->loadAndFit(this->pdf);  // Titus: change fitting strategy to the one from the datasets \todo: should
-                                           // be possible to use the fittominforce etc methods
+        // Titus: change fitting strategy to the one from the datasets
+        // TODO should be possible to use the fittominforce etc methods
+        auto fr = this->loadAndFit(this->pdf);
         // double chi2minScan = 2 * fr->minNll(); //Titus: take 2*minNll vs. minNll? Where is the squared in the main
         // gammacombo?
         double chi2minScan = 2 * pdf->getMinNll();
         tFit.Stop();
         tSlimResult.Start(false);
-        auto r = new RooSlimFitResult(fr);  // try to save memory by using the slim fit result
+        auto r = new RooSlimFitResult(fr.get());  // try to save memory by using the slim fit result
         tSlimResult.Stop();
-        delete fr;
         allResults.push_back(r);
-        bestMinFoundInScan = TMath::Min((double)chi2minScan, (double)bestMinFoundInScan);
+        bestMinFoundInScan = std::min(chi2minScan, bestMinFoundInScan);
         mycurveResults2d[i - 1][j - 1] = r;
 
         // If we find a new global minumum, this means that all
         // previous 1-CL values are too high. We'll save the new possible solution, adjust the global
         // minimum, return a status code, and stop.
-        // if ( chi2minScan > -500 && chi2minScan<chi2minGlobal ){      //Titus: the hard coded minimum chi2 to avoid
-        // ridiculous minima (e.g. at boundaries) only sensible when using the Utils::fitToMin, since the chi2 of the
-        // best fit with that fitting method is nominally 0.
+        // //Titus: the hard coded minimum chi2 to avoid ridiculous minima (e.g. at boundaries) only sensible when using
+        // the Utils::fitToMin, since the chi2 of the best fit with that fitting method is nominally 0. if ( chi2minScan
+        // > -500 && chi2minScan<chi2minGlobal ){
         if (chi2minScan < chi2minGlobal) {
           // warn only if there was a significant improvement
           if (arg->debug || chi2minScan < chi2minGlobal - 1e-2) {
@@ -909,7 +909,7 @@ void MethodDatasetsProbScan::plotFitRes(TString fName) {
       cout << "MethodDatasetsProbScan::plotFitRes() : ERROR : bkgOnlyFitResult is nullptr" << endl;
       exit(1);
     }
-    setParameters(w, bkgOnlyFitResult);
+    setParameters(w, bkgOnlyFitResult.get());
     // if ( !w->pdf(pdf->getBkgPdfName()) ) {
     //     cout << "MethodDatasetsProbScan::plotFitRes() : ERROR : No background pdf " << pdf->getBkgPdfName() << "
     //     found in workspace" << endl; exit(1);
@@ -936,7 +936,7 @@ void MethodDatasetsProbScan::plotFitRes(TString fName) {
       cout << "MethodDatasetsProbScan::plotFitRes() : ERROR : globalMin is nullptr" << endl;
       exit(1);
     }
-    setParameters(w, globalMin);
+    setParameters(w, globalMin.get());
     if (!w->pdf(pdf->getPdfName())) {
       cout << "MethodDatasetsProbScan::plotFitRes() : ERROR : No pdf " << pdf->getPdfName() << " found in workspace"
            << endl;

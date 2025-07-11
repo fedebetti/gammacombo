@@ -75,7 +75,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   startPars->add(*w->set(parsName));
 
   // // start scan from global minimum (not always a good idea as we need to set from other places as well)
-  // setParameters(w, parsName, globalMin);
+  // setParameters(w, parsName, globalMin.get());
 
   // load scan parameter and scan range
   setLimit(w, scanVar1, "scan");
@@ -202,7 +202,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
                << flush;
 
       // fit!
-      RooFitResult* fr = nullptr;
+      std::unique_ptr<RooFitResult> fr = nullptr;
       if (arg->probforce)
         fr = fitToMinForce(w, combiner->getPdfName());
       else if (arg->probimprove)
@@ -211,8 +211,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
         fr = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
       double chi2minScan = fr->minNll();
       if (std::isinf(chi2minScan)) chi2minScan = 1e4;  // else the toys in PDF_testConstraint don't work
-      auto r = new RooSlimFitResult(fr);               // try to save memory by using the slim fit result
-      delete fr;
+      auto r = new RooSlimFitResult(fr.get());         // try to save memory by using the slim fit result
       allResults.push_back(r);
       bestMinFoundInScan = TMath::Min((double)chi2minScan, (double)bestMinFoundInScan);
 
@@ -449,7 +448,7 @@ int MethodProbScan::scan2d() {
   startPars->add(*w->set(parsName));
 
   // // start scan from global minimum (not always a good idea as we need to set from other places as well)
-  // setParameters(w, parsName, globalMin);
+  // setParameters(w, parsName, globalMin.get());
 
   // Define scan parameters and scan range:
   RooRealVar* par1 = w->var(scanVar1);
@@ -557,7 +556,7 @@ int MethodProbScan::scan2d() {
 
         // fit!
         tFit.Start(false);
-        RooFitResult* fr;
+        std::unique_ptr<RooFitResult> fr;
         if (!arg->probforce)
           fr = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
         else
@@ -565,9 +564,8 @@ int MethodProbScan::scan2d() {
         double chi2minScan = fr->minNll();
         tFit.Stop();
         tSlimResult.Start(false);
-        auto r = new RooSlimFitResult(fr);  // try to save memory by using the slim fit result
+        auto r = new RooSlimFitResult(fr.get());  // try to save memory by using the slim fit result
         tSlimResult.Stop();
-        delete fr;
         allResults.push_back(r);
         bestMinFoundInScan = TMath::Min((double)chi2minScan, (double)bestMinFoundInScan);
         mycurveResults2d[i - 1][j - 1] = r;

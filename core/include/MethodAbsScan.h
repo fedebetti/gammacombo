@@ -151,7 +151,7 @@ class MethodAbsScan {
   std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
   std::vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by
                                               ///< calcCLintervals()
-  RooFitResult* globalMin = nullptr;          ///< parameter values at a global minimum
+  std::unique_ptr<RooFitResult> globalMin = nullptr;  ///< parameter values at a global minimum
 
  protected:
   void sortSolutions();

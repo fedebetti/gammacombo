@@ -152,13 +152,12 @@ int MethodCoverageScan::scan1d(int nRun) {
 
     cout << "Free Fit" << endl;
     w->var(varName)->setConstant(false);
-    RooFitResult* rToyFreeFull = fitToMinForce(w, pdfName, forceVariables, false);
+    auto rToyFreeFull = fitToMinForce(w, pdfName, forceVariables, false);
     if (!rToyFreeFull) continue;
-    auto rToyFree = new RooSlimFitResult(rToyFreeFull);
+    auto rToyFree = std::make_unique<RooSlimFitResult>(rToyFreeFull.get());
     tChi2free = rToyFree->minNll();  ///< save for tree
     tSol = w->var(varName)->getVal();
     if (arg->verbose) rToyFree->Print();
-    delete rToyFreeFull;
 
     // can fill values of fit parameters here
     for (int i = 0; i < combiner->getParameterNames().size(); i++) {
@@ -168,13 +167,12 @@ int MethodCoverageScan::scan1d(int nRun) {
     cout << "Scan Point Fit" << endl;
     setParameters(w, parName, frCache.getParsAtFunctionCall());
     w->var(varName)->setConstant(true);
-    RooFitResult* rToyScanFull = fitToMinForce(w, pdfName, forceVariables, false);
+    auto rToyScanFull = fitToMinForce(w, pdfName, forceVariables, false);
     if (!rToyScanFull) continue;
-    auto rToyScan = new RooSlimFitResult(rToyScanFull);
+    auto rToyScan = std::make_unique<RooSlimFitResult>(rToyScanFull.get());
     tChi2scan = rToyScan->minNll();  ///< save for tree
     if (arg->verbose) rToyScan->Print();
     w->var(varName)->setConstant(false);
-    delete rToyScanFull;
 
     setParameters(w, parName, frCache.getParsAtFunctionCall());
 
@@ -192,7 +190,7 @@ int MethodCoverageScan::scan1d(int nRun) {
     cout << "PLUGIN...";
     auto scanner = new MethodPluginScan(combiner);
     scanner->initScan();
-    tPvalue = scanner->getPvalue1d(rToyScan, tChi2free, myTree, i, !arg->verbose);
+    tPvalue = scanner->getPvalue1d(rToyScan.get(), tChi2free, myTree, i, !arg->verbose);
     cout << "Done" << endl;
     cout << "P VALUE IS " << tPvalue << endl;
     hPvalues->Fill(tPvalue);
@@ -204,7 +202,7 @@ int MethodCoverageScan::scan1d(int nRun) {
     cout << "PROB" << endl;
     auto probScanner = new MethodProbScan(combiner);
     probScanner->initScan();
-    probScanner->loadParameters(rToyFree);  // load parameters from forced fit
+    probScanner->loadParameters(rToyFree.get());  // load parameters from forced fit
     probScanner->scan1d(false, false, true);
     // vector<RooSlimFitResult*> firstScanSolutions = probScanner->getSolutions();
     // for ( int i=0; i<firstScanSolutions.size(); i++ ){
@@ -227,11 +225,6 @@ int MethodCoverageScan::scan1d(int nRun) {
     // fill tree
     t->Fill();
 
-    //
-    // cleanup
-    //
-    delete rToyScan;
-    delete rToyFree;
     if (!arg->isAction("test")) delete scanner;
   }
 

@@ -24,36 +24,31 @@ Fitter::Fitter(const OptParser* arg, RooWorkspace* w, TString name) {
 void Fitter::fitTwice() {
   // first fit
   setParametersFloating(w, parsName, startparsFirstFit);
-  RooFitResult* r1 = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
+  auto r1 = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
   bool f1failed = !(r1->edm() < 1 && r1->covQual() == 3);
 
   // second fit
   setParametersFloating(w, parsName, startparsSecondFit);
-  RooFitResult* r2 = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
+  auto r2 = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
   bool f2failed = !(r2->edm() < 1 && r2->covQual() == 3);
 
   if (f1failed && f2failed) {
-    theResult = r1;
-    delete r2;
+    theResult = std::move(r1);
   } else if (f1failed) {
     nFit2Best++;
-    theResult = r2;
-    delete r1;
+    theResult = std::move(r2);
   } else if (f2failed) {
     nFit1Best++;
-    theResult = r1;
-    delete r2;
+    theResult = std::move(r1);
   } else if (r1->minNll() < r2->minNll()) {
     nFit1Best++;
-    theResult = r1;
-    delete r2;
+    theResult = std::move(r1);
   } else {
     nFit2Best++;
-    theResult = r2;
-    delete r1;
+    theResult = std::move(r2);
   }
 
-  setParametersFloating(w, parsName, theResult);
+  setParametersFloating(w, parsName, theResult.get());
 }
 
 ///
@@ -63,7 +58,7 @@ void Fitter::fitTwice() {
 void Fitter::fitForce() {
   setParametersFloating(w, parsName, startparsFirstFit);
   theResult = fitToMinForce(w, name);
-  setParametersFloating(w, parsName, theResult);
+  setParametersFloating(w, parsName, theResult.get());
 }
 
 ///
@@ -93,7 +88,6 @@ int Fitter::getStatus() const {
 /// Run the fit. Select a fit method here.
 ///
 void Fitter::fit() {
-  if (theResult) delete theResult;
   if (arg->scanforce)
     fitForce();
   else
