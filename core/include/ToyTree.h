@@ -45,7 +45,7 @@ class ToyTree {
   void storeParsPll();
   void storeParsFree();
   void storeParsScan();
-  void storeParsScan(RooFitResult* values);
+  void storeParsScan(const RooFitResult* values);
   void storeTheory();
   void storeObservables();
   void writeToFile(TString fName);
