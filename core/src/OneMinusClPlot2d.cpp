@@ -446,7 +446,7 @@ void OneMinusClPlot2d::makeNewPlotStyle(TString htmlColor, int ROOTColor) {
   markerstyle.push_back(20);
   markersize.push_back(1.1);
   ColorBuilder cb;
-  float thisMuchDarker = 1.1;
+  double thisMuchDarker = 1.1;
   linecolor[0].push_back(cb.darklightcolor(newColor, 0.7));
   linestyle[0].push_back(kSolid);
   fillcolor[0].push_back(newColor);
@@ -506,7 +506,7 @@ void OneMinusClPlot2d::makeOneColorPlotStyle(TString htmlColor, int ROOTColor) {
   else
     newColor = TColor::GetColor(htmlColor);
   ColorBuilder cb;
-  float thisMuchLighter = 1.2;
+  double thisMuchLighter = 1.2;
   markerstyle.push_back(20);
   markersize.push_back(1.1);
   linecolor[0].push_back(newColor);
@@ -623,7 +623,7 @@ bool OneMinusClPlot2d::hasHistoType(histogramType t) const {
 /// Draw a line stating the CL content of the contours.
 ///
 void OneMinusClPlot2d::drawCLcontent(bool isFull) {
-  float xLow, yLow;
+  double xLow, yLow;
   xLow = 0.17;
   yLow = 0.15;
   if (arg->square) yLow = 0.11;
@@ -674,8 +674,8 @@ void OneMinusClPlot2d::DrawFull() {
   hChi2->SetContour(95);
   hChi2->GetXaxis()->SetTitle(xTitle != "" ? xTitle : (TString)scanners[0]->getScanVar1()->GetTitle());
   hChi2->GetYaxis()->SetTitle(yTitle != "" ? yTitle : (TString)scanners[0]->getScanVar2()->GetTitle());
-  float zMin = hChi2->GetMinimum();
-  float zMax;
+  double zMin = hChi2->GetMinimum();
+  double zMax;
   if (histosType[0] == kChi2) {
     zMax = fmin(zMin + 81, hChi2->GetMaximum());
   } else {
@@ -719,10 +719,10 @@ void OneMinusClPlot2d::DrawFull() {
 void OneMinusClPlot2d::drawLegend() {
   if (arg->debug) { cout << "OneMinusClPlot2d::drawLegend() : drawing legend ..." << endl; }
   // set up the legend
-  float legendXmin = arg->plotlegx != -1. ? arg->plotlegx : 0.17;
-  float legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.75;
-  float legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.38);
-  float legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.15);
+  double legendXmin = arg->plotlegx != -1. ? arg->plotlegx : 0.17;
+  double legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.75;
+  double legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.38);
+  double legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.15);
   if (m_legend) delete m_legend;
   m_legend = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
   m_legend->SetNColumns(arg->plotlegcols);
@@ -814,10 +814,10 @@ void OneMinusClPlot2d::Draw() {
   if (arg->grid) m_mainCanvas->SetGrid();
 
   TH2F* hCL = histos[0];
-  float min1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
-  float max1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
-  float min2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmin() : arg->scanrangeyMin;
-  float max2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmax() : arg->scanrangeyMax;
+  double min1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
+  double max1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
+  double min2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmin() : arg->scanrangeyMin;
+  double max2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmax() : arg->scanrangeyMax;
 
   // build a histogram which holds the axes
   TH1* haxes = new TH2F("haxes" + getUniqueRootName(), "haxes", 100, min1, max1, 100, min2, max2);
@@ -904,10 +904,10 @@ void OneMinusClPlot2d::Draw() {
   }
 
   gPad->Update();
-  float ymin = gPad->GetUymin();
-  float ymax = gPad->GetUymax();
-  float xmin = gPad->GetUxmin();
-  float xmax = gPad->GetUxmax();
+  double ymin = gPad->GetUymin();
+  double ymax = gPad->GetUymax();
+  double xmin = gPad->GetUxmin();
+  double xmax = gPad->GetUxmax();
 
   // Draw new axes.
   if (!arg->grid) {
@@ -1038,7 +1038,7 @@ void OneMinusClPlot2d::Draw() {
   m_mainCanvas->Show();
 }
 
-void OneMinusClPlot2d::drawMarker(float x, float y, int color, int style, float size) const {
+void OneMinusClPlot2d::drawMarker(double x, double y, int color, int style, double size) const {
   auto m = TMarker(x, y, style);
   m.SetMarkerSize(size);
   m.SetMarkerColor(color);
@@ -1075,7 +1075,7 @@ void OneMinusClPlot2d::drawSolutions() {
       markerStyle = markerstyle[styleId];
     else
       cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker styles" << endl;
-    float markerSize = 2.0;
+    double markerSize = 2.0;
     if (i < markersize.size())
       markerSize = markersize[styleId];
     else
@@ -1086,8 +1086,8 @@ void OneMinusClPlot2d::drawSolutions() {
       if (scanners[i]->getDrawSolution() == 2 && iSol > 0 &&
           scanners[i]->getSolution(iSol)->minNll() - scanners[i]->getSolution(0)->minNll() > 0.01)
         continue;
-      float xSol = scanners[i]->getScanVar1Solution(iSol);
-      float ySol = scanners[i]->getScanVar2Solution(iSol);
+      double xSol = scanners[i]->getScanVar1Solution(iSol);
+      double ySol = scanners[i]->getScanVar2Solution(iSol);
       if (arg->debug) cout << "OneMinusClPlot2d::drawSolutions() : " << xSol << " " << ySol << endl;
       drawMarker(xSol, ySol, markerColor, markerStyle, markerSize);
     }

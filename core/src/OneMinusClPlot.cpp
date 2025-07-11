@@ -188,8 +188,8 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   }
 
   // build a histogram which holds the axes
-  float min = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
-  float max = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
+  double min = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
+  double max = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
   TH1F* haxes = new TH1F("haxes" + getUniqueRootName(), "", 100, min, max);
   haxes->SetStats(0);
   if (arg->xtitle == "")
@@ -213,8 +213,8 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   haxes->GetYaxis()->SetNdivisions(407, true);
 
   // plot y range
-  float plotYMax;
-  float plotYMin;
+  double plotYMax;
+  double plotYMin;
   if (plotLegend && !arg->isQuickhack(22)) {
     if (arg->plotlog) {
       plotYMin = 1.e-3;
@@ -252,10 +252,10 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   // if ( drawOption.Contains("F") ) ((TGraph*)g->Clone())->Draw("L");
 
   gPad->Update();
-  float ymin = gPad->GetUymin();
-  float ymax = gPad->GetUymax();
-  float xmin = gPad->GetUxmin();
-  float xmax = gPad->GetUxmax();
+  double ymin = gPad->GetUymin();
+  double ymax = gPad->GetUymax();
+  double xmin = gPad->GetUxmin();
+  double xmax = gPad->GetUxmax();
 
   // for the angles, draw a new axis in units of degrees
   if (isAngle(s->getScanVar1())) {
@@ -274,8 +274,8 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
       axist->Draw();
 
       // new bottom axis
-      float axisbMin = RadToDeg(xmin);
-      float axisbMax = RadToDeg(xmax);
+      double axisbMin = RadToDeg(xmin);
+      double axisbMax = RadToDeg(xmax);
       if (arg->isQuickhack(3)) {  ///< see documentation of --qh option in OptParser.cpp
         axisbMin += 180.;
         axisbMax += 180.;
@@ -311,8 +311,8 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
     // add right axis
     TGaxis* axisr;
     if (arg->plotlog) {
-      float f3min = 1e-3;
-      float f3max = (plotLegend && !arg->isQuickhack(22)) ? 10. : 1.;
+      double f3min = 1e-3;
+      double f3max = (plotLegend && !arg->isQuickhack(22)) ? 10. : 1.;
       TF1* f3 = new TF1("f3", "log10(x)", f3min, f3max);
       axisr = new TGaxis(xmax, f3min, xmax, f3max, "f3", 510, "G+");
     } else {
@@ -434,7 +434,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
 
   // convert obs to graph
   TGraph* gObs = convertTH1ToTGraph(hObs, obsError);
-  float xCentral = s->getScanVar1Solution();
+  double xCentral = s->getScanVar1Solution();
 
   // convert others to raw graphs
   TGraph* gExpRaw = convertTH1ToTGraph(hExp);
@@ -605,8 +605,8 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   gObs->SetMarkerSize(1);
   gObs->SetMarkerStyle(20);
 
-  float min = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmin() : arg->scanrangeMin;
-  float max = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmax() : arg->scanrangeMax;
+  double min = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmin() : arg->scanrangeMin;
+  double max = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmax() : arg->scanrangeMax;
   TH1F* haxes = new TH1F("haxes" + getUniqueRootName(), "", 100, min, max);
   haxes->SetStats(0);
   if (arg->xtitle == "")
@@ -632,10 +632,10 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
 
   // Legend:
   // make the legend short, the text will extend over the boundary, but the symbol will be shorter
-  float legendXmin = 0.68;
-  float legendYmin = 0.58;
-  float legendXmax = legendXmin + 0.25;
-  float legendYmax = legendYmin + 0.22;
+  double legendXmin = 0.68;
+  double legendYmin = 0.58;
+  double legendXmax = legendXmin + 0.25;
+  double legendYmax = legendYmin + 0.22;
   auto leg = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
   leg->SetFillColor(kWhite);
   leg->SetFillStyle(0);
@@ -684,7 +684,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   m_mainCanvas->SetTicks(false);
 }
 
-void OneMinusClPlot::drawVerticalLine(float x, int color, int style) const {
+void OneMinusClPlot::drawVerticalLine(double x, int color, int style) const {
   m_mainCanvas->cd();
   auto l1 = new TLine(x, 0., x, 1.);
   l1->SetLineWidth(1);
@@ -701,16 +701,16 @@ void OneMinusClPlot::drawVerticalLine(float x, int color, int style) const {
 void OneMinusClPlot::drawSolutions() {
   m_mainCanvas->cd();
   m_mainCanvas->Update();
-  float xmin = gPad->GetUxmin();
-  float xmax = gPad->GetUxmax();
+  double xmin = gPad->GetUxmin();
+  double xmax = gPad->GetUxmax();
   int iDrawn = 0;
 
   for (int i = 0; i < scanners.size(); i++) {
     if (scanners[i]->getDrawSolution() == 0) continue;
     if (arg->debug) cout << "OneMinusClPlot::drawSolutions() : adding solution for scanner " << i << " ..." << endl;
-    float xCentral = scanners[i]->getScanVar1Solution(arg->plotsoln[i]);
-    float xCLmin = scanners[i]->getCLinterval(arg->plotsoln[i]).min;
-    float xCLmax = scanners[i]->getCLinterval(arg->plotsoln[i]).max;
+    double xCentral = scanners[i]->getScanVar1Solution(arg->plotsoln[i]);
+    double xCLmin = scanners[i]->getCLinterval(arg->plotsoln[i]).min;
+    double xCLmax = scanners[i]->getCLinterval(arg->plotsoln[i]).max;
     int color = scanners[i]->getTextColor();
 
     // draw vertical lines at central value and
@@ -727,10 +727,10 @@ void OneMinusClPlot::drawSolutions() {
     // so that it doesn't get covered
 
     // compute y position of the printed central value
-    float yNumberMin = 0.6 - 0.13 * (float)iDrawn;
-    float yNumberMax = yNumberMin + 0.1;
+    double yNumberMin = 0.6 - 0.13 * (double)iDrawn;
+    double yNumberMax = yNumberMin + 0.1;
     if (arg->plotlog) {
-      float yNumberMinFirst = 0.1;
+      double yNumberMinFirst = 0.1;
       if (arg->isQuickhack(1)) yNumberMinFirst = 0.175;
       yNumberMin = yNumberMinFirst / pow(3.0, iDrawn);  // move down by a constant shift on log scale
       yNumberMax = yNumberMin * 2.;
@@ -742,7 +742,7 @@ void OneMinusClPlot::drawSolutions() {
     }
 
     // compute x position of the printed central value
-    float xNumberMin, xNumberMax;
+    double xNumberMin, xNumberMax;
     if (scanners[i]->getDrawSolution() == 1) {
       xNumberMin = xCentral + (xmax - xmin) * 0.20;  // draw at central value
       xNumberMax = xCentral + (xmax - xmin) * 0.0;
@@ -769,7 +769,7 @@ void OneMinusClPlot::drawSolutions() {
 
     // if print solution argument given then over write
     if (arg->printSolX > 0.) {
-      float diff = xNumberMax - xNumberMin;
+      double diff = xNumberMax - xNumberMin;
       xNumberMin = arg->printSolX;
       xNumberMax = arg->printSolX + diff;
     }
@@ -789,7 +789,7 @@ void OneMinusClPlot::drawSolutions() {
     }
     Rounder myRounder(arg, xCLmin, xCLmax, xCentral);
     int d = myRounder.getNsubdigits();
-    float xCentralRd = myRounder.central();
+    double xCentralRd = myRounder.central();
     if (arg->isQuickhack(3)) xCentralRd += 180.;  ///< see documentation of --qh option in OptParser.cpp
     t1->AddText(Form("%.*f^{+%.*f}_{#font[122]{-}%.*f}", d, xCentralRd, d, myRounder.errPos(), d, myRounder.errNeg()));
 
@@ -802,13 +802,13 @@ void OneMinusClPlot::drawSolutions() {
 /// Draw a horizontal line at given p-value, put a
 /// label on top of it stating the corresponding CL.
 ///
-void OneMinusClPlot::drawCLguideLine(float pvalue) const {
+void OneMinusClPlot::drawCLguideLine(double pvalue) const {
   m_mainCanvas->cd();
   m_mainCanvas->Update();
-  float xmin = gPad->GetUxmin();
-  float xmax = gPad->GetUxmax();
+  double xmin = gPad->GetUxmin();
+  double xmax = gPad->GetUxmax();
 
-  float labelPos = xmin + (xmax - xmin) * 0.10;
+  double labelPos = xmin + (xmax - xmin) * 0.10;
   if (arg->isQuickhack(2)) labelPos = xmin + (xmax - xmin) * 0.55;
   if (arg->isQuickhack(23)) labelPos = xmin + (xmax - xmin) * 0.8;
   if (arg->isQuickhack(31)) labelPos = xmin + (xmax - xmin) * 0.01;
@@ -825,8 +825,8 @@ void OneMinusClPlot::drawCLguideLine(float pvalue) const {
     }
   }
 
-  float labelPosYmin = 0;
-  float labelPosYmax = 0;
+  double labelPosYmin = 0;
+  double labelPosYmax = 0;
 
   if (arg->plotlog) {
     labelPosYmin = pvalue;
@@ -897,10 +897,10 @@ void OneMinusClPlot::Draw() {
 
   // Legend:
   // make the legend short, the text will extend over the boundary, but the symbol will be shorter
-  float legendXmin = arg->plotlegx != -1. ? arg->plotlegx : 0.19;
-  float legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.78;
-  float legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.31);
-  float legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.1640559);
+  double legendXmin = arg->plotlegx != -1. ? arg->plotlegx : 0.19;
+  double legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.78;
+  double legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.31);
+  double legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.1640559);
   auto leg = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
   leg->Clear();
   leg->SetNColumns(arg->plotlegcols);
@@ -980,7 +980,7 @@ void OneMinusClPlot::Draw() {
   if (!arg->isQuickhack(34)) drawCLguideLines();
 
   // draw the logo
-  float yGroup = 0.6;
+  double yGroup = 0.6;
   if (plotLegend) {
     // we have a legend
     if (arg->plotlog)

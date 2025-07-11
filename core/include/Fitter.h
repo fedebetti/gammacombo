@@ -24,7 +24,7 @@ class Fitter {
   void fitImprove();
   void fitOnce();
   void fitTwice();
-  float getChi2() const;
+  double getChi2() const;
   int getStatus() const;
   void print() const;
   inline void setStartpars(const RooArgSet* pars) { setStartparsFirstFit(pars); };

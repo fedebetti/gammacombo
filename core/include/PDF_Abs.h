@@ -46,7 +46,7 @@ class PDF_Abs {
   inline RooArgList* getObservables() { return observables; };
   inline std::vector<TString> getLatexObservables() const { return latexObservables; };
   inline TString getObservableSourceString() const { return obsValSource; };
-  float getObservableValue(TString obsname) const;
+  double getObservableValue(TString obsname) const;
   inline RooArgList* getParameters() { return parameters; };
   inline RooAbsPdf* getPdf() { return pdf; };
   inline RooAbsPdf* getBkgPdf() { return pdfBkg; };
@@ -65,19 +65,19 @@ class PDF_Abs {
   void print() const;
   void printParameters();
   void printObservables();
-  bool ScaleError(TString obsname, float scale);
+  bool ScaleError(TString obsname, double scale);
   virtual void setCorrelations(TString c);
   inline void setErrorSourceString(TString source) { obsErrSource = source; };
   inline void setGcId(int id) { gcId = id; };
   inline void setName(TString myName) { this->name = myName; }
-  void setObservable(TString name, float value);
+  void setObservable(TString name, double value);
   virtual void setObservables(TString c);
   void setObservablesTruth();
   void setObservablesToy();
   inline void setObservableSourceString(TString source) { obsValSource = source; };
   inline void setNObs(int val) { nObs = val; };
   inline void setTitle(TString t) { title = t; };
-  void setUncertainty(TString obsName, float stat, float syst);
+  void setUncertainty(TString obsName, double stat, double syst);
   virtual void setUncertainties(TString c);
   void setSystCorrelation(TMatrixDSym& corSystMatrix);
   void storeErrorsInObs();

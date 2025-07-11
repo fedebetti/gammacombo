@@ -12,7 +12,7 @@
 
 class TGraphTools {
  public:
-  TGraph* addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew);
+  TGraph* addPointToGraphAtFirstMatchingX(TGraph* g, double xNew, double yNew);
 };
 
 #endif

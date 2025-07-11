@@ -68,11 +68,11 @@ void OneMinusClPlotAbs::save() {
 /// The command line arguments --prelim and --unoff add "Preliminary"
 /// and "Unofficial" strings, respectively.
 ///
-void OneMinusClPlotAbs::drawGroup(float yPos) const {
+void OneMinusClPlotAbs::drawGroup(double yPos) const {
   if (arg->group == TString("off")) return;
   m_mainCanvas->cd();
-  float xPos = 0.65;
-  float xLow, yLow;
+  double xPos = 0.65;
+  double xLow, yLow;
   if (arg->plotgroupx == -1)
     xLow = xPos;
   else
@@ -101,7 +101,7 @@ void OneMinusClPlotAbs::drawGroup(float yPos) const {
     t2->Draw();
   }
   if (arg->plotdate != "") {
-    float yExt = 0.;
+    double yExt = 0.;
     if (arg->plotprelim || arg->plotunoff) yExt += 0.035;
     auto t3 = new TPaveText(xLow, yLow - yExt - 0.025, xLow + 0.225, yLow - yExt, "BRNDC");
     t3->SetBorderSize(0);

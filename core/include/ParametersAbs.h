@@ -18,7 +18,7 @@ class ParametersAbs {
   Parameter* var(TString name);
   RooRealVar* get(TString name);
   Parameter* newParameter(TString name);
-  Parameter::Range range(float min, float max) const;
+  Parameter::Range range(double min, double max) const;
 
  protected:
   std::vector<Parameter*> m_parameters;

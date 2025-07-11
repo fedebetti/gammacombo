@@ -36,9 +36,9 @@ class MethodAbsScan {
   inline const OptParser* getArg() const { return arg; };
   inline const std::vector<RooSlimFitResult*>& getAllResults() const { return allResults; };
   inline const std::vector<RooSlimFitResult*>& getCurveResults() const { return curveResults; };
-  inline float getChi2minGlobal() const { return chi2minGlobal; }
-  inline float getChi2minBkg() const { return chi2minBkg; }
-  float getCL(double val) const;
+  inline double getChi2minGlobal() const { return chi2minGlobal; }
+  inline double getChi2minBkg() const { return chi2minBkg; }
+  double getCL(double val) const;
   CLInterval getCLintervalCentral(int sigma = 1, bool quiet = false);
   CLInterval getCLinterval(int iSol = 0, int sigma = 1, bool quiet = false);
   inline Combiner* getCombiner() const { return combiner; };
@@ -61,7 +61,7 @@ class MethodAbsScan {
   inline int getLineWidth() const { return lineWidth; };
   inline int getFillStyle() const { return fillStyle; };
   inline int getFillColor() const { return fillColor; };
-  inline float getFillTransparency() const { return fillTransparency; };
+  inline double getFillTransparency() const { return fillTransparency; };
   inline TString getMethodName() const { return methodName; };
   inline TString getName() const { return name; };
   inline int getNObservables() const { return w->set(obsName)->getSize(); }
@@ -71,13 +71,13 @@ class MethodAbsScan {
   inline const RooArgSet* getObservables() const { return w->set(obsName); }
   inline TString getObsName() const { return obsName; };
   inline TString getParsName() const { return parsName; };
-  float getScanVarSolution(int iVar, int iSol);
+  double getScanVarSolution(int iVar, int iSol);
   RooRealVar* getScanVar1();
   TString getScanVar1Name() const { return scanVar1; }
-  float getScanVar1Solution(int i = 0);
+  double getScanVar1Solution(int i = 0);
   RooRealVar* getScanVar2();
   TString getScanVar2Name() const { return scanVar2; }
-  float getScanVar2Solution(int i = 0);
+  double getScanVar2Solution(int i = 0);
   inline std::vector<RooSlimFitResult*> getSolutions() { return solutions; };
   RooSlimFitResult* getSolution(int i = 0);
   inline const RooArgSet* getTheory() { return w->set(thName); }
@@ -116,15 +116,15 @@ class MethodAbsScan {
   inline void setTextColor(int c) { textColor = c; };
   inline void setFillStyle(int c) { fillStyle = c; };
   inline void setFillColor(int c) { fillColor = c; };
-  inline void setFillTransparency(float c) { fillTransparency = c; };
+  inline void setFillTransparency(double c) { fillTransparency = c; };
   inline void setTitle(TString s) { title = s; };
   void setChi2minGlobal(double x);
   void setSolutions(std::vector<RooSlimFitResult*> s);
   inline void setVerbose(bool yesNo = true) { verbose = yesNo; };
   inline void setHCL(TH1F* h) { hCL = h; };
   inline void setHchisq(TH1F* h) { hChi2min = h; };
-  void setXscanRange(float min, float max);
-  void setYscanRange(float min, float max);
+  void setXscanRange(double min, double max);
+  void setYscanRange(double min, double max);
   void calcCLintervalsSimple(int CLsType = 0, bool calc_expected = false);
   const std::pair<double, double> getBorders(const TGraph& graph, const double confidence_level,
                                              bool qubic = false) const;
@@ -194,7 +194,7 @@ class MethodAbsScan {
   int lineWidth = 2;
   int fillStyle = 1001;
   int fillColor = kBlue - 8;
-  float fillTransparency;
+  double fillTransparency;
   bool drawFilled = true;  ///< choose if Histogram is drawn filled or not
   int drawSolution = 0;    ///< Configure how to draw solutions on the plots.
   ///< 0=don't plot, 1=plot at central value (1d) or markers (2d)
@@ -210,10 +210,10 @@ class MethodAbsScan {
 
  private:
   bool compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2) const;
-  float pq(float p0, float p1, float p2, float y, int whichSol = 0) const;
+  double pq(double p0, double p1, double p2, double y, int whichSol = 0) const;
   void removeDuplicateSolutions();
-  bool interpolate(TH1F* h, int i, float y, float central, bool upper, float& val, float& err) const;
-  void interpolateSimple(TH1F* h, int i, float y, float& val) const;
+  bool interpolate(TH1F* h, int i, double y, double central, bool upper, double& val, double& err) const;
+  void interpolateSimple(TH1F* h, int i, double y, double& val) const;
 };
 
 #endif

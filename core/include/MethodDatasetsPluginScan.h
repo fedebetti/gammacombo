@@ -25,7 +25,7 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
  public:
   MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, OptParser* opt);
   void drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn = "default");
-  float getParValAtIndex(int index, TString parName);
+  double getParValAtIndex(int index, TString parName);
   MethodDatasetsProbScan* getProfileLH() { return dynamic_cast<MethodDatasetsProbScan*>(this->profileLH); };
   virtual void initScan();
   void loadParameterLimits();
@@ -50,7 +50,7 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
   RooFitResult* dataBkgFitResult;
 
  protected:
-  RooSlimFitResult* getParevolPoint(float scanpoint);
+  RooSlimFitResult* getParevolPoint(double scanpoint);
   void setParevolPointByIndex(int index);
   double bestfitpoint;
 

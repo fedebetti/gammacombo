@@ -46,21 +46,21 @@ int MethodCoverageScan::scan1d(int nRun) {
   hPvalues->Draw();
 
   // set up a root tree to save results
-  float tSol = 0.0;
-  float tSolScan = 0.0;
-  float tSolProbErr1Low = 0.0;
-  float tSolProbErr1Up = 0.0;
-  float tSolProbErr2Low = 0.0;
-  float tSolProbErr2Up = 0.0;
-  float tSolProbErr3Low = 0.0;
-  float tSolProbErr3Up = 0.0;
-  vector<float> paramVals;
+  double tSol = 0.0;
+  double tSolScan = 0.0;
+  double tSolProbErr1Low = 0.0;
+  double tSolProbErr1Up = 0.0;
+  double tSolProbErr2Low = 0.0;
+  double tSolProbErr2Up = 0.0;
+  double tSolProbErr3Low = 0.0;
+  double tSolProbErr3Up = 0.0;
+  vector<double> paramVals;
   for (int i = 0; i < combiner->getParameterNames().size(); i++) { paramVals.push_back(0.0); }
-  float tChi2free = 0.0;
-  float tChi2scan = 0.0;
-  float tSolGen;
-  float tPvalue;
-  float tId;
+  double tChi2free = 0.0;
+  double tChi2scan = 0.0;
+  double tSolGen;
+  double tPvalue;
+  double tId;
   int tnRun;
   auto t = new TTree("coverage", "Coverage Toys Tree");
   t->Branch("sol", &tSol, "sol/F");                                   // central value
@@ -138,7 +138,7 @@ int MethodCoverageScan::scan1d(int nRun) {
       combiner->getParameters()->Print("v");
     }
 
-    // fix observables, float parameters
+    // fix observables, double parameters
     fixParameters(combiner->getWorkspace(), "obs_" + combiner->getPdfName());
     floatParameters(combiner->getWorkspace(), "par_" + combiner->getPdfName());
 
@@ -280,11 +280,11 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
   TString transFunc = "none";
 
   // set up root tree for reading
-  float tSol = 0.0;
-  float tChi2free = 0.0;
-  float tChi2scan = 0.0;
-  float tSolGen = 0.0;
-  float tPvalue = 0.0;
+  double tSol = 0.0;
+  double tChi2free = 0.0;
+  double tChi2scan = 0.0;
+  double tSolGen = 0.0;
+  double tPvalue = 0.0;
   int tnRun = 0;
   c->SetBranchAddress("sol", &tSol);
   c->SetBranchAddress("chi2free", &tChi2free);
@@ -292,10 +292,10 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
   c->SetBranchAddress("solGen", &tSolGen);
   c->SetBranchAddress("pvalue", &tPvalue);
   c->SetBranchAddress("nrun", &tnRun);
-  float tPvalProb = 0.0;
-  float tPvalPlug = 0.0;
-  float tPvalProbNT = 0.0;
-  float tPvalPlugNT = 0.0;
+  double tPvalProb = 0.0;
+  double tPvalPlug = 0.0;
+  double tPvalProbNT = 0.0;
+  double tPvalPlugNT = 0.0;
   t_res->Branch("sol", &tSol);
   t_res->Branch("pvalue_prob", &tPvalProb);
   t_res->Branch("pvalue_plug", &tPvalPlug);
@@ -324,7 +324,7 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
     // fill plugin p-value distribution
     h_pvalue_plugin_notransf->Fill(tPvalue);
     // fill prob p-value distribution
-    float pvalueProb = TMath::Prob(tChi2scan - tChi2free, 1);
+    double pvalueProb = TMath::Prob(tChi2scan - tChi2free, 1);
     h_pvalue_prob_notransf->Fill(pvalueProb);
     // fill tree
     tPvalProb = pvalueProb;
@@ -363,7 +363,7 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
     h_sol->Fill(RadToDeg(fmod((double)tSol, std::numbers::pi)));
 
     // attempt a coverage correction
-    // float a = -35.3458/76.1644;
+    // double a = -35.3458/76.1644;
     // tPvalue = (tPvalue + 1./2.*a*sq(tPvalue))/(1.+1./2.*a);
 
     // draw plugin p-value distribution
@@ -375,10 +375,10 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
     if (tPvalue > 1. - 0.9973) n99plugin++;
 
     // draw prob p-value distribution
-    float pvalueProb = TMath::Prob(tChi2scan - tChi2free, 1);
+    double pvalueProb = TMath::Prob(tChi2scan - tChi2free, 1);
 
     // attempt a coverage correction
-    // float a = -0.6;
+    // double a = -0.6;
     // pvalueProb = (pvalueProb + 1./2.*a*sq(pvalueProb))/(1.+1./2.*a);
 
     if (transFunc != TString("none")) { pvalueProb = transform(fitParamsProb, transFunc, pvalueProb); }
@@ -554,7 +554,7 @@ void MethodCoverageScan::plot() const {
   savePlot(c2, name + "_pvalue" + arg->plotext);
 
   // compute coverage
-  auto n = (float)(nentries - nfailed);
+  auto n = (double)(nentries - nfailed);
   cout << "coverage test nToys=" << n << endl;
   cout << "Plugin:" << endl;
   cout << " eta=68.27%: alpha=" << Form("%.4f", 1. * n68plugin / n) << " +/- "
@@ -656,8 +656,8 @@ double MethodCoverageScan::transform(vector<double> fitParams, TString transFunc
 ///
 /// Print the results as Latex table line
 ///
-void MethodCoverageScan::printLatexLine(float eta, float finProb, float finProbErr, float finPlug,
-                                        float finPlugErr) const {
+void MethodCoverageScan::printLatexLine(double eta, double finProb, double finProbErr, double finPlug,
+                                        double finPlugErr) const {
   printf("$\\eta=%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.2f$ \\\\\n", eta, finProb,
          finProbErr, finProb - eta, finPlug, finPlugErr, finPlug - eta, eta / finPlug);
 }

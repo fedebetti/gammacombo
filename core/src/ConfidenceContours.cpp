@@ -22,7 +22,7 @@ ConfidenceContours::ConfidenceContours(const OptParser* arg) {
 ///
 // TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist)
 //{
-// float boundary = hist->GetMinimum();
+// double boundary = hist->GetMinimum();
 // TH2F* hBoundaries = new TH2F(getUniqueRootName(),getUniqueRootName(),
 // hist->GetNbinsX()+4,
 // hist->GetXaxis()->GetXmin() - 2*hist->GetXaxis()->GetBinWidth(1),
@@ -65,7 +65,7 @@ ConfidenceContours::ConfidenceContours(const OptParser* arg) {
 // return hBoundaries;
 //}
 TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist) {
-  float boundary = hist->GetMinimum();
+  double boundary = hist->GetMinimum();
   TH2F* hBoundaries = new TH2F(getUniqueRootName(), getUniqueRootName(), hist->GetNbinsX() + 2,
                                hist->GetXaxis()->GetXmin() - hist->GetXaxis()->GetBinWidth(1),
                                hist->GetXaxis()->GetXmax() + hist->GetXaxis()->GetBinWidth(1), hist->GetNbinsY() + 2,
@@ -90,8 +90,8 @@ TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist) {
 /// \param offset - a chi2 offset, usually 30 units
 /// \return - the transformed 2D histogram
 ///
-TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, float offset) {
-  float chi2min = hist->GetMinimum();
+TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, double offset) {
+  double chi2min = hist->GetMinimum();
   // cout << "ConfidenceContours::transformChi2valleyToHill() : chi2min=" << chi2min << endl;
   TH2F* newHist = histHardCopy(hist, false, true);
   for (int ix = 1; ix <= hist->GetXaxis()->GetNbins(); ix++) {
@@ -109,10 +109,10 @@ TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, float offset) {
 ///
 void ConfidenceContours::addFilledPlotArea(TH2F* hist) {
   // get boundaries
-  float xmin = hist->GetXaxis()->GetXmin();
-  float xmax = hist->GetXaxis()->GetXmax();
-  float ymin = hist->GetYaxis()->GetXmin();
-  float ymax = hist->GetYaxis()->GetXmax();
+  double xmin = hist->GetXaxis()->GetXmin();
+  double xmax = hist->GetXaxis()->GetXmax();
+  double ymin = hist->GetYaxis()->GetXmin();
+  double ymax = hist->GetYaxis()->GetXmax();
   // make new graph covering the plotted area
   auto g = new TGraph(m_nMaxContours);
   g->SetPoint(0, xmin, ymin);
@@ -145,7 +145,7 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
   m_contours.clear();
 
   // transform chi2 from valley to hill
-  float offset = 100.;
+  double offset = 100.;
   if (type == kChi2) hist = transformChi2valleyToHill(hist, offset);
 
   // add boundaries

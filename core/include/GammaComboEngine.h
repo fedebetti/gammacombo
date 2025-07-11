@@ -137,7 +137,7 @@ class GammaComboEngine {
   std::vector<int> colorsText;
   std::vector<int> fillStyles;
   std::vector<int> fillColors;
-  std::vector<float> fillTransparencies;
+  std::vector<double> fillTransparencies;
   std::vector<int> lineColors;
   std::vector<int> lineStyles;
   std::vector<int> lineWidths;

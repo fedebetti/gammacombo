@@ -17,8 +17,8 @@ class Parameter {
   void Print() const;
 
   struct Range {
-    float min;
-    float max;
+    double min;
+    double max;
   };
 
  private:
@@ -28,7 +28,7 @@ class Parameter {
   TString name = "not initialized";
   TString title = "not initialized";
   TString unit = "not initialized";
-  float startvalue = 0.;
+  double startvalue = 0.;
   Range phys = default_range;
   Range scan = default_range;
   Range force = default_range;

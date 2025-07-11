@@ -22,7 +22,7 @@ void PDF_CrossCor_GausA_vs_GausB::setCorrelations(TString c) {
   copyMeasurementCovariance();
   if (c.EqualTo("year2013")) {
     corSource = "cross correlations";
-    float c = 0.6;
+    const auto c = 0.6;
     corStatMatrix[0][0 + nObs1] = c;
     corStatMatrix[0 + nObs1][0] = c;
   } else {

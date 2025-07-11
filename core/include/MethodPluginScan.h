@@ -43,7 +43,7 @@ class MethodPluginScan : public MethodAbsScan {
   void computePvalue1d(RooSlimFitResult* plhScan, double chi2minGlobal, ToyTree* t, int id, Fitter* f, ProgressBar* pb);
   RooDataSet* generateToys(int nToys);
   double importance(double pvalue) const;
-  RooSlimFitResult* getParevolPoint(float scanpoint);
+  RooSlimFitResult* getParevolPoint(double scanpoint);
 
   int nToys;                   ///< number of toys to be generated at each scan point
   MethodProbScan* profileLH;   ///< external scanner holding the profile likelihood: DeltaChi2 of the scan PDF on data

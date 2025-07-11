@@ -7,7 +7,7 @@
  *
  *
  * The term "free fit do data" refers to the fit which is performed to data, where the parameter
- * of interest is left to float freely.
+ * of interest is left to double freely.
  *
  * The term "constrained fit to data" refers to the fit which is performed to data, where the
  * parameter of interest is fixed to a certain value (scanpoint)
@@ -157,7 +157,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
 /// Gets values of certain parameters as they were at the given scanpoint-index after the constrained fit to data
 ///
 ///////////////////////////////////////////////
-float MethodDatasetsPluginScan::getParValAtIndex(int index, TString parName) {
+double MethodDatasetsPluginScan::getParValAtIndex(int index, TString parName) {
 
   this->getProfileLH()->probScanTree->t->GetEntry(index);
   TLeaf* var = this->getProfileLH()->probScanTree->t->GetLeaf(parName);  //<- pretty sure that this will give a
@@ -185,8 +185,8 @@ void MethodDatasetsPluginScan::initScan() {
   }
   // if ( arg->scanrangeMin != arg->scanrangeMax ) par1->setRange("scan", arg->scanrangeMin, arg->scanrangeMax);
   // setLimit(w, scanVar1, "scan");
-  float min1 = arg->scanrangeMin;
-  float max1 = arg->scanrangeMax;
+  double min1 = arg->scanrangeMin;
+  double max1 = arg->scanrangeMax;
 
   if (hCL) delete hCL;
   hCL = new TH1F("hCL" + getUniqueRootName(), "hCL" + pdf->getPdfName(), nPoints1d, min1, max1);
@@ -256,28 +256,28 @@ void MethodDatasetsPluginScan::checkExtProfileLH() {
     exit(EXIT_FAILURE);
   }
 
-  float parameterToScan_min = hCL->GetXaxis()->GetXmin();
-  float parameterToScan_max = hCL->GetXaxis()->GetXmax();
+  double parameterToScan_min = hCL->GetXaxis()->GetXmin();
+  double parameterToScan_max = hCL->GetXaxis()->GetXmax();
 
   tree->GetEntry(0);
-  float minTreePoint = b->GetLeaf("scanpoint")->GetValue();
+  double minTreePoint = b->GetLeaf("scanpoint")->GetValue();
   if ((minTreePoint - parameterToScan_min) / std::max(parameterToScan_max, parameterToScan_min) > 1e-5) {
     std::cout << "Lowest scan point in tree saved from prob scan does not match lowest scan point used in plugin scan."
               << std::endl;
     std::cout
-        << "Alternatively, this could be a problem with the heuristics used for checking the equality of two floats"
+        << "Alternatively, this could be a problem with the heuristics used for checking the equality of two doubles"
         << std::endl;
     exit(EXIT_FAILURE);
   }
 
   tree->GetEntry(entriesInTree - 1);
-  float maxTreePoint = b->GetLeaf("scanpoint")->GetValue();
+  double maxTreePoint = b->GetLeaf("scanpoint")->GetValue();
   if ((maxTreePoint - parameterToScan_max) / std::max(parameterToScan_max, parameterToScan_min) > 1e-5) {
     std::cout
         << "Max scan point in tree saved from prob scan probably does not match max scan point used in plugin scan."
         << std::endl;
     std::cout
-        << "Alternatively, this could be a problem with the heuristics used for checking the equality of two floats"
+        << "Alternatively, this could be a problem with the heuristics used for checking the equality of two doubles"
         << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -433,7 +433,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   ToyTree t(this->pdf, this->arg, c);
   t.open();
 
-  float halfBinWidth = (t.getScanpointMax() - t.getScanpointMin()) / ((float)t.getScanpointN()) / 2;  //-1.)/2;
+  double halfBinWidth = (t.getScanpointMax() - t.getScanpointMin()) / ((double)t.getScanpointN()) / 2;  //-1.)/2;
   /// \todo replace this such that there's always one bin per scan point, but still the range is the scan range.
   /// \todo Also, if we use the min/max from the tree, we have the problem that they are not exactly
   /// the scan range, so that the axis won't show the lowest and highest number.
@@ -541,13 +541,13 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   Long64_t n0failed = 0;
   Long64_t totFailed = 0;
 
-  float printFreq = nentries > 101 ? 100 : nentries;  ///< for the status bar
+  double printFreq = nentries > 101 ? 100 : nentries;  ///< for the status bar
   t.activateAllBranches();
   for (Long64_t i = 0; i < nentries; i++) {
     // status bar
     if (((int)i % (int)(nentries / printFreq)) == 0)
       cout << "MethodDatasetsPluginScan::readScan1dTrees() : reading entries "
-           << Form("%.0f", (float)i / (float)nentries * 100.) << "%   \r" << flush;
+           << Form("%.0f", (double)i / (double)nentries * 100.) << "%   \r" << flush;
     // load entry
     t.GetEntry(i);
 
@@ -706,8 +706,9 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     if (valid && !inPhysicalRegion) { h_background->Fill(t.scanpoint); }
 
     if (n0tot % 1500 == 0 && n0all != 0) {
-      // cout << "better: " << n0better << " all: " << n0all << " p: " << (float)n0better/(float)n0all << endl << endl;
-      h_pVals->Fill((float)n0better / (float)n0all);
+      // cout << "better: " << n0better << " all: " << n0all << " p: " << (double)n0better/(double)n0all << endl <<
+      // endl;
+      h_pVals->Fill((double)n0better / (double)n0all);
       n0tot = 0;
       n0better = 0;
       n0all = 0;
@@ -760,37 +761,37 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   // //...
 
   for (int i = 1; i <= h_better->GetNbinsX(); i++) {
-    float nbetter = h_better->GetBinContent(i);
-    float nbetter_cls = h_better_cls->GetBinContent(i);
-    float nbetter_clb = h_better_clb->GetBinContent(i);
-    float nall = h_all->GetBinContent(i);
-    float nall_bkg = h_all_bkg->GetBinContent(i);
+    double nbetter = h_better->GetBinContent(i);
+    double nbetter_cls = h_better_cls->GetBinContent(i);
+    double nbetter_clb = h_better_clb->GetBinContent(i);
+    double nall = h_all->GetBinContent(i);
+    double nall_bkg = h_all_bkg->GetBinContent(i);
     // std::cout<<nall_bkg << "\t" << nbetter_clb <<"\t"<< nbetter_clb / nall_bkg << std::endl;
     // get number of background and failed toys
-    float nbackground = h_background->GetBinContent(i);
+    double nbackground = h_background->GetBinContent(i);
 
     // nfailed = h_failed->GetBinContent(i);
     // nall = nall - nfailed + nbackground;
-    float ntot = h_tot->GetBinContent(i);
+    double ntot = h_tot->GetBinContent(i);
     if (nall == 0.) continue;
     h_background->SetBinContent(i, nbackground / nall);
     h_background->SetBinError(i, sqrt(h_background->GetBinContent(i) * (1. - h_background->GetBinContent(i)) / nall));
-    h_negtest_bkg->SetBinContent(i, ((float)h_negtest_bkg->GetBinContent(i)) / nall);
+    h_negtest_bkg->SetBinContent(i, ((double)h_negtest_bkg->GetBinContent(i)) / nall);
     h_negtest_bkg->SetBinError(i,
                                sqrt(h_negtest_bkg->GetBinContent(i) * (1. - h_negtest_bkg->GetBinContent(i)) / nall));
-    h_fracGoodToys->SetBinContent(i, (nall) / (float)ntot);
-    h_fracGoodToys->SetBinError(i, sqrt(((nall) / (float)ntot) * (1. - ((nall) / (float)ntot)) / ntot));
+    h_fracGoodToys->SetBinContent(i, (nall) / (double)ntot);
+    h_fracGoodToys->SetBinError(i, sqrt(((nall) / (double)ntot) * (1. - ((nall) / (double)ntot)) / ntot));
     // subtract background
-    // float p = (nbetter-nbackground)/(nall-nbackground);
+    // double p = (nbetter-nbackground)/(nall-nbackground);
     // hCL->SetBinContent(i, p);
     // hCL->SetBinError(i, sqrt(p * (1.-p)/(nall-nbackground)));
 
     // don't subtract background
-    float p = nbetter / nall;
-    float p_cls = nbetter_cls / nall;
-    float p_clb = nbetter_clb / nall_bkg;
+    double p = nbetter / nall;
+    double p_cls = nbetter_cls / nall;
+    double p_clb = nbetter_clb / nall_bkg;
     // std::cout << "p val. bkg. Prob: " << TMath::Prob(chi2minBkg - chi2minGlobal,1) << " Plugin: " << p_clb << " +/- "
-    // << sqrt(p_clb * (1. - p_clb) / nall) << std::endl; float p_clb = TMath::Prob(chi2minBkg - chi2minGlobal,1);
+    // << sqrt(p_clb * (1. - p_clb) / nall) << std::endl; double p_clb = TMath::Prob(chi2minBkg - chi2minGlobal,1);
     // //Since the fitting of the global pdf is biased, use Prob to determine p_clb
 
     hCL->SetBinContent(i, p);
@@ -889,7 +890,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
 
     // //Test median error...
     // // std::cout << "bootstrapping median errors for bin " << i << std::endl;
-    // std::vector<float> medians;
+    // std::vector<double> medians;
     // for (int m=0; m<10000; m++){
     //     TRandom3 rndg(0);
     //     std::vector<double> testsample;
@@ -942,8 +943,8 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     for (const auto val : sampledBValues[i]) {
       if (val > dataTestStat) nDataAboveBkgExp += 1;
     }
-    float dataCLb = p_clb;
-    float dataCLbErr = sqrt(dataCLb * (1. - dataCLb) / sampledBValues[i].size());
+    double dataCLb = p_clb;
+    double dataCLbErr = sqrt(dataCLb * (1. - dataCLb) / sampledBValues[i].size());
     if (dataCLb == 0) {
       std::cout << "!!!!!! ERROR: CL_b=0: this should only happen for really few toys! Setting to a small value. "
                    "Please run more toys to get a reliable result."
@@ -1166,10 +1167,10 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   // goodness-of-fit
 
   int iBinBestFit = hCL->GetMaximumBin();
-  float nGofBetter = h_gof->GetBinContent(iBinBestFit);
-  float nall = h_all->GetBinContent(iBinBestFit);
-  float fitprobabilityVal = nGofBetter / nall;
-  float fitprobabilityErr = sqrt(fitprobabilityVal * (1. - fitprobabilityVal) / nall);
+  double nGofBetter = h_gof->GetBinContent(iBinBestFit);
+  double nall = h_all->GetBinContent(iBinBestFit);
+  double fitprobabilityVal = nGofBetter / nall;
+  double fitprobabilityErr = sqrt(fitprobabilityVal * (1. - fitprobabilityVal) / nall);
   cout << "MethodDatasetsPluginScan::readScan1dTrees() : fit prob of best-fit point: "
        << Form("(%.1f+/-%.1f)%%", fitprobabilityVal * 100., fitprobabilityErr * 100.) << endl;
 }
@@ -1189,7 +1190,7 @@ double MethodDatasetsPluginScan::getPValueTTestStatistic(double test_statistic_v
            << "An equal upwards fluctuaion corresponds to a p value of " << TMath::Prob(abs(test_statistic_value), 1)
            << std::endl;
     }
-    // TMath::Prob will return 0 if the Argument is slightly below zero. As we are working with a float-zero we can not
+    // TMath::Prob will return 0 if the Argument is slightly below zero. As we are working with a double-zero we can not
     // rely on it here: TMath::Prob( 0 ) returns 1
     return 1.;
   }
@@ -1212,8 +1213,8 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
   // Define scan parameter and scan range.
   RooRealVar* parameterToScan = w->var(scanVar1);
-  float parameterToScan_min = hCL->GetXaxis()->GetXmin();
-  float parameterToScan_max = hCL->GetXaxis()->GetXmax();
+  double parameterToScan_min = hCL->GetXaxis()->GetXmin();
+  double parameterToScan_max = hCL->GetXaxis()->GetXmax();
 
   TString probResName =
       Form("root/scan1dDatasetsProb_" + this->pdf->getName() + "_%ip" + "_" + scanVar1 + ".root", arg->npoints1d);
@@ -1250,19 +1251,19 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
   // might not necessarily be in the scan range (although often it will be the first point)
   vector<RooAbsData*> cls_bkgOnlyToys;
   vector<TString> bkgOnlyGlobObsSnaphots;
-  vector<float> chi2minGlobalBkgToysStore;  // Global fit to bkg-only toys
-  vector<float> chi2minBkgBkgToysStore;     // Bkg fit to bkg-only toys
-  vector<float> scanbestBkgToysStore;       // best fit point of gloabl fit to bkg-only toys
-  vector<float> scanbestBkgBkgToysStore;    // best fit point of bkg fit to bkg-only toys (usually zero because bkg pdf
-                                            // will not depend on signal parameter)
-  vector<int> covQualFreeBkgToysStore;      // covariance quality of gloabl fit to bkg-only toys
-  vector<int> covQualBkgBkgToysStore;       // covariance quality of bkg fit to bkg-only toys
-  vector<int> StatusFreeBkgToysStore;       // status of gloabl fit to bkg-only toys
-  vector<int> StatusBkgBkgToysStore;        // status of bkg fit to bkg-only toys
+  vector<double> chi2minGlobalBkgToysStore;  // Global fit to bkg-only toys
+  vector<double> chi2minBkgBkgToysStore;     // Bkg fit to bkg-only toys
+  vector<double> scanbestBkgToysStore;       // best fit point of gloabl fit to bkg-only toys
+  vector<double> scanbestBkgBkgToysStore;    // best fit point of bkg fit to bkg-only toys (usually zero because bkg pdf
+                                             // will not depend on signal parameter)
+  vector<int> covQualFreeBkgToysStore;       // covariance quality of gloabl fit to bkg-only toys
+  vector<int> covQualBkgBkgToysStore;        // covariance quality of bkg fit to bkg-only toys
+  vector<int> StatusFreeBkgToysStore;        // status of gloabl fit to bkg-only toys
+  vector<int> StatusBkgBkgToysStore;         // status of bkg fit to bkg-only toys
   // Titus: Try importance sampling from the combination part -> works, but definitely needs improvement in precision
   int nActualToys = nToys;
   if (arg->importance) {
-    float plhPvalue = TMath::Prob(toyTree.chi2min - toyTree.chi2minGlobal, 1);
+    double plhPvalue = TMath::Prob(toyTree.chi2min - toyTree.chi2minGlobal, 1);
     nActualToys = nToys * importance(plhPvalue);
   }
   for (int j = 0; j < nActualToys; j++) {
@@ -1437,7 +1438,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
     // this uses the "scan" range, as expected
     // don't add half the bin size. try to solve this within plotting method
 
-    float scanpoint =
+    double scanpoint =
         parameterToScan_min + (parameterToScan_max - parameterToScan_min) * (double)i / ((double)nPoints1d - 1);
     toyTree.scanpoint = scanpoint;
 
@@ -1482,7 +1483,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
     // Titus: Try importance sampling from the combination part -> works, but definitely needs improvement in precision
     int nActualToys = nToys;
     if (arg->importance) {
-      float plhPvalue = TMath::Prob(toyTree.chi2min - toyTree.chi2minGlobal, 1);
+      double plhPvalue = TMath::Prob(toyTree.chi2min - toyTree.chi2minGlobal, 1);
       nActualToys = nToys * importance(plhPvalue);
     }
     // Titus: Debug histogram to see the different deltachisq distributions
@@ -2118,7 +2119,7 @@ void MethodDatasetsPluginScan::printDebug(const RooFitResult& r) {
        << std::resetiosflags(std::ios::scientific);
 };
 
-RooSlimFitResult* MethodDatasetsPluginScan::getParevolPoint([[maybe_unused]] float scanpoint) {
+RooSlimFitResult* MethodDatasetsPluginScan::getParevolPoint([[maybe_unused]] double scanpoint) {
   std::cout << "ERROR: not implemented for MethodDatasetsPluginScan, use setParevolPointByIndex() instad" << std::endl;
   exit(EXIT_FAILURE);
 }
@@ -2146,7 +2147,7 @@ void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
            << ") found in PLH scan file!" << endl;
       exit(EXIT_FAILURE);
     }
-    float scanParVal = parLeaf->GetValue();
+    double scanParVal = parLeaf->GetValue();
     static_cast<RooRealVar*>(p)->setVal(scanParVal);
   }
 }

@@ -369,7 +369,7 @@ void Combiner::print() const {
 /// Adjust the physical range of a parameter as requested. Only possible
 /// after combining.
 ///
-void Combiner::adjustPhysRange(const TString varName, const float min, const float max) {
+void Combiner::adjustPhysRange(const TString varName, const double min, const double max) {
   if (!_isCombined) {
     cout << "Combiner::adjustPhysRange() : ERROR : Can't adjust parameters range before ";
     cout << "combine() was called. Skipping." << endl;
@@ -395,7 +395,7 @@ void Combiner::adjustPhysRange(const TString varName, const float min, const flo
 /// \param var - the parameter name
 /// \param value - the value to fix the parameter to
 ///
-void Combiner::fixParameter(const TString var, const float value) {
+void Combiner::fixParameter(const TString var, const double value) {
   if (_isCombined) {
     cout << "Combiner::fixParameter() : WARNING : Can't set parameters constant "
             "after combine() was called. Skipping."

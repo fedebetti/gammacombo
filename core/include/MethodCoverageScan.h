@@ -35,7 +35,7 @@ class MethodCoverageScan : public MethodAbsScan {
   // functions
   std::vector<double> fitHist(TH1* h, TString fitfunc = "p1+exp", bool draw = true) const;
   double transform(std::vector<double> fitParams, TString transFunc, double x) const;
-  void printLatexLine(float eta, float finProb, float finProbErr, float finPlug, float finPlugErr) const;
+  void printLatexLine(double eta, double finProb, double finProbErr, double finPlug, double finPlugErr) const;
 
   // result histograms
   TH1F* h_sol = nullptr;
@@ -48,12 +48,12 @@ class MethodCoverageScan : public MethodAbsScan {
   // result values
   Long64_t nentries;
   Long64_t nfailed;
-  float n68plugin;
-  float n95plugin;
-  float n99plugin;
-  float n68prob;
-  float n95prob;
-  float n99prob;
+  double n68plugin;
+  double n95plugin;
+  double n99plugin;
+  double n68prob;
+  double n95prob;
+  double n99prob;
 };
 
 #endif

@@ -298,9 +298,9 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                         "of the y variable to a given range. "
                                         "Format: --scanrangey min:max.",
                                         false, "default", "string");
-  TCLAP::ValueArg<float> scaleerrArg("", "scaleerr", "Scale the errors by this number", false, -999., "float");
-  TCLAP::ValueArg<float> scalestaterrArg("", "scalestaterr", "Scale the STAT only errors by this number", false, -999.,
-                                         "float");
+  TCLAP::ValueArg<double> scaleerrArg("", "scaleerr", "Scale the errors by this number", false, -999., "double");
+  TCLAP::ValueArg<double> scalestaterrArg("", "scalestaterr", "Scale the STAT only errors by this number", false, -999.,
+                                          "double");
   TCLAP::ValueArg<string> plotoriginArg(
       "", "origin", "Plot Origin on 2D plots. Default 0:0. Can move to another location. Format: --origin min:max",
       false, "default", "string");
@@ -400,10 +400,10 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "Format: --grouppos xmin:ymin in normalized coordinates [0,1]. To use default values "
       "for one coordinate, use 'def': --grouppos def:y.",
       false, "default", "string");
-  TCLAP::ValueArg<float> printSolXArg("", "printsolx", "x coordinate to print solution at in 1D plots", false, -999.,
-                                      "float");
-  TCLAP::ValueArg<float> printSolYArg("", "printsoly", "y coordinate to shift solution by in 1D plots", false, -999.,
-                                      "float");
+  TCLAP::ValueArg<double> printSolXArg("", "printsolx", "x coordinate to print solution at in 1D plots", false, -999.,
+                                       "double");
+  TCLAP::ValueArg<double> printSolYArg("", "printsoly", "y coordinate to shift solution by in 1D plots", false, -999.,
+                                       "double");
   /// TCLAP::ValueArg<string> queueArg("q","queue","Batch queue to submit to. If none is given then the scripts will be
   /// written but not submitted.", false, "", "string");
   TCLAP::ValueArg<int> batchstartnArg(
@@ -570,13 +570,13 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                 "ID of color to be used for the combination. "
                                 "Default: 0 for first scanner, 1 for second, etc.",
                                 false, "int");
-  TCLAP::MultiArg<float> CLArg(
+  TCLAP::MultiArg<double> CLArg(
       "", "CL",
       "Confidence Levels to be computed and plotted in percent. This argument can be passed multiple times.\n"
       "Default will print 1 & 2 (3) sigma confidence levels\n"
       "Syntax: --CL 90  \n"
       "alternative: -cl 95.45  \n",
-      false, "float");
+      false, "double");
 
   TCLAP::MultiArg<int> clsArg(
       "", "cls",
@@ -593,10 +593,10 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                           "Set line color of the 1D and 2D contours to be used for the combination. "
                                           "Default is picked up from color vector.",
                                           false, "int");
-  TCLAP::MultiArg<float> filltransparencyArg(
+  TCLAP::MultiArg<double> filltransparencyArg(
       "", "filltransparency",
       "Fill transparency of the 1D and 2D contours to be used for the combination. Default is 0 (solid) for all.",
-      false, "float");
+      false, "double");
   TCLAP::MultiArg<int> fillstyleArg(
       "", "fillstyle",
       "Fill style of the 1D and 2D contours to be used for the combination. Default is 1001 (solid) for all.", false,
@@ -680,7 +680,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                    false, "string");
   TCLAP::MultiArg<string> fixArg("", "fix",
                                  "Fix one or more parameters in a combination. "
-                                 "If 'none' is given, all parameters are floated (default). "
+                                 "If 'none' is given, all parameters are doubleed (default). "
                                  "If given multiple times, the first --fix argument refers to the first combination, "
                                  "the second one to the second and so on. "
                                  "If given a single time, it is applied to all combinations. \n"
@@ -725,13 +725,13 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "To set just the start values in the second combination, do\n"
       "Example: --start none --start 'g=1.7,r_dk=0.09' \n",
       false, "string");
-  TCLAP::MultiArg<float> snArg("", "sn",
-                               "--sn x. Save nuisances to parameter cache file at certain points after a "
-                               "1d scan was performed. This can be used to set these as starting points "
-                               "for further scans. "
-                               "Parameters will be saved for scan point bin that contains x. "
-                               "Angles have to be given in radians.",
-                               false, "float");
+  TCLAP::MultiArg<double> snArg("", "sn",
+                                "--sn x. Save nuisances to parameter cache file at certain points after a "
+                                "1d scan was performed. This can be used to set these as starting points "
+                                "for further scans. "
+                                "Parameters will be saved for scan point bin that contains x. "
+                                "Angles have to be given in radians.",
+                                false, "double");
   TCLAP::MultiArg<string> sn2dArg("", "sn2d",
                                   "Save nuisances as for --sn (1d case) but for 2d scans at the given points. "
                                   "Format: x:y",
@@ -1468,7 +1468,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 /// \param usage    - string containing some usage information which is
 ///           printed when there is an error.
 ///
-void OptParser::parsePosition(TString parseMe, float& x, float& y, TString usage) {
+void OptParser::parsePosition(TString parseMe, double& x, double& y, TString usage) {
   if (parseMe == TString("default")) {
     x = -1.;
     y = -1.;
@@ -1562,7 +1562,7 @@ void OptParser::parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y,
 /// \param min return value
 /// \param max return value
 ///
-bool OptParser::parseRange(TString parseMe, float& min, float& max) const {
+bool OptParser::parseRange(TString parseMe, double& min, double& max) const {
   if (parseMe == TString("default")) {
     min = -104;
     max = -104;
@@ -1601,7 +1601,7 @@ bool OptParser::parseAssignment(TString parseMe, TString& name, TString& value) 
 /// \param name return string
 /// \param value return value
 ///
-bool OptParser::parseAssignment(TString parseMe, TString& name, float& value) const {
+bool OptParser::parseAssignment(TString parseMe, TString& name, double& value) const {
   TString valueStr;
   parseAssignment(parseMe, name, valueStr);
   value = valueStr.Atof();

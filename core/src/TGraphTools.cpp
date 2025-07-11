@@ -6,11 +6,11 @@
 using namespace std;
 using namespace Utils;
 
-TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew) {
+TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, double xNew, double yNew) {
   // get x and y coordinates as vectors- the TGraph interface is just not suited to
   // what we want to do
-  vector<float> xVec;
-  vector<float> yVec;
+  vector<double> xVec;
+  vector<double> yVec;
   Double_t xOld, yOld;
   for (int i = 0; i < g->GetN(); i++) {
     g->GetPoint(i, xOld, yOld);

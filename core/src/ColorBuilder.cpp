@@ -12,7 +12,7 @@ int ColorBuilder::lightcolor(int n) const { return darklightcolor(n, 1.04); }
 /// Copied from TColor::GetColorDark(Int_t n), but customized
 /// the 'darkness'.
 ///
-int ColorBuilder::darklightcolor(int n, float scale) const {
+int ColorBuilder::darklightcolor(int n, double scale) const {
   if (n < 0) return -1;
 
   // Get list of all defined colors

@@ -41,22 +41,22 @@ namespace Utils {
   // used to fix parameters in the combination, see e.g. Combiner::fixParameter()
   struct FixPar {
     TString name;
-    float value;
+    double value;
     bool useValue;
   };
 
   // used to set starting values in the combination, see e.g. Combiner::setValue()
   struct StartPar {
     TString name;
-    float value;
+    double value;
     bool useValue;
   };
 
   // used to adjust ranges in the combination, see e.g. Combiner::adjustRange()
   struct RangePar {
     TString name;
-    float min;
-    float max;
+    double min;
+    double max;
   };
 
   // drawing HFAG label
@@ -68,7 +68,7 @@ namespace Utils {
   inline double DegToRad(double deg) { return deg / 180. * TMath::Pi(); }
   inline double Max(double v1, double v2) { return v1 > v2 ? v1 : v2; }
   int calcNsubdigits(double value, int sigdigits = 2);
-  float Round(double value, int digits);
+  double Round(double value, int digits);
   double bringBackAngle(double angle);
   double angularDifference(double angle1, double angle2);
   bool isPosDef(TMatrixDSym* c);
@@ -116,7 +116,7 @@ namespace Utils {
   template <typename T>
   TMatrixDSym buildCorMatrix(const int n, std::vector<T> data);
   bool buildCorMatrix(TMatrixDSym& cor);
-  TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, float* err);
+  TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, double* err);
   TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, std::vector<double>& err);
 
   RooFormulaVar* makeTheoryVar(TString name, TString title, TString formula, RooArgList* pars);
@@ -163,7 +163,7 @@ namespace Utils {
   static inline double normal_cdf(double x);
 
   void dump_vector(const std::vector<int>& l);
-  void dump_vector(const std::vector<float>& l);
+  void dump_vector(const std::vector<double>& l);
   void dump_map(const std::map<int, std::vector<int>>& map);
   void dump_matrix(const std::vector<std::vector<int>>& l);
 

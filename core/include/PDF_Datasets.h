@@ -61,10 +61,10 @@ class PDF_Datasets : public PDF_Abs {
   inline std::vector<TString> getFitObs() const { return fitObs; };
   inline std::map<TString, TString> getUnblindRegions() const { return unblindRegions; };
   TString getGlobalObsName() const { return globalObsName; };
-  float getMinNll() const { return minNll; };
-  float getMinNllFree() const { return minNllFree; };
-  float getMinNllBkg() const { return minNllBkg; };
-  float getMinNllScan() const { return minNllScan; };
+  double getMinNll() const { return minNll; };
+  double getMinNllFree() const { return minNllFree; };
+  double getMinNllBkg() const { return minNllBkg; };
+  double getMinNllScan() const { return minNllScan; };
   inline int getBestIndex() const { return bestIndex; };
   inline int getBestIndexBkg() const { return bestIndexBkg; };
   inline int getBestIndexScan() const { return bestIndexScan; };
@@ -79,9 +79,9 @@ class PDF_Datasets : public PDF_Abs {
   // setters
   inline void setFitStatus(int stat = 0) { fitStatus = stat; };
   inline void setFitStrategy(int strat = 0) { fitStrategy = strat; };
-  inline void setMinNll(float mnll) { minNll = mnll; };
-  inline void setMinNllFree(float mnll) { minNllFree = mnll; };
-  inline void setMinNllScan(float mnll) { minNllScan = mnll; };
+  inline void setMinNll(double mnll) { minNll = mnll; };
+  inline void setMinNllFree(double mnll) { minNllFree = mnll; };
+  inline void setMinNllScan(double mnll) { minNllScan = mnll; };
   inline void setBestIndex(int index) { bestIndex = index; };
   inline void setBestIndexBkg(int index) { bestIndexBkg = index; };
   inline void setBestIndexScan(int index) { bestIndexScan = index; };
@@ -106,7 +106,7 @@ class PDF_Datasets : public PDF_Abs {
   };  // this comes from a previous if-statement
 
   int NCPU;  //> number of CPU used
-  float minNll = 0.;
+  double minNll = 0.;
 
   const TString globalObsDataSnapshotName = "globalObsDataSnapshotName";
   //> name of a snapshot that stores the values of the global observables in data
@@ -140,9 +140,9 @@ class PDF_Datasets : public PDF_Abs {
   const OptParser* arg = nullptr;
   int fitStrategy = 0;
   int fitStatus = -10;
-  float minNllFree = 0.;
-  float minNllBkg;
-  float minNllScan = 0.;
+  double minNllFree = 0.;
+  double minNllBkg;
+  double minNllScan = 0.;
   int bestIndex;
   int bestIndexBkg;
   int bestIndexScan;

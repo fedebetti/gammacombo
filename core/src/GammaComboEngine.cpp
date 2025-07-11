@@ -367,7 +367,7 @@ void GammaComboEngine::scaleDownErrors() {
   for (int i = 0; i < pdf.size(); i++) {
     // these are the PDFs for the full combination:
     // if (! (i==61 || i==58 || i==60 || i==56 || i==54 || i==40 || i==43) ) continue;
-    float scale = 1.;
+    double scale = 1.;
     if (i == 25) scale = sqrt(5. * 50. / 3.);
     if (i == 60) scale = sqrt(50. / 3.);
     // if ( i==23 ) scale = sqrt(50.);
@@ -1584,7 +1584,7 @@ void GammaComboEngine::tightenChi2Constraint(Combiner* c, TString scanVar) {
          << "'. Exit." << endl;
     exit(1);
   }
-  float scale = 0.1;
+  double scale = 0.1;
   cout << "... observable error is multiplied by a factor " << scale << endl;
   pdf->ScaleError(scanVar, scale);
   pdf->buildCov();

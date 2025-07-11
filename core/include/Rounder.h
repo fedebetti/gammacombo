@@ -14,20 +14,20 @@
 
 class Rounder {
  public:
-  Rounder(const OptParser* arg, float cllo, float clhi, float central);
+  Rounder(const OptParser* arg, double cllo, double clhi, double central);
 
   int getNsubdigits() const;
-  float CLlo() const;
-  float CLhi() const;
-  float central() const;
-  float errNeg() const;
-  float errPos() const;
+  double CLlo() const;
+  double CLhi() const;
+  double central() const;
+  double errNeg() const;
+  double errPos() const;
 
  private:
   const OptParser* arg;  ///< command line arguments
-  float m_cllo;
-  float m_clhi;
-  float m_central;
+  double m_cllo;
+  double m_clhi;
+  double m_central;
 };
 
 #endif
