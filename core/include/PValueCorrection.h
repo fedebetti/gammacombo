@@ -1,12 +1,12 @@
 #ifndef PValueCorrection_h
 #define PValueCorrection_h
 
+#include <memory>
 #include <vector>
 
 #include <TF1.h>
 #include <TFile.h>
 #include <TH1.h>
-#include <TH1F.h>
 #include <TString.h>
 
 class PValueCorrection {
@@ -14,7 +14,6 @@ class PValueCorrection {
  public:
   PValueCorrection(TString _transFunc = "none", bool _verbose = false);
   PValueCorrection(int id, bool _verbose = false);
-  ~PValueCorrection();
 
   void setTransFunc(TString tf) { transFunc = tf; }
   void setFitParams(std::vector<double> fP) { fitParams = fP; }
@@ -37,8 +36,8 @@ class PValueCorrection {
   TF1 fitFunc;
   std::vector<double> fitParams;
   std::vector<TString> allowedFuncs;
-  TH1F* h_pvalue_before;
-  TH1F* h_pvalue_after;
+  std::unique_ptr<TH1> h_pvalue_before = nullptr;
+  std::unique_ptr<TH1> h_pvalue_after = nullptr;
 };
 
 #endif

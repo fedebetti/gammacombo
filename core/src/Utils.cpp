@@ -8,6 +8,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -18,12 +19,12 @@
 #include <TMatrixDSymEigen.h>
 #include <TPaveText.h>
 #include <TVectorD.h>
-// #include <TStyle.h>
 
 #include <RooMinimizer.h>
 #include <RooProdPdf.h>
 #include <RooRandom.h>
 #include <RooRealVar.h>
+#include <RooWorkspace.h>
 
 #include <Utils.h>
 
@@ -135,11 +136,10 @@ RooFitResult* Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int 
     const auto p = static_cast<RooRealVar*>(pAbs);
     if (!isAngle(p)) continue;
     if (p->getVal() < 0.0 || p->getVal() > 2. * TMath::Pi()) {
-      RooArgSet* pdfPars = pdf->getParameters(RooArgSet());
-      auto pdfPar = (RooRealVar*)pdfPars->find(p->GetName());
+      std::unique_ptr<RooArgSet> pdfPars(pdf->getParameters(RooArgSet()));
+      auto pdfPar = static_cast<RooRealVar*>(pdfPars->find(p->GetName()));
       pdfPar->setVal(bringBackAngle(p->getVal()));
       refit = true;
-      delete pdfPars;
     }
   }
   if (refit) {
@@ -178,8 +178,8 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
     cout << "MethodProbScan::scan2d() : ERROR : parsName not found: " << parsName << endl;
     exit(1);
   }
-  auto startPars = new RooDataSet("startParsForce", "startParsForce", *w->set(parsName));
-  startPars->add(*w->set(parsName));
+  RooDataSet startPars("startParsForce", "startParsForce", *w->set(parsName));
+  startPars.add(*w->set(parsName));
 
   // set up parameters and ranges
   auto varyPars = new RooArgList();
@@ -216,7 +216,7 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
   // to parameter at max or at min.
   for (int i = 0; i < pow(2., nPars); i++) {
     if (debug) cout << "Utils::fitToMinForce() : fit " << i << "        \r" << flush;
-    setParameters(w, parsName, startPars->get(0));
+    setParameters(w, parsName, startPars.get(0));
 
     for (int ip = 0; ip < nPars; ip++) {
       auto p = (RooRealVar*)varyPars->at(ip);
@@ -261,7 +261,6 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
   // (re)set to best parameters
   setParameters(w, parsName, r);
 
-  delete startPars;
   return r;
 }
 
@@ -331,8 +330,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     // so that their parameters are linked
     RooAbsPdf* hessePdf = r1->createHessePdf(*w->set(parsName));
     if (!hessePdf) return r1;
-    // RooWorkspace* wImprove = (RooWorkspace*)w->Clone();
-    auto wImprove = new RooWorkspace();
+    auto wImprove = std::make_unique<RooWorkspace>();
     wImprove->import(*w->pdf(pdfName));
     wImprove->import(*hessePdf);
     hessePdf = wImprove->pdf(hessePdf->GetName());
@@ -371,7 +369,6 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     //   histo->Draw("colz");
     //   // setParameters(wImprove, parsName, r1);
     // }
-    delete wImprove;
   }
 
   // step 3: use the fit result of the improved fit as
@@ -998,17 +995,16 @@ TGraph* Utils::convertTH1ToTGraph(TH1* h, bool withErrors) {
 
 /// Smooths a graph
 TGraph* Utils::smoothGraph(TGraph* g, int option) {
-  auto smoother = new TGraphSmooth();
+  auto smoother = TGraphSmooth();
   TGraph* gr;
   if (option == 0)
-    gr = (TGraph*)smoother->SmoothSuper(g)->Clone(Form("sm%s", g->GetName()));
+    gr = (TGraph*)smoother.SmoothSuper(g)->Clone(Form("sm%s", g->GetName()));
   else if (option == 1)
-    gr = (TGraph*)smoother->Approx(g)->Clone(Form("sm%s", g->GetName()));
+    gr = (TGraph*)smoother.Approx(g)->Clone(Form("sm%s", g->GetName()));
   else {
     cout << "Utils::smoothGraph() : ERROR - no such option " << option << endl;
     exit(1);
   }
-  delete smoother;
   return gr;
 }
 

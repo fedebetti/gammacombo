@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 #include <TChain.h>
 #include <TList.h>
@@ -37,12 +38,6 @@ PValueCorrection::PValueCorrection(int id, bool _verbose) : transFunc(""), verbo
   allowedFuncs.push_back("p1+exp");
   allowedFuncs.push_back("p1+1/x");
   checkValid();
-}
-
-PValueCorrection::~PValueCorrection() {
-
-  if (h_pvalue_before) delete h_pvalue_before;
-  if (h_pvalue_after) delete h_pvalue_after;
 }
 
 void PValueCorrection::setFitParam(int i, double val) {
@@ -164,8 +159,8 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
   isPlugin ? cout << " plugin" << endl : cout << " prob" << endl;
 
   // fill histogram from tree
-  h_pvalue_before = new TH1F("h_pvalue_before", "p-value", 50, 0., 1.);
-  h_pvalue_after = new TH1F("h_pvalue_after", "p-value", 50, 0., 1.);
+  h_pvalue_before = std::make_unique<TH1F>("h_pvalue_before", "p-value", 50, 0., 1.);
+  h_pvalue_after = std::make_unique<TH1F>("h_pvalue_after", "p-value", 50, 0., 1.);
 
   // set up root tree for reading
   double tSol = 0.0;
@@ -209,7 +204,7 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
     h_pvalue_before->Fill(pvalue);
   }
 
-  fitHist(h_pvalue_before);
+  fitHist(h_pvalue_before.get());
   if (verbose) printCoverage(n68, n95, n99, double(nentries - nfailed), "Before Correction");
 
   n68 = 0.;
