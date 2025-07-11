@@ -11,18 +11,21 @@
 #ifndef ParameterEvolutionPlotter_h
 #define ParameterEvolutionPlotter_h
 
+#include <memory>
+
 #include <TCanvas.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TString.h>
 #include <TVirtualPad.h>
 
+#include <RooWorkspace.h>
+
 #include "MethodProbScan.h"
 
 class ParameterEvolutionPlotter {
  public:
   ParameterEvolutionPlotter(MethodProbScan* scanner);
-  ~ParameterEvolutionPlotter();
 
   void plotParEvolution();
   void plotObsScanCheck();
@@ -40,7 +43,7 @@ class ParameterEvolutionPlotter {
   void updateCurrentCanvas();
 
   const OptParser* arg;                         ///< command line arguments
-  RooWorkspace* w;                              ///< a clone of the scanner's workspace
+  std::unique_ptr<RooWorkspace> w;              ///< a clone of the scanner's workspace
   std::vector<RooSlimFitResult*> allResults;    ///< all results of all scan points
   std::vector<RooSlimFitResult*> curveResults;  ///< only the results of scan points that were accepted into the CL
                                                 ///< curve

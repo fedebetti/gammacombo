@@ -14,12 +14,14 @@
 #include <TString.h>
 #include <TTree.h>
 
+#include <memory>
+
 class MethodBergerBoosScan : public MethodPluginScan {
  public:
   MethodBergerBoosScan(MethodProbScan* s, TString d = "XX");
   ~MethodBergerBoosScan();
-  TH2F* calcPValues(TH2F better, TH2F all, TH2F bg);
-  void getBestPValue(TH1F* hCL, TH2F* pValues);
+  std::unique_ptr<TH2> calcPValues(TH2F better, TH2F all, TH2F bg);
+  void getBestPValue(TH1* hCL, TH2* pValues);
   int getNBergerBoosPointsPerScanpoint() const { return nBBPoints; };  ///< Return number of BB points per scan point
   void readScan1dTrees(int runMin = 1, int runMax = 1);
   int scan1d(int nRun = 1);
@@ -35,7 +37,7 @@ class MethodBergerBoosScan : public MethodPluginScan {
                     bool save = true) const;  ///< Draws 2D Histogram showing the BB points in varX-varY space
                                               ///< The boolian 'save' specifies if a copy of the plot will
                                               ///< be saved in the plots folder.
-  TFile* file = nullptr;
+  std::unique_ptr<TFile> file;
   TTree* BBtree = nullptr;
   TString dir;
 

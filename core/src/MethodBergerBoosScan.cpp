@@ -30,30 +30,25 @@ MethodBergerBoosScan::MethodBergerBoosScan(MethodProbScan* s, TString d) : Metho
   } else {
     this->dir = d;
   }
-  // std::cout << "open the file" << std::endl;
   TString fName;
   if (this->dir == "XX") {
     fName = "root/BBTree.root";
   } else {
     fName = this->dir + "root/BBTree.root";
   }
-  file = new TFile(fName);
-  // std::cout << "file opened" << std::endl;
+  file = std::make_unique<TFile>(fName);
   if (!file->IsOpen()) { std::cout << "ROOT file not opened!" << std::endl; }
 
   BBtree = (TTree*)file->Get("BBTree");
 };
 
-MethodBergerBoosScan::~MethodBergerBoosScan() {
-  file->Close();
-  delete file;
-};
+MethodBergerBoosScan::~MethodBergerBoosScan() { file->Close(); };
 
 ///
 /// Calculates 2D p-Values in (scanpoint,BergerBoos_id) Histogram
 ///
-TH2F* MethodBergerBoosScan::calcPValues(TH2F better, TH2F all, TH2F bg) {
-  TH2F* cl = (TH2F*)better.Clone("cl");
+std::unique_ptr<TH2> MethodBergerBoosScan::calcPValues(TH2F better, TH2F all, TH2F bg) {
+  std::unique_ptr<TH2> cl(static_cast<TH2*>(better.Clone("cl")));
   for (int i = 1; i <= better.GetNbinsX(); i++) {
     for (int j = 1; j <= better.GetNbinsY(); ++j) {
       double nbetter = better.GetBinContent(i, j);
@@ -150,7 +145,7 @@ void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, 
 /// Input is a 2D Histogram with the p-Values in the
 /// dimensions (scanpoint, BergerBoos_id)
 ///
-void MethodBergerBoosScan::getBestPValue(TH1F* h, TH2F* pValues) {
+void MethodBergerBoosScan::getBestPValue(TH1* h, TH2* pValues) {
   for (int i = 1; i <= pValues->GetNbinsX(); i++) {
     for (int j = 1; j <= pValues->GetNbinsY(); ++j) {
       double pVal = pValues->GetBinContent(i, j);
@@ -289,8 +284,8 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
   cout << "MethodBergerBoosScan::readScan1dTrees() : fraction of background toys: "
        << h_background->GetEntries() / (double)nentries * 100. << "%." << endl;
 
-  TH2F* hCL2d = calcPValues(*h_better, *h_all, *h_background);
-  getBestPValue(hCL, hCL2d);
+  auto hCL2d = calcPValues(*h_better, *h_all, *h_background);
+  getBestPValue(hCL, hCL2d.get());
   TString fName = Form("root/hCL2d_" + name + "_" + scanVar1 + "_run%i_to_%i.root", runMin, runMax);
   if (this->dir == "XX") fName = this->dir + fName;
   if (!arg->isAction("pluginbatch")) hCL2d->SaveAs(fName);

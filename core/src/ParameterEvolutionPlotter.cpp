@@ -1,6 +1,10 @@
 #include <ParameterEvolutionPlotter.h>
 #include <Utils.h>
 
+#include <memory>
+
+#include <RooWorkspace.h>
+
 #include <TColor.h>
 #include <TGaxis.h>
 #include <TGraphErrors.h>
@@ -14,7 +18,7 @@ ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
   arg = scanner->getArg();
 
   // clone the workspace so we don't mess with the original one
-  w = (RooWorkspace*)scanner->getWorkspace()->Clone();
+  w = std::unique_ptr<RooWorkspace>(static_cast<RooWorkspace*>(scanner->getWorkspace()->Clone()));
 
   // copy over names
   title = scanner->getTitle();
@@ -37,8 +41,6 @@ ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
   // canvas handling
   m_padId = 0;
 }
-
-ParameterEvolutionPlotter::~ParameterEvolutionPlotter() { delete w; }
 
 ///
 /// Compute the positions of the local minima, in terms of scan steps, store it in
@@ -228,7 +230,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
     double obsError = w->var(scanVar1)->getError();
 
     // get value of theory prediction
-    setParameters(w, parsName, result);
+    setParameters(w.get(), parsName, result);
     TString thName = scanVar1;
     thName.ReplaceAll("_obs", "_th");
     if (!w->function(thName)) {
