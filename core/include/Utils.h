@@ -96,14 +96,14 @@ namespace Utils {
   void randomizeParametersUniform(RooWorkspace* w, TString setname, RooSlimFitResult* r, double sigmaRange);
   void setParameters(const RooAbsCollection* setMe, const RooAbsCollection* values);
   void setParameters(RooWorkspace* w, TString parname, const RooAbsCollection* set);
-  void setParameters(RooWorkspace* w, TString parname, RooFitResult* r, bool constAndFloat = false);
-  void setParameters(RooWorkspace* w, TString parname, RooSlimFitResult* r, bool constAndFloat = false);
-  void setParameters(RooWorkspace* w, TString parname, RooDataSet* d);
-  void setParameters(RooWorkspace* w, RooFitResult* values);
+  void setParameters(RooWorkspace* w, TString parname, const RooFitResult* r, bool constAndFloat = false);
+  void setParameters(RooWorkspace* w, TString parname, const RooSlimFitResult* r, bool constAndFloat = false);
+  void setParameters(RooWorkspace* w, TString parname, const RooDataSet* d);
+  void setParameters(RooWorkspace* w, const RooFitResult* values);
   void setParametersFloating(const RooAbsCollection* setMe, const RooAbsCollection* values);
   void setParametersFloating(RooWorkspace* w, TString parname, const RooAbsCollection* set);
-  void setParametersFloating(RooWorkspace* w, TString parname, RooFitResult* r);
-  void setParametersFloating(RooWorkspace* w, TString parname, RooDataSet* d);
+  void setParametersFloating(RooWorkspace* w, TString parname, const RooFitResult* r);
+  void setParametersFloating(RooWorkspace* w, TString parname, const RooDataSet* d);
   void fixParameters(const RooAbsCollection* set);
   void fixParameters(RooWorkspace* w, TString parname);
   void floatParameters(const RooAbsCollection* set);
@@ -137,8 +137,8 @@ namespace Utils {
   bool checkBoundary(const RooSlimFitResult& r, std::vector<TString> lowProb, std::vector<TString> highProb);
   void setParsConstToBound(RooWorkspace* w, std::vector<TString> names, bool low);
   void setParsConstToBound(RooWorkspace* w, std::vector<TString> namesLow, std::vector<TString> namesHigh);
-  void setParametersFloating(RooWorkspace* w, std::vector<TString> names);
-  void setParametersFloating(RooWorkspace* w, std::vector<TString> names, std::vector<TString> names2);
+  void setParametersFloating(RooWorkspace* w, const std::vector<TString>& names);
+  void setParametersFloating(RooWorkspace* w, const std::vector<TString>& names, const std::vector<TString>& names2);
   std::vector<double> computeNormalQuantiles(std::vector<double>& values, int nsigma);
 
   template <typename T>

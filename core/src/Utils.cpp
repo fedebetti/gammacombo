@@ -481,7 +481,7 @@ void Utils::randomizeParametersUniform(RooWorkspace* w, TString setname, RooSlim
 /// Set each parameter in workspace to the values found
 /// in the fit result
 ///
-void Utils::setParameters(RooWorkspace* w, RooFitResult* values) {
+void Utils::setParameters(RooWorkspace* w, const RooFitResult* values) {
   RooArgList list = values->floatParsFinal();
   list.add(values->constPars());
   for (const auto pAbs : list) {
@@ -563,7 +563,7 @@ void Utils::setParametersFloating(RooWorkspace* w, TString parname, const RooAbs
 ///                        constant and floating fit parameters in the RooFitResult.
 ///                        Default is false.
 ///
-void Utils::setParameters(RooWorkspace* w, TString parname, RooFitResult* r, bool constAndFloat) {
+void Utils::setParameters(RooWorkspace* w, TString parname, const RooFitResult* r, bool constAndFloat) {
   if (constAndFloat) {
     RooArgList list = r->floatParsFinal();
     list.add(r->constPars());
@@ -573,9 +573,9 @@ void Utils::setParameters(RooWorkspace* w, TString parname, RooFitResult* r, boo
   setParameters(w, parname, &(r->floatParsFinal()));
 }
 
-void Utils::setParameters(RooWorkspace* w, TString parname, RooSlimFitResult* r, bool constAndFloat) {
+void Utils::setParameters(RooWorkspace* w, TString parname, const RooSlimFitResult* r, bool constAndFloat) {
   // avoid calls to floatParsFinal on a RooSlimFitResult - errgh!
-  vector<string>& names = r->_parsNames;
+  const auto names = r->_parsNames;
   for (int i = 0; i < names.size(); i++) {
     auto var = (RooRealVar*)w->var(names[i].c_str());
     if (var) var->setVal(r->_parsVal[i]);
@@ -587,7 +587,7 @@ void Utils::setParameters(RooWorkspace* w, TString parname, RooSlimFitResult* r,
 /// to the value found in the final set of floating fit parameters
 /// in r.
 ///
-void Utils::setParametersFloating(RooWorkspace* w, TString parname, RooFitResult* r) {
+void Utils::setParametersFloating(RooWorkspace* w, TString parname, const RooFitResult* r) {
   setParametersFloating(w, parname, &(r->floatParsFinal()));
 }
 
@@ -595,13 +595,15 @@ void Utils::setParametersFloating(RooWorkspace* w, TString parname, RooFitResult
 /// Set each parameter in the named set parname inside workspace w
 /// to the value found in the first row of the provided dataset.
 ///
-void Utils::setParameters(RooWorkspace* w, TString parname, RooDataSet* d) { setParameters(w, parname, d->get(0)); }
+void Utils::setParameters(RooWorkspace* w, TString parname, const RooDataSet* d) {
+  setParameters(w, parname, d->get(0));
+}
 
 ///
 /// Set each floating parameter in the named set parname inside workspace w
 /// to the value found in the first row of the provided dataset.
 ///
-void Utils::setParametersFloating(RooWorkspace* w, TString parname, RooDataSet* d) {
+void Utils::setParametersFloating(RooWorkspace* w, TString parname, const RooDataSet* d) {
   setParametersFloating(w, parname, d->get(0));
 }
 
@@ -1160,11 +1162,14 @@ void Utils::setParsConstToBound(RooWorkspace* w, std::vector<TString> names, boo
     w->var(n)->setConstant(kTRUE);
   }
 }
-void Utils::setParametersFloating(RooWorkspace* w, std::vector<TString> names, std::vector<TString> names2) {
+
+void Utils::setParametersFloating(RooWorkspace* w, const std::vector<TString>& names,
+                                  const std::vector<TString>& names2) {
   setParametersFloating(w, names);
   setParametersFloating(w, names2);
 };
-void Utils::setParametersFloating(RooWorkspace* w, std::vector<TString> names) {
+
+void Utils::setParametersFloating(RooWorkspace* w, const std::vector<TString>& names) {
   if (names.size() == 0) return;
   for (auto& n : names) { w->var(n)->setConstant(kFALSE); }
 };
