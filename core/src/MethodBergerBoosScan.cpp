@@ -9,6 +9,8 @@
 #include <Fitter.h>
 #include <MethodBergerBoosScan.h>
 
+#include <memory>
+
 #include <RooRandom.h>
 #include <RooRealVar.h>
 
@@ -113,7 +115,7 @@ void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, 
   TTree* tree = TT.getTree();
   // 'create' Histogram
   tree->Draw(varY + ":" + varX + ">>hBBPoints");
-  TH2F* hBBPoints = new TH2F(*(TH2F*)gDirectory->Get("hBBPoints"));
+  auto hBBPoints = std::make_unique<TH2F>(*static_cast<TH2F*>(gDirectory->Get("hBBPoints")));
   // Reset Bin Content
   hBBPoints->Reset();
   // double nBB;
@@ -137,7 +139,6 @@ void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, 
   hBBPoints->Draw("COLZTEXT");
   if (save) { savePlot(c1, varY + "_vs_" + varX + "_BB_id"); }
   delete c1;
-  delete hBBPoints;
 };
 
 ///
@@ -213,8 +214,7 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
     cp.saveCtrlPlots();
   }
 
-  delete hCL;
-  hCL = new TH1F("hCL", "hCL", t.getScanpointN(), t.getScanpointMin(), t.getScanpointMax());
+  hCL = std::make_unique<TH1F>("hCL", "hCL", t.getScanpointN(), t.getScanpointMin(), t.getScanpointMax());
 
   // Histograms used for 1-CL calculation
   // For the BergerBoos Method these have to be
@@ -285,7 +285,7 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
        << h_background->GetEntries() / (double)nentries * 100. << "%." << endl;
 
   auto hCL2d = calcPValues(*h_better, *h_all, *h_background);
-  getBestPValue(hCL, hCL2d.get());
+  getBestPValue(hCL.get(), hCL2d.get());
   TString fName = Form("root/hCL2d_" + name + "_" + scanVar1 + "_run%i_to_%i.root", runMin, runMax);
   if (this->dir == "XX") fName = this->dir + fName;
   if (!arg->isAction("pluginbatch")) hCL2d->SaveAs(fName);

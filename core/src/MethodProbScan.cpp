@@ -481,13 +481,14 @@ int MethodProbScan::scan2d() {
   cDbg->SetMargin(0.1, 0.15, 0.1, 0.1);
   double hChi2min2dMin = hChi2min2d->GetMinimum();
   bool firstScanDone = hChi2min2dMin < 1e5;
-  TH2F* hDbgChi2min2d = histHardCopy(hChi2min2d, firstScanDone, true, TString(hChi2min2d->GetName()) + TString("_Dbg"));
+  auto hDbgChi2min2d =
+      histHardCopy(hChi2min2d.get(), firstScanDone, true, TString(hChi2min2d->GetName()) + TString("_Dbg"));
   hDbgChi2min2d->SetTitle(Form("#Delta#chi^{2} for scan %i, %s", nScansDone, title.Data()));
   if (firstScanDone) hDbgChi2min2d->GetZaxis()->SetRangeUser(hChi2min2dMin, hChi2min2dMin + 81);
   hDbgChi2min2d->GetXaxis()->SetTitle(par1->GetTitle());
   hDbgChi2min2d->GetYaxis()->SetTitle(par2->GetTitle());
   hDbgChi2min2d->GetZaxis()->SetTitle("#Delta#chi^{2}");
-  TH2F* hDbgStart = histHardCopy(hChi2min2d, false, true, TString(hChi2min2d->GetName()) + TString("_DbgSt"));
+  auto hDbgStart = histHardCopy(hChi2min2d.get(), false, true, TString(hChi2min2d->GetName()) + TString("_DbgSt"));
 
   // start coordinates
   // don't allow the under/overflow bins
@@ -652,10 +653,6 @@ int MethodProbScan::scan2d() {
          << ", old min chi2: " << bestMinOld << endl;
     return 1;
   }
-
-  // cleanup
-  if (hDbgChi2min2d) delete hDbgChi2min2d;
-  if (hDbgStart) delete hDbgStart;
 
   return 0;
 }

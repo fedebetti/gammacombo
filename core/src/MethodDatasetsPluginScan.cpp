@@ -188,24 +188,22 @@ void MethodDatasetsPluginScan::initScan() {
   double min1 = arg->scanrangeMin;
   double max1 = arg->scanrangeMax;
 
-  if (hCL) delete hCL;
-  hCL = new TH1F("hCL" + getUniqueRootName(), "hCL" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hCLs) delete hCLs;
-  hCLs = new TH1F("hCLs" + getUniqueRootName(), "hCLs" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hCLsFreq) delete hCLsFreq;
-  hCLsFreq = new TH1F("hCLsFreq" + getUniqueRootName(), "hCLsFreq" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hCLsExp) delete hCLsExp;
-  hCLsExp = new TH1F("hCLsExp" + getUniqueRootName(), "hCLsExp" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hCLsErr1Up) delete hCLsErr1Up;
-  hCLsErr1Up = new TH1F("hCLsErr1Up" + getUniqueRootName(), "hCLsErr1Up" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hCLsErr1Dn) delete hCLsErr1Dn;
-  hCLsErr1Dn = new TH1F("hCLsErr1Dn" + getUniqueRootName(), "hCLsErr1Dn" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hCLsErr2Up) delete hCLsErr2Up;
-  hCLsErr2Up = new TH1F("hCLsErr2Up" + getUniqueRootName(), "hCLsErr2Up" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hCLsErr2Dn) delete hCLsErr2Dn;
-  hCLsErr2Dn = new TH1F("hCLsErr2Dn" + getUniqueRootName(), "hCLsErr2Dn" + pdf->getPdfName(), nPoints1d, min1, max1);
-  if (hChi2min) delete hChi2min;
-  hChi2min = new TH1F("hChi2min" + getUniqueRootName(), "hChi2min" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hCL = std::make_unique<TH1F>("hCL" + getUniqueRootName(), "hCL" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hCLs = std::make_unique<TH1F>("hCLs" + getUniqueRootName(), "hCLs" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hCLsFreq =
+      std::make_unique<TH1F>("hCLsFreq" + getUniqueRootName(), "hCLsFreq" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hCLsExp =
+      std::make_unique<TH1F>("hCLsExp" + getUniqueRootName(), "hCLsExp" + pdf->getPdfName(), nPoints1d, min1, max1);
+  hCLsErr1Up = std::make_unique<TH1F>("hCLsErr1Up" + getUniqueRootName(), "hCLsErr1Up" + pdf->getPdfName(), nPoints1d,
+                                      min1, max1);
+  hCLsErr1Dn = std::make_unique<TH1F>("hCLsErr1Dn" + getUniqueRootName(), "hCLsErr1Dn" + pdf->getPdfName(), nPoints1d,
+                                      min1, max1);
+  hCLsErr2Up = std::make_unique<TH1F>("hCLsErr2Up" + getUniqueRootName(), "hCLsErr2Up" + pdf->getPdfName(), nPoints1d,
+                                      min1, max1);
+  hCLsErr2Dn = std::make_unique<TH1F>("hCLsErr2Dn" + getUniqueRootName(), "hCLsErr2Dn" + pdf->getPdfName(), nPoints1d,
+                                      min1, max1);
+  hChi2min =
+      std::make_unique<TH1F>("hChi2min" + getUniqueRootName(), "hChi2min" + pdf->getPdfName(), nPoints1d, min1, max1);
 
   // fill the chi2 histogram with very unlikely values such
   // that inside scan1d() the if clauses work correctly
@@ -439,51 +437,42 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   /// the scan range, so that the axis won't show the lowest and highest number.
   /// \todo If the scan range was changed after the toys were generate, we absolutely have
   /// to derive the range from the root files - else we'll have bining effects.
-  delete hCL;
-  hCL =
-      new TH1F("hCL", "hCL", t.getScanpointN(), t.getScanpointMin() - halfBinWidth, t.getScanpointMax() + halfBinWidth);
+  hCL = std::make_unique<TH1F>("hCL", "hCL", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                               t.getScanpointMax() + halfBinWidth);
   if (arg->debug) {
     printf("DEBUG %i %f %f %f\n", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
            t.getScanpointMax() + halfBinWidth, halfBinWidth);
   }
-  delete hCLs;
-  hCLs = new TH1F("hCLs", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                  t.getScanpointMax() + halfBinWidth);
+  hCLs = std::make_unique<TH1F>("hCLs", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                t.getScanpointMax() + halfBinWidth);
   if (arg->debug) {
     printf("DEBUG %i %f %f %f\n", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
            t.getScanpointMax() + halfBinWidth, halfBinWidth);
   }
-  TH1F* hCLb = new TH1F("hCLb", "hCLb", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                        t.getScanpointMax() + halfBinWidth);
+  auto hCLb = std::make_unique<TH1F>("hCLb", "hCLb", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                     t.getScanpointMax() + halfBinWidth);
   if (arg->debug) {
     printf("DEBUG %i %f %f %f\n", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
            t.getScanpointMax() + halfBinWidth, halfBinWidth);
   }
-  delete hCLsFreq;
-  hCLsFreq = new TH1F("hCLsFreq", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                      t.getScanpointMax() + halfBinWidth);
+  hCLsFreq = std::make_unique<TH1F>("hCLsFreq", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                    t.getScanpointMax() + halfBinWidth);
   if (arg->debug) {
     printf("DEBUG %i %f %f %f\n", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
            t.getScanpointMax() + halfBinWidth, halfBinWidth);
   }
-  delete hCLsExp;
-  hCLsExp = new TH1F("hCLsExp", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                     t.getScanpointMax() + halfBinWidth);
-  delete hCLsErr1Up;
-  hCLsErr1Up = new TH1F("hCLsErr1Up", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                        t.getScanpointMax() + halfBinWidth);
-  delete hCLsErr1Dn;
-  hCLsErr1Dn = new TH1F("hCLsErr1Dn", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                        t.getScanpointMax() + halfBinWidth);
-  delete hCLsErr2Up;
-  hCLsErr2Up = new TH1F("hCLsErr2Up", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                        t.getScanpointMax() + halfBinWidth);
-  delete hCLsErr2Dn;
-  hCLsErr2Dn = new TH1F("hCLsErr2Dn", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                        t.getScanpointMax() + halfBinWidth);
-  delete hChi2min;
-  hChi2min = new TH1F("hChi2min", "hChi2min", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
-                      t.getScanpointMax() + halfBinWidth);
+  hCLsExp = std::make_unique<TH1F>("hCLsExp", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                   t.getScanpointMax() + halfBinWidth);
+  hCLsErr1Up = std::make_unique<TH1F>("hCLsErr1Up", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                      t.getScanpointMax() + halfBinWidth);
+  hCLsErr1Dn = std::make_unique<TH1F>("hCLsErr1Dn", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                      t.getScanpointMax() + halfBinWidth);
+  hCLsErr2Up = std::make_unique<TH1F>("hCLsErr2Up", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                      t.getScanpointMax() + halfBinWidth);
+  hCLsErr2Dn = std::make_unique<TH1F>("hCLsErr2Dn", "hCLs", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                      t.getScanpointMax() + halfBinWidth);
+  hChi2min = std::make_unique<TH1F>("hChi2min", "hChi2min", t.getScanpointN(), t.getScanpointMin() - halfBinWidth,
+                                    t.getScanpointMax() + halfBinWidth);
 
   // histogram to store number of toys which enter p Value calculation
   TH1F* h_better = (TH1F*)hCL->Clone("h_better");

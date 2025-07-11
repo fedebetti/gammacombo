@@ -483,10 +483,9 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
     s.push_back(plhScan);
     setSolutions(s);
   }
-  TH1F* h = analyseToys(myTree, id, quiet);
+  auto h = analyseToys(myTree, id, quiet);
   double scanpoint = plhScan->getParVal(scanVar1);
   double pvalue = h->GetBinContent(h->FindBin(scanpoint));
-  delete h;
 
   if (!t) {
     myTree->writeToFile(Form("root/getPvalue1d_" + name + "_" + scanVar1 + "_run%i.root", arg->nrun));
@@ -865,7 +864,7 @@ void MethodPluginScan::scan2d(int nRun) {
 ///             Default is -1 which uses all entries regardless of their id.
 /// \return     A new histogram that contains the p-values vs the scanpoint.
 ///
-TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
+std::unique_ptr<TH1F> MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   /// \todo replace this such that there's always one bin per scan point, but still the range is the scan range.
   /// \todo Also, if we use the min/max from the tree, we have the problem that they are not exactly
   /// the scan range, so that the axis won't show the lowest and highest number.
@@ -873,16 +872,16 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   /// to derive the range from the root files - else we'll have bining effects.
   double halfBinWidth = (t->getScanpointMax() - t->getScanpointMin()) / (double)t->getScanpointN() / 2;
   if (t->getScanpointN() == 1) halfBinWidth = 1.;
-  TH1F* hCL = new TH1F(getUniqueRootName(), "hCL", t->getScanpointN(), t->getScanpointMin() - halfBinWidth,
-                       t->getScanpointMax() + halfBinWidth);
-  TH1F* h_better = (TH1F*)hCL->Clone("h_better");
+  auto hCL = std::make_unique<TH1F>(getUniqueRootName(), "hCL", t->getScanpointN(), t->getScanpointMin() - halfBinWidth,
+                                    t->getScanpointMax() + halfBinWidth);
+  auto h_better = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_better")));
   // histogram to store number of toys which enter CLb p Value calculation
-  TH1F* h_better_clb = (TH1F*)hCL->Clone("h_better_clb");
-  TH1F* h_all = (TH1F*)hCL->Clone("h_all");
+  auto h_better_clb = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_better_clb")));
+  auto h_all = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_all")));
   // numbers of all bkg toys
-  TH1F* h_all_bkg = (TH1F*)hCL->Clone("h_all_bkg");
-  TH1F* h_background = (TH1F*)hCL->Clone("h_background");
-  TH1F* h_gof = (TH1F*)hCL->Clone("h_gof");
+  auto h_all_bkg = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_all_bkg")));
+  auto h_background = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_background")));
+  auto h_gof = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_gof")));
 
   // map of vectors for CLb quantiles
   std::map<int, std::vector<double>> sampledSchi2Values;
@@ -1250,9 +1249,6 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   }
 
   t->activateAllBranches();
-  delete h_better;
-  delete h_all;
-  delete h_background;
   return hCL;
 }
 
@@ -1317,7 +1313,6 @@ void MethodPluginScan::readScan1dTrees(int runMin, int runMax, TString fName) {
     cp.saveCtrlPlots();
   }
 
-  if (hCL) delete hCL;
   hCL = analyseToys(&t, -1);
 }
 
@@ -1384,12 +1379,11 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
 
   double halfBinWidthx = (t.getScanpointMax() - t.getScanpointMin()) / (double)t.getScanpointN() / 2;
   if (t.getScanpointN() == 1) halfBinWidthx = 1.;
-  if (hCL2d) delete hCL2d;
-  hCL2d = new TH2F(getUniqueRootName(), "hCL2d", t.getScanpointN(), t.getScanpointMin() - halfBinWidthx,
-                   t.getScanpointMax() + halfBinWidthx, t.getScanpointyN(), t.getScanpointyMin() - halfBinWidthx,
-                   t.getScanpointyMax() + halfBinWidthx);
-  TH2F* h_better = (TH2F*)hCL2d->Clone("h_better");
-  TH2F* h_all = (TH2F*)hCL2d->Clone("h_all");
+  hCL2d = std::make_unique<TH2F>(getUniqueRootName(), "hCL2d", t.getScanpointN(), t.getScanpointMin() - halfBinWidthx,
+                                 t.getScanpointMax() + halfBinWidthx, t.getScanpointyN(),
+                                 t.getScanpointyMin() - halfBinWidthx, t.getScanpointyMax() + halfBinWidthx);
+  auto h_better = std::unique_ptr<TH2>(dynamic_cast<TH2F*>(hCL2d->Clone("h_better")));
+  auto h_all = std::unique_ptr<TH2>(dynamic_cast<TH2F*>(hCL2d->Clone("h_all")));
 
   Long64_t nentries = t.GetEntries();
   Long64_t nfailed = 0;
@@ -1462,8 +1456,6 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
   }
 
   t.activateAllBranches();
-  delete h_better;
-  delete h_all;
 }
 
 ///

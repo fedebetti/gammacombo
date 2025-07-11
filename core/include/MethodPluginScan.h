@@ -9,6 +9,7 @@
 #define MethodPluginScan_h
 
 #include <iostream>
+#include <memory>
 
 #include <RooDataSet.h>
 
@@ -39,7 +40,7 @@ class MethodPluginScan : public MethodAbsScan {
   void makeControlPlotsCLs(std::map<int, std::vector<double>> bVals, std::map<int, std::vector<double>> sbVals) const;
 
  protected:
-  TH1F* analyseToys(ToyTree* t, int id = -1, bool quiet = false);
+  std::unique_ptr<TH1F> analyseToys(ToyTree* t, int id = -1, bool quiet = false);
   void computePvalue1d(RooSlimFitResult* plhScan, double chi2minGlobal, ToyTree* t, int id, Fitter* f, ProgressBar* pb);
   RooDataSet* generateToys(int nToys);
   double importance(double pvalue) const;

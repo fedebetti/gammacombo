@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
@@ -80,8 +81,10 @@ namespace Utils {
   RooFitResult* fitToMinForce(RooWorkspace* w, TString name, TString forceVariables = "", bool debug = true);
   RooFitResult* fitToMinImprove(RooWorkspace* w, TString name);
   double getChi2(RooAbsPdf* pdf);
-  TH1F* histHardCopy(const TH1F* h, bool copyContent = true, bool uniqueName = true, TString specName = "");
-  TH2F* histHardCopy(const TH2F* h, bool copyContent = true, bool uniqueName = true, TString specName = "");
+  std::unique_ptr<TH1F> histHardCopy(const TH1* h, bool copyContent = true, bool uniqueName = true,
+                                     TString specName = "");
+  std::unique_ptr<TH2F> histHardCopy(const TH2* h, bool copyContent = true, bool uniqueName = true,
+                                     TString specName = "");
 
   TTree* convertRooDatasetToTTree(RooDataSet* d);
   TGraph* convertTH1ToTGraph(TH1* h, bool withErrors = false);

@@ -80,18 +80,6 @@ MethodAbsScan::~MethodAbsScan() {
   for (auto result : allResults) {
     if (result) delete result;
   }
-  if (hCL) delete hCL;
-  if (hCLs) delete hCLs;
-  if (hCLsFreq) delete hCLsFreq;
-  if (hCLsExp) delete hCLsExp;
-  if (hCLsErr1Up) delete hCLsErr1Up;
-  if (hCLsErr1Dn) delete hCLsErr1Dn;
-  if (hCLsErr2Up) delete hCLsErr2Up;
-  if (hCLsErr2Dn) delete hCLsErr2Dn;
-  if (hCLs2d) delete hCLs2d;
-  if (hCL2d) delete hCL2d;
-  if (hChi2min) delete hChi2min;
-  if (hChi2min2d) delete hChi2min2d;
   if (obsDataset) delete obsDataset;
   if (startPars) delete startPars;
   if (globalMin) delete globalMin;
@@ -220,23 +208,19 @@ void MethodAbsScan::initScan() {
   setLimit(w, scanVar1, "scan");
   double min1 = par1->getMin();
   double max1 = par1->getMax();
-  hCL = new TH1F("hCL" + getUniqueRootName(), "hCL" + pdfName, nPoints1d, min1, max1);
-  if (hChi2min) delete hChi2min;
-  hChi2min = new TH1F("hChi2min" + getUniqueRootName(), "hChi2min" + pdfName, nPoints1d, min1, max1);
-  if (hCLs) delete hCLs;
-  hCLs = new TH1F("hCLs" + getUniqueRootName(), "hCLs" + pdfName, nPoints1d, min1, max1);
-  if (hCLs) delete hCLsFreq;
-  hCLsFreq = new TH1F("hCLsFreq" + getUniqueRootName(), "hCLsFreq" + pdfName, nPoints1d, min1, max1);
-  if (hCLsExp) delete hCLsExp;
-  hCLsExp = new TH1F("hCLsExp" + getUniqueRootName(), "hCLsExp" + pdfName, nPoints1d, min1, max1);
-  if (hCLsErr1Up) delete hCLsErr1Up;
-  hCLsErr1Up = new TH1F("hCLsErr1Up" + getUniqueRootName(), "hCLsErr1Up" + pdfName, nPoints1d, min1, max1);
-  if (hCLsErr1Dn) delete hCLsErr1Dn;
-  hCLsErr1Dn = new TH1F("hCLsErr1Dn" + getUniqueRootName(), "hCLsErr1Dn" + pdfName, nPoints1d, min1, max1);
-  if (hCLsErr2Up) delete hCLsErr2Up;
-  hCLsErr2Up = new TH1F("hCLsErr2Up" + getUniqueRootName(), "hCLsErr2Up" + pdfName, nPoints1d, min1, max1);
-  if (hCLsErr2Dn) delete hCLsErr2Dn;
-  hCLsErr2Dn = new TH1F("hCLsErr2Dn" + getUniqueRootName(), "hCLsErr2Dn" + pdfName, nPoints1d, min1, max1);
+  hCL = std::make_unique<TH1F>("hCL" + getUniqueRootName(), "hCL" + pdfName, nPoints1d, min1, max1);
+  hChi2min = std::make_unique<TH1F>("hChi2min" + getUniqueRootName(), "hChi2min" + pdfName, nPoints1d, min1, max1);
+  hCLs = std::make_unique<TH1F>("hCLs" + getUniqueRootName(), "hCLs" + pdfName, nPoints1d, min1, max1);
+  hCLsFreq = std::make_unique<TH1F>("hCLsFreq" + getUniqueRootName(), "hCLsFreq" + pdfName, nPoints1d, min1, max1);
+  hCLsExp = std::make_unique<TH1F>("hCLsExp" + getUniqueRootName(), "hCLsExp" + pdfName, nPoints1d, min1, max1);
+  hCLsErr1Up =
+      std::make_unique<TH1F>("hCLsErr1Up" + getUniqueRootName(), "hCLsErr1Up" + pdfName, nPoints1d, min1, max1);
+  hCLsErr1Dn =
+      std::make_unique<TH1F>("hCLsErr1Dn" + getUniqueRootName(), "hCLsErr1Dn" + pdfName, nPoints1d, min1, max1);
+  hCLsErr2Up =
+      std::make_unique<TH1F>("hCLsErr2Up" + getUniqueRootName(), "hCLsErr2Up" + pdfName, nPoints1d, min1, max1);
+  hCLsErr2Dn =
+      std::make_unique<TH1F>("hCLsErr2Dn" + getUniqueRootName(), "hCLsErr2Dn" + pdfName, nPoints1d, min1, max1);
 
   // fill the chi2 histogram with very unlikely values such
   // that inside scan1d() the if clauses work correctly
@@ -260,11 +244,10 @@ void MethodAbsScan::initScan() {
     setLimit(w, scanVar2, "scan");
     double min2 = par2->getMin();
     double max2 = par2->getMax();
-    if (hCL2d) delete hCL2d;
-    hCL2d = new TH2F("hCL2d" + getUniqueRootName(), "hCL2d" + pdfName, nPoints2dx, min1, max1, nPoints2dy, min2, max2);
-    if (hChi2min2d) delete hChi2min2d;
-    hChi2min2d =
-        new TH2F("hChi2min2d" + getUniqueRootName(), "hChi2min", nPoints2dx, min1, max1, nPoints2dy, min2, max2);
+    hCL2d = std::make_unique<TH2F>("hCL2d" + getUniqueRootName(), "hCL2d" + pdfName, nPoints2dx, min1, max1, nPoints2dy,
+                                   min2, max2);
+    hChi2min2d = std::make_unique<TH2F>("hChi2min2d" + getUniqueRootName(), "hChi2min", nPoints2dx, min1, max1,
+                                        nPoints2dy, min2, max2);
     for (int i = 1; i <= nPoints2dx; i++)
       for (int j = 1; j <= nPoints2dy; j++) hChi2min2d->SetBinContent(i, j, 1e6);
   }
@@ -353,10 +336,10 @@ bool MethodAbsScan::loadScanner(TString fName) {
     exit(1);
   }
   if (scanVar2 != "") {
-    hCL2d = (TH2F*)obj;
+    hCL2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj));
     hCL2d->SetName("hCL2d" + getUniqueRootName());
   } else {
-    hCL = (TH1F*)obj;
+    hCL = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
     hCL->SetName("hCL" + getUniqueRootName());
   }
   // load chi2 histograms
@@ -367,10 +350,10 @@ bool MethodAbsScan::loadScanner(TString fName) {
     // return false;
   }
   if (scanVar2 != "") {
-    hChi2min2d = (TH2F*)obj;
+    hChi2min2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj));
     hChi2min2d->SetName("hChi2min2d" + getUniqueRootName());
   } else {
-    hChi2min = (TH1F*)obj;
+    hChi2min = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
     hChi2min->SetName("hChi2min" + getUniqueRootName());
   }
   // load CLs histograms
@@ -382,10 +365,10 @@ bool MethodAbsScan::loadScanner(TString fName) {
            << fName << endl;
     }
     if (scanVar2 != "") {
-      hCLs2d = (TH2F*)obj;
+      hCLs2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj));
       hCLs2d->SetName("hCLs2d" + getUniqueRootName());
     } else {
-      hCLs = (TH1F*)obj;
+      hCLs = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
       hCLs->SetName("hCLs" + getUniqueRootName());
     }
   }
@@ -398,7 +381,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsFreq = (TH1F*)obj;
+      hCLsFreq = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
       hCLsFreq->SetName("hCLsFreq" + getUniqueRootName());
     }
     obj = f->Get("hCLsExp");
@@ -407,7 +390,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsExp = (TH1F*)obj;
+      hCLsExp = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
       hCLsExp->SetName("hCLsExp" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr1Up");
@@ -416,7 +399,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr1Up = (TH1F*)obj;
+      hCLsErr1Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
       hCLsErr1Up->SetName("hCLsErr1Up" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr1Dn");
@@ -425,7 +408,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr1Dn = (TH1F*)obj;
+      hCLsErr1Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
       hCLsErr1Dn->SetName("hCLsErr1Dn" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr2Up");
@@ -434,7 +417,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr2Up = (TH1F*)obj;
+      hCLsErr2Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
       hCLsErr2Up->SetName("hCLsErr2Up" + getUniqueRootName());
     }
     obj = f->Get("hCLsErr2Dn");
@@ -443,7 +426,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr2Dn = (TH1F*)obj;
+      hCLsErr2Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
       hCLsErr2Dn->SetName("hCLsErr2Dn" + getUniqueRootName());
     }
   }
@@ -481,7 +464,7 @@ int MethodAbsScan::scan2d() const {
 /// \param y the y position we want to find the interpolated x for
 /// \param val Return value: interpolated x position
 ///
-void MethodAbsScan::interpolateSimple(TH1F* h, int i, double y, double& val) const {
+void MethodAbsScan::interpolateSimple(TH1* h, int i, double y, double& val) const {
   // std::cout << "MethodAbsScan::interpolateSimple(): i=" << i << " y=" << y << std::endl;
   if (!(1 <= i && i <= h->GetNbinsX() - 1)) return;
   double p1x = h->GetBinCenter(i);
@@ -517,7 +500,7 @@ double MethodAbsScan::pq(double p0, double p1, double p2, double y, int whichSol
 /// \param err - Return value: estimated interpolation error
 /// \return true, if inpterpolation was performed, false, if conditions were not met
 ///
-bool MethodAbsScan::interpolate(TH1F* h, int i, double y, double central, bool upper, double& val, double& err) const {
+bool MethodAbsScan::interpolate(TH1* h, int i, double y, double central, bool upper, double& val, double& err) const {
   // cout << "MethodAbsScan::interpolate(): i=" << i << " y=" << y << " central=" << central << endl;
   if (i > h->GetNbinsX() - 2) return false;
   if (i < 3) return false;
@@ -611,7 +594,12 @@ bool MethodAbsScan::interpolate(TH1F* h, int i, double y, double central, bool u
     debugTitle += upper ? Form("%f upper", central) : Form("%f lower", central);
     TCanvas* c = newNoWarnTCanvas(getUniqueRootName(), debugTitle);
     g->SetMarkerStyle(3);
-    g->SetHistogram(h);
+    auto th1f = dynamic_cast<TH1F*>(h);
+    if (!th1f) {
+      std::cerr << "Cannot cast to TH1F!" << std::endl;
+      exit(1);
+    }
+    g->SetHistogram(th1f);
     h->Draw();
     g->Draw("p");
     f2->Draw("SAME");
@@ -684,7 +672,7 @@ bool MethodAbsScan::interpolate(TH1F* h, int i, double y, double central, bool u
 /// else revert to a straight line interpolation (interpolateSimple()).
 ///
 void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet) {
-  TH1F* histogramCL = this->getHCL();
+  auto histogramCL = this->getHCL();
   // calc CL intervals with CLs method
   if (CLsType == 1 && this->getHCLs()) {
     histogramCL = this->getHCLs();
@@ -692,7 +680,7 @@ void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet)
     histogramCL = this->getHCLsFreq();
   }
   if (CLsType == 2 && calc_expected && hCLsExp) {
-    histogramCL = hCLsExp;
+    histogramCL = this->getHCLsExp();
     std::cout << "Determine expected upper limit:" << std::endl;
   }
 
@@ -702,7 +690,7 @@ void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet)
     // already using --qh 8, but it really is in beta stage still
     // \todo add user specific CL interval
     cout << "\nMethodAbsScan::calcCLintervals() : USING NEW CLIntervalMaker for " << name << endl << endl;
-    CLIntervalMaker clm(arg, *histogramCL);
+    CLIntervalMaker clm(arg, histogramCL);
     clm.findMaxima(0.04);  // ignore maxima under pvalue=0.04
     for (int iSol = 0; iSol < solutions.size(); iSol++) {
       double sol = getScanVar1Solution(iSol);
@@ -1074,7 +1062,7 @@ void MethodAbsScan::plot2d(TString varx, TString vary) {
 
   TString plotName = "plot2d_" + name + "_" + varx + "_" + vary;
   TCanvas* c1 = newNoWarnTCanvas(plotName, plotName);
-  TH1* h = w->pdf(pdfName)->createHistogram(plotName, *vx, YVar(*vy));
+  auto h = w->pdf(pdfName)->createHistogram(plotName, *vx, YVar(*vy));
   h->Draw("colz");
 
   savePlot(c1, plotName + arg->plotext);
@@ -1475,13 +1463,13 @@ void MethodAbsScan::calcCLintervalsSimple(int CLsType, bool calc_expected) {
   clintervalsuser.clear();
   // double levels[3] = {0.6827, 0.9545, CLuser};
 
-  TH1F* histogramCL = this->hCL;
+  auto histogramCL = this->getHCL();
   if (this->hCLs && CLsType == 1) {
-    histogramCL = this->hCLs;
+    histogramCL = this->getHCLs();
   } else if (this->hCLsFreq && CLsType == 2) {
-    histogramCL = this->hCLsFreq;
+    histogramCL = this->getHCLsFreq();
   }
-  if (CLsType == 2 && calc_expected && hCLsExp) { histogramCL = hCLsExp; }
+  if (CLsType == 2 && calc_expected && hCLsExp) { histogramCL = this->getHCLsExp(); }
   if (CLsType == 0 || (this->hCLs && CLsType == 1) || (this->hCLsFreq && CLsType == 2)) {
     for (int c = 0; c < 3; c++) {
       const std::pair<double, double> borders = getBorders(TGraph(histogramCL), ConfidenceLevels[c]);
