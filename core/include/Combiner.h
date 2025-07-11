@@ -28,10 +28,10 @@ class Combiner {
     addPdf(args...);
   }
 
-  void adjustPhysRange(const TString varName, const float min, const float max);
+  void adjustPhysRange(const TString varName, const double min, const double max);
   Combiner* Clone(const TString name, const TString title);
   void combine();
-  void fixParameter(const TString var, const float value);
+  void fixParameter(const TString var, const double value);
   void fixParameters(TString vars);
 
   /// Remove a PDF from the combiner.

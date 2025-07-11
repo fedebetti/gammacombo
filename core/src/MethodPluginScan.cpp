@@ -110,7 +110,7 @@ void MethodPluginScan::setParevolPLH(MethodProbScan* s) {
 /// \param scanpoint - value of the scan parameter for which the point
 ///                    should be found
 ///
-RooSlimFitResult* MethodPluginScan::getParevolPoint(float scanpoint) {
+RooSlimFitResult* MethodPluginScan::getParevolPoint(double scanpoint) {
   // get point in nuisance parameter space where the toys get generated at
   int iCurveRes = parevolPLH->getHCL()->FindBin(scanpoint) - 1;
   if (!parevolPLH->curveResults[iCurveRes]) {
@@ -192,7 +192,7 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
     TString aff_obs = aff_var + "_obs";
 
     bool hasAffObs = false;
-    array<float, 2> generatedValues;
+    array<double, 2> generatedValues;
     for (int i = 0; i < generatedValues.size(); i++) {
       const RooArgSet* toyData = dataset->get(i);
       for (const auto var : *toyData) {
@@ -328,7 +328,7 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   // set and fix scan point
   RooRealVar* par = w->var(scanVar1);
   par->setConstant(true);
-  float scanpoint = par->getVal();
+  double scanpoint = par->getVal();
 
   // get the chi2 of the data
   t->scanpoint = scanpoint;
@@ -342,7 +342,7 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   // Importance sampling
   int nActualToys = nToys;
   if (arg->importance) {
-    float plhPvalue = TMath::Prob(t->chi2min - t->chi2minGlobal, 1);
+    double plhPvalue = TMath::Prob(t->chi2min - t->chi2minGlobal, 1);
     nActualToys = nToys * importance(plhPvalue);
     if (pb) pb->skipSteps(nToys - nActualToys);
   }
@@ -484,7 +484,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
     setSolutions(s);
   }
   TH1F* h = analyseToys(myTree, id, quiet);
-  float scanpoint = plhScan->getParVal(scanVar1);
+  double scanpoint = plhScan->getParVal(scanVar1);
   double pvalue = h->GetBinContent(h->FindBin(scanpoint));
   delete h;
 
@@ -516,8 +516,8 @@ int MethodPluginScan::scan1d(int nRun) {
   // Define scan parameter and scan range.
   RooRealVar* par = w->var(scanVar1);
   assert(par);
-  float min = hCL->GetXaxis()->GetXmin();
-  float max = hCL->GetXaxis()->GetXmax();
+  double min = hCL->GetXaxis()->GetXmin();
+  double max = hCL->GetXaxis()->GetXmax();
 
   if (arg->verbose) {
     cout << endl;
@@ -550,7 +550,7 @@ int MethodPluginScan::scan1d(int nRun) {
   if (arg->debug) cout << "MethodPluginScan::scan1d() : ";
   cout << "PLUGIN scan starting ..." << endl;
   for (int i = 0; i < nPoints1d; i++) {
-    float scanpoint = min + (max - min) * (double)i / (double)nPoints1d + hCL->GetBinWidth(1) / 2.;
+    double scanpoint = min + (max - min) * (double)i / (double)nPoints1d + hCL->GetBinWidth(1) / 2.;
     t.scanpoint = scanpoint;
 
     // don't scan in unphysical region
@@ -600,12 +600,12 @@ void MethodPluginScan::scan2d(int nRun) {
   // Define scan parameters and scan range.
   RooRealVar* par1 = w->var(scanVar1);
   assert(par1);
-  float min1 = hCL2d->GetXaxis()->GetXmin();
-  float max1 = hCL2d->GetXaxis()->GetXmax();
+  double min1 = hCL2d->GetXaxis()->GetXmin();
+  double max1 = hCL2d->GetXaxis()->GetXmax();
   RooRealVar* par2 = w->var(scanVar2);
   assert(par2);
-  float min2 = hCL2d->GetYaxis()->GetXmin();
-  float max2 = hCL2d->GetYaxis()->GetXmax();
+  double min2 = hCL2d->GetYaxis()->GetXmin();
+  double max2 = hCL2d->GetYaxis()->GetXmax();
 
   if (arg->verbose) {
     cout << endl;
@@ -649,9 +649,9 @@ void MethodPluginScan::scan2d(int nRun) {
   cout << "MethodPluginScan::scan2d() : starting ..." << endl;
   for (int i1 = 0; i1 < nPoints2dx; i1++) {
     for (int i2 = 0; i2 < nPoints2dy; i2++) {
-      float scanpoint1 =
+      double scanpoint1 =
           min1 + (max1 - min1) * (double)i1 / (double)nPoints2dx + hCL2d->GetXaxis()->GetBinWidth(1) / 2.;
-      float scanpoint2 =
+      double scanpoint2 =
           min2 + (max2 - min2) * (double)i2 / (double)nPoints2dy + hCL2d->GetYaxis()->GetBinWidth(1) / 2.;
       t.scanpoint = scanpoint1;
       t.scanpointy = scanpoint2;
@@ -871,7 +871,7 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   /// the scan range, so that the axis won't show the lowest and highest number.
   /// \todo If the scan range was changed after the toys were generate, we absolutely have
   /// to derive the range from the root files - else we'll have bining effects.
-  float halfBinWidth = (t->getScanpointMax() - t->getScanpointMin()) / (float)t->getScanpointN() / 2;
+  double halfBinWidth = (t->getScanpointMax() - t->getScanpointMin()) / (double)t->getScanpointN() / 2;
   if (t->getScanpointN() == 1) halfBinWidth = 1.;
   TH1F* hCL = new TH1F(getUniqueRootName(), "hCL", t->getScanpointN(), t->getScanpointMin() - halfBinWidth,
                        t->getScanpointMax() + halfBinWidth);
@@ -937,7 +937,7 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     // to little fluctuaions the best fit point can be missing from the plugin plot...
     bool inPhysicalRegion = t->chi2minToy - t->chi2minGlobalToy >= 0;  //&& t.chi2min-t.chi2minGlobal>0
     int iBinBestFit = hCL->GetMaximumBin();
-    float bestfitpoint = hCL->GetBinCenter(iBinBestFit);
+    double bestfitpoint = hCL->GetBinCenter(iBinBestFit);
     if (getSolution()) {
       bestfitpoint = getSolution()->getFloatParFinalVal(scanVar1);
       if (isnan(bestfitpoint)) {
@@ -1024,26 +1024,26 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   }
 
   for (int i = 1; i <= h_better->GetNbinsX(); i++) {
-    float nbetter = h_better->GetBinContent(i);
-    float nbetter_clb = h_better_clb->GetBinContent(i);
-    float nall = h_all->GetBinContent(i);
-    float nall_bkg = h_all_bkg->GetBinContent(i);
+    double nbetter = h_better->GetBinContent(i);
+    double nbetter_clb = h_better_clb->GetBinContent(i);
+    double nall = h_all->GetBinContent(i);
+    double nall_bkg = h_all_bkg->GetBinContent(i);
     if (nall == 0.) continue;
 
     // subtract background
     // auto nbackground = h_background->GetBinContent(i);
-    // float p = (nbetter-nbackground)/(nall-nbackground);
+    // double p = (nbetter-nbackground)/(nall-nbackground);
     // hCL->SetBinContent(i, p);
     // hCL->SetBinError(i, sqrt(p * (1.-p)/(nall-nbackground)));
 
     // don't subtract background
-    float p = nbetter / nall;
-    float p_clb = nbetter_clb / nall_bkg;
+    double p = nbetter / nall;
+    double p_clb = nbetter_clb / nall_bkg;
     // attempt to correct for undercoverage
     if (pvalueCorrectorSet) { p = pvalueCorrector->transform(p); }
     hCL->SetBinContent(i, p);
     hCL->SetBinError(i, sqrt(p * (1. - p) / nall));
-    float p_bkg = TMath::Min(p / hCL->GetBinContent(1), 1.);
+    double p_bkg = TMath::Min(p / hCL->GetBinContent(1), 1.);
 
     // determine CLs value
     // CLs values in data
@@ -1053,8 +1053,8 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
       if (val >= dataTestStat) nDataAboveBkgExp += 1;
     }
 
-    float dataCLb = p_clb;
-    float dataCLbErr = sqrt(dataCLb * (1. - dataCLb) / sampledBValues[i].size());
+    double dataCLb = p_clb;
+    double dataCLbErr = sqrt(dataCLb * (1. - dataCLb) / sampledBValues[i].size());
     if (p / dataCLb >= 1.) {
       hCLsFreq->SetBinContent(i, 1.);
       hCLsFreq->SetBinError(i, 0.);
@@ -1239,11 +1239,11 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   // goodness-of-fit
   if (id == -1) {
     int iBinBestFit = hCL->GetMaximumBin();
-    float assumedbestfitpoint = hCL->GetBinCenter(iBinBestFit);
-    float nGofBetter = h_gof->GetBinContent(iBinBestFit);
-    float nall = h_all->GetBinContent(iBinBestFit);
-    float fitprobabilityVal = nGofBetter / nall;
-    float fitprobabilityErr = sqrt(fitprobabilityVal * (1. - fitprobabilityVal) / nall);
+    double assumedbestfitpoint = hCL->GetBinCenter(iBinBestFit);
+    double nGofBetter = h_gof->GetBinContent(iBinBestFit);
+    double nall = h_all->GetBinContent(iBinBestFit);
+    double fitprobabilityVal = nGofBetter / nall;
+    double fitprobabilityErr = sqrt(fitprobabilityVal * (1. - fitprobabilityVal) / nall);
     if (arg->debug) cout << "MethodPluginScan::analyseToys() : ";
     cout << "fit prob of best-fit point (" << assumedbestfitpoint
          << "): " << Form("(%.1f+/-%.1f)%%", fitprobabilityVal * 100., fitprobabilityErr * 100.) << endl;
@@ -1382,7 +1382,7 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
     cp.saveCtrlPlots();
   }
 
-  float halfBinWidthx = (t.getScanpointMax() - t.getScanpointMin()) / (float)t.getScanpointN() / 2;
+  double halfBinWidthx = (t.getScanpointMax() - t.getScanpointMin()) / (double)t.getScanpointN() / 2;
   if (t.getScanpointN() == 1) halfBinWidthx = 1.;
   if (hCL2d) delete hCL2d;
   hCL2d = new TH2F(getUniqueRootName(), "hCL2d", t.getScanpointN(), t.getScanpointMin() - halfBinWidthx,
@@ -1452,10 +1452,10 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
   // compute 1-CL
   for (int i = 1; i <= h_better->GetNbinsX(); i++) {
     for (int j = 1; j <= h_better->GetNbinsY(); j++) {
-      float nbetter = h_better->GetBinContent(i, j);
-      float nall = h_all->GetBinContent(i, j);
+      double nbetter = h_better->GetBinContent(i, j);
+      double nall = h_all->GetBinContent(i, j);
       if (nall == 0.) continue;
-      float p = nbetter / nall;
+      double p = nbetter / nall;
       hCL2d->SetBinContent(i, j, p);
       hCL2d->SetBinError(i, j, sqrt(p * (1. - p) / nall));
     }

@@ -41,7 +41,7 @@ RooArgList& RooSlimFitResult::constPars() const {
   for (int i = 0; i < _parsNames.size(); i++) {
     if (!_parsConst[i]) continue;
     TString name(_parsNames[i]);
-    float value = _parsVal[i];
+    double value = _parsVal[i];
     RooRealVar var(name, name, value);
     var.setConstant(true);
     var.setUnit(_parsAngle[i] ? "Rad" : "");
@@ -62,8 +62,8 @@ RooArgList& RooSlimFitResult::floatParsFinal() const {
   for (int i = 0; i < _parsNames.size(); i++) {
     if (_parsConst[i]) continue;
     TString name(_parsNames[i]);
-    float value = _parsVal[i];
-    float error = _parsErr[i];
+    double value = _parsVal[i];
+    double error = _parsErr[i];
     RooRealVar var(name, name, value);
     var.setError(error);
     var.setConstant(false);
@@ -79,12 +79,12 @@ RooArgList& RooSlimFitResult::floatParsFinal() const {
 /// \param name - the parameter name
 /// \return - the value, NaN if the parameter wasn't found.
 ///
-float RooSlimFitResult::getConstParVal(TString name) const {
+double RooSlimFitResult::getConstParVal(TString name) const {
   for (int i = 0; i < _parsNames.size(); i++) {
     if (!_parsConst[i]) continue;
     if (TString(_parsNames[i]) == name) return _parsVal[i];
   }
-  return std::numeric_limits<float>::quiet_NaN();  // return nan
+  return std::numeric_limits<double>::quiet_NaN();  // return nan
 }
 
 ///
@@ -93,12 +93,12 @@ float RooSlimFitResult::getConstParVal(TString name) const {
 /// \param name - the parameter name
 /// \return - the value, NaN if the parameter wasn't found.
 ///
-float RooSlimFitResult::getFloatParFinalVal(TString name) const {
+double RooSlimFitResult::getFloatParFinalVal(TString name) const {
   for (int i = 0; i < _parsNames.size(); i++) {
     if (_parsConst[i]) continue;
     if (TString(_parsNames[i]) == name) return _parsVal[i];
   }
-  return std::numeric_limits<float>::quiet_NaN();  // return nan
+  return std::numeric_limits<double>::quiet_NaN();  // return nan
 }
 
 ///
@@ -107,7 +107,7 @@ float RooSlimFitResult::getFloatParFinalVal(TString name) const {
 /// \param name - the parameter name
 /// \return - the value, NaN if the parameter wasn't found.
 ///
-float RooSlimFitResult::getParVal(TString name) const {
+double RooSlimFitResult::getParVal(TString name) const {
   for (int i = 0; i < _parsNames.size(); i++) {
     if (TString(_parsNames[i]) == name) return _parsVal[i];
   }
@@ -120,7 +120,7 @@ float RooSlimFitResult::getParVal(TString name) const {
 /// \param name - the parameter name
 /// \return - the value, NaN if the parameter wasn't found.
 ///
-float RooSlimFitResult::getParErr(TString name) const {
+double RooSlimFitResult::getParErr(TString name) const {
   for (int i = 0; i < _parsNames.size(); i++) {
     if (TString(_parsNames[i]) == name) return _parsErr[i];
   }
@@ -150,8 +150,8 @@ void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor)
   vector<TString> myParNames;
   for (int i = 0; i < _parsNames.size(); i++) {
     TString printName = "\\" + TString(_parsNames[i]).ReplaceAll("_", "");
-    float val = _parsVal[i];
-    float err = _parsErr[i];
+    double val = _parsVal[i];
+    double err = _parsErr[i];
     if (_parsAngle[i]) {
       val *= 180. / TMath::Pi();
       err *= 180. / TMath::Pi();
@@ -210,8 +210,8 @@ void RooSlimFitResult::Print(bool verbose, bool printcor) const {
   cout << "    Parameter                      FinalValue +/- Error " << (_isConfirmed ? "(HESSE)" : "(MIGRAD)") << endl;
   cout << "  ----------------------------   ---------------------------------" << endl;
   for (int i = 0; i < _parsNames.size(); i++) {
-    float val = _parsVal[i];
-    float err = _parsErr[i];
+    double val = _parsVal[i];
+    double err = _parsErr[i];
     if (_parsAngle[i]) {
       val *= 180. / TMath::Pi();
       err *= 180. / TMath::Pi();

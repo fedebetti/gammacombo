@@ -132,18 +132,18 @@ void ToyTree::init() {
   if (!arg->lightfiles) {
     for (const auto pAbs : *w->set(parsName)) {
       const auto p = static_cast<RooRealVar*>(pAbs);
-      parametersScan.insert(pair<string, float>(p->GetName(), p->getVal()));
+      parametersScan.insert(pair<string, double>(p->GetName(), p->getVal()));
       t->Branch(TString(p->GetName()) + "_scan", &parametersScan[p->GetName()], TString(p->GetName()) + "_scan/F");
-      parametersFree.insert(pair<string, float>(p->GetName(), p->getVal()));
+      parametersFree.insert(pair<string, double>(p->GetName(), p->getVal()));
       t->Branch(TString(p->GetName()) + "_free", &parametersFree[p->GetName()], TString(p->GetName()) + "_free/F");
-      parametersPll.insert(pair<string, float>(p->GetName(), p->getVal()));
+      parametersPll.insert(pair<string, double>(p->GetName(), p->getVal()));
       t->Branch(TString(p->GetName()) + "_start", &parametersPll[p->GetName()], TString(p->GetName()) + "_start/F");
     }
     // observables
     if (this->storeObs) {
       for (const auto pAbs : *w->set(obsName)) {
         const auto p = static_cast<RooRealVar*>(pAbs);
-        observables.insert(pair<string, float>(p->GetName(), p->getVal()));
+        observables.insert(pair<string, double>(p->GetName(), p->getVal()));
         t->Branch(TString(p->GetName()), &observables[p->GetName()], TString(p->GetName()) + "/F");
       }
     }
@@ -151,7 +151,7 @@ void ToyTree::init() {
     if (this->storeTh) {
       for (const auto pAbs : *w->set(thName)) {
         const auto p = static_cast<RooRealVar*>(pAbs);
-        theory.insert(pair<string, float>(p->GetName(), p->getVal()));
+        theory.insert(pair<string, double>(p->GetName(), p->getVal()));
         t->Branch(TString(p->GetName()), &theory[p->GetName()], TString(p->GetName()) + "/F");
       }
     }
@@ -165,7 +165,7 @@ void ToyTree::init() {
       }
       for (const auto pAbs : *w->set(globName)) {
         const auto p = static_cast<RooRealVar*>(pAbs);
-        constraintMeans.insert(pair<TString, float>(p->GetName(), p->getVal()));
+        constraintMeans.insert(pair<TString, double>(p->GetName(), p->getVal()));
         t->Branch(TString(p->GetName()), &constraintMeans[p->GetName()], TString(p->GetName()) + "/F");
       }
     }
@@ -356,12 +356,12 @@ void ToyTree::GetEntry(Long64_t i) {
 void ToyTree::computeMinMaxN() {
   if (scanpointN != -1) return;
   assert(t);
-  vector<float> pointsx;
-  vector<float> pointsy;
-  float _minx = 1e6;
-  float _maxx = -1e6;
-  float _miny = 1e6;
-  float _maxy = -1e6;
+  vector<double> pointsx;
+  vector<double> pointsy;
+  double _minx = 1e6;
+  double _maxx = -1e6;
+  double _miny = 1e6;
+  double _maxy = -1e6;
   TObjArray* branches = t->GetListOfBranches();
   t->SetBranchStatus("*", 0);
   if (branches->FindObject("scanpoint")) t->SetBranchStatus("scanpoint", 1);
@@ -389,11 +389,11 @@ void ToyTree::computeMinMaxN() {
   }
   std::ranges::sort(pointsx);
   std::ranges::sort(pointsy);
-  float binWidthx = -1;
-  float binWidthy = -1;
+  double binWidthx = -1;
+  double binWidthy = -1;
   bool foundDifferentBinWidths = false;
-  float pointsPrevx = pointsx[0];
-  float pointsPrevy = pointsy[0];
+  double pointsPrevx = pointsx[0];
+  double pointsPrevy = pointsy[0];
   int _nDifferentScanPointsx = 1;
   int _nDifferentScanPointsy = 1;
   for (unsigned int i = 1; i < pointsx.size(); i++) {
@@ -437,7 +437,7 @@ void ToyTree::computeMinMaxN() {
 ///
 /// Get minimum of scanpoint variable found in the TTree.
 ///
-float ToyTree::getScanpointMin() {
+double ToyTree::getScanpointMin() {
   computeMinMaxN();
   return scanpointMin;
 }
@@ -445,7 +445,7 @@ float ToyTree::getScanpointMin() {
 ///
 /// Get maximum of scanpoint variable found in the TTree.
 ///
-float ToyTree::getScanpointMax() {
+double ToyTree::getScanpointMax() {
   computeMinMaxN();
   return scanpointMax;
 }
@@ -461,7 +461,7 @@ int ToyTree::getScanpointN() {
 ///
 /// Get minimum of scanpointy variable found in the TTree.
 ///
-float ToyTree::getScanpointyMin() {
+double ToyTree::getScanpointyMin() {
   computeMinMaxN();
   return scanpointyMin;
 }
@@ -469,7 +469,7 @@ float ToyTree::getScanpointyMin() {
 ///
 /// Get maximum of scanpointy variable found in the TTree.
 ///
-float ToyTree::getScanpointyMax() {
+double ToyTree::getScanpointyMax() {
   computeMinMaxN();
   return scanpointyMax;
 }

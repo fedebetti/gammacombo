@@ -21,7 +21,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   void Draw() override;
   void DrawFull();
   void drawCLcontent(bool isFull = false);
-  void drawMarker(float x, float y, int color = 0, int style = 3, float size = 2.0) const;
+  void drawMarker(double x, double y, int color = 0, int style = 3, double size = 2.0) const;
   void drawGroup() const;
   void drawSolutions();
   inline int getNumberOfDefinedColors() const { return linecolor[0].size(); }
@@ -39,9 +39,9 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   std::vector<std::vector<int>> linestyle;  ///< defines the line style of 1 sigma line of different scanners
   std::vector<std::vector<int>> fillstyle;  ///< defines the fill style of
   std::vector<std::vector<int>> linewidth;  ///< defines the line width
-  std::vector<std::vector<float>> filltransparency;  ///< defines the fill transparency
-  std::vector<int> markerstyle;                      ///< defines marker styles of the solutions of different scanners
-  std::vector<float> markersize;
+  std::vector<std::vector<double>> filltransparency;  ///< defines the fill transparency
+  std::vector<int> markerstyle;                       ///< defines marker styles of the solutions of different scanners
+  std::vector<double> markersize;
 
  private:
   void drawLegend();

@@ -87,7 +87,7 @@ void CLIntervalPrinter::savePython() {
   outf << "# Confidence Intervals" << endl;
   outf << "intervals = {" << endl;
 
-  float previousCL = -1.0;
+  double previousCL = -1.0;
 
   for (auto intervals : _intervals)
     for (auto interval : intervals) {
@@ -104,7 +104,7 @@ void CLIntervalPrinter::savePython() {
       Rounder myRounder(_arg, i.min, i.max, i.central);
       int d = myRounder.getNsubdigits();
 
-      float thisCL = 1. - i.pvalue;
+      double thisCL = 1. - i.pvalue;
       if (previousCL != thisCL) {
         if (previousCL != -1) outf << "  ]," << endl;
         outf << Form("  '%.2f' : [", thisCL) << endl;

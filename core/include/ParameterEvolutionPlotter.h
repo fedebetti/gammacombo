@@ -30,7 +30,7 @@ class ParameterEvolutionPlotter {
  private:
   void getLocalMinPositions();
   void drawLinesAtMinima(TVirtualPad* pad);
-  void drawVerticalRedLine(TVirtualPad* pad, float xpos);
+  void drawVerticalRedLine(TVirtualPad* pad, double xpos);
   TGraph* makeChi2Graph(std::vector<RooSlimFitResult*> results);
   TGraph* makeEvolutionGraph(std::vector<RooSlimFitResult*> results, TString parName);
   TGraphErrors* makeEvolutionGraphErrors(std::vector<RooSlimFitResult*> results, TString parName);
@@ -49,7 +49,7 @@ class ParameterEvolutionPlotter {
   TString parsName;                             ///< name of parameter set inside the workspace
   TString obsName;                              ///< name of observables set inside the workspace
   TString scanVar1;                             ///< name of the can variable
-  std::vector<float> m_localMinPositions;       ///< positions of the local minima in scan steps
+  std::vector<double> m_localMinPositions;      ///< positions of the local minima in scan steps
   std::vector<TCanvas*> m_canvases;             ///< Pointers to the canvases of the plots, see selectNewCanvas().
   int m_padId;                                  ///< ID of currently selected pad, see selectNewPad().
 };

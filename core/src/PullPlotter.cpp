@@ -85,17 +85,17 @@ void PullPlotter::defineOrder() {
 ///
 void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, int maxid, int nObs) const {
   // pull bar
-  float width = 0.45;   // width of pull bar
-  float spacing = 0.1;  // space between two lines
+  double width = 0.45;   // width of pull bar
+  double spacing = 0.1;  // space between two lines
   // the canvas
-  float pullRange = 3.;
-  float xminCoords = -6.;
-  float xmaxCoords = 6.;
-  float yminCoords = 0.;
-  float ymaxCoords = (width + spacing) * (observables.size() + 3.);
+  double pullRange = 3.;
+  double xminCoords = -6.;
+  double xmaxCoords = 6.;
+  double yminCoords = 0.;
+  double ymaxCoords = (width + spacing) * (observables.size() + 3.);
   // pull axis
-  float xminPullAxis = -pullRange;
-  float xmaxPullAxis = +pullRange;
+  double xminPullAxis = -pullRange;
+  double xmaxPullAxis = +pullRange;
   TCanvas* cPulls =
       newNoWarnTCanvas("cPulls" + getUniqueRootName(), cmb->getTitle(), 0, 0, 600, 40 * observables.size() + 120);
   cPulls->Range(xminCoords, yminCoords, xmaxCoords, ymaxCoords);
@@ -135,13 +135,13 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
     }
 
     // compute pull
-    float pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
+    double pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
 
     // compute coordinates needed to plot a line in the pull graph
-    float xmin = pull < 0 ? pull : 0;
-    float xmax = pull < 0 ? 0 : pull;
-    float ymax = ymaxCoords - (float)(iObs + 1) * (width + spacing);
-    float ymin = ymax - width;
+    double xmin = pull < 0 ? pull : 0;
+    double xmax = pull < 0 ? 0 : pull;
+    double ymax = ymaxCoords - (double)(iObs + 1) * (width + spacing);
+    double ymin = ymax - width;
 
     // draw the pull bar
     TBox* b = new TBox(xmin, ymin, xmax, ymax);
@@ -163,8 +163,8 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
     t1->Draw();
 
     // compute precision for subdigits
-    float pObsVal = pObs->getVal();
-    float pThVal = pTh->getVal();
+    double pObsVal = pObs->getVal();
+    double pThVal = pTh->getVal();
     if (isAngle(pObs)) {
       pObsVal = RadToDeg(pObsVal);
       pThVal = RadToDeg(pThVal);
@@ -187,7 +187,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
 
   // write chi2/ndof into the last plot
   if (currentid == maxid) {
-    float chi2 = cmb->getSolution(nSolution)->minNll();
+    double chi2 = cmb->getSolution(nSolution)->minNll();
     int nPar = cmb->getSolution(nSolution)->floatParsFinal().getSize();
     auto t3 = new TPaveText(xminCoords, yminCoords, xmaxCoords, yminCoords + width, "br");
     t3->SetBorderSize(0);
@@ -322,7 +322,7 @@ void PullPlotter::plotPulls() {
   for (int i = 0; i < observables.size(); i++) {
     observablesChunk.push_back(observables[i]);
     if (observablesChunk.size() % 10 == 0) {
-      plotPullsCanvas(observablesChunk, ceil((float)i / 10.), ceil(observables.size() / 10.), observables.size());
+      plotPullsCanvas(observablesChunk, ceil((double)i / 10.), ceil(observables.size() / 10.), observables.size());
       observablesChunk.clear();
     }
   }
@@ -354,7 +354,7 @@ void PullPlotter::plotPulls() {
 /// \param nsigma - threshold value
 /// \return - True, if one pull is above N sigma.
 ///
-bool PullPlotter::hasPullsAboveNsigma(float nsigma) const {
+bool PullPlotter::hasPullsAboveNsigma(double nsigma) const {
   for (const auto pObsAbs : *cmb->getObservables()) {
     const auto pObs = static_cast<RooRealVar*>(pObsAbs);
     // find associated theory value
@@ -366,7 +366,7 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma) const {
       continue;
     }
     // compute pull
-    float pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
+    double pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
     if (fabs(pull) > nsigma) return true;
   }
   return false;
@@ -376,7 +376,7 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma) const {
 /// Print pulls using the current values of the parameters.
 /// \param aboveNsigma Only print pulls above (or equal) N sigma.
 ///
-void PullPlotter::printPulls(float aboveNsigma) const {
+void PullPlotter::printPulls(double aboveNsigma) const {
   for (const auto pObsAbs : *cmb->getObservables()) {
     const auto pObs = static_cast<RooRealVar*>(pObsAbs);
     // find associated theory value
@@ -388,7 +388,7 @@ void PullPlotter::printPulls(float aboveNsigma) const {
       continue;
     }
     // compute pull
-    float pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
+    double pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
     if (fabs(pull) >= aboveNsigma) {
       printf("%30s: obs = %9.6f +/- %8.6f, th = %9.6f, pull = %5.2f\n", pObs->GetName(), pObs->getVal(),
              pObs->getError(), pTh->getVal(), pull);

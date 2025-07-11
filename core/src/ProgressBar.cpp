@@ -29,7 +29,7 @@ void ProgressBar::progress() {
 /// 100% [==================================================]
 ///
 void ProgressBar::progressBar() {
-  float ratio = _x / (float)_n;
+  double ratio = _x / (double)_n;
   int c = ratio * _width;
 
   cout << setw(3) << (int)(ratio * 100) << "% [";
@@ -54,7 +54,7 @@ void ProgressBar::progressBar() {
 /// look good.
 ///
 void ProgressBar::progressPercentage() {
-  float ratio = _x / (float)_n;
+  double ratio = _x / (double)_n;
   cout << setw(3) << (int)(ratio * 100) << "%" << endl;
 }
 

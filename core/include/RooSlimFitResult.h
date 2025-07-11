@@ -37,10 +37,10 @@ class RooSlimFitResult : public TObject {
   inline Int_t covQual() const { return _covQual; };
   inline Double_t edm() const { return _edm; };
   RooArgList& floatParsFinal() const;
-  float getParVal(TString name) const;
-  float getParErr(TString name) const;
-  float getConstParVal(TString name) const;
-  float getFloatParFinalVal(TString name) const;
+  double getParVal(TString name) const;
+  double getParErr(TString name) const;
+  double getConstParVal(TString name) const;
+  double getFloatParFinalVal(TString name) const;
   bool hasParameter(TString name) const;
   inline bool isConfirmed() const { return _isConfirmed; };
   inline Double_t minNll() const { return _minNLL; };
@@ -57,8 +57,8 @@ class RooSlimFitResult : public TObject {
 
   std::vector<std::string> _parsNames;  // variable names
   std::vector<int> _parsFloatId;  // ID of floating parameter - this corresponds to the correlation matrix position
-  std::vector<float> _parsVal;    // values of const parameters, index given by position in _variable names
-  std::vector<float> _parsErr;
+  std::vector<double> _parsVal;   // values of const parameters, index given by position in _variable names
+  std::vector<double> _parsErr;
   std::vector<bool> _parsAngle;  // is it an angle?
   std::vector<bool> _parsConst;  // is it constant?
   Double_t _edm;

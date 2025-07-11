@@ -80,10 +80,10 @@ void MethodDatasetsProbScan::initScan() {
 
   if (hCL) delete hCL;
   // Titus: small change for consistency
-  // float min1 = par1->getMin();
-  // float max1 = par1->getMax();
-  float min1 = arg->scanrangeMin;
-  float max1 = arg->scanrangeMax;
+  // double min1 = par1->getMin();
+  // double max1 = par1->getMax();
+  double min1 = arg->scanrangeMin;
+  double max1 = arg->scanrangeMax;
 
   if (scanVar1 == scanVar2) {
     if (arg->debug) std::cout << "DEBUG: MethodDatasetsProbScan::initScan() : scanning y range" << std::endl;
@@ -119,10 +119,10 @@ void MethodDatasetsProbScan::initScan() {
       setYscanRange(arg->scanrangeyMin, arg->scanrangeyMax);
     }
     // setLimit(w, scanVar2, "scan");
-    // float min2 = par2->getMin();
-    // float max2 = par2->getMax();
-    float min2 = arg->scanrangeyMin;
-    float max2 = arg->scanrangeyMax;
+    // double min2 = par2->getMin();
+    // double max2 = par2->getMax();
+    double min2 = arg->scanrangeyMin;
+    double max2 = arg->scanrangeyMax;
 
     hCL2d = new TH2F("hCL2d" + getUniqueRootName(), "hCL2d" + pdfName, nPoints2dx, min1, max1, nPoints2dy, min2, max2);
     hCLs2d =
@@ -252,8 +252,8 @@ void MethodDatasetsProbScan::loadFitResults(TString file) {
 
 void MethodDatasetsProbScan::sethCLFromProbScanTree() {
   this->probScanTree->open();
-  float halfBinWidth = (this->probScanTree->getScanpointMax() - this->probScanTree->getScanpointMin()) /
-                       ((float)this->probScanTree->getScanpointN()) / 2;  //-1.)/2;
+  double halfBinWidth = (this->probScanTree->getScanpointMax() - this->probScanTree->getScanpointMin()) /
+                        ((double)this->probScanTree->getScanpointN()) / 2;  //-1.)/2;
   /// \todo replace this such that there's always one bin per scan point, but still the range is the scan range.
   /// \todo Also, if we use the min/max from the tree, we have the problem that they are not exactly
   /// the scan range, so that the axis won't show the lowest and highest number.
@@ -400,8 +400,8 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
 
   // Define scan parameter and scan range.
   RooRealVar* parameterToScan = w->var(scanVar1);
-  float parameterToScan_min = hCL->GetXaxis()->GetXmin();
-  float parameterToScan_max = hCL->GetXaxis()->GetXmax();
+  double parameterToScan_min = hCL->GetXaxis()->GetXmin();
+  double parameterToScan_max = hCL->GetXaxis()->GetXmax();
 
   // do a free fit
   RooFitResult* result = this->loadAndFit(this->pdf);  // fit on data
@@ -439,7 +439,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
     // this uses the "scan" range, as expected
     // don't add half the bin size. try to solve this within plotting method
 
-    float scanpoint =
+    double scanpoint =
         parameterToScan_min + (parameterToScan_max - parameterToScan_min) * (double)i / ((double)nPoints1d - 1);
     if (arg->debug)
       cout << "DEBUG in MethodDatasetsProbScan::scan1d_prob() " << scanpoint << " " << parameterToScan_min << " "
@@ -522,7 +522,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
     this->probScanTree->fill();
 
     if (arg->debug && pdf->getBkgPdf()) {
-      float pval_cls =
+      double pval_cls =
           this->getPValueTTestStatistic(this->probScanTree->chi2min - this->probScanTree->chi2minBkg, true);
       cout << "DEBUG in MethodDatasetsProbScan::scan1d() - p value CLs: " << pval_cls << endl;
     }
@@ -549,14 +549,14 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
 int MethodDatasetsProbScan::computeCLvalues() const {
   std::cout << "Computing CL values based on test statistic decision" << std::endl;
   std::cout << "Using " << arg->teststatistic << "-sided test statistic" << std::endl;
-  float bestfitpoint = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getVal();
-  float bestfitpointerr = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getError();
+  double bestfitpoint = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getVal();
+  double bestfitpointerr = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getError();
 
   for (int k = 1; k <= hCL->GetNbinsX(); k++) {
-    float scanvalue = hChi2min->GetBinCenter(k);
-    float teststat_measured = hChi2min->GetBinContent(k) - chi2minGlobal;
-    float CLb = 1. - (normal_cdf(TMath::Sqrt(teststat_measured) + ((scanvalue - 0.) / bestfitpointerr)) +
-                      normal_cdf(TMath::Sqrt(teststat_measured) - ((scanvalue - 0.) / bestfitpointerr)) - 1.);
+    double scanvalue = hChi2min->GetBinCenter(k);
+    double teststat_measured = hChi2min->GetBinContent(k) - chi2minGlobal;
+    double CLb = 1. - (normal_cdf(TMath::Sqrt(teststat_measured) + ((scanvalue - 0.) / bestfitpointerr)) +
+                       normal_cdf(TMath::Sqrt(teststat_measured) - ((scanvalue - 0.) / bestfitpointerr)) - 1.);
     if (arg->teststatistic == 1) {                                             // use one-sided test statistic
       teststat_measured = bestfitpoint <= scanvalue ? teststat_measured : 0.;  // if mu < muhat then q_mu = 0
       hCL->SetBinContent(k, 1. - normal_cdf(TMath::Sqrt(teststat_measured)));
@@ -647,14 +647,14 @@ int MethodDatasetsProbScan::scan2d() {
 
   // for the status bar
   int nSteps = 0;
-  float nTotalSteps = nPoints2dx * nPoints2dy;
-  float printFreq = nTotalSteps > 100 && !arg->probforce ? 100 : nTotalSteps;  ///< number of messages
+  double nTotalSteps = nPoints2dx * nPoints2dy;
+  double printFreq = nTotalSteps > 100 && !arg->probforce ? 100 : nTotalSteps;  ///< number of messages
 
   // initialize some control plots
   gStyle->SetOptTitle(1);
   TCanvas* cDbg = newNoWarnTCanvas(getUniqueRootName(), Form("DeltaChi2 for 2D scan %i", nScansDone));
   cDbg->SetMargin(0.1, 0.15, 0.1, 0.1);
-  float hChi2min2dMin = hChi2min2d->GetMinimum();
+  double hChi2min2dMin = hChi2min2d->GetMinimum();
   bool firstScanDone = hChi2min2dMin < 1e5;
   TH2F* hDbgChi2min2d = histHardCopy(hChi2min2d, firstScanDone, true);
   hDbgChi2min2d->SetTitle(Form("#Delta#chi^{2} for scan %i, %s", nScansDone, title.Data()));
@@ -697,7 +697,8 @@ int MethodDatasetsProbScan::scan2d() {
 
         // status bar
         if (((int)nSteps % (int)(nTotalSteps / printFreq)) == 0) {
-          cout << Form("MethodDatasetsProbScan::scan2d() : scanning %3.0f%%", (float)nSteps / (float)nTotalSteps * 100.)
+          cout << Form("MethodDatasetsProbScan::scan2d() : scanning %3.0f%%",
+                       (double)nSteps / (double)nTotalSteps * 100.)
                << "       \r" << flush;
         }
         nSteps++;
@@ -727,8 +728,8 @@ int MethodDatasetsProbScan::scan2d() {
         // setParameters(w, parsName, startPars->get(0));
 
         // set scan point
-        float scanvalue1 = hCL2d->GetXaxis()->GetBinCenter(i);
-        float scanvalue2 = hCL2d->GetYaxis()->GetBinCenter(j);
+        double scanvalue1 = hCL2d->GetXaxis()->GetBinCenter(i);
+        double scanvalue2 = hCL2d->GetYaxis()->GetBinCenter(j);
         par1->setVal(scanvalue1);
         par2->setVal(scanvalue2);
 
@@ -868,7 +869,7 @@ double MethodDatasetsProbScan::getPValueTTestStatistic(double test_statistic_val
            << "An equal upwards fluctuaion corresponds to a p value of " << TMath::Prob(abs(test_statistic_value), 1)
            << std::endl;
     }
-    // TMath::Prob will return 0 if the Argument is slightly below zero. As we are working with a float-zero we can not
+    // TMath::Prob will return 0 if the Argument is slightly below zero. As we are working with a double-zero we can not
     // rely on it here: TMath::Prob( 0 ) returns 1
     return 1.;
   } else {

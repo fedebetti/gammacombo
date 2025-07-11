@@ -63,11 +63,11 @@ void ParameterEvolutionPlotter::drawLinesAtMinima(TVirtualPad* pad) {
 ///
 /// Draw a vertical red line into the current pad at position i.
 ///
-void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos) {
+void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, double xpos) {
   pad->cd();
   pad->Update();
-  float ymin = pad->GetUymin();
-  float ymax = pad->GetUymax();
+  double ymin = pad->GetUymin();
+  double ymax = pad->GetUymax();
   auto l1 = new TLine(xpos, ymin, xpos, ymax);
   l1->SetLineWidth(1);
   l1->SetLineColor(kRed);
@@ -224,8 +224,8 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   for (auto result : results) {
     assert(result);
     // get value of observable
-    float obsValue = result->getParVal(scanVar1);
-    float obsError = w->var(scanVar1)->getError();
+    double obsValue = result->getParVal(scanVar1);
+    double obsError = w->var(scanVar1)->getError();
 
     // get value of theory prediction
     setParameters(w, parsName, result);
@@ -235,7 +235,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
       cout << "ParameterEvolutionPlotter::plotObsScanCheck() : ERROR : theory value not found: " << thName << endl;
       continue;
     }
-    float thValue = w->function(thName)->getVal();
+    double thValue = w->function(thName)->getVal();
     g->SetPoint(iGraph, iGraph, obsValue - thValue);
     g->SetPointError(iGraph, 0., obsError);
     iGraph++;

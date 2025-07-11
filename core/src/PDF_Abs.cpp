@@ -126,7 +126,7 @@ void PDF_Abs::setObservablesToy() {
 void PDF_Abs::resetCorrelations() {
   for (int i = 0; i < nObs; i++)
     for (int j = 0; j < nObs; j++) {
-      float c = 0.0;
+      double c = 0.0;
       if (i == j) c = 1.0;
       corStatMatrix[i][j] = c;
       corSystMatrix[i][j] = c;
@@ -485,7 +485,7 @@ void PDF_Abs::setSystCorrelation(TMatrixDSym& corSystMatrix) {
 /// \param obsName - observable name
 /// \param value - central value
 ///
-void PDF_Abs::setObservable(TString obsName, float value) {
+void PDF_Abs::setObservable(TString obsName, double value) {
   auto obs = (RooRealVar*)observables->find(obsName);
   if (!obs) {
     cout << "PDF_Abs::setObservable() : ERROR : observable " + obsName + " not found!" << endl;
@@ -504,7 +504,7 @@ void PDF_Abs::setObservable(TString obsName, float value) {
 /// \param stat - statistical error
 /// \param syst - systematic error
 ///
-void PDF_Abs::setUncertainty(TString obsName, float stat, float syst) {
+void PDF_Abs::setUncertainty(TString obsName, double stat, double syst) {
   for (int i = 0; i < nObs; i++) {
     auto obs = (RooRealVar*)observables->at(i);
     if (TString(obs->GetName()).EqualTo(obsName)) {
@@ -619,7 +619,7 @@ bool PDF_Abs::hasObservable(TString obsname) const {
 /// \param scale    - the scale factor the current error is being multiplied with
 /// \return     - true if successful
 ///
-bool PDF_Abs::ScaleError(TString obsname, float scale) {
+bool PDF_Abs::ScaleError(TString obsname, double scale) {
   // remove unique ID if necessary
   TString UID = "UID";
   if (obsname.Contains(UID)) {
@@ -658,7 +658,7 @@ bool PDF_Abs::ScaleError(TString obsname, float scale) {
 /// calling uniquify(), it has to include the unique ID string.
 /// \return         - the value
 ///
-float PDF_Abs::getObservableValue(TString obsname) const {
+double PDF_Abs::getObservableValue(TString obsname) const {
   // check if requested observable exits
   if (!hasObservable(obsname)) {
     cout << "PDF_Abs::getObservableValue() : ERROR : Requested observable doesn't exist: " << obsname << ". Exit."

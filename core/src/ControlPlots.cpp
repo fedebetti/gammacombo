@@ -72,9 +72,9 @@ void ControlPlots::ctrlPlotPvalue() {
   // construct nominal 1-CL histogram
   TH1D* hOmcl = (TH1D*)hBetter->Clone("hOmcl");
   hOmcl->Divide(hAll);
-  // float hOmclScale = hAll->GetBinContent(hOmcl->GetMaximumBin())/hOmcl->GetMaximum(); // scale so the 1-CL curve is
+  // double hOmclScale = hAll->GetBinContent(hOmcl->GetMaximumBin())/hOmcl->GetMaximum(); // scale so the 1-CL curve is
   // in units of toys
-  float hOmclScale =
+  double hOmclScale =
       hAll->GetMaximum() / hOmcl->GetMaximum();  // arb. units, else the plot looks bad when using --importance sampling
   hOmcl->Scale(hOmclScale);
   // construct background 1-CL histogram
@@ -135,8 +135,8 @@ void ControlPlots::ctrlPlotChi2() {
   // get maximum chi2 to be plotted
   c2->cd(ip);
   t->Draw("chi2minToy", ctrlPlotCuts && "abs(chi2minToy)<1000");
-  float maxPlottedChi2 = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
-  maxPlottedChi2 = TMath::Min(maxPlottedChi2, (float)75.);
+  double maxPlottedChi2 = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
+  maxPlottedChi2 = TMath::Min(maxPlottedChi2, (double)75.);
   // plot 1: 2D plot of chi scan vs. chi2 global
   pad = (TPad*)c2->cd(ip++);
   t->Draw(Form("chi2minToy:chi2minGlobalToy>>htemp1(75,0,%f,75,0,%f)", maxPlottedChi2, maxPlottedChi2), ctrlPlotCuts,
@@ -304,8 +304,8 @@ void ControlPlots::ctrlPlotNuisances() {
     TString varFree = bBaseName + "_free";
     TString varStart = bBaseName + "_start";
 
-    float customRangeLo = 0.0;  //  Customize histogram range. Default will be the Draw() automatic
-    float customRangeHi = 0.0;  //  range. Anything outside this range will show in the overflow bins.
+    double customRangeLo = 0.0;  //  Customize histogram range. Default will be the Draw() automatic
+    double customRangeHi = 0.0;  //  range. Anything outside this range will show in the overflow bins.
 
     if ((bName.BeginsWith("d_") || bName.BeginsWith("g"))  //  pi symmetry is only in the B strong phases!
         && !(bName.BeginsWith("dD"))) {
@@ -320,19 +320,19 @@ void ControlPlots::ctrlPlotNuisances() {
     }
 
     gStyle->SetOptStat(10000);  //  print overflow bins!
-    float spmin =
+    double spmin =
         tt->getScanpointMin() - 0.01 * (tt->getScanpointMax() - tt->getScanpointMin());  //  add some offset so that
-    float spmax = tt->getScanpointMax() +
-                  0.01 * (tt->getScanpointMax() - tt->getScanpointMin());  //  the first/last scanpoint is also plotted
+    double spmax = tt->getScanpointMax() +
+                   0.01 * (tt->getScanpointMax() - tt->getScanpointMin());  //  the first/last scanpoint is also plotted
 
     {
       selectNewPad();
       if (arg->debug) cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varScan << endl;
       t->Draw("scanpoint:" + varScan, ctrlPlotCuts, "colz");  // first test plot to get the automatic x axis range
-      float xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
-                                                  : customRangeLo;
-      float xmax = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax()
-                                                  : customRangeHi;
+      double xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
+                                                   : customRangeLo;
+      double xmax = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax()
+                                                   : customRangeHi;
       t->Draw("scanpoint:" + varScan + ">>" +
                   Form("hScan%i(%i,%f,%f,%i,%f,%f)", j, nBinsX, xmin, xmax, nBinsY, spmin, spmax),
               ctrlPlotCuts, "colz");
@@ -353,10 +353,10 @@ void ControlPlots::ctrlPlotNuisances() {
       selectNewPad();
       if (arg->debug) cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varFree << endl;
       t->Draw("scanpoint:" + varFree, ctrlPlotCuts, "colz");  // first test plot to get the automatic x axis range
-      float xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
-                                                  : customRangeLo;
-      float xmax = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax()
-                                                  : customRangeHi;
+      double xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
+                                                   : customRangeLo;
+      double xmax = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax()
+                                                   : customRangeHi;
       t->Draw("scanpoint:" + varFree + ">>" +
                   Form("hFree%i(%i,%f,%f,%i,%f,%f)", j, nBinsX, xmin, xmax, nBinsY, spmin, spmax),
               ctrlPlotCuts, "colz");
@@ -396,8 +396,8 @@ void ControlPlots::ctrlPlotObservables() {
 
     // observables
     t->Draw("scanpoint:" + bName, ctrlPlotCuts, "colz");  // first test plot to get the automatic x axis range
-    float xmin = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin();
-    float xmax = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
+    double xmin = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin();
+    double xmax = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
     t->Draw("scanpoint:" + bName + ">>" +
                 Form("hObs%i(%i,%f,%f,%i,%f,%f)", j, nBinsX, xmin, xmax, nBinsY, tt->getScanpointMin(),
                      tt->getScanpointMax()),
@@ -430,17 +430,17 @@ void ControlPlots::ctrlPlotObservables() {
 ///
 void ControlPlots::ctrlPlotChi2Distribution() {
   int nBins = 12;  // this many chi2 plots we want
-  float scanpointMin = tt->getScanpointMin();
-  float scanpointMax = tt->getScanpointMax();
+  double scanpointMin = tt->getScanpointMin();
+  double scanpointMax = tt->getScanpointMax();
   if (scanpointMin == scanpointMax) nBins = 1;  // else we get 12x the same bin
   selectNewCanvas("Chi2Distribution 1");
   for (int i = 0; i < nBins; i++) {
     TVirtualPad* pad = selectNewPad();
-    float binMin = scanpointMin + (float)i * (scanpointMax - scanpointMin) / (float)nBins;
-    float binMax = binMin + (scanpointMax - scanpointMin) / (float)nBins;
+    double binMin = scanpointMin + (double)i * (scanpointMax - scanpointMin) / (double)nBins;
+    double binMax = binMin + (scanpointMax - scanpointMin) / (double)nBins;
     TCut bincut = Form("%f<scanpoint && scanpoint<%f", binMin * 0.999,
                        binMax * 1.001);  // factors to allow for the case of binMin=binMax
-    float normEvents =
+    double normEvents =
         t->Draw("chi2minToy-chi2minGlobalToy",
                 ctrlPlotCuts && bincut && "chi2minToy-chi2minGlobalToy>0 && chi2minToy-chi2minGlobalToy<50");
     if (!gPad->GetPrimitive("htemp")) continue;
@@ -455,9 +455,9 @@ void ControlPlots::ctrlPlotChi2Distribution() {
     pad->SetLogy();
     // draw a chi2 function
     TF1* f = new TF1("f", "[0]*x^([1]/2-1)*exp(-x/2)", 0, 30);
-    float binWidth = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetBinWidth(1);
+    double binWidth = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetBinWidth(1);
     int ndof = arg->var.size();
-    float norm = 1. / (pow(2, ndof / 2.) * TMath::Gamma(ndof / 2.)) * normEvents * binWidth;
+    double norm = 1. / (pow(2, ndof / 2.) * TMath::Gamma(ndof / 2.)) * normEvents * binWidth;
     f->SetParameter(0, norm);
     f->SetParameter(1, ndof);
     f->Draw("same");
@@ -472,8 +472,8 @@ void ControlPlots::ctrlPlotChi2Parabola() {
   if (arg->debug) cout << "ControlPlots::ctrlPlotChi2Parabola() : plotting ..." << endl;
   int nBins = 12;  //  this many chi2 plots we want
   selectNewCanvas("Chi2Parabola 1");
-  float scanpointMin = tt->getScanpointMin();
-  float scanpointMax = tt->getScanpointMax();
+  double scanpointMin = tt->getScanpointMin();
+  double scanpointMax = tt->getScanpointMax();
   if (scanpointMin == scanpointMax) nBins = 1;  // else we get 12x the same bin
   gEnv->SetValue("Hist.Binning.2D.x", 75);
   gEnv->SetValue("Hist.Binning.2D.y", 75);
@@ -490,8 +490,8 @@ void ControlPlots::ctrlPlotChi2Parabola() {
 
   for (int i = 0; i < nBins; i++) {
     selectNewPad();
-    float binMin = scanpointMin + (float)i * (scanpointMax - scanpointMin) / (float)nBins;
-    float binMax = binMin + (scanpointMax - scanpointMin) / (float)nBins;
+    double binMin = scanpointMin + (double)i * (scanpointMax - scanpointMin) / (double)nBins;
+    double binMax = binMin + (scanpointMax - scanpointMin) / (double)nBins;
     TCut bincut = Form("%f<scanpoint && scanpoint<=%f", binMin * 0.999,
                        binMax * 1.001);  // factors to allow for the case of binMin=binMax
     t->Draw(plotExpression, ctrlPlotCuts && bincut && "chi2minToy-chi2minGlobalToy>0 && chi2minToy-chi2minGlobalToy<9",
@@ -521,9 +521,9 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   auto fDummy =
       new TFile("/tmp/" + getUniqueRootName(), "recreate");  //  dummy file so the new tree is not memory resident
   auto tNew = new TTree("tNew", "tNew");
-  float tNew_scanpoint = 0.;
-  float tNew_chi2min = 0.;
-  float tNew_chi2minPLH = 0.;
+  double tNew_scanpoint = 0.;
+  double tNew_chi2min = 0.;
+  double tNew_chi2minPLH = 0.;
   tNew->Branch("scanpoint", &tNew_scanpoint, "scanpoint/F");
   tNew->Branch("chi2min", &tNew_chi2min, "chi2min/F");
   tNew->Branch("chi2minPLH", &tNew_chi2minPLH, "chi2minPLH/F");
@@ -531,11 +531,11 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   t->SetBranchStatus("scanpoint", 1);
   t->SetBranchStatus("chi2min", 1);
   Long64_t nentries = t->GetEntries();
-  float printFreq = nentries > 101 ? 100 : nentries;  // for the status bar
+  double printFreq = nentries > 101 ? 100 : nentries;  // for the status bar
   for (Long64_t j = 0; j < nentries; j++) {
     // status bar
     if (arg->debug && (((int)j % (int)(nentries / printFreq)) == 0)) {
-      cout << "ControlPlots::ctrlPlotMore() : reading toys " << Form("%.0f", (float)j / (float)nentries * 100.)
+      cout << "ControlPlots::ctrlPlotMore() : reading toys " << Form("%.0f", (double)j / (double)nentries * 100.)
            << "%   \r" << flush;
     }
     tt->GetEntry(j);
@@ -567,8 +567,8 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 2 ...\r" << flush;
   selectNewPad();
   RooRealVar* scanvar = profileLH->getScanVar1();
-  float svmin = scanvar->getMin("scan");
-  float svmax = scanvar->getMax("scan");
+  double svmin = scanvar->getMin("scan");
+  double svmax = scanvar->getMax("scan");
   t->Draw("scanbest:chi2minToy", Form("abs(chi2minToy)<25 && %f<scanbest && scanbest<%f", svmin, svmax), "colz");
   makePlotsNice();
 
@@ -599,8 +599,8 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   t->Draw("chi2minGlobal:nrun", "", "colz");
   makePlotsNice();
   // draw a horizontal red line at the chi2minGlobal of the current PLH scan
-  float xmin = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin();
-  float xmax = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
+  double xmin = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin();
+  double xmax = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
   auto l = new TLine(xmin, profileLH->getChi2minGlobal(), xmax, profileLH->getChi2minGlobal());
   l->SetLineColor(kRed);
   l->Draw();

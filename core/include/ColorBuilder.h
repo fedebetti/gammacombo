@@ -11,7 +11,7 @@
 class ColorBuilder {
  public:
   int darkcolor(int n) const;
-  int darklightcolor(int n, float scale) const;
+  int darklightcolor(int n, double scale) const;
   int lightcolor(int n) const;
 };
 

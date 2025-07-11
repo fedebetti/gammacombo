@@ -82,8 +82,8 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   setLimit(w, scanVar1, "scan");
   RooRealVar* par = w->var(scanVar1);
   assert(par);
-  float min = hCL->GetXaxis()->GetXmin();
-  float max = hCL->GetXaxis()->GetXmax();
+  double min = hCL->GetXaxis()->GetXmin();
+  double max = hCL->GetXaxis()->GetXmax();
   if (fabs(par->getMin() - min) > 1e-6 || fabs(par->getMax() - max) > 1e-6) {
     cout << "MethodProbScan::scan1d() : WARNING : Scan range was changed after initScan()" << endl;
     cout << "                           was called so the old range will be used." << endl;
@@ -109,14 +109,14 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   // 1 : upper limit -> start value
   // 2 : start value -> lower limit
   // 3 : lower limit -> start value
-  float startValue = par->getVal();
+  double startValue = par->getVal();
   bool scanUp;
 
   // for the status bar
-  float nTotalSteps = nPoints1d;
+  double nTotalSteps = nPoints1d;
   nTotalSteps *= fast ? 1 : 2;
-  float nStep = 0;
-  float printFreq = nTotalSteps > 15 ? 10 : nTotalSteps;
+  double nStep = 0;
+  double printFreq = nTotalSteps > 15 ? 10 : nTotalSteps;
 
   // Report on the smallest new minimum we come across while scanning.
   // Sometimes the scan doesn't find the minimum
@@ -141,7 +141,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
         break;
       }
 
-    float scanStart, scanStop;
+    double scanStart, scanStop;
     switch (j) {
     case 0:
       // UP
@@ -174,7 +174,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
     if (fast && (j == 1 || j == 3)) continue;
 
     for (int i = 0; i < nPoints1d; i++) {
-      float scanvalue;
+      double scanvalue;
       if (scanUp) {
         scanvalue = min + (max - min) * (double)i / (double)nPoints1d + hCL->GetBinWidth(1) / 2.;
         if (scanvalue < scanStart) continue;
@@ -199,7 +199,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
       // status bar
       if ((((int)nStep % (int)(nTotalSteps / printFreq)) == 0))
         if (!quiet)
-          cout << "MethodProbScan::scan1d() : scanning " << (float)nStep / (float)nTotalSteps * 100. << "%   \r"
+          cout << "MethodProbScan::scan1d() : scanning " << (double)nStep / (double)nTotalSteps * 100. << "%   \r"
                << flush;
 
       // fit!
@@ -219,7 +219,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
 
       TString warningChi2Neg;
       if (chi2minScan < 0) {
-        float newChi2minScan = chi2minGlobal + 25.;  // 5sigma more than best point
+        double newChi2minScan = chi2minGlobal + 25.;  // 5sigma more than best point
         warningChi2Neg = "MethodProbScan::scan1d() : WARNING : " + title;
         warningChi2Neg += TString(Form(" chi2 negative for scan point %i: %f", i, chi2minScan));
         warningChi2Neg += " setting to: " + TString(Form("%f", newChi2minScan));
@@ -302,8 +302,8 @@ int MethodProbScan::computeCLvalues() {
     return 1;
   }
 
-  float bestfitpoint;
-  float bestfitpointerr;
+  double bestfitpoint;
+  double bestfitpointerr;
 
   if (globalMin) {
     bestfitpoint = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getVal();
@@ -318,10 +318,10 @@ int MethodProbScan::computeCLvalues() {
   }
 
   for (int k = 1; k <= hCL->GetNbinsX(); k++) {
-    float scanvalue = hChi2min->GetBinCenter(k);
-    float teststat_measured = hChi2min->GetBinContent(k) - chi2minGlobal;
-    float CLb = 1. - (normal_cdf(TMath::Sqrt(teststat_measured) + ((scanvalue - 0.) / bestfitpointerr)) +
-                      normal_cdf(TMath::Sqrt(teststat_measured) - ((scanvalue - 0.) / bestfitpointerr)) - 1.);
+    double scanvalue = hChi2min->GetBinCenter(k);
+    double teststat_measured = hChi2min->GetBinContent(k) - chi2minGlobal;
+    double CLb = 1. - (normal_cdf(TMath::Sqrt(teststat_measured) + ((scanvalue - 0.) / bestfitpointerr)) +
+                       normal_cdf(TMath::Sqrt(teststat_measured) - ((scanvalue - 0.) / bestfitpointerr)) - 1.);
     if (arg->teststatistic == 1) {                                             // use one-sided test statistic
       teststat_measured = bestfitpoint <= scanvalue ? teststat_measured : 0.;  // if mu < muhat then q_mu = 0
       hCL->SetBinContent(k, 1. - normal_cdf(TMath::Sqrt(teststat_measured)));
@@ -387,8 +387,8 @@ bool MethodProbScan::computeInnerTurnCoords(const int iStart, const int jStart, 
   iResult = iStart;
   jResult = jStart;
   if (sq(i - iStart) + sq(j - jStart) > 0) {
-    iResult = round((float)i - float(nTurn) * 1.41 * float(i - iStart) / sqrt(sq(i - iStart) + sq(j - jStart)));
-    jResult = round((float)j - float(nTurn) * 1.41 * float(j - jStart) / sqrt(sq(i - iStart) + sq(j - jStart)));
+    iResult = round((double)i - double(nTurn) * 1.41 * double(i - iStart) / sqrt(sq(i - iStart) + sq(j - jStart)));
+    jResult = round((double)j - double(nTurn) * 1.41 * double(j - jStart) / sqrt(sq(i - iStart) + sq(j - jStart)));
   }
   if (iResult - 1 >= curveResults2d.size()) iResult = iStart;
   if (jResult - 1 >= curveResults2d[0].size()) jResult = jStart;
@@ -472,14 +472,14 @@ int MethodProbScan::scan2d() {
 
   // for the status bar
   int nSteps = 0;
-  float nTotalSteps = nPoints2dx * nPoints2dy;
-  float printFreq = nTotalSteps > 100 && !arg->probforce ? 100 : nTotalSteps;  ///< number of messages
+  double nTotalSteps = nPoints2dx * nPoints2dy;
+  double printFreq = nTotalSteps > 100 && !arg->probforce ? 100 : nTotalSteps;  ///< number of messages
 
   // initialize some control plots
   gStyle->SetOptTitle(1);
   TCanvas* cDbg = newNoWarnTCanvas(getUniqueRootName(), Form("DeltaChi2 for 2D scan %i", nScansDone));
   cDbg->SetMargin(0.1, 0.15, 0.1, 0.1);
-  float hChi2min2dMin = hChi2min2d->GetMinimum();
+  double hChi2min2dMin = hChi2min2d->GetMinimum();
   bool firstScanDone = hChi2min2dMin < 1e5;
   TH2F* hDbgChi2min2d = histHardCopy(hChi2min2d, firstScanDone, true, TString(hChi2min2d->GetName()) + TString("_Dbg"));
   hDbgChi2min2d->SetTitle(Form("#Delta#chi^{2} for scan %i, %s", nScansDone, title.Data()));
@@ -521,7 +521,7 @@ int MethodProbScan::scan2d() {
 
         // status bar
         if (((int)nSteps % (int)(nTotalSteps / printFreq)) == 0) {
-          cout << Form("MethodProbScan::scan2d() : scanning %3.0f%%", (float)nSteps / (float)nTotalSteps * 100.)
+          cout << Form("MethodProbScan::scan2d() : scanning %3.0f%%", (double)nSteps / (double)nTotalSteps * 100.)
                << "       \r" << flush;
         }
         nSteps++;
@@ -551,8 +551,8 @@ int MethodProbScan::scan2d() {
         // setParameters(w, parsName, startPars->get(0));
 
         // set scan point
-        float scanvalue1 = hCL2d->GetXaxis()->GetBinCenter(i);
-        float scanvalue2 = hCL2d->GetYaxis()->GetBinCenter(j);
+        double scanvalue1 = hCL2d->GetXaxis()->GetBinCenter(i);
+        double scanvalue2 = hCL2d->GetYaxis()->GetBinCenter(j);
         par1->setVal(scanvalue1);
         par2->setVal(scanvalue2);
 
@@ -769,7 +769,7 @@ void MethodProbScan::saveSolutions2d() {
 /// scan point. Requires that the scan was performed before
 /// by scan1d().
 ///
-float MethodProbScan::getChi2min(float scanpoint) const {
+double MethodProbScan::getChi2min(double scanpoint) const {
   assert(hChi2min);
   int iBin = hChi2min->FindBin(scanpoint);
   return hChi2min->GetBinContent(iBin);

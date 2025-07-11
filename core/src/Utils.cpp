@@ -114,10 +114,10 @@ double Utils::bringBackAngle(double angle) {
 /// \return difference
 ///
 double Utils::angularDifference(double angle1, double angle2) {
-  float angleSmaller = max(bringBackAngle(angle1), bringBackAngle(angle2));
-  float angleLarger = min(bringBackAngle(angle1), bringBackAngle(angle2));
-  float diff1 = angleLarger - angleSmaller;
-  float diff2 = (2. * TMath::Pi() - angleLarger) + angleSmaller;
+  double angleSmaller = max(bringBackAngle(angle1), bringBackAngle(angle2));
+  double angleLarger = min(bringBackAngle(angle1), bringBackAngle(angle2));
+  double diff1 = angleLarger - angleSmaller;
+  double diff2 = (2. * TMath::Pi() - angleLarger) + angleSmaller;
   return min(diff1, diff2);
 }
 
@@ -220,8 +220,8 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
 
     for (int ip = 0; ip < nPars; ip++) {
       auto p = (RooRealVar*)varyPars->at(ip);
-      float oldMin = p->getMin();
-      float oldMax = p->getMax();
+      double oldMin = p->getMin();
+      double oldMax = p->getMax();
       setLimit(w, p->GetName(), "force");
       if (i / (int)pow(2., ip) % 2 == 0) { p->setVal(p->getMin()); }
       if (i / (int)pow(2., ip) % 2 == 1) { p->setVal(p->getMax()); }
@@ -303,16 +303,16 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     //   cout << "step 1" << endl;
     //   r1->Print("v");
     //   gStyle->SetPalette(1);
-    //   float xmin = 0.;
-    //   float xmax = 3.14;
-    //   float ymin = 0.;
-    //   float ymax = 0.2;
+    //   double xmin = 0.;
+    //   double xmax = 3.14;
+    //   double ymin = 0.;
+    //   double ymax = 0.2;
     //   auto histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
     //   for ( int ix=0; ix<100; ix++ )
     //   for ( int iy=0; iy<100; iy++ )
     //   {
-    //     float x = xmin + (xmax-xmin)*(double)ix/(double)100;
-    //     float y = ymin + (ymax-ymin)*(double)iy/(double)100;
+    //     double x = xmin + (xmax-xmin)*(double)ix/(double)100;
+    //     double y = ymin + (ymax-ymin)*(double)iy/(double)100;
     //     w->var("d_dk")->setVal(x);
     //     w->var("r_dk")->setVal(y);
     //     histo->SetBinContent(ix+1,iy+1,ll.getVal());
@@ -352,16 +352,16 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     //   r2->Print("v");
     //
     //   gStyle->SetPalette(1);
-    //   float xmin = 0.;
-    //   float xmax = 3.14;
-    //   float ymin = 0.;
-    //   float ymax = 0.2;
+    //   double xmin = 0.;
+    //   double xmax = 3.14;
+    //   double ymin = 0.;
+    //   double ymax = 0.2;
     //   auto histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
     //   for ( int ix=0; ix<100; ix++ )
     //   for ( int iy=0; iy<100; iy++ )
     //   {
-    //     float x = xmin + (xmax-xmin)*(double)ix/(double)100;
-    //     float y = ymin + (ymax-ymin)*(double)iy/(double)100;
+    //     double x = xmin + (xmax-xmin)*(double)ix/(double)100;
+    //     double y = ymin + (ymax-ymin)*(double)iy/(double)100;
     //     wImprove->var("d_dk")->setVal(x);
     //     wImprove->var("r_dk")->setVal(y);
     //     histo->SetBinContent(ix+1,iy+1,ll.getVal());
@@ -714,7 +714,7 @@ void Utils::setLimit(const RooAbsCollection* set, TString limitname) {
 ///
 bool Utils::buildCorMatrix(TMatrixDSym& cor) {
   const int n = cor.GetNcols();
-  const double tol = 1e-6;  // tolerance for float precision
+  const double tol = 1e-6;  // tolerance for double precision
   auto ill_formed = [cor](const std::string reason) {
     std::cerr << "FAILURE: Input correlation matrix is ill-formed:\n"
                  "         "
@@ -785,7 +785,7 @@ bool Utils::buildCorMatrix(TMatrixDSym& cor) {
 /// Build a covariance matrix
 /// from a correlation matrix and error vectors.
 ///
-TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, float* err) {
+TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, double* err) {
   int n = cor.GetNcols();
   TMatrixDSym cov(n);
   for (int i = 0; i < n; i++)
@@ -918,7 +918,7 @@ void Utils::savePlot(TCanvas* c1, TString name) {
 /// Round a number to a certain number of
 /// decimal points.
 ///
-float Utils::Round(double value, int digits) { return TString(Form("%.*f", digits, value)).Atof(); }
+double Utils::Round(double value, int digits) { return TString(Form("%.*f", digits, value)).Atof(); }
 
 ///
 /// Compute number of digits needed behind the decimal
@@ -957,11 +957,11 @@ int Utils::calcNsubdigits(double value, int sigdigits) {
 TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
   // set up the TTree based on the content of the first
   // row of the dataset
-  map<string, float> variables;  ///< the proxy variables
+  map<string, double> variables;  ///< the proxy variables
   auto t = new TTree("tree", "tree");
   for (const auto pAbs : *d->get(0)) {
     const auto p = static_cast<RooRealVar*>(pAbs);
-    variables.insert(pair<string, float>(p->GetName(), p->getVal()));
+    variables.insert(pair<string, double>(p->GetName(), p->getVal()));
     t->Branch(p->GetName(), &variables[p->GetName()], TString(p->GetName()) + "/F");
   }
 
@@ -1084,9 +1084,9 @@ int Utils::makeNewColor(string hex) {
   int ci = TColor::GetFreeColorIndex();
   int ri, gi, bi;
   sscanf(hex.c_str(), "#%02x%02x%02x", &ri, &gi, &bi);
-  float r = float(ri) / 255.;
-  float g = float(gi) / 255.;
-  float b = float(bi) / 255.;
+  double r = double(ri) / 255.;
+  double g = double(gi) / 255.;
+  double b = double(bi) / 255.;
   auto col = new TColor(ci, r, g, b);
   cout << ci << " " << hex << " " << r << " " << g << " " << b << endl;
   return col->GetNumber();
@@ -1175,7 +1175,7 @@ void Utils::setParametersFloating(RooWorkspace* w, std::vector<TString> names) {
 void Utils::dump_vector(const std::vector<int>& l) {
   for (auto const& el : l) { cout << el << endl; }
 }
-void Utils::dump_vector(const std::vector<float>& l) {
+void Utils::dump_vector(const std::vector<double>& l) {
   for (auto const& el : l) { cout << el << endl; }
 }
 void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {

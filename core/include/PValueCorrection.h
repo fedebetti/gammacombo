@@ -25,7 +25,7 @@ class PValueCorrection {
 
   void checkValid();
   void checkParams();
-  void printCoverage(float, float, float, float, TString name = "");
+  void printCoverage(double, double, double, double, TString name = "");
 
   void write(TString fname);
   void write(TFile* f);

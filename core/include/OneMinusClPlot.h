@@ -26,8 +26,8 @@ class OneMinusClPlot : public OneMinusClPlotAbs {
   void Draw() override;
 
  private:
-  void drawCLguideLine(float pvalue) const;
-  void drawVerticalLine(float x, int color, int style) const;
+  void drawCLguideLine(double pvalue) const;
+  void drawVerticalLine(double x, int color, int style) const;
   TGraph* scan1dPlot(MethodAbsScan* s, bool first, bool last, bool filled, int CLsType = 0);
   void scan1dPlotSimple(MethodAbsScan* s, bool first, int CLsType = 0);
   void scan1dCLsPlot(MethodAbsScan* s, bool smooth = true, bool obsError = true);

@@ -20,7 +20,7 @@ class MethodProbScan : public MethodAbsScan {
   virtual ~MethodProbScan() = default;
 
   virtual int computeCLvalues();  // compute CL histograms depending on desired test statistic
-  float getChi2min(float scanpoint) const;
+  double getChi2min(double scanpoint) const;
   inline TH1F* getHChi2min() const { return hChi2min; };
   void saveSolutions();
   void saveSolutions2d();

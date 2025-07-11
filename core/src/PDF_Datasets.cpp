@@ -677,8 +677,8 @@ void PDF_Datasets::unblind(TString var, TString unblindRegs) {
     minStr.Replace(minStr.Index(":"), minStr.Sizeof(), "");
     maxStr.ReplaceAll("]", "");
     maxStr.Replace(0, maxStr.Index(":") + 1, "");
-    float min = minStr.Atof();
-    float max = maxStr.Atof();
+    double min = minStr.Atof();
+    double max = maxStr.Atof();
     wspc->var(var)->setRange(Form("unblind%d", i), min, max);
     unblindString += Form("unblind%d", i);
     if (i < regs->GetEntries() - 1) unblindString += ",";

@@ -19,11 +19,11 @@ class PullPlotter {
  public:
   PullPlotter(MethodAbsScan* cmb);
 
-  bool hasPullsAboveNsigma(float nsigma) const;
+  bool hasPullsAboveNsigma(double nsigma) const;
   void loadParsFromSolution(int n);
   void savePulls() const;
   void plotPulls();
-  void printPulls(float aboveNsigma = -1.) const;
+  void printPulls(double aboveNsigma = -1.) const;
 
  private:
   void defineOrder();
