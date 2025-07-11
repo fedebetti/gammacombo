@@ -76,10 +76,11 @@ namespace Utils {
   bool isAngle(RooRealVar* v);
   int makeNewColor(std::string hex);
 
-  RooFitResult* fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel);
-  RooFitResult* fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel);
-  RooFitResult* fitToMinForce(RooWorkspace* w, TString name, TString forceVariables = "", bool debug = true);
-  RooFitResult* fitToMinImprove(RooWorkspace* w, TString name);
+  std::unique_ptr<RooFitResult> fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel);
+  std::unique_ptr<RooFitResult> fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel);
+  std::unique_ptr<RooFitResult> fitToMinForce(RooWorkspace* w, TString name, TString forceVariables = "",
+                                              bool debug = true);
+  std::unique_ptr<RooFitResult> fitToMinImprove(RooWorkspace* w, TString name);
   double getChi2(RooAbsPdf* pdf);
   std::unique_ptr<TH1F> histHardCopy(const TH1* h, bool copyContent = true, bool uniqueName = true,
                                      TString specName = "");

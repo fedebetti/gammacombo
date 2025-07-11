@@ -348,7 +348,7 @@ void PDF_Datasets::generateToysGlobalObservables(int SeedShift) {
   wspc->saveSnapshot(globalObsToySnapshotName, *wspc->set(globalObsName));
 };
 
-RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
+std::unique_ptr<RooFitResult> PDF_Datasets::fit(RooAbsData* dataToFit) {
 
   if (this->getWorkspace()->set(constraintName) == nullptr) {
     std::cout << std::endl;
@@ -370,14 +370,14 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
   // need to stay with standard Minuit fitting. RooFitResult* result  = pdf->fitTo( *dataToFit, RooFit::Save() ,
   // RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)), RooFit::Minimizer("Minuit2", "Migrad"));
   if (isMultipdfSet) {
-    RooFitResult* result;
+    std::unique_ptr<RooFitResult> result;
     double minMultipdfNll;
     bool badFit = false;
     for (int npdf = 0; npdf < multipdf->getNumPdfs(); npdf++) {
       multipdfCat->setIndex(npdf);
-      RooFitResult* result_tmp = multipdf->getPdf(npdf)->fitTo(
+      auto result_tmp = std::unique_ptr<RooFitResult>(multipdf->getPdf(npdf)->fitTo(
           *dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
-          RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
+          RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy)));
       std::unique_ptr<RooAbsReal> nll(multipdf->getPdf(npdf)->createNLL(
           *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
       minMultipdfNll = nll->getVal() + multipdf->getCorrection();
@@ -385,10 +385,7 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
       if (npdf == 0 or minMultipdfNll < this->minNll or badFit) {
         this->minNll = minMultipdfNll;
         this->bestIndex = npdf;
-        if (npdf != 0) delete result;
-        result = result_tmp;
-      } else {
-        delete result_tmp;
+        result = std::move(result_tmp);
       }
       if (badFit) break;
     }
@@ -401,9 +398,9 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
   }
 
   else {
-    RooFitResult* result =
+    auto result = std::unique_ptr<RooFitResult>(
         pdf->fitTo(*dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
-                   RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
+                   RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy)));
     RooMsgService::instance().setSilentMode(kFALSE);
     RooMsgService::instance().setGlobalKillBelow(INFO);
     this->fitStatus = result->status() + (result->covQual() % 3);
@@ -418,7 +415,7 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
   }
 };
 
-RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
+std::unique_ptr<RooFitResult> PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
 
   if (this->getWorkspace()->set(constraintName) == nullptr) {
     std::cout << std::endl;
@@ -449,14 +446,14 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
     // RooFit::Save() , RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)),
     // RooFit::Minimizer("Minuit2", "Migrad"));
     if (isBkgMultipdfSet) {
-      RooFitResult* result;
+      std::unique_ptr<RooFitResult> result;
       double minMultipdfNll;
       bool badFit = false;
       for (int npdf = 0; npdf < multipdfBkg->getNumPdfs(); npdf++) {
         multipdfCat->setIndex(npdf);
-        RooFitResult* result_tmp = multipdfBkg->getPdf(npdf)->fitTo(
+        auto result_tmp = std::unique_ptr<RooFitResult>(multipdfBkg->getPdf(npdf)->fitTo(
             *dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
-            RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
+            RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy)));
         std::unique_ptr<RooAbsReal> nll_bkg(multipdfBkg->getPdf(npdf)->createNLL(
             *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
         minMultipdfNll = nll_bkg->getVal() + multipdfBkg->getCorrection();
@@ -464,10 +461,7 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
         if (npdf == 0 or minMultipdfNll < this->minNll or badFit) {
           this->minNllBkg = minMultipdfNll;
           this->bestIndex = npdf;
-          if (npdf != 0) delete result;
-          result = result_tmp;
-        } else {
-          delete result_tmp;
+          result = std::move(result_tmp);
         }
         if (badFit) break;
       }
@@ -477,9 +471,9 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
                   << result->covQual() << std::endl;
       return result;
     } else {
-      RooFitResult* result = pdfBkg->fitTo(*dataToFit, RooFit::Save(),
-                                           RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)),
-                                           RooFit::Extended(kTRUE));
+      auto result = std::unique_ptr<RooFitResult>(pdfBkg->fitTo(
+          *dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)),
+          RooFit::Extended(kTRUE)));
       std::unique_ptr<RooAbsReal> nll_bkg(pdfBkg->createNLL(*dataToFit, RooFit::Extended(kTRUE)));
 
       RooMsgService::instance().setSilentMode(kFALSE);
@@ -508,14 +502,14 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
     // RooFit::Save() , RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)),
     // RooFit::Minimizer("Minuit2", "Migrad"));
     if (isMultipdfSet) {
-      RooFitResult* result;
+      std::unique_ptr<RooFitResult> result;
       double minMultipdfNll;
       bool badFit = false;
       for (int npdf = 0; npdf < multipdf->getNumPdfs(); npdf++) {
         multipdfCat->setIndex(npdf);
-        RooFitResult* result_tmp = multipdf->getPdf(npdf)->fitTo(
+        auto result_tmp = std::unique_ptr<RooFitResult>(multipdf->getPdf(npdf)->fitTo(
             *dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
-            RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
+            RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy)));
         std::unique_ptr<RooAbsReal> nll_bkg(multipdf->getPdf(npdf)->createNLL(
             *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
         minMultipdfNll = nll_bkg->getVal() + multipdf->getCorrection();
@@ -523,10 +517,7 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
         if (npdf == 0 or minMultipdfNll < this->minNllBkg or badFit) {
           this->minNllBkg = minMultipdfNll;
           this->bestIndex = npdf;
-          if (npdf != 0) delete result;
-          result = result_tmp;
-        } else {
-          delete result_tmp;
+          result = std::move(result_tmp);
         }
         if (badFit) break;
       }
@@ -538,9 +529,9 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
     }
 
     else {
-      RooFitResult* result =
+      auto result = std::unique_ptr<RooFitResult>(
           pdf->fitTo(*dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
-                     RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
+                     RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy)));
       // RooFitResult* result  = pdfBkg->fitTo( *dataToFit, RooFit::Save() ,
       // RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)), RooFit::Extended(kTRUE));
       RooMsgService::instance().setSilentMode(kFALSE);

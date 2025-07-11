@@ -1,4 +1,3 @@
-// vim: ts=2 sw=2 et
 /*
  * Gamma Combination
  * Author: Maximilian Schlupp, maxschlupp@gmail.com
@@ -67,10 +66,10 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
   if (arg->var.size() > 1) scanVar2 = arg->var[1];
   inputFiles.clear();
 
-  globalMin = probScan->globalMin;
-  setParameters(w, globalMin);  // reset fit parameters to the free fit
+  globalMin = std::make_unique<RooFitResult>(*probScan->globalMin.get());  // TODO move to shared pointer?
+  setParameters(w, globalMin.get());                                       // reset fit parameters to the free fit
   bestfitpoint = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getVal();
-  // globalMin = (RooFitResult*) w->obj("data_fit_result");
+  // globalMin = std::unique_ptr<RooFitResult>(static_cast<RooFitResult*>(w->obj("data_fit_result")));
   chi2minGlobal = probScan->getChi2minGlobal();
   std::cout << "=============== Global Minimum (2*-Log(Likelihood)) is: " << chi2minGlobal << endl;
 
@@ -100,7 +99,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
 
   if (refit_necessary) {
     std::cout << "!!!!!!!!!!! Global Minimum outside physical range, refitting ..." << std::endl;
-    globalMin = pdf->fit(pdf->getData());
+    globalMin = std::unique_ptr<RooFitResult>(pdf->fit(pdf->getData()));
     chi2minGlobal = 2 * pdf->getMinNll();
     if (!globalMin->floatParsFinal().find(scanVar1)) {
       bestfitpoint = w->var(scanVar1)->getVal();
@@ -147,9 +146,9 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
          << endl;
     exit(EXIT_FAILURE);
   }
-  dataBkgFitResult = pdf->fitBkg(pdf->getData(), arg->var[0]);  // get Bkg fit parameters
+  dataBkgFitResult = std::unique_ptr<RooFitResult>(pdf->fitBkg(pdf->getData(), arg->var[0]));  // get Bkg fit parameters
   this->pdf->setBestIndexBkg(this->pdf->getBestIndex());
-  setParameters(w, globalMin);  // reset fit parameters to the free fit
+  setParameters(w, globalMin.get());  // reset fit parameters to the free fit
 }
 
 ///////////////////////////////////////////////
@@ -288,7 +287,7 @@ void MethodDatasetsPluginScan::checkExtProfileLH() {
 /// \param pdf      the pdf that is to be fitted.
 ///
 ////////////////////////////////////////////////////
-RooFitResult* MethodDatasetsPluginScan::loadAndFit(PDF_Datasets* pdf) {
+std::unique_ptr<RooFitResult> MethodDatasetsPluginScan::loadAndFit(PDF_Datasets* pdf) {
   // we want to fit to the latest simulated toys
   // first, try to simulated toy values of the global observables from a snapshot
   if (!w->loadSnapshot(pdf->globalObsToySnapshotName)) {
@@ -297,7 +296,7 @@ RooFitResult* MethodDatasetsPluginScan::loadAndFit(PDF_Datasets* pdf) {
     exit(EXIT_FAILURE);
   };
   // then, fit the pdf while passing it the simulated toy dataset
-  return pdf->fit(pdf->getToyObservables());
+  return std::unique_ptr<RooFitResult>(pdf->fit(pdf->getToyObservables()));
 };
 
 ///////////////////////////////////////////////////
@@ -307,7 +306,7 @@ RooFitResult* MethodDatasetsPluginScan::loadAndFit(PDF_Datasets* pdf) {
 /// \param pdf      the pdf that is to be fitted.
 ///
 ////////////////////////////////////////////////////
-RooFitResult* MethodDatasetsPluginScan::loadAndFitBkg(PDF_Datasets* pdf) {
+std::unique_ptr<RooFitResult> MethodDatasetsPluginScan::loadAndFitBkg(PDF_Datasets* pdf) {
   // we want to fit to the latest simulated toys
   // first, try to simulated toy values of the global observables from a snapshot
   if (!w->loadSnapshot(pdf->globalObsBkgToySnapshotName)) {
@@ -316,7 +315,7 @@ RooFitResult* MethodDatasetsPluginScan::loadAndFitBkg(PDF_Datasets* pdf) {
     exit(EXIT_FAILURE);
   };
   // then, fit the pdf while passing it the simulated toy dataset
-  return pdf->fit(pdf->getBkgToyObservables());
+  return std::unique_ptr<RooFitResult>(pdf->fit(pdf->getBkgToyObservables()));
 };
 
 ///
@@ -1259,8 +1258,8 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
     // std::cout << "Toy " << j << std::endl;
     // if(pdf->getBkgPdf())
     {
-      setParameters(w, dataBkgFitResult);  // set parameters to bkg fit so the generation always starts at the same
-                                           // value
+      setParameters(w, dataBkgFitResult.get());  // set parameters to bkg fit so the generation always starts at the
+                                                 // same value
       // pdf->printParameters();
       pdf->generateBkgToys(0, arg->var[0]);
       pdf->generateBkgToysGlobalObservables(0, j);
@@ -1271,25 +1270,23 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       pdf->setToyData(bkgOnlyToy);
       parameterToScan->setConstant(false);
       // Do a global fit to bkg-only toys
-      RooFitResult* rb = loadAndFitBkg(pdf);
+      auto rb = loadAndFitBkg(pdf);
       assert(rb);
       pdf->setMinNllScan(pdf->minNll);
       if (pdf->getFitStatus() != 0) {
         pdf->setFitStrategy(1);
-        delete rb;
         rb = loadAndFitBkg(pdf);
         pdf->setMinNllScan(pdf->minNll);
         assert(rb);
 
         if (pdf->getFitStatus() != 0) {
           pdf->setFitStrategy(2);
-          delete rb;
           rb = loadAndFitBkg(pdf);
           assert(rb);
         }
       }
-      setParameters(w, rb);  // set parameters to fitresult of best fit before making refitting decision, necessary if
-                             // using multipdf
+      // set parameters to fitresult of best fit before making refitting decision, necessary if using multipdf
+      setParameters(w, rb.get());
       // implement physical range a la Feldman Cousins
       bool refit_necessary = false;
       if (arg->physRanges.size() > 0) {
@@ -1320,14 +1317,12 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
         pdf->setMinNllScan(pdf->minNll);
         if (pdf->getFitStatus() != 0) {
           pdf->setFitStrategy(1);
-          delete rb;
           rb = loadAndFitBkg(pdf);
           pdf->setMinNllScan(pdf->minNll);
           assert(rb);
 
           if (pdf->getFitStatus() != 0) {
             pdf->setFitStrategy(2);
-            delete rb;
             rb = loadAndFitBkg(pdf);
             assert(rb);
           }
@@ -1373,21 +1368,18 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       }
 
       // fit the bkg-only toys with the bkg-only hypothesis
-      delete rb;
-      rb = pdf->fitBkg(bkgOnlyToy, arg->var[0]);
+      rb = std::unique_ptr<RooFitResult>(pdf->fitBkg(bkgOnlyToy, arg->var[0]));
       assert(rb);
       pdf->setMinNllScan(pdf->minNll);
       if (pdf->getFitStatus() != 0) {
         pdf->setFitStrategy(1);
-        delete rb;
-        rb = pdf->fitBkg(bkgOnlyToy, arg->var[0]);
+        rb = std::unique_ptr<RooFitResult>(pdf->fitBkg(bkgOnlyToy, arg->var[0]));
         pdf->setMinNllScan(pdf->minNll);
         assert(rb);
 
         if (pdf->getFitStatus() != 0) {
           pdf->setFitStrategy(2);
-          delete rb;
-          rb = pdf->fitBkg(bkgOnlyToy, arg->var[0]);
+          rb = std::unique_ptr<RooFitResult>(pdf->fitBkg(bkgOnlyToy, arg->var[0]));
           assert(rb);
         }
       }
@@ -1410,7 +1402,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       covQualBkgBkgToysStore.push_back(rb->covQual());
       StatusBkgBkgToysStore.push_back(pdf->getFitStatus());
 
-      delete rb;
       pdf->deleteToys();
     }
   }
@@ -1512,7 +1503,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       // fixed parameter of interest
       parameterToScan->setConstant(true);
       this->pdf->setFitStrategy(0);
-      RooFitResult* r = this->loadAndFit(this->pdf);
+      auto r = this->loadAndFit(this->pdf);
       assert(r);
       pdf->setMinNllScan(pdf->minNll);
 
@@ -1520,7 +1511,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
       if (pdf->getFitStatus() != 0) {
         pdf->setFitStrategy(1);
-        delete r;
         r = this->loadAndFit(this->pdf);
         pdf->setMinNllScan(pdf->minNll);
         assert(r);
@@ -1529,7 +1519,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
         if (pdf->getFitStatus() != 0) {
           pdf->setFitStrategy(2);
-          delete r;
           r = this->loadAndFit(this->pdf);
           assert(r);
         }
@@ -1576,7 +1565,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       this->pdf->setBkgToyData(bkgToy);
       this->pdf->setGlobalObsSnapshotBkgToy(bkgOnlyGlobObsSnaphots[j]);
 
-      RooFitResult* rb = this->loadAndFitBkg(this->pdf);
+      auto rb = this->loadAndFitBkg(this->pdf);
       assert(rb);
       pdf->setMinNllScan(pdf->minNll);
 
@@ -1584,7 +1573,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
       if (pdf->getFitStatus() != 0) {
         pdf->setFitStrategy(1);
-        delete rb;
         rb = this->loadAndFitBkg(this->pdf);
         pdf->setMinNllScan(pdf->minNll);
         assert(rb);
@@ -1593,7 +1581,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
         if (pdf->getFitStatus() != 0) {
           pdf->setFitStrategy(2);
-          delete rb;
           rb = this->loadAndFitBkg(this->pdf);
           assert(rb);
         }
@@ -1636,7 +1623,7 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
       // Fit
       pdf->setFitStrategy(0);
-      RooFitResult* r1 = this->loadAndFit(this->pdf);
+      auto r1 = this->loadAndFit(this->pdf);
       assert(r1);
       pdf->setMinNllFree(pdf->minNll);
       // toyTree.chi2minGlobalToy = 2 * r1->minNll();
@@ -1657,7 +1644,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
         pdf->setFitStrategy(1);
 
         if (arg->verbose) cout << "----> refit with strategy: 1" << endl;
-        delete r1;
         r1 = this->loadAndFit(this->pdf);
         assert(r1);
         pdf->setMinNllFree(pdf->minNll);
@@ -1677,7 +1663,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
           pdf->setFitStrategy(2);
 
           if (arg->verbose) cout << "----> refit with strategy: 2" << endl;
-          delete r1;
           r1 = this->loadAndFit(this->pdf);
           assert(r1);
           pdf->setMinNllFree(pdf->minNll);
@@ -1704,21 +1689,19 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
             // if (parameterToScan->getVal() < 1e-13) parameterToScan->setVal(0.67e-12); //what do we gain from this?
             parameterToScan->setConstant(false);
             pdf->deleteNLL();
-            RooFitResult* r_tmp = this->loadAndFit(this->pdf);
+            auto r_tmp = this->loadAndFit(this->pdf);
             assert(r_tmp);
             if (r_tmp->status() == 0 && r_tmp->minNll() < r1->minNll() && r_tmp->minNll() > -1e27) {
               pdf->setMinNllFree(pdf->minNll);
               cout << "+++++ > Improvement found in extra fit: Nll before: " << r1->minNll()
                    << " after: " << r_tmp->minNll() << endl;
-              delete r1;
-              r1 = r_tmp;
+              r1 = std::move(r_tmp);
               cout << "+++++ > new minNll value: " << r1->minNll() << endl;
             } else {
               // set back parameter value to last fit value
               cout << "+++++ > no Improvement found, reset ws par value to last fit result" << endl;
               parameterToScan->setVal(
                   static_cast<RooRealVar*>(r1->floatParsFinal().find(parameterToScan->GetName()))->getVal());
-              delete r_tmp;
             }
           };
           if (arg->debug) {
@@ -1731,8 +1714,8 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
         }
       }
 
-      setParameters(w, r1);  //  set parameters to fitresult of best fit before making refitting decision, necessary if
-                             //  using multipdf
+      setParameters(w, r1.get());  //  set parameters to fitresult of best fit before making refitting decision,
+                                   //  necessary if using multipdf
       // implement physical range a la Feldman Cousins
       bool refit_necessary = false;
       std::map<TString, double> boundary_vals;
@@ -1784,7 +1767,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
           pdf->setFitStrategy(1);
 
           if (arg->verbose) cout << "----> refit with strategy: 1" << endl;
-          delete r1;
           r1 = this->loadAndFit(this->pdf);
           assert(r1);
           pdf->setMinNllFree(pdf->minNll);
@@ -1804,7 +1786,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
             pdf->setFitStrategy(2);
 
             if (arg->verbose) cout << "----> refit with strategy: 2" << endl;
-            delete r1;
             r1 = this->loadAndFit(this->pdf);
             assert(r1);
             pdf->setMinNllFree(pdf->minNll);
@@ -1831,14 +1812,13 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
               // but need to keep the parameters fixed to boundary:
               for (auto element : boundary_vals) { w->var(element.first)->setVal(element.second); }
               pdf->deleteNLL();
-              RooFitResult* r_tmp = this->loadAndFit(this->pdf);
+              auto r_tmp = this->loadAndFit(this->pdf);
               assert(r_tmp);
               if (r_tmp->status() == 0 && r_tmp->minNll() < r1->minNll() && r_tmp->minNll() > -1e27) {
                 pdf->setMinNllFree(pdf->minNll);
                 cout << "+++++ > Improvement found in extra fit: Nll before: " << r1->minNll()
                      << " after: " << r_tmp->minNll() << endl;
-                delete r1;
-                r1 = r_tmp;
+                r1 = std::move(r_tmp);
                 cout << "+++++ > new minNll value: " << r1->minNll() << endl;
               } else {
                 // set back parameter value to last fit value
@@ -1849,7 +1829,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
                       static_cast<RooRealVar*>(r1->floatParsFinal().find(parameterToScan->GetName()))->getVal());
                 }
                 std::cout << std::endl;
-                delete r_tmp;
               }
             };
             if (arg->debug) {
@@ -1946,15 +1925,11 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
       toyTree.fill();
       // remove dataset and pointers
       delete parsAfterScanFit;
-      delete r;
-      delete r1;
-      delete rb;
       pdf->deleteToys();
 
     }  // End of toys loop
     // reset
     setParameters(w, pdf->getParName(), parsFunctionCall->get(0));
-    // delete result;
 
     // setParameters(w, pdf->getObsName(), obsDataset->get(0));
 

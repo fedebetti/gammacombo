@@ -81,7 +81,6 @@ MethodAbsScan::~MethodAbsScan() {
     if (result) delete result;
   }
   if (obsDataset) delete obsDataset;
-  if (globalMin) delete globalMin;
 }
 
 ///
@@ -158,11 +157,9 @@ void MethodAbsScan::doInitialFit(bool force) {
   }
 
   int quiet = arg->debug ? 1 : -1;
-  RooFitResult* r = fitToMinBringBackAngles(w->pdf(pdfName), true, quiet);
-  // RooFitResult* r = fitToMin(w->pdf(pdfName), true, quiet);
+  auto r = fitToMinBringBackAngles(w->pdf(pdfName), true, quiet);
   if (arg->debug) r->Print("v");
-  // globalMin = new RooSlimFitResult(r);
-  globalMin = r;
+  globalMin = std::move(r);
   chi2minGlobal = globalMin->minNll();
   chi2minGlobalFound = true;
 
@@ -1047,7 +1044,7 @@ void MethodAbsScan::plot2d(TString varx, TString vary) {
     exit(1);
   }
 
-  setParameters(w, parsName, globalMin);
+  setParameters(w, parsName, globalMin.get());
   print();
 
   gStyle->SetPadTopMargin(0.05);
@@ -1239,7 +1236,7 @@ void MethodAbsScan::confirmSolutions() {
 
     // refit the solution
     // true uses thorough fit with HESSE, -1 silences output
-    RooFitResult* r = fitToMinBringBackAngles(w->pdf(pdfName), true, -1);
+    auto r = fitToMinBringBackAngles(w->pdf(pdfName), true, -1);
 
     // Check scan parameter shift.
     // We'll allow for a shift equivalent to 3 step sizes.
@@ -1310,10 +1307,9 @@ void MethodAbsScan::confirmSolutions() {
     }
     if (isConfirmed) {
       if (arg->debug) cout << "MethodAbsScan::confirmSolutions() : solution " << i << " accepted." << endl;
-      auto sr = new RooSlimFitResult(r, true);  // true saves correlation matrix
+      auto sr = new RooSlimFitResult(r.get(), true);  // true saves correlation matrix
       sr->setConfirmed(true);
       confirmedSolutions.push_back(sr);
-      delete r;
     } else {
       cout << "MethodAbsScan::confirmSolutions() : WARNING : solution " << i
            << " rejected "

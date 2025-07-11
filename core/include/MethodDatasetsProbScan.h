@@ -8,6 +8,8 @@
 #ifndef MethodDatasetsProbScan_h
 #define MethodDatasetsProbScan_h
 
+#include <memory>
+
 #include "MethodProbScan.h"
 #include "PDF_Datasets.h"
 #include "RooSlimFitResult.h"
@@ -40,14 +42,14 @@ class MethodDatasetsProbScan : public MethodProbScan {
   std::vector<TString> inputFiles;
   std::vector<double> bootstrapPVals;
   TChain* chain = nullptr;
-  RooFitResult* bkgOnlyFitResult = nullptr;
+  std::unique_ptr<RooFitResult> bkgOnlyFitResult = nullptr;
   ToyTree* probScanTree = nullptr;
 
  protected:
  private:
   TChain* readFiles(TString fileNameBaseIn = "default");
   void readScan1dTrees(TString fileNameBaseIn = "default");
-  RooFitResult* loadAndFit(PDF_Datasets* pdf);
+  std::unique_ptr<RooFitResult> loadAndFit(PDF_Datasets* pdf);
   double getPValueTTestStatistic(double test_statistic_value, bool isCLs = false) const;
   void sanityChecks() const;
   void setAndPrintFitStatusConstrainedToys(const ToyTree& toyTree);

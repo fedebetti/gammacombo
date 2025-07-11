@@ -32,8 +32,8 @@ class PDF_Datasets : public PDF_Abs {
     }
   };
 
-  virtual RooFitResult* fit(RooAbsData* dataToFit);
-  virtual RooFitResult* fitBkg(RooAbsData* dataToFit, TString signalvar);
+  virtual std::unique_ptr<RooFitResult> fit(RooAbsData* dataToFit);
+  virtual std::unique_ptr<RooFitResult> fitBkg(RooAbsData* dataToFit, TString signalvar);
   virtual void generateToys(int SeedShift = 0);
   virtual void generateToysGlobalObservables(int SeedShift = 0);
   virtual void generateBkgToys(int SeedShift = 0, TString signalvar = "");

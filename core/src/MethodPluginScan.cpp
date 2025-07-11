@@ -786,7 +786,7 @@ void MethodPluginScan::scan2d(int nRun) {
         par2->setVal(scanpoint2);
         par1->setConstant(true);
         par2->setConstant(true);
-        RooFitResult* r;
+        std::unique_ptr<RooFitResult> r;
         if (!arg->scanforce)
           r = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
         else
@@ -794,7 +794,6 @@ void MethodPluginScan::scan2d(int nRun) {
         t.chi2minToy = r->minNll();
         t.statusScan = 0;
         t.storeParsScan();
-        delete r;
 
         //
         // 3. free fit
@@ -812,7 +811,6 @@ void MethodPluginScan::scan2d(int nRun) {
         t.scanbest = ((RooRealVar*)w->set(parsName)->find(scanVar1))->getVal();
         t.scanbesty = ((RooRealVar*)w->set(parsName)->find(scanVar2))->getVal();
         t.storeParsFree();
-        delete r;
 
         //
         // 4. store

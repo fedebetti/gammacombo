@@ -10,6 +10,7 @@
 #define MethodDatasetsPluginScan_h
 
 #include <map>
+#include <memory>
 #include <vector>
 
 #include <TChain.h>
@@ -47,7 +48,7 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
   std::vector<double> bootstrapPVals;
   TChain* chain = nullptr;
   // RooFitResult*           dataFreeFitResult;
-  RooFitResult* dataBkgFitResult;
+  std::unique_ptr<RooFitResult> dataBkgFitResult;
 
  protected:
   RooSlimFitResult* getParevolPoint(double scanpoint);
@@ -55,8 +56,8 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
   double bestfitpoint;
 
  private:
-  RooFitResult* loadAndFit(PDF_Datasets* pdf);     // in this Plugin class, this fits to toy!!
-  RooFitResult* loadAndFitBkg(PDF_Datasets* pdf);  // in this Plugin class, this fits to bkg-only toy!!
+  std::unique_ptr<RooFitResult> loadAndFit(PDF_Datasets* pdf);     // in this Plugin class, this fits to toy!!
+  std::unique_ptr<RooFitResult> loadAndFitBkg(PDF_Datasets* pdf);  // in this Plugin class, this fits to bkg-only toy!!
   double getPValueTTestStatistic(double test_statistic_value);
   void setAndPrintFitStatusConstrainedToys(const ToyTree& ToyTree);
   void setAndPrintFitStatusFreeToys(const ToyTree& ToyTree);
