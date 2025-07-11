@@ -29,14 +29,13 @@ PDF_Datasets::PDF_Datasets(RooWorkspace* w) : PDF_Datasets(w, 1, nullptr) {
 
 PDF_Datasets::~PDF_Datasets() {
   if (wspc) delete wspc;
-  if (_constraintPdf) delete _constraintPdf;
 };
 
 void PDF_Datasets::initConstraints(const TString& setName) {
   constraintName = setName;
   // obtain the part of the PDF that can generate the global observables
-  this->_constraintPdf = new RooProdPdf("constraintPdf", "", *wspc->set(constraintName));
-  if (_constraintPdf == nullptr) {
+  this->_constraintPdf = std::make_unique<RooProdPdf>("constraintPdf", "", *wspc->set(constraintName));
+  if (!_constraintPdf) {
     std::cout << "ERROR in PDF_B_MuMu::initConstraints - constraint pdf not initialized." << endl;
     exit(EXIT_FAILURE);
   }
@@ -379,8 +378,8 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
       RooFitResult* result_tmp = multipdf->getPdf(npdf)->fitTo(
           *dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
           RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
-      RooAbsReal* nll = multipdf->getPdf(npdf)->createNLL(
-          *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)));
+      std::unique_ptr<RooAbsReal> nll(multipdf->getPdf(npdf)->createNLL(
+          *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
       minMultipdfNll = nll->getVal() + multipdf->getCorrection();
       if (result_tmp->status() != 0 or result_tmp->covQual() != 3) badFit = true;
       if (npdf == 0 or minMultipdfNll < this->minNll or badFit) {
@@ -391,7 +390,6 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
       } else {
         delete result_tmp;
       }
-      delete nll;
       if (badFit) break;
     }
     this->fitStatus = result->status() + (result->covQual() % 3);
@@ -412,11 +410,9 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
     if (this->fitStatus != 0)
       std::cout << "PDF_Datasets::fit(): Imperfect fit! Fit status " << result->status() << " cov Qual "
                 << result->covQual() << std::endl;
-    // RooAbsReal* nll = pdf->createNLL(*dataToFit, RooFit::Extended(kTRUE));
-    RooAbsReal* nll = pdf->createNLL(*dataToFit, RooFit::Extended(kTRUE),
-                                     RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)));
+    std::unique_ptr<RooAbsReal> nll(pdf->createNLL(*dataToFit, RooFit::Extended(kTRUE),
+                                                   RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
     this->minNll = nll->getVal();
-    delete nll;
     nsbfits++;
     return result;
   }
@@ -461,8 +457,8 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
         RooFitResult* result_tmp = multipdfBkg->getPdf(npdf)->fitTo(
             *dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
             RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
-        RooAbsReal* nll_bkg = multipdfBkg->getPdf(npdf)->createNLL(
-            *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)));
+        std::unique_ptr<RooAbsReal> nll_bkg(multipdfBkg->getPdf(npdf)->createNLL(
+            *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
         minMultipdfNll = nll_bkg->getVal() + multipdfBkg->getCorrection();
         if (result_tmp->status() != 0 or result_tmp->covQual() != 3) badFit = true;
         if (npdf == 0 or minMultipdfNll < this->minNll or badFit) {
@@ -473,7 +469,6 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
         } else {
           delete result_tmp;
         }
-        delete nll_bkg;
         if (badFit) break;
       }
       this->fitStatus = result->status() + (result->covQual() % 3);
@@ -485,7 +480,7 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
       RooFitResult* result = pdfBkg->fitTo(*dataToFit, RooFit::Save(),
                                            RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)),
                                            RooFit::Extended(kTRUE));
-      RooAbsReal* nll_bkg = pdfBkg->createNLL(*dataToFit, RooFit::Extended(kTRUE));
+      std::unique_ptr<RooAbsReal> nll_bkg(pdfBkg->createNLL(*dataToFit, RooFit::Extended(kTRUE)));
 
       RooMsgService::instance().setSilentMode(kFALSE);
       RooMsgService::instance().setGlobalKillBelow(INFO);
@@ -495,7 +490,6 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
         std::cout << "PDF_Datasets::fitBkg(): Imperfect fit! Fit status " << result->status() << " cov Qual "
                   << result->covQual() << std::endl;
       this->minNllBkg = nll_bkg->getVal();
-      delete nll_bkg;
       return result;
     }
   } else {
@@ -522,8 +516,8 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
         RooFitResult* result_tmp = multipdf->getPdf(npdf)->fitTo(
             *dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
             RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
-        RooAbsReal* nll_bkg = multipdf->getPdf(npdf)->createNLL(
-            *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)));
+        std::unique_ptr<RooAbsReal> nll_bkg(multipdf->getPdf(npdf)->createNLL(
+            *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
         minMultipdfNll = nll_bkg->getVal() + multipdf->getCorrection();
         if (result_tmp->status() != 0 or result_tmp->covQual() != 3) badFit = true;
         if (npdf == 0 or minMultipdfNll < this->minNllBkg or badFit) {
@@ -534,7 +528,6 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
         } else {
           delete result_tmp;
         }
-        delete nll_bkg;
         if (badFit) break;
       }
       this->fitStatus = result->status() + (result->covQual() % 3);
@@ -556,17 +549,12 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
       if (this->fitStatus != 0)
         std::cout << "PDF_Datasets::fitBkg(): Imperfect fit! Fit status " << result->status() << " cov Qual "
                   << result->covQual() << std::endl;
-      // RooAbsReal* nll_bkg = pdf->createNLL(*dataToFit, RooFit::Extended(kTRUE));
-      // RooAbsReal* nll_bkg = pdfBkg->createNLL(*dataToFit, RooFit::Extended(kTRUE));
-      RooAbsReal* nll_bkg = pdf->createNLL(*dataToFit, RooFit::Extended(kTRUE),
-                                           RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)));
-      // RooAbsReal* nll_bkg = pdfBkg->createNLL(*dataToFit, RooFit::Extended(kTRUE),
-      // RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)));
+      std::unique_ptr<RooAbsReal> nll_bkg(pdf->createNLL(
+          *dataToFit, RooFit::Extended(kTRUE), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName))));
       this->minNllBkg = nll_bkg->getVal();
 
       getWorkspace()->var(signalvar)->setVal(parvalue);
       getWorkspace()->var(signalvar)->setConstant(isconst);
-      delete nll_bkg;
       return result;
     }
   }

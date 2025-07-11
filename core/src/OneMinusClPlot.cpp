@@ -50,7 +50,7 @@ OneMinusClPlot::OneMinusClPlot(OptParser* arg, TString name, TString title) : On
 /// \param last
 /// \param filled
 ///
-TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool filled, int CLsType) {
+std::unique_ptr<TGraph> OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool filled, int CLsType) {
   if (arg->debug) {
     cout << "OneMinusClPlot::scan1dPlot() : plotting ";
     cout << s->getName() << " (" << s->getMethodName() << ")" << endl;
@@ -81,15 +81,15 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
 
   // Convert the histogram into a TGraph so we can add the solution.
   // Also, the lf2 drawing option is broken in latest root versions.
-  TGraph* g;
+  std::unique_ptr<TGraph> g = nullptr;
   if (plotPoints)
-    g = new TGraphErrors(hCL->GetNbinsX());
+    g = std::make_unique<TGraphErrors>(hCL->GetNbinsX());
   else
-    g = new TGraph(hCL->GetNbinsX());
+    g = std::make_unique<TGraph>(hCL->GetNbinsX());
   g->SetName(getUniqueRootName());
   for (int i = 0; i < hCL->GetNbinsX(); i++) {
     g->SetPoint(i, hCL->GetBinCenter(i + 1), hCL->GetBinContent(i + 1));
-    if (plotPoints) (dynamic_cast<TGraphErrors*>(g))->SetPointError(i, 0.0, hCL->GetBinError(i + 1));
+    if (plotPoints) (dynamic_cast<TGraphErrors*>(g.get()))->SetPointError(i, 0.0, hCL->GetBinError(i + 1));
   }
 
   // add solution -- this does not make sense for the one-sided test statistic, which only gives non-default values for
@@ -97,9 +97,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   if (arg->teststatistic != 1) {
     if (!s->getSolutions().empty()) {
       TGraphTools t;
-      TGraph* gNew = t.addPointToGraphAtFirstMatchingX(g, s->getScanVar1Solution(0), 1.0);
-      delete g;
-      g = gNew;
+      g = t.addPointToGraphAtFirstMatchingX(g.get(), s->getScanVar1Solution(0), 1.0);
     }
   }
 
@@ -119,7 +117,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   // add end points of scan range
   if (!plotPoints) {
     Double_t pointx0, pointy0;
-    auto gNew = new TGraph(g->GetN() + 4);
+    auto gNew = std::make_unique<TGraph>(g->GetN() + 4);
     gNew->SetName(getUniqueRootName());
     for (int i = 0; i < g->GetN(); i++) {
       g->GetPoint(i, pointx0, pointy0);
@@ -139,7 +137,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
 
     // add a point at xmax, 0
     gNew->SetPoint(gNew->GetN() - 1, hCL->GetXaxis()->GetXmax(), 0);
-    g = gNew;
+    g = std::move(gNew);
   }
 
   int color = s->getLineColor();
@@ -434,48 +432,51 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   if (!hErr2Dn) cout << "OneMinusClPlot::scan1dCLsPlot() : problem - can't find histogram hErr2Dn" << endl;
 
   // convert obs to graph
-  TGraph* gObs = convertTH1ToTGraph(hObs, obsError);
+  auto gObs = convertTH1ToTGraph(hObs, obsError);
   double xCentral = s->getScanVar1Solution();
 
   // convert others to raw graphs
-  TGraph* gExpRaw = convertTH1ToTGraph(hExp);
-  TGraph* gErr1UpRaw = convertTH1ToTGraph(hErr1Up);
-  TGraph* gErr1DnRaw = convertTH1ToTGraph(hErr1Dn);
-  TGraph* gErr2UpRaw = convertTH1ToTGraph(hErr2Up);
-  TGraph* gErr2DnRaw = convertTH1ToTGraph(hErr2Dn);
+  auto gExpRaw = convertTH1ToTGraph(hExp);
+  auto gErr1UpRaw = convertTH1ToTGraph(hErr1Up);
+  auto gErr1DnRaw = convertTH1ToTGraph(hErr1Dn);
+  auto gErr2UpRaw = convertTH1ToTGraph(hErr2Up);
+  auto gErr2DnRaw = convertTH1ToTGraph(hErr2Dn);
 
   // smoothing if needed
-  TGraph* gExp;
-  TGraph* gErr1Up;
-  TGraph* gErr1Dn;
-  TGraph* gErr2Up;
-  TGraph* gErr2Dn;
+  std::unique_ptr<TGraph> gExp;
+  std::unique_ptr<TGraph> gErr1Up;
+  std::unique_ptr<TGraph> gErr1Dn;
+  std::unique_ptr<TGraph> gErr2Up;
+  std::unique_ptr<TGraph> gErr2Dn;
 
-  auto smoother = new TGraphSmooth();
+  auto smoother = std::make_unique<TGraphSmooth>();
   if (smooth) {
     if (arg->debug) cout << "OneMinusClPlot::scan1dCLsPlot() : smoothing graphs" << endl;
-    // gExp    = (TGraph*)smoother->SmoothSuper( gExpRaw    )->Clone("gExp");
-    // gErr1Up = (TGraph*)smoother->SmoothSuper( gErr1UpRaw )->Clone("gErr1Up");
-    // gErr1Dn = (TGraph*)smoother->SmoothSuper( gErr1DnRaw )->Clone("gErr1Dn");
-    // gErr2Up = (TGraph*)smoother->SmoothSuper( gErr2UpRaw )->Clone("gErr2Up");
-    // gErr2Dn = (TGraph*)smoother->SmoothSuper( gErr2DnRaw )->Clone("gErr2Dn");
-    gExp = (TGraph*)smoother->SmoothSuper(gExpRaw)->Clone("gExp");
-    // gErr1Up = (TGraph*)smoother->SmoothSuper( gErr1UpRaw )->Clone("gErr1Up");
-    gErr1Dn = (TGraph*)smoother->SmoothSuper(gErr1DnRaw)->Clone("gErr1Dn");
-    // gErr2Up = (TGraph*)smoother->SmoothSuper( gErr2UpRaw )->Clone("gErr2Up");
-    gErr2Dn = (TGraph*)smoother->SmoothSuper(gErr2DnRaw)->Clone("gErr2Dn");
+    gExp = std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothSuper(gExpRaw.get())->Clone("gExp"))));
+    // gErr1Up =
+    // std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothSuper(gErr1UpRaw.get())->Clone("gErr1Up"))));
+    gErr1Dn =
+        std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothSuper(gErr1DnRaw.get())->Clone("gErr1Dn"))));
+    // gErr2Up =
+    // std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothSuper(gErr2UpRaw.get())->Clone("gErr2Up"))));
+    gErr2Dn =
+        std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothSuper(gErr2DnRaw.get())->Clone("gErr2Dn"))));
 
     // alternative smoothing option, needs more fiddling
-    //  gExp    = (TGraph*)smoother->SmoothKern( gExpRaw   ,"normal",hExp->GetBinWidth(1)*4)->Clone("gExp");
-    gErr1Up = (TGraph*)smoother->SmoothKern(gErr1UpRaw, "normal", hErr1Up->GetBinWidth(1) * 2, hErr1Up->GetNbinsX())
-                  ->Clone("gErr1Up");
-    // gErr1Dn = (TGraph*)smoother->SmoothKern( gErr1DnRaw,"normal",hErr1Dn->GetBinWidth(1)*4)->Clone("gErr1Dn");
-    gErr2Up = (TGraph*)smoother->SmoothKern(gErr2UpRaw, "normal", hErr2Up->GetBinWidth(1) * 2, hErr1Up->GetNbinsX())
-                  ->Clone("gErr2Up");
-    // gErr2Dn = (TGraph*)smoother->SmoothKern( gErr2DnRaw,"normal",hErr2Dn->GetBinWidth(1)*4)->Clone("gErr2Dn");
+    // gExp = std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothKern(gExpRaw.get(),
+    // "normal",hExp->GetBinWidth(1) * 4)->Clone("gExp"))));
+    gErr1Up = std::unique_ptr<TGraph>(static_cast<TGraph*>(
+        (smoother->SmoothKern(gErr1UpRaw.get(), "normal", hErr1Up->GetBinWidth(1) * 2, hErr1Up->GetNbinsX())
+             ->Clone("gErr1Up"))));
+    // gErr1Dn = std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothKern(gErr1DnRaw.get(), "normal",
+    // hErr1Dn->GetBinWidth(1) * 4)->Clone("gErr1Dn"))));
+    gErr2Up = std::unique_ptr<TGraph>(static_cast<TGraph*>(
+        (smoother->SmoothKern(gErr2UpRaw.get(), "normal", hErr2Up->GetBinWidth(1) * 2, hErr1Up->GetNbinsX())
+             ->Clone("gErr2Up"))));
+    // gErr2Dn = std::unique_ptr<TGraph>(static_cast<TGraph*>((smoother->SmoothKern(gErr2DnRaw.get(), "normal",
+    // hErr2Dn->GetBinWidth(1) * 4)->Clone("gErr2Dn"))));
 
-    // //make sure the CLs=1 points do NOT get smoothed away
-
+    // make sure the CLs=1 points do NOT get smoothed away
     double* xvals = gExp->GetX();
     // double* xvalsRaw = gExpRaw->GetX();
     // double* yvalsRawExp = gExpRaw->GetY();
@@ -517,7 +518,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
       }
       // std::cout << "Found entries for obs " << valabove << "\t" << nentries << std::endl;
 
-      auto gObs_new = new TGraphErrors(valabove);
+      auto gObs_new = std::make_unique<TGraphErrors>(valabove);
       int k = 0;
       for (int i = 0; i < nentries; i++) {
         if (xvalsobs[i] < (xCentral + (hObs->GetBinWidth(1) / 2.))) {
@@ -530,17 +531,16 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
           k++;
         }
       }
-      delete gObs;
-      gObs = gObs_new;
+      gObs = std::move(gObs_new);
     }
 
     if (arg->debug) cout << "OneMinusClPlot::scan1dCLsPlot() : done smoothing graphs" << endl;
   } else {
-    gExp = gExpRaw;
-    gErr1Up = gErr1UpRaw;
-    gErr1Dn = gErr1DnRaw;
-    gErr2Up = gErr2UpRaw;
-    gErr2Dn = gErr2DnRaw;
+    gExp = std::move(gExpRaw);
+    gErr1Up = std::move(gErr1UpRaw);
+    gErr1Dn = std::move(gErr1DnRaw);
+    gErr2Up = std::move(gErr2UpRaw);
+    gErr2Dn = std::move(gErr2DnRaw);
   }
 
   if (!gObs) cout << "OneMinusClPlot::scan1dCLsPlot() : problem - null graph gObs" << endl;
@@ -558,9 +558,9 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   gErr2Dn->SetName("gErr2Dn");
 
   // now make the graphs for the error bands
-  auto gErr1 = new TGraphAsymmErrors(gExp->GetN());
+  auto gErr1 = std::make_unique<TGraphAsymmErrors>(gExp->GetN());
   gErr1->SetName("gErr1");
-  auto gErr2 = new TGraphAsymmErrors(gExp->GetN());
+  auto gErr2 = std::make_unique<TGraphAsymmErrors>(gExp->GetN());
   gErr2->SetName("gErr2");
 
   double x, y, yerrUp, yerrDn;
@@ -646,12 +646,12 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   leg->SetTextSize(legendsize * 0.75);
 
   if (obsError)
-    leg->AddEntry(gObs, "Observed", "LEP");
+    leg->AddEntry(gObs.get(), "Observed", "LEP");
   else
-    leg->AddEntry(gObs, "Observed", "LP");
-  leg->AddEntry(gExp, "Expected", "L");
-  leg->AddEntry(gErr1, "#pm 1#sigma", "F");
-  leg->AddEntry(gErr2, "#pm 2#sigma", "F");
+    leg->AddEntry(gObs.get(), "Observed", "LP");
+  leg->AddEntry(gExp.get(), "Expected", "L");
+  leg->AddEntry(gErr1.get(), "#pm 1#sigma", "F");
+  leg->AddEntry(gErr2.get(), "#pm 2#sigma", "F");
 
   haxes->Draw("AXIS+");
   gErr2->Draw("E3same");
@@ -959,8 +959,8 @@ void OneMinusClPlot::Draw() {
       leg->AddEntry(scanners[i]->getHCL(), legTitle, legDrawOption);
     } else {
       if (scanners[i]->getFillStyle() != 0 || scanners[i]->getFillColor() != 0) {
-        TGraph* g = scan1dPlot(scanners[i], i == 0, false, scanners[i]->getFilled(), do_CLs[i]);
-        if (legTitles[i] != "noleg") leg->AddEntry(g, legTitle, legDrawOption);
+        auto g = scan1dPlot(scanners[i], i == 0, false, scanners[i]->getFilled(), do_CLs[i]);
+        if (legTitles[i] != "noleg") leg->AddEntry(g.get(), legTitle, legDrawOption);
       }
     }
   }
@@ -969,9 +969,9 @@ void OneMinusClPlot::Draw() {
   if (!plotSimple)
     for (int i = 0; i < scanners.size(); i++) {
       bool last = i == scanners.size() - 1;
-      TGraph* g = scan1dPlot(scanners[i], false, last, false, do_CLs[i]);
+      auto g = scan1dPlot(scanners[i], false, last, false, do_CLs[i]);
       if (scanners[i]->getFillStyle() == 0 && scanners[i]->getFillColor() == 0) {
-        if (legTitles[i] != "noleg") leg->AddEntry(g, legTitles[i], "L");
+        if (legTitles[i] != "noleg") leg->AddEntry(g.get(), legTitles[i], "L");
       }
     }
   drawSolutions();

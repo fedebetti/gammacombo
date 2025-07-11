@@ -153,32 +153,29 @@ void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const vector<int
       exit(1);
     }
   }
-  auto obsToRemove = new RooArgList();
-  auto theoryToRemove = new RooArgList();
+  RooArgList obsToRemove;
+  RooArgList theoryToRemove;
 
   // loop over all observables and remove the ones that aren't in indices
   for (int i = 0; i < pdf->getObservables()->getSize(); i++) {
     if (std::ranges::find(indices, i) == indices.end()) {
-      obsToRemove->add(*(pdf->getObservables()->at(i)));
-      theoryToRemove->add(*(pdf->getTheory()->at(i)));
+      obsToRemove.add(*(pdf->getObservables()->at(i)));
+      theoryToRemove.add(*(pdf->getTheory()->at(i)));
     }
   }
-  pdf->getObservables()->remove(*obsToRemove);
-  pdf->getTheory()->remove(*theoryToRemove);
-  delete obsToRemove;
-  delete theoryToRemove;
+  pdf->getObservables()->remove(obsToRemove);
+  pdf->getTheory()->remove(theoryToRemove);
 
   // now sort out parameters
-  auto paramsToRemove = new RooArgList();
+  RooArgList paramsToRemove;
   for (int i = 0; i < pdf->getParameters()->getSize(); i++) {
     bool paramFoundInTheory = false;
     for (int j = 0; j < pdf->getTheory()->getSize(); j++) {
       if (pdf->getTheory()->at(j)->dependsOn(*(pdf->getParameters()->at(i)))) { paramFoundInTheory = true; }
     }
-    if (!paramFoundInTheory) paramsToRemove->add(*(pdf->getParameters()->at(i)));
+    if (!paramFoundInTheory) paramsToRemove.add(*(pdf->getParameters()->at(i)));
   }
-  pdf->getParameters()->remove(*paramsToRemove);
-  delete paramsToRemove;
+  pdf->getParameters()->remove(paramsToRemove);
 
   // now sort out uncertainties
   vector<double> oldStatErrs = pdf->StatErr;
@@ -1061,32 +1058,32 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
 
     // setup a scanner for each variable individually
     Combiner* c = scanner->getCombiner();
-    MethodProbScan* s1;
-    MethodProbScan* s2;
+    std::unique_ptr<MethodProbScan> s1;
+    std::unique_ptr<MethodProbScan> s2;
 
     cout << "\n1D scan for X variable, " + scanner->getScanVar1Name() + ":\n" << endl;
     if (runOnDataSet) {
       const MethodDatasetsProbScan* temp = dynamic_cast<MethodDatasetsProbScan*>(scanner);
-      s1 = new MethodDatasetsProbScan(temp->pdf, arg.get());
+      s1 = std::make_unique<MethodDatasetsProbScan>(temp->pdf, arg.get());
     } else {
-      s1 = new MethodProbScan(c);
+      s1 = std::make_unique<MethodProbScan>(c);
     }
     s1->setScanVar1(scanner->getScanVar1Name());
     s1->initScan();
-    scanStrategy1d(s1, pCache);
+    scanStrategy1d(s1.get(), pCache);
     if (arg->verbose) s1->printLocalMinima();
 
     cout << "\n1D scan for Y variable, " + scanner->getScanVar2Name() + ":\n" << endl;
     if (runOnDataSet) {
       const MethodDatasetsProbScan* temp = dynamic_cast<MethodDatasetsProbScan*>(scanner);
-      s2 = new MethodDatasetsProbScan(temp->pdf, arg.get());
+      s2 = std::make_unique<MethodDatasetsProbScan>(temp->pdf, arg.get());
     } else {
-      s2 = new MethodProbScan(c);
+      s2 = std::make_unique<MethodProbScan>(c);
     }
     s2->setScanVar1(scanner->getScanVar2Name());
     s2->setXscanRange(arg->scanrangeyMin, arg->scanrangeyMax);
     s2->initScan();
-    scanStrategy1d(s2, pCache);
+    scanStrategy1d(s2.get(), pCache);
     if (arg->verbose) s2->printLocalMinima();
 
     // now do the 2D scan from the two starting points
@@ -1095,8 +1092,6 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
     for (int i = 0; i < s1->getSolutions().size(); i++) solutions.push_back(s1->getSolution(i));
     for (int i = 0; i < s2->getSolutions().size(); i++) solutions.push_back(s2->getSolution(i));
     // \todo remove similar solutions from list
-    delete s1;
-    delete s2;
     for (int j = 0; j < solutions.size(); j++) {
       cout << "2D scan " << j + 1 << " of " << solutions.size() << " ..." << endl;
       scanner->loadParameters(solutions[j]);
@@ -1853,14 +1848,14 @@ void GammaComboEngine::runToys(Combiner* c) {
   // THIS IS A HACK FOR NOW
   //
   // base scan (overhead here)
-  auto probscan = new MethodProbScan(c);
-  make1dProbScan(probscan, 0);
+  auto probscan = std::make_unique<MethodProbScan>(c);
+  make1dProbScan(probscan.get(), 0);
 
   TString toydirname = TString("root/scan1dToys_") + probscan->getName() + TString("_") + probscan->getScanVar1Name();
   TString toyfname = toydirname + TString("/scan1dToys_") + probscan->getName() + TString("_") +
                      probscan->getScanVar1Name() + Form("_run%d.root", arg->nrun);
 
-  auto tree = new TTree("toys", "toys");
+  auto tree = std::make_unique<TTree>("toys", "toys");
   map<TString, double> vals;
   map<TString, double> errs;
   double chi2val = probscan->solutions[0]->minNll();
@@ -1877,13 +1872,12 @@ void GammaComboEngine::runToys(Combiner* c) {
     tree->Branch(p->GetName() + TString("_err"), &errs[p->GetName()]);
   }
   tree->Fill();
-  delete probscan;
 
   for (int i = 0; i < arg->ntoys; i++) {
     cout << "RUNNING TOY " << i << " / " << arg->ntoys << endl;
     c->setObservablesToToyValues();
-    auto toyscan = new MethodProbScan(c);
-    make1dProbScan(toyscan, 0);
+    auto toyscan = std::make_unique<MethodProbScan>(c);
+    make1dProbScan(toyscan.get(), 0);
     if (toyscan->solutions.size() == 0) continue;
     toyscan->solutions[0]->Print();
     // cout << "My stuff I want to save" << endl;
@@ -1898,14 +1892,11 @@ void GammaComboEngine::runToys(Combiner* c) {
       errs[p->GetName()] = p->getError();
     }
     tree->Fill();
-    delete toyscan;
   }
   system("mkdir -p " + toydirname);
-  auto f = new TFile(toyfname, "recreate");
+  TFile f(toyfname, "recreate");
   tree->Write();
-  f->Close();
-  delete tree;
-  delete f;
+  f.Close();
 }
 
 ///

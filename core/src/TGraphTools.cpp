@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Utils;
 
-TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, double xNew, double yNew) {
+std::unique_ptr<TGraph> TGraphTools::addPointToGraphAtFirstMatchingX(const TGraph* g, double xNew, double yNew) {
   // get x and y coordinates as vectors- the TGraph interface is just not suited to
   // what we want to do
   vector<double> xVec;
@@ -33,11 +33,11 @@ TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, double xNew, dou
 
   // create a new graph of the right kind
   bool isTGraphErrors = TString(g->ClassName()).EqualTo("TGraphErrors");
-  TGraph* gNew;
+  std::unique_ptr<TGraph> gNew = nullptr;
   if (isTGraphErrors)
-    gNew = new TGraphErrors(g->GetN() + 1);
+    gNew = std::make_unique<TGraphErrors>(g->GetN() + 1);
   else
-    gNew = new TGraph(g->GetN() + 1);
+    gNew = std::make_unique<TGraph>(g->GetN() + 1);
   gNew->SetName(getUniqueRootName());
 
   // set the points
@@ -47,11 +47,11 @@ TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, double xNew, dou
   if (isTGraphErrors) {
     for (int i = 0; i < xVec.size(); i++) {
       if (i < iPos) {
-        ((TGraphErrors*)gNew)->SetPointError(i, 0.0, g->GetErrorY(i));
+        ((TGraphErrors*)gNew.get())->SetPointError(i, 0.0, g->GetErrorY(i));
       } else if (i == iPos) {
-        ((TGraphErrors*)gNew)->SetPointError(i, 0.0, 0.0);
+        ((TGraphErrors*)gNew.get())->SetPointError(i, 0.0, 0.0);
       } else {
-        ((TGraphErrors*)gNew)->SetPointError(i, 0.0, g->GetErrorY(i - 1));
+        ((TGraphErrors*)gNew.get())->SetPointError(i, 0.0, g->GetErrorY(i - 1));
       }
     }
   }

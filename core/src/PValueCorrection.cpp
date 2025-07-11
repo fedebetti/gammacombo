@@ -116,10 +116,9 @@ void PValueCorrection::printCoverage(double n68, double n95, double n99, double 
 }
 
 void PValueCorrection::write(TString fname) {
-  auto f = TFile::Open(fname.Data(), "RECREATE");
-  write(f);
+  std::unique_ptr<TFile> f(TFile::Open(fname.Data(), "RECREATE"));
+  write(f.get());
   f->Close();
-  delete f;
 }
 
 void PValueCorrection::write(TFile* f) {

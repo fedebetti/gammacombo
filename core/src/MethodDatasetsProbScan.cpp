@@ -586,7 +586,6 @@ int MethodDatasetsProbScan::scan2d() {
   if (arg->debug) cout << "MethodDatasetsProbScan::scan2d() : starting ..." << endl;
   nScansDone++;
   sanityChecks();
-  if (startPars) delete startPars;
 
   // Define whether the 2d contours in hCL are "1D sigma" (ndof=1) or "2D sigma" (ndof=2).
   // Titus: Change this to 2, since there is no reason to do wrong hCL contours.
@@ -618,7 +617,7 @@ int MethodDatasetsProbScan::scan2d() {
   // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // store start parameters so we can reset them later
-  startPars = new RooDataSet("startPars", "startPars", *w->set(parsName));
+  startPars = std::make_unique<RooDataSet>("startPars", "startPars", *w->set(parsName));
   startPars->add(*w->set(parsName));
 
   // // start scan from global minimum (not always a good idea as we need to set from other places as well)

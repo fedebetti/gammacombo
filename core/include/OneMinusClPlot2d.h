@@ -13,6 +13,7 @@
 #include "Utils.h"
 
 #include <TH2.h>
+#include <TLegend.h>
 
 class OneMinusClPlot2d : public OneMinusClPlotAbs {
  public:
@@ -54,7 +55,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   std::vector<Utils::histogramType> histosType;  ///< defines if histogram is interpreted as p-value or chi2
   std::vector<ConfidenceContours*> m_contours;   ///< holds the contours for each scanner
   std::vector<bool> m_contours_computed;  ///< true if the contours were computed for that scanner by computeContours()
-  TLegend* m_legend = nullptr;            ///< pointer to the plot legend. Filled by drawLegend().
+  std::unique_ptr<TLegend> m_legend = nullptr;  ///< pointer to the plot legend. Filled by drawLegend().
 };
 
 #endif

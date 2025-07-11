@@ -149,11 +149,11 @@ RooSlimFitResult* MethodPluginScan::getParevolPoint(double scanpoint) {
 ///
 /// \param nToys - generate this many toys
 ///
-RooDataSet* MethodPluginScan::generateToys(int nToys) {
+std::unique_ptr<RooDataSet> MethodPluginScan::generateToys(int nToys) {
   RooRandom::randomGenerator()->SetSeed(0);
   RooMsgService::instance().setStreamStatus(0, kFALSE);
   RooMsgService::instance().setStreamStatus(1, kFALSE);
-  RooDataSet* dataset = w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false));
+  auto dataset = std::unique_ptr<RooDataSet>(w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false)));
   RooMsgService::instance().setStreamStatus(0, kTRUE);
   RooMsgService::instance().setStreamStatus(1, kTRUE);
 
@@ -206,7 +206,6 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
 
     // check if they are the same, if so, fluctuate and regenerate
     if (hasAffObs && generatedValues[0] == generatedValues[1]) {
-      delete dataset;
       TString dD_aff_var = aff_var;
       dD_aff_var.ReplaceAll("kD", "dD");
 
@@ -220,7 +219,7 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
 
       RooMsgService::instance().setStreamStatus(0, kFALSE);
       RooMsgService::instance().setStreamStatus(1, kFALSE);
-      dataset = w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false));
+      dataset = std::unique_ptr<RooDataSet>(w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false)));
       RooMsgService::instance().setStreamStatus(0, kTRUE);
       RooMsgService::instance().setStreamStatus(1, kTRUE);
       for (int i = 0; i < 2; i++) {
@@ -235,7 +234,6 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
       cout << aff_obs << " NEW VALUES : toy 0: " << generatedValues[0] << " toy 1: " << generatedValues[1] << endl;
     }
   }
-
   return dataset;
 }
 
@@ -275,7 +273,6 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   assert(plhScan);
   assert(t);
   assert(f);
-  // assert(pb);
   if (!plhScan->hasParameter(scanVar1)) {
     cout << "MethodPluginScan::getPvalue1d() : ERROR : scan variable not found in plhScan. Exit." << endl;
     assert(0);
@@ -348,7 +345,7 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   }
 
   // Draw all toy datasets in advance. This is much faster.
-  RooDataSet* toyDataSet = generateToys(nActualToys);
+  auto toyDataSet = generateToys(nActualToys);
   if (id == 0) BkgToys = new RooDataSet(*toyDataSet, "BkgToys");
 
   for (int j = 0; j < nActualToys; j++) {
@@ -444,7 +441,6 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   // clean up
   setParameters(w, parsName, frCache.getParsAtFunctionCall());
   setParameters(w, obsName, obsDataset->get(0));
-  delete toyDataSet;
 }
 
 double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGlobal, ToyTree* t, int id, bool quiet) {
@@ -460,15 +456,15 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
   }
 
   // Create a fitter
-  auto myFit = new Fitter(arg, w, combiner->getPdfName());
+  auto myFit = std::make_unique<Fitter>(arg, w, combiner->getPdfName());
 
   // Create a progress bar
-  ProgressBar* myPb = nullptr;
-  if (!quiet) myPb = new ProgressBar(arg, nToys);
+  std::unique_ptr<ProgressBar> pb = nullptr;
+  if (!quiet) pb = std::make_unique<ProgressBar>(arg, nToys);
 
   // do the work
   if (!quiet) cout << "MethodPluginScan::getPvalue1d() : computing p-value ..." << endl;
-  computePvalue1d(plhScan, chi2minGlobal, myTree, id, myFit, myPb);
+  computePvalue1d(plhScan, chi2minGlobal, myTree, id, myFit.get(), pb.get());
 
   // compute p-value
   if (arg->controlplot) {
@@ -491,8 +487,6 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
     myTree->writeToFile(Form("root/getPvalue1d_" + name + "_" + scanVar1 + "_run%i.root", arg->nrun));
     delete myTree;
   }
-  delete myFit;
-  delete myPb;
   return pvalue;
 }
 
@@ -506,7 +500,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
 /// \param nRun Part of the root tree file name to facilitate parallel production.
 ///
 int MethodPluginScan::scan1d(int nRun) {
-  auto myFit = new Fitter(arg, w, combiner->getPdfName());
+  auto myFit = std::make_unique<Fitter>(arg, w, combiner->getPdfName());
   RooRandom::randomGenerator()->SetSeed(0);
 
   // Set limit to all parameters.
@@ -543,7 +537,7 @@ int MethodPluginScan::scan1d(int nRun) {
 
   // for the progress bar: if more than 100 steps, show 50 status messages.
   int allSteps = nPoints1d * nToys;
-  auto pb = new ProgressBar(arg, allSteps);
+  auto pb = std::make_unique<ProgressBar>(arg, allSteps);
 
   // start scan
   if (arg->debug) cout << "MethodPluginScan::scan1d() : ";
@@ -560,7 +554,7 @@ int MethodPluginScan::scan1d(int nRun) {
     RooSlimFitResult* plhScan = getParevolPoint(scanpoint);
 
     // do the work
-    computePvalue1d(plhScan, profileLH->getChi2minGlobal(), &t, i, myFit, pb);
+    computePvalue1d(plhScan, profileLH->getChi2minGlobal(), &t, i, myFit.get(), pb.get());
 
     // reset
     setParameters(w, parsName, frCache.getParsAtFunctionCall());
@@ -580,8 +574,6 @@ int MethodPluginScan::scan1d(int nRun) {
   if (arg->isAction("gaus")) fname += "Gaus";
   fname += Form("_" + name + "_" + scanVar1 + "_run%i.root", nRun);
   t.writeToFile((dirname + fname).Data());
-  delete myFit;
-  delete pb;
   return 0;
 }
 
@@ -634,7 +626,7 @@ void MethodPluginScan::scan2d(int nRun) {
 
   // for the status bar
   int allSteps = nPoints2dx * nPoints2dy * nToys;
-  auto pb = new ProgressBar(arg, allSteps);
+  auto pb = std::make_unique<ProgressBar>(arg, allSteps);
 
   // limit number of warnings
   int nWarnExtPointDiffer = 0;
@@ -774,7 +766,7 @@ void MethodPluginScan::scan2d(int nRun) {
       t.storeTheory();
 
       // Draw toy datasets in advance. This is much faster.
-      RooDataSet* toyDataSet = generateToys(nToys);
+      auto toyDataSet = generateToys(nToys);
 
       for (int j = 0; j < nToys; j++) {
         // status bar
@@ -831,7 +823,6 @@ void MethodPluginScan::scan2d(int nRun) {
       // reset
       setParameters(w, parsName, frCache.getParsAtFunctionCall());
       setParameters(w, obsName, obsDataset->get(0));
-      delete toyDataSet;
     }
   }
 
@@ -848,7 +839,6 @@ void MethodPluginScan::scan2d(int nRun) {
   if (arg->isAction("gaus")) fname += "Gaus";
   fname += Form("_" + name + "_" + scanVar1 + "_" + scanVar2 + "_run%i.root", nRun);
   t.writeToFile((dirname + fname).Data());
-  delete pb;
 }
 
 ///
@@ -894,8 +884,8 @@ std::unique_ptr<TH1F> MethodPluginScan::analyseToys(ToyTree* t, int id, bool qui
   Long64_t ntoysid = 0;  // if id is not -1, this will count the number of toys with that id
 
   t->activateCoreBranchesOnly();  // speeds up the event loop
-  ProgressBar* pb = nullptr;
-  if (!quiet) pb = new ProgressBar(arg, nentries);
+  std::unique_ptr<ProgressBar> pb = nullptr;
+  if (!quiet) pb = std::make_unique<ProgressBar>(arg, nentries);
   if (arg->debug) cout << "MethodPluginScan::analyseToys() : ";
   if (!quiet) cout << "building p-value histogram ..." << endl;
 

@@ -726,8 +726,7 @@ void OneMinusClPlot2d::drawLegend() {
   double legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.75;
   double legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.38);
   double legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.15);
-  if (m_legend) delete m_legend;
-  m_legend = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
+  m_legend = std::make_unique<TLegend>(legendXmin, legendYmin, legendXmax, legendYmax);
   m_legend->SetNColumns(arg->plotlegcols);
   m_legend->SetFillColor(0);
   m_legend->SetFillStyle(0);

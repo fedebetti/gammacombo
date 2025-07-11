@@ -387,7 +387,7 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1* h, int i, double y, double c
   }
 
   // create a TGraph that we can fit
-  auto g = new TGraph(3);
+  auto g = std::make_unique<TGraph>(3);
   g->SetPoint(0, h->GetBinCenter(i - 1), h->GetBinContent(i - 1));
   g->SetPoint(1, h->GetBinCenter(i), h->GetBinContent(i));
   g->SetPoint(2, h->GetBinCenter(i + 1), h->GetBinContent(i + 1));
@@ -397,15 +397,14 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1* h, int i, double y, double c
     // add a point to the beginning
     if ((h->GetBinContent(i - 2) < h->GetBinContent(i - 1) && h->GetBinContent(i - 1) < h->GetBinContent(i)) ||
         (h->GetBinContent(i - 2) > h->GetBinContent(i - 1) && h->GetBinContent(i - 1) > h->GetBinContent(i))) {
-      auto gNew = new TGraph(g->GetN() + 1);
+      auto gNew = std::make_unique<TGraph>(g->GetN() + 1);
       gNew->SetPoint(0, h->GetBinCenter(i - 2), h->GetBinContent(i - 2));
       Double_t pointx, pointy;
       for (int i = 0; i < g->GetN(); i++) {
         g->GetPoint(i, pointx, pointy);
         gNew->SetPoint(i + 1, pointx, pointy);
       }
-      delete g;
-      g = gNew;
+      g = std::move(gNew);
     }
     // add a point to the end
     if ((h->GetBinContent(i + 2) < h->GetBinContent(i + 1) && h->GetBinContent(i + 1) < h->GetBinContent(i)) ||
@@ -480,7 +479,6 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1* h, int i, double y, double c
   // printf("%f %f %f\n", val, pq(p[0], p[1]+e[1], p[2], y, useSol), pq(p[0], p[1]-e[1], p[2], y, useSol));
   // printf("%f %f %f\n", val, pq(p[0], p[1], p[2]+e[2], y, useSol), pq(p[0], p[1], p[2]-e[2], y, useSol));
   err = 0.0;
-  delete g;
   return true;
 }
 

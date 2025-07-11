@@ -87,7 +87,7 @@ namespace Utils {
                                      TString specName = "");
 
   TTree* convertRooDatasetToTTree(RooDataSet* d);
-  TGraph* convertTH1ToTGraph(TH1* h, bool withErrors = false);
+  std::unique_ptr<TGraph> convertTH1ToTGraph(TH1* h, bool withErrors = false);
   TGraph* smoothGraph(TGraph* g, int option = 0);
   TGraph* smoothHist(TH1* h, int option = 0);
 

@@ -1,20 +1,13 @@
-/*
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- */
-
 #ifndef MethodPluginScan_h
 #define MethodPluginScan_h
 
 #include <iostream>
 #include <memory>
 
-#include "RooDataSet.h"
+#include <RooDataSet.h>
 
-#include "TH1F.h"
-#include "TString.h"
+#include <TH1F.h>
+#include <TString.h>
 
 #include "Fitter.h"
 #include "MethodAbsScan.h"
@@ -42,7 +35,7 @@ class MethodPluginScan : public MethodAbsScan {
  protected:
   std::unique_ptr<TH1F> analyseToys(ToyTree* t, int id = -1, bool quiet = false);
   void computePvalue1d(RooSlimFitResult* plhScan, double chi2minGlobal, ToyTree* t, int id, Fitter* f, ProgressBar* pb);
-  RooDataSet* generateToys(int nToys);
+  std::unique_ptr<RooDataSet> generateToys(int nToys);
   double importance(double pvalue) const;
   RooSlimFitResult* getParevolPoint(double scanpoint);
 

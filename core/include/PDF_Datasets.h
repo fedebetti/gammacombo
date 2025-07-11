@@ -124,7 +124,7 @@ class PDF_Datasets : public PDF_Abs {
   RooWorkspace* wspc = nullptr;
   RooAbsData* data = nullptr;
   RooAbsReal* _NLL = nullptr;  // possible pointer to minimization function
-  RooAbsPdf* _constraintPdf = nullptr;
+  std::unique_ptr<RooAbsPdf> _constraintPdf;
   TString pdfName = "default_pdf_workspace_name";         //> name of the pdf in the workspace
   TString pdfBkgName = "default_pdf_bkg_workspace_name";  //> name of the bkg pdf in the workspace
   TString multipdfCatName;                                //> name of the multipdf category

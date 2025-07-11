@@ -81,7 +81,6 @@ MethodAbsScan::~MethodAbsScan() {
     if (result) delete result;
   }
   if (obsDataset) delete obsDataset;
-  if (startPars) delete startPars;
   if (globalMin) delete globalMin;
 }
 
@@ -113,8 +112,7 @@ void MethodAbsScan::doInitialFit(bool force) {
   }
 
   // Save parameter values that were active at function call.
-  if (startPars) delete startPars;
-  startPars = new RooDataSet("startPars", "startPars", *w->set(parsName));
+  startPars = std::make_unique<RooDataSet>("startPars", "startPars", *w->set(parsName));
   startPars->add(*w->set(parsName));
 
   // load parameter range
@@ -1080,11 +1078,10 @@ bool MethodAbsScan::loadSolution(int i) {
     cout << "MethodAbsScan::loadSolution() : ERROR : solution ID out of range." << endl;
     return false;
   }
-  auto tmp = new RooArgSet();
+  auto tmp = std::make_unique<RooArgSet>();
   tmp->add(solutions[i]->floatParsFinal());
   tmp->add(solutions[i]->constPars());
-  setParameters(w, parsName, tmp);
-  delete tmp;
+  setParameters(w, parsName, tmp.get());
   return true;
 }
 
@@ -1093,11 +1090,10 @@ bool MethodAbsScan::loadSolution(int i) {
 ///
 void MethodAbsScan::loadParameters(RooSlimFitResult* r) {
   if (arg->debug) cout << "MethodAbsScan::loadParameters() : loading a RooSlimFitResult " << endl;
-  auto tmp = new RooArgSet();
+  auto tmp = std::make_unique<RooArgSet>();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
-  setParameters(w, parsName, tmp);
-  delete tmp;
+  setParameters(w, parsName, tmp.get());
 }
 
 ///
