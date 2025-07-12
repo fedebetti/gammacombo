@@ -37,7 +37,7 @@ MethodPluginScan::MethodPluginScan(MethodProbScan* s) : MethodAbsScan(s->getComb
   setSolutions(s->getSolutions());
   setChi2minGlobal(s->getChi2minGlobal());
   chi2minBkg = s->getChi2minBkg();
-  obsDataset = new RooDataSet("obsDataset", "obsDataset", *w->set(obsName));
+  obsDataset = std::make_unique<RooDataSet>("obsDataset", "obsDataset", *w->set(obsName));
   obsDataset->add(*w->set(obsName));
   nToys = arg->ntoys;
   nPoints1d = arg->npointstoy;
@@ -61,7 +61,7 @@ MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, const O
   setSolutions(s->getSolutions());
   setChi2minGlobal(s->getChi2minGlobal());
   chi2minBkg = s->getChi2minBkg();
-  obsDataset = new RooDataSet("obsDataset", "obsDataset", *w->set(obsName));
+  obsDataset = std::make_unique<RooDataSet>("obsDataset", "obsDataset", *w->set(obsName));
   obsDataset->add(*w->set(obsName));
   nToys = opt->ntoys;
 };
@@ -78,7 +78,7 @@ MethodPluginScan::MethodPluginScan(Combiner* comb) : MethodAbsScan(comb) {
   title = comb->getTitle();
   profileLH = nullptr;
   parevolPLH = nullptr;
-  obsDataset = new RooDataSet("obsDataset", "obsDataset", *comb->getWorkspace()->set(obsName));
+  obsDataset = std::make_unique<RooDataSet>("obsDataset", "obsDataset", *comb->getWorkspace()->set(obsName));
   obsDataset->add(*comb->getWorkspace()->set(obsName));
   nToys = arg->ntoys;
   nPoints1d = arg->npointstoy;

@@ -16,12 +16,12 @@
 class ParametersAbs {
  public:
   Parameter* var(TString name);
-  RooRealVar* get(TString name);
+  RooFit::OwningPtr<RooRealVar> get(TString name);
   Parameter* newParameter(TString name);
   Parameter::Range range(double min, double max) const;
 
  protected:
-  std::vector<Parameter*> m_parameters;
+  std::vector<std::unique_ptr<Parameter>> m_parameters;
   inline virtual void defineParameters() = 0;
 };
 
