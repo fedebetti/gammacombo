@@ -1,10 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: Aug 2014
- *
- **/
-
 #ifndef GammaComboEngine_h
 #define GammaComboEngine_h
 
@@ -26,11 +19,9 @@
 #include <memory>
 #include <vector>
 
-///
-/// The main GammaCombo scanning engine, controlling
-/// the application.
-///
-
+/**
+ * Main GammaCombo scanning engine, controlling the application.
+ */
 class GammaComboEngine {
  public:
   GammaComboEngine(TString name, int argc, char* argv[]);

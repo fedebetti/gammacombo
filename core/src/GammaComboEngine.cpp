@@ -10,10 +10,11 @@
 #include <ParameterEvolutionPlotter.h>
 #include <Utils.h>
 
+#include <VersionConfig.h>
+
 #include <RooRealVar.h>
 
 #include <TColor.h>
-#include <TDatime.h>
 #include <TLatex.h>
 #include <TLine.h>
 #include <TObjString.h>
@@ -22,10 +23,13 @@
 #include <algorithm>
 #include <format>
 #include <memory>
+#include <string>
 #include <vector>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
 using namespace std;
-using namespace RooFit;
 using namespace Utils;
 
 GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
@@ -55,12 +59,12 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
     gROOT->SetBatch(false);
 
   // reconfigure RooFormulaVar output
-  RooMsgService::instance().getStream(1).removeTopic(InputArguments);
-  RooMsgService::instance().getStream(0).addTopic(InputArguments);
+  RooMsgService::instance().getStream(1).removeTopic(RooFit::InputArguments);
+  RooMsgService::instance().getStream(0).addTopic(RooFit::InputArguments);
 }
 
-GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[], bool _runOnDataSet) {
-  GammaComboEngine(name, argc, argv);
+GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[], bool _runOnDataSet)
+    : GammaComboEngine{name, argc, argv} {
   runOnDataSet = _runOnDataSet;
 }
 
@@ -1624,12 +1628,12 @@ void GammaComboEngine::setObservablesFromFile(Combiner* c, int cId) {
     bool pdfExists = false;
     bool pdfFound = false;
     while (getline(infile, line)) {
-      if (line.empty()) continue;                   // blank line
-      if (boost::starts_with(line, "#")) continue;  // these are comments
-      if (boost::starts_with(line, Form("pdf: %s", pdfs[i]->getBaseName().Data()))) {
+      if (line.empty()) continue;           // blank line
+      if (line.starts_with("#")) continue;  // these are comments
+      if (line.starts_with(Form("pdf: %s", pdfs[i]->getBaseName().Data()))) {
         pdfFound = true;   // this is the pdf we are looking for
         pdfExists = true;  // keep track of whether it's even there or not
-      } else if (boost::starts_with(line, "pdf:"))
+      } else if (line.starts_with("pdf:"))
         pdfFound = false;  // this is some other pdf after the pdf we are looking for
 
       if (pdfFound) {
@@ -1708,7 +1712,7 @@ void GammaComboEngine::saveWorkspace(Combiner* c, int i) {
   const RooArgSet* theObservables = c->getObservables();
 
   auto savePdf = (RooAbsPdf*)thePdf->Clone("ThePdf");
-  c->getWorkspace()->import(*savePdf, Silence());
+  c->getWorkspace()->import(*savePdf, RooFit::Silence());
   c->getWorkspace()->defineSet("TheParameters", *theParameters);
   c->getWorkspace()->defineSet("TheObservables", *theObservables);
 
@@ -2125,11 +2129,9 @@ void GammaComboEngine::scan() {
 
     // RUN TOYS
     if (arg->isAction("runtoys")) runToys(c);
-    /////////////////////////////////////////////////////
 
     // SAVE WORKSPACE
     if (arg->save != "" && arg->saveAtMin) saveWorkspace(c, i);
-    /////////////////////////////////////////////////////
 
     if (i < arg->combid.size() - 1) {
       cout << "\n-- now starting -c " << arg->combid[i + 1]
@@ -2138,6 +2140,7 @@ void GammaComboEngine::scan() {
     }
   }
 }
+
 //
 // special scan engine for datasetss
 //
@@ -2237,10 +2240,9 @@ void GammaComboEngine::scanDataSet() {
   cout << "Dataset Scan Done" << endl;
 }
 
-///
-/// run the ROOT application, if the -i flag for interactive
-/// mode was set.
-///
+/**
+ * Run the ROOT application, if the -i flag for interactive mode was set.
+ */
 void GammaComboEngine::runApplication() {
   if (arg->interactive) {
     cout << "Exit with Ctrl+c" << endl;
@@ -2248,20 +2250,18 @@ void GammaComboEngine::runApplication() {
   }
 }
 
-///
-/// print the initial banner
-///
+/**
+ * Print the GammaCombo banner
+ */
 void GammaComboEngine::printBanner() const {
-  const char* VTAG = "1.3";
-  cout << endl
-       << "\033[1mGammaCombo v" << VTAG << " \033[0m"
-       << "-- All rights reserved under GPLv3, http://www.gnu.org/licenses/gpl.txt" << endl
+  cout << "\n\033[1mGammaCombo " << GAMMACOMBO_VERSION << " \033[0m"
+       << "-- All rights reserved under GPLv3, http://www.gnu.org/licenses/gpl.txt\n"
        << endl;
 }
 
-///
-/// run GammaComboEngine, main steering function
-///
+/**
+ * Run GammaComboEngine (main steering function)
+ */
 void GammaComboEngine::run() {
   if (arg->usage) usage();  // print usage and exit
   defineColors();

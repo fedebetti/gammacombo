@@ -81,6 +81,7 @@ set(CORE_INC_DIR ./core/include/)
 include_directories(BEFORE ${CORE_INC_DIR} ${ROOT_INCLUDE_DIR})
 # Declare the ROOT library path
 link_directories(${ROOT_LIBRARY_DIR} /usr/local/lib)
+configure_file(${CORE_INC_DIR}/VersionConfig.h.in VersionConfig.h)
 
 # Define the sources of the core library
 aux_source_directory(./core/src CORE_LIB_SOURCES)
@@ -119,6 +120,9 @@ add_dependencies(${PROJECT_NAME}Components ${PROJECT_NAME}Dict)
 # Add ROOT libraries to the linker command
 target_link_libraries(${PROJECT_NAME}Components ${ROOT_LIBRARIES}
                       ${FREETYPE_LIBRARIES})
+# For ConfigVersion.h
+target_include_directories(${PROJECT_NAME}Components
+                           PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Dict_rdict.pcm
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
