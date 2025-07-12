@@ -1,10 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #ifndef Utils_h
 #define Utils_h
 
@@ -125,7 +118,8 @@ namespace Utils {
 
   RooFormulaVar* makeTheoryVar(TString name, TString title, TString formula, RooArgList* pars);
 
-  void savePlot(TCanvas* c1, TString name);
+  void savePlot(const TCanvas* c1, const TString name,
+                const std::vector<std::string> ext = {"pdf", "png", "eps", "root", "C"});
   bool FileExists(TString strFilename);
   void assertFileExists(TString strFilename);
   template <class T>

@@ -51,7 +51,7 @@ void OneMinusClPlotAbs::addScanner(MethodAbsScan* s, int CLsType) {
 ///
 /// Save the plot.
 ///
-void OneMinusClPlotAbs::save() {
+void OneMinusClPlotAbs::save() const {
   if (!m_mainCanvas) {
     cout << "OneMinusClPlotAbs::save() : ERROR : Empty canvas. Call Draw() or DrawFull() before saving!" << endl;
     return;
@@ -112,8 +112,4 @@ void OneMinusClPlotAbs::drawGroup(double yPos) const {
     t3->AddText(arg->plotdate);
     t3->Draw();
   }
-}
-
-void OneMinusClPlotAbs::drawSolutions() const {
-  // not implemented
 }

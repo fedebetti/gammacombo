@@ -20,7 +20,6 @@
 
 #include "CLInterval.h"
 #include "Combiner.h"
-#include "OneMinusClPlotAbs.h"
 #include "OptParser.h"
 #include "PValueCorrection.h"
 #include "RooSlimFitResult.h"
@@ -94,7 +93,7 @@ class MethodAbsScan {
   virtual bool loadScanner(TString fName = "");
   void plot2d(TString varx, TString vary);
   void plot1d(TString var);
-  void plotOn(OneMinusClPlotAbs* plot, int CLsType = 0);  // CLsType: 0 (off), 1 (naive CLs t_s+b - t_b), 2 (freq CLs)
+  void plotOn(OneMinusClPlotAbs* plot, int CLsType = 0);
   void plotPulls(int nSolution = 0);
   virtual void print() const;
   void printCLintervals(int CLsType, bool calc_expected = false);

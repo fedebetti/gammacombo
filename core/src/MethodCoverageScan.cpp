@@ -89,8 +89,7 @@ int MethodCoverageScan::scan1d(int nRun) {
   // combine
   if (!combiner->isCombined()) combiner->combine();
 
-  // set up a ToyTree to save the results from the
-  // plugin toys
+  // set up a ToyTree to save the results from the plugin toys
   auto myTree = new ToyTree(combiner, nullptr, true);
   myTree->init();
 
@@ -100,7 +99,6 @@ int MethodCoverageScan::scan1d(int nRun) {
   //
   // ProgressBar *pb = new ProgressBar(arg, nToys);
 
-  // toy loop
   for (int i = 0; i < nToys; i++) {
     cout << "ITOY = " << i << endl;
     // pb->progress();
@@ -268,8 +266,7 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
   h_pvalue_plugin_notransf = new TH1F("h_pvalue_plugin_notransf", "p-value", 50, 0, 1);
   h_pvalue_prob_notransf = new TH1F("h_pvalue_prob_notransf", "p-value", 50, 0, 1);
 
-  // transform function
-  // options are p1, p1+exp, p1+1/x
+  // transform function (options are p1, p1+exp, p1+1/x)
   TString transFunc = "none";
 
   // set up root tree for reading
@@ -351,8 +348,7 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
     }
 
     // draw best fit points
-    // assume the variable is an angle (=gamma) and bring it back
-    // to the [0,pi] range
+    // assume the variable is an angle (=gamma) and bring it back to the [0,pi] range
     h_sol->Fill(RadToDeg(fmod((double)tSol, std::numbers::pi)));
 
     // attempt a coverage correction
