@@ -13,8 +13,7 @@ Contour::Contour(const OptParser* arg, TList* listOfGraphs) {
   assert(arg);
   m_arg = arg;
   TIterator* it = listOfGraphs->MakeIterator();
-  while (auto g = dynamic_cast<TGraph*>(it->Next())) { m_contours.push_back((TGraph*)g->Clone()); }
-  delete it;
+  for (auto g : *listOfGraphs) { m_contours.push_back(static_cast<TGraph*>(g->Clone())); }
   m_linecolor = 2;
   m_linestyle = kSolid;
   m_fillcolor = 2;
