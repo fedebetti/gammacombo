@@ -1,12 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: Feb 2015
- *
- * Class holding a 2D contour consisting of several TGraphs.
- *
- **/
-
 #ifndef Contour_h
 #define Contour_h
 
@@ -16,6 +7,9 @@
 
 #include "OptParser.h"
 
+/**
+ * Class holding a 2D contour consisting of several TGraphs.
+ */
 class Contour {
  public:
   Contour(const OptParser* arg, TList* listOfGraphs);
