@@ -55,7 +55,7 @@ class GammaComboEngine {
   void setPdf(PDF_Abs* pdf);
   void addCombiner(int id, Combiner* cmb);
   void cloneCombiner(int newId, int oldId, TString name, TString title);
-  Combiner* getCombiner(int id) const;
+  Combiner* getCombiner(const int id) const;
   std::vector<int> getCombinersIds() const;
   PDF_Abs* getPdf(int id) const;
   inline OptParser* getArg() const { return arg.get(); };
