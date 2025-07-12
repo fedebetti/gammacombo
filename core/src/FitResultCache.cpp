@@ -8,15 +8,7 @@ FitResultCache::FitResultCache(const OptParser* arg, int roundrobinsize) {
   assert(arg);
   _arg = arg;
   _roundrobinsize = roundrobinsize;
-  for (int i = 0; i < _roundrobinsize; i++) _parsRoundRobin.push_back(nullptr);
-}
-
-FitResultCache::~FitResultCache() {
-  if (_parsAtFunctionCall) delete _parsAtFunctionCall;
-  if (_parsAtGlobalMin) delete _parsAtGlobalMin;
-  for (auto prr : _parsRoundRobin) {
-    if (prr) delete prr;
-  }
+  _parsRoundRobin.resize(_roundrobinsize);
 }
 
 ///
@@ -33,7 +25,7 @@ void FitResultCache::storeParsAtFunctionCall(const RooArgSet* set) {
     exit(1);
   }
   assert(set);
-  _parsAtFunctionCall = new RooDataSet("parsAtFunctionCall", "parsAtFunctionCall", *set);
+  _parsAtFunctionCall = std::make_unique<RooDataSet>("parsAtFunctionCall", "parsAtFunctionCall", *set);
   _parsAtFunctionCall->add(*set);
 }
 
@@ -45,8 +37,7 @@ void FitResultCache::storeParsAtFunctionCall(const RooArgSet* set) {
 ///
 void FitResultCache::storeParsAtGlobalMin(const RooArgSet* set) {
   assert(set);
-  if (_parsAtGlobalMin) delete _parsAtGlobalMin;
-  _parsAtGlobalMin = new RooDataSet("parsAtGlobalMin", "parsAtGlobalMin", *set);
+  _parsAtGlobalMin = std::make_unique<RooDataSet>("parsAtGlobalMin", "parsAtGlobalMin", *set);
   _parsAtGlobalMin->add(*set);
 }
 
@@ -59,8 +50,7 @@ void FitResultCache::storeParsRoundRobin(const RooArgSet* set) {
   assert(set);
   _roundrobinid++;
   if (_roundrobinid >= _roundrobinsize) _roundrobinid = 0;
-  if (_parsRoundRobin[_roundrobinid]) delete _parsRoundRobin[_roundrobinid];
-  _parsRoundRobin[_roundrobinid] = new RooDataSet("parsAtFunctionCall", "parsAtFunctionCall", *set);
+  _parsRoundRobin[_roundrobinid] = std::make_unique<RooDataSet>("parsAtFunctionCall", "parsAtFunctionCall", *set);
   _parsRoundRobin[_roundrobinid]->add(*set);
 }
 

@@ -506,7 +506,7 @@ bool MethodAbsScan::interpolate(TH1* h, int i, double y, double central, bool up
   }
 
   // compute pol2 fit interpolation
-  auto g = new TGraphErrors(3);
+  auto g = std::make_unique<TGraphErrors>(3);
   g->SetPoint(0, h->GetBinCenter(i - 1), h->GetBinContent(i - 1));
   g->SetPointError(0, h->GetBinWidth(i - 1) / 2., h->GetBinError(i - 1));
   g->SetPoint(1, h->GetBinCenter(i), h->GetBinContent(i));
@@ -523,7 +523,7 @@ bool MethodAbsScan::interpolate(TH1* h, int i, double y, double central, bool up
         !upper)  // don't use for upper limit calculation if point is equal or below central value
     {
       // add to the beginning
-      auto gNew = new TGraphErrors(g->GetN() + 1);
+      auto gNew = std::make_unique<TGraphErrors>(g->GetN() + 1);
       gNew->SetPoint(0, h->GetBinCenter(i - 2), h->GetBinContent(i - 2));
       gNew->SetPointError(0, h->GetBinWidth(i - 2) / 2., h->GetBinError(i - 2));
       Double_t pointx, pointy;
@@ -535,8 +535,7 @@ bool MethodAbsScan::interpolate(TH1* h, int i, double y, double central, bool up
         gNew->SetPoint(i + 1, pointx, pointy);
         gNew->SetPointError(i + 1, pointxerr, pointyerr);
       }
-      delete g;
-      g = gNew;
+      g = std::move(gNew);
     }
   }
 

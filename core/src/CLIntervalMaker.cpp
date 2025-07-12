@@ -429,7 +429,7 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1* h, int i, double y, double c
   // }
 
   // fit
-  TF1* f1 = new TF1("f1", "pol2", h->GetBinCenter(i - 2), h->GetBinCenter(i + 2));
+  auto f1 = std::make_unique<TF1>("f1", "pol2", h->GetBinCenter(i - 2), h->GetBinCenter(i + 2));
   g->Fit("f1", "q");    // fit linear to get decent start parameters
   g->Fit("f1", "qf+");  // refit with minuit to get more correct errors (TGraph fit errors bug)
   array<double, 3> p, e;

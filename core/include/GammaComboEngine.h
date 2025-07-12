@@ -146,9 +146,9 @@ class GammaComboEngine {
   std::unique_ptr<FileNameBuilder> m_fnamebuilder;
   std::unique_ptr<BatchScriptWriter> m_batchscriptwriter;
   std::vector<PDF_Abs*> pdf;
-  OneMinusClPlotAbs* plot = nullptr;
+  std::unique_ptr<OneMinusClPlotAbs> plot;
   TStopwatch t;
-  TApplication* theApp = nullptr;
+  std::unique_ptr<TApplication> theApp;
   bool runOnDataSet = false;
 };
 

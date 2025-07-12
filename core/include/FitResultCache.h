@@ -26,7 +26,6 @@
 class FitResultCache {
  public:
   FitResultCache(const OptParser* arg, int roundrobinsize = 4);
-  ~FitResultCache();
 
   void storeParsAtFunctionCall(const RooArgSet* set);
   void storeParsAtGlobalMin(const RooArgSet* set);
@@ -46,9 +45,9 @@ class FitResultCache {
   const OptParser* _arg;  ///< command line arguments
   int _roundrobinsize;    ///< size of the round robin database
   int _roundrobinid = 0;  ///< id of currently active round robin cell
-  RooDataSet* _parsAtFunctionCall = nullptr;
-  RooDataSet* _parsAtGlobalMin = nullptr;
-  std::vector<RooDataSet*> _parsRoundRobin;
+  std::unique_ptr<RooDataSet> _parsAtFunctionCall;
+  std::unique_ptr<RooDataSet> _parsAtGlobalMin;
+  std::vector<std::unique_ptr<RooDataSet>> _parsRoundRobin;
 };
 
 #endif

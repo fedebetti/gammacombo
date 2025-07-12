@@ -1231,7 +1231,8 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
   // Save parameter values that were active at function
   // call. We'll reset them at the end to be transparent
   // to the outside.
-  auto parsFunctionCall = new RooDataSet("parsFunctionCall", "parsFunctionCall", *w->set(pdf->getParName()));
+  auto parsFunctionCall =
+      std::make_unique<RooDataSet>("parsFunctionCall", "parsFunctionCall", *w->set(pdf->getParName()));
   parsFunctionCall->add(*w->set(pdf->getParName()));
 
   // if CLs toys we need to keep hold of what's going on in the bkg only case
@@ -1542,7 +1543,8 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
       pdf->deleteNLL();
 
-      auto parsAfterScanFit = new RooDataSet("parsAfterScanFit", "parsAfterScanFit", *w->set(pdf->getParName()));
+      auto parsAfterScanFit =
+          std::make_unique<RooDataSet>("parsAfterScanFit", "parsAfterScanFit", *w->set(pdf->getParName()));
       parsAfterScanFit->add(*w->set(pdf->getParName()));
 
       //
@@ -1924,7 +1926,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
 
       toyTree.fill();
       // remove dataset and pointers
-      delete parsAfterScanFit;
       pdf->deleteToys();
 
     }  // End of toys loop
@@ -1944,7 +1945,6 @@ int MethodDatasetsPluginScan::scan1d(int nRun) {
   }  // End of npoints loop
   toyTree.writeToFile();
   outputFile->Close();
-  delete parsFunctionCall;
   if (arg->verbose)
     std::cout << "DEBUG::MethodDatasetsPluginScan::scan1d total: s+b fits: " << pdf->nsbfits
               << " (optimal: " << nToys * (3 * nPoints1d + 1) + 1 << "), bkg-only fits: " << pdf->nbkgfits

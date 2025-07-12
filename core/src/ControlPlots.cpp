@@ -98,14 +98,14 @@ void ControlPlots::ctrlPlotPvalue() {
   hFailed->Draw("same");
   // rescale pad to have space for the legend
   pad->SetTopMargin(0.2182971);
-  // add legend
-  auto leg = new TLegend(0.1599533, 0.803442, 0.9500348, 0.9375);
-  leg->AddEntry(hAll, "all toys surviving cuts");
-  leg->AddEntry(hFailed, "toys failing cuts");
-  leg->AddEntry(hOmcl, "1-CL of 'sig' toys (arb. units)");
-  leg->AddEntry(hOmclBg, "1-CL of 'bkg' toys (same norm. as 'sig')");
-  leg->SetFillStyle(0);
-  leg->Draw();
+
+  TLegend leg(0.1599533, 0.803442, 0.9500348, 0.9375);
+  leg.AddEntry(hAll, "all toys surviving cuts");
+  leg.AddEntry(hFailed, "toys failing cuts");
+  leg.AddEntry(hOmcl, "1-CL of 'sig' toys (arb. units)");
+  leg.AddEntry(hOmclBg, "1-CL of 'bkg' toys (same norm. as 'sig')");
+  leg.SetFillStyle(0);
+  leg.Draw();
   c2->Update();
 
   // // plot 6: log version of bg subtracted 1-CL plot
@@ -201,12 +201,12 @@ void ControlPlots::ctrlPlotChi2() {
   st->SetY2NDC(0.7877331);
   st->SetLineColor(kRed);
   makePlotsNice("hChi2free");
-  // add legend
-  auto leg4 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
-  leg4->AddEntry(hChi2free, "#chi^{2} (all scan var values)");
-  leg4->AddEntry(hChi2BestFit, "#chi^{2} (at best fit value)");
-  leg4->SetFillStyle(1001);
-  leg4->Draw();
+
+  TLegend leg4(0.5, 0.8023019, 0.9772986, 0.9370629);
+  leg4.AddEntry(hChi2free, "#chi^{2} (all scan var values)");
+  leg4.AddEntry(hChi2BestFit, "#chi^{2} (at best fit value)");
+  leg4.SetFillStyle(1001);
+  leg4.Draw();
   c2->Update();
 
   // plot 5: delta chi2
@@ -237,12 +237,12 @@ void ControlPlots::ctrlPlotChi2() {
   st->SetY1NDC(0.4562937);
   st->SetX2NDC(0.9772986);
   st->SetY2NDC(0.6056235);
-  // add legend
-  auto leg5 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
-  leg5->AddEntry(h4sig, "#Delta#chi^{2} of 'signal' toys");
-  leg5->AddEntry(h4bkg, "#Delta#chi^{2} of 'bg' toys");
-  leg5->SetFillStyle(1001);
-  leg5->Draw();
+
+  TLegend leg5(0.5, 0.8023019, 0.9772986, 0.9370629);
+  leg5.AddEntry(h4sig, "#Delta#chi^{2} of 'signal' toys");
+  leg5.AddEntry(h4bkg, "#Delta#chi^{2} of 'bg' toys");
+  leg5.SetFillStyle(1001);
+  leg5.Draw();
   c2->Update();
 
   // plot 6: chi2 p-value distribution
@@ -266,11 +266,11 @@ void ControlPlots::ctrlPlotChi2() {
   st->SetX2NDC(0.9772986);
   st->SetY2NDC(0.6056235);
   c2->Update();
-  // add legend
-  auto leg6 = new TLegend(0.5, 0.8023019, 0.9772986, 0.9370629);
-  leg6->AddEntry(h5sig, Form("Prob(#Delta#chi^{2}, ndof=%i)", ndof));
-  leg6->SetFillStyle(1001);
-  leg6->Draw();
+
+  TLegend leg6(0.5, 0.8023019, 0.9772986, 0.9370629);
+  leg6.AddEntry(h5sig, Form("Prob(#Delta#chi^{2}, ndof=%i)", ndof));
+  leg6.SetFillStyle(1001);
+  leg6.Draw();
 
   ctrlPlotCanvases.push_back(c2);
 }
@@ -446,23 +446,23 @@ void ControlPlots::ctrlPlotChi2Distribution() {
         t->Draw("chi2minToy-chi2minGlobalToy",
                 ctrlPlotCuts && bincut && "chi2minToy-chi2minGlobalToy>0 && chi2minToy-chi2minGlobalToy<50");
     if (!gPad->GetPrimitive("htemp")) continue;
-    auto txt = new TPaveText(0.3, 0.8, 0.9, 0.9, "BRNDC");
-    txt->AddText(Form("%.3f < %s < %.3f", binMin, arg->var[0].Data(), binMax));
-    txt->SetBorderSize(0);
-    txt->SetFillStyle(0);
-    txt->SetTextAlign(12);
-    txt->Draw();
+    TPaveText txt(0.3, 0.8, 0.9, 0.9, "BRNDC");
+    txt.AddText(Form("%.3f < %s < %.3f", binMin, arg->var[0].Data(), binMax));
+    txt.SetBorderSize(0);
+    txt.SetFillStyle(0);
+    txt.SetTextAlign(12);
+    txt.Draw();
     ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->SetTitle("#Delta#chi^{2}");
     makePlotsNice();
     pad->SetLogy();
     // draw a chi2 function
-    TF1* f = new TF1("f", "[0]*x^([1]/2-1)*exp(-x/2)", 0, 30);
+    TF1 f("f", "[0]*x^([1]/2-1)*exp(-x/2)", 0, 30);
     double binWidth = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetBinWidth(1);
     int ndof = arg->var.size();
     double norm = 1. / (pow(2, ndof / 2.) * TMath::Gamma(ndof / 2.)) * normEvents * binWidth;
-    f->SetParameter(0, norm);
-    f->SetParameter(1, ndof);
-    f->Draw("same");
+    f.SetParameter(0, norm);
+    f.SetParameter(1, ndof);
+    f.Draw("same");
     updateCurrentCanvas();
   }
 }
@@ -499,12 +499,12 @@ void ControlPlots::ctrlPlotChi2Parabola() {
     t->Draw(plotExpression, ctrlPlotCuts && bincut && "chi2minToy-chi2minGlobalToy>0 && chi2minToy-chi2minGlobalToy<9",
             "colz");
     if (!gPad->GetPrimitive("htemp")) continue;
-    auto txt = new TPaveText(0.3, 0.8, 0.9, 0.9, "BRNDC");
-    txt->AddText(Form("%.3f<var<%.3f", binMin, binMax));
-    txt->SetBorderSize(0);
-    txt->SetFillStyle(0);
-    txt->SetTextAlign(12);
-    txt->Draw();
+    TPaveText txt(0.3, 0.8, 0.9, 0.9, "BRNDC");
+    txt.AddText(Form("%.3f<var<%.3f", binMin, binMax));
+    txt.SetBorderSize(0);
+    txt.SetFillStyle(0);
+    txt.SetTextAlign(12);
+    txt.Draw();
     makePlotsNice();
     updateCurrentCanvas();
   }
@@ -601,11 +601,11 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   t->Draw("chi2minGlobal:nrun", "", "colz");
   makePlotsNice();
   // draw a horizontal red line at the chi2minGlobal of the current PLH scan
-  double xmin = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin();
-  double xmax = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
-  auto l = new TLine(xmin, profileLH->getChi2minGlobal(), xmax, profileLH->getChi2minGlobal());
-  l->SetLineColor(kRed);
-  l->Draw();
+  auto xmin = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin();
+  auto xmax = ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmax();
+  TLine l(xmin, profileLH->getChi2minGlobal(), xmax, profileLH->getChi2minGlobal());
+  l.SetLineColor(kRed);
+  l.Draw();
 
   if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plots done.        " << endl;
 }
