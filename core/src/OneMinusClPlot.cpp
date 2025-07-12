@@ -25,9 +25,7 @@
 using namespace std;
 using namespace Utils;
 
-OneMinusClPlot::OneMinusClPlot(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
-  plotSolution = true;
-}
+OneMinusClPlot::OneMinusClPlot(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {}
 
 ///
 /// Make a plot out of a 1D histogram holding a 1-CL curve.

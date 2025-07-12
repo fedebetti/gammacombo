@@ -10,6 +10,7 @@
 #include <FileNameBuilder.h>
 #include <FitResultCache.h>
 #include <MethodAbsScan.h>
+#include <OneMinusClPlotAbs.h>
 #include <PullPlotter.h>
 #include <Utils.h>
 
@@ -981,6 +982,9 @@ CLInterval MethodAbsScan::getCLinterval(int iSol, int sigma, bool quiet) {
 
 double MethodAbsScan::getCL(double val) const { return 1. - hCL->Interpolate(val); }
 
+/**
+ * @param[in] \CLsType: 0 (off), 1 (naive CLs t_s+b - t_b), 2 (freq CLs)
+ */
 void MethodAbsScan::plotOn(OneMinusClPlotAbs* plot, int CLsType) { plot->addScanner(this, CLsType); }
 
 RooRealVar* MethodAbsScan::getScanVar1() { return w->var(scanVar1); }

@@ -1,10 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #ifndef OneMinusClPlot2d_h
 #define OneMinusClPlot2d_h
 
@@ -14,7 +7,11 @@
 
 #include <TH2.h>
 #include <TLegend.h>
+#include <TString.h>
 
+/**
+ * Class to plot the 2D contours for the fit variables.
+ */
 class OneMinusClPlot2d : public OneMinusClPlotAbs {
  public:
   OneMinusClPlot2d(OptParser* arg, TString name = "c1", TString title = "c1");
@@ -26,7 +23,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   void drawCLcontent(bool isFull = false);
   void drawMarker(double x, double y, int color = 0, int style = 3, double size = 2.0) const;
   void drawGroup() const;
-  void drawSolutions();
+  void drawSolutions() override;
   inline int getNumberOfDefinedColors() const { return linecolor[0].size(); }
   inline void setContoursOnly() { contoursOnly = true; };
   inline void setXaxisTitle(TString s) { xTitle = s; };

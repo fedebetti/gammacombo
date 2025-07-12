@@ -1,10 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #include <boost/algorithm/string.hpp>
 
 #include <algorithm>
@@ -894,14 +887,10 @@ bool Utils::FileExists(TString strFilename) {
   return (blnReturn);
 }
 
-void Utils::savePlot(TCanvas* c1, TString name) {
+void Utils::savePlot(const TCanvas* c1, const TString name, const std::vector<std::string> extensions) {
   cout << "saving plot (pdf and other formats) to: plots/pdf/" + name + ".pdf" << endl;
   gErrorIgnoreLevel = kWarning;
-  c1->Print("plots/png/" + name + ".png");
-  c1->Print("plots/pdf/" + name + ".pdf");
-  c1->Print("plots/eps/" + name + ".eps");
-  c1->Print("plots/root/" + name + ".root");
-  c1->Print("plots/C/" + name + ".C");
+  for (const auto ext : extensions) c1->Print("plots/" + ext + "/" + name + "." + ext);
   gErrorIgnoreLevel = kInfo;
 }
 
