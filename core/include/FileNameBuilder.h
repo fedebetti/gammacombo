@@ -1,13 +1,7 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2014
- *
- **/
-
 #ifndef FileNameBuilder_h
 #define FileNameBuilder_h
 
+#include <memory>
 #include <vector>
 
 #include <TString.h>
@@ -34,8 +28,8 @@ class FileNameBuilder {
   TString getFileNameSolution(const MethodAbsScan* s);
   TString getFileNamePar(const Combiner* c);
   TString getFileNamePar(const MethodAbsScan* s);
-  TString getFileNamePlot(const std::vector<Combiner*>& cmb);
-  TString getFileNamePlotSingle(const std::vector<Combiner*>& cmb, int cId);
+  TString getFileNamePlot(const std::vector<std::unique_ptr<Combiner>>& cmb);
+  TString getFileNamePlotSingle(const std::vector<std::unique_ptr<Combiner>>& cmb, int cId);
   TString getFileNameStartPar(const Combiner* c);
   TString getFileNameStartPar(const MethodAbsScan* s);
   TString getFileNameAsimovPar(const Combiner* c);

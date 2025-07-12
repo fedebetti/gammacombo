@@ -30,8 +30,8 @@ Combiner::Combiner(const OptParser* arg, TString name, TString title) : title(ti
 ///
 /// Clone an existing combiner.
 ///
-Combiner* Combiner::Clone(const TString name, const TString title) {
-  auto cNew = new Combiner(this->arg, name, title);
+std::unique_ptr<Combiner> Combiner::Clone(const TString name, const TString title) {
+  auto cNew = std::make_unique<Combiner>(this->arg, name, title);
   cNew->pdfName = this->pdfName;
   for (auto pdf : pdfs) cNew->addPdf(pdf);
   cNew->_isCombined = this->_isCombined;

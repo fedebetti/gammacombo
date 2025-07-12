@@ -18,11 +18,11 @@ BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]) : exec("") {
   subpkg = string(argv[0]);
 }
 
-void BatchScriptWriter::writeScripts(const OptParser* arg, vector<Combiner*>* cmb) {
+void BatchScriptWriter::writeScripts(const OptParser* arg, const vector<std::unique_ptr<Combiner>>& cmb) {
 
   for (int i = 0; i < arg->combid.size(); i++) {
     int combinerId = arg->combid[i];
-    Combiner* c = cmb->at(combinerId);
+    Combiner* c = cmb.at(combinerId).get();
     c->combine();
     if (!c->isCombined()) continue;
 
