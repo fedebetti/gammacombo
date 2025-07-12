@@ -80,7 +80,6 @@ MethodAbsScan::~MethodAbsScan() {
   for (auto result : allResults) {
     if (result) delete result;
   }
-  if (obsDataset) delete obsDataset;
 }
 
 ///

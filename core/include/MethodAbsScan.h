@@ -151,7 +151,7 @@ class MethodAbsScan {
   std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
   std::vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by
                                               ///< calcCLintervals()
-  std::unique_ptr<RooFitResult> globalMin = nullptr;  ///< parameter values at a global minimum
+  std::unique_ptr<RooFitResult> globalMin;    ///< parameter values at a global minimum
 
  protected:
   void sortSolutions();
@@ -175,23 +175,24 @@ class MethodAbsScan {
 
   TRandom3 rndm;
   RooWorkspace* w = nullptr;
-  RooDataSet* obsDataset = nullptr;  ///< save the nominal observables so we can restore them after we have fitted toys
-  std::unique_ptr<RooDataSet> startPars = nullptr;  ///< save the start parameter values before any scan
-  std::unique_ptr<TH1> hCL = nullptr;               ///< 1-CL curve
-  std::unique_ptr<TH1> hCLs = nullptr;              ///< 1-CL curve
-  std::unique_ptr<TH1> hCLsFreq = nullptr;          ///< 1-CL curve
-  std::unique_ptr<TH1> hCLsExp = nullptr;           ///< 1-CL curve
-  std::unique_ptr<TH1> hCLsErr1Up = nullptr;        ///< 1-CL curve
-  std::unique_ptr<TH1> hCLsErr1Dn = nullptr;        ///< 1-CL curve
-  std::unique_ptr<TH1> hCLsErr2Up = nullptr;        ///< 1-CL curve
-  std::unique_ptr<TH1> hCLsErr2Dn = nullptr;        ///< 1-CL curve
-  std::unique_ptr<TH2> hCL2d = nullptr;             ///< 1-CL curve
-  std::unique_ptr<TH2> hCLs2d = nullptr;            ///< 1-CL curve
-  std::unique_ptr<TH1> hChi2min = nullptr;          ///< histogram for the chi2min values before Prob()
-  std::unique_ptr<TH2> hChi2min2d = nullptr;        ///< histogram for the chi2min values before Prob()
-  double chi2minGlobal = 0.;                        ///< chi2 value at global minimum
-  double chi2minBkg = 0.;                           ///< chi2 value at global minimum
-  bool chi2minGlobalFound = false;                  ///< flag to avoid finding minimum twice
+  std::unique_ptr<RooDataSet> obsDataset;  ///< save the nominal observables so we can restore them after we have fitted
+                                           ///< toys
+  std::unique_ptr<RooDataSet> startPars;   ///< save the start parameter values before any scan
+  std::unique_ptr<TH1> hCL;                ///< 1-CL curve
+  std::unique_ptr<TH1> hCLs;               ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsFreq;           ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsExp;            ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr1Up;         ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr1Dn;         ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr2Up;         ///< 1-CL curve
+  std::unique_ptr<TH1> hCLsErr2Dn;         ///< 1-CL curve
+  std::unique_ptr<TH2> hCL2d;              ///< 1-CL curve
+  std::unique_ptr<TH2> hCLs2d;             ///< 1-CL curve
+  std::unique_ptr<TH1> hChi2min;           ///< histogram for the chi2min values before Prob()
+  std::unique_ptr<TH2> hChi2min2d;         ///< histogram for the chi2min values before Prob()
+  double chi2minGlobal = 0.;               ///< chi2 value at global minimum
+  double chi2minBkg = 0.;                  ///< chi2 value at global minimum
+  bool chi2minGlobalFound = false;         ///< flag to avoid finding minimum twice
   int lineColor = kBlue - 8;
   int textColor = kBlack;  ///< color used for plotted central values
   int lineStyle = 0;

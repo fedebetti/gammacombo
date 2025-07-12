@@ -7,10 +7,10 @@ using namespace std;
 using namespace RooFit;
 
 Parameter* ParametersAbs::newParameter(TString name) {
-  auto p = new Parameter();
+  auto p = std::make_unique<Parameter>();
   p->name = name;
-  m_parameters.push_back(p);
-  return p;
+  m_parameters.push_back(std::move(p));
+  return m_parameters.back().get();
 }
 
 Parameter::Range ParametersAbs::range(double min, double max) const {
@@ -19,8 +19,8 @@ Parameter::Range ParametersAbs::range(double min, double max) const {
 }
 
 Parameter* ParametersAbs::var(TString name) {
-  for (auto par : m_parameters) {
-    if (par->name == name) return par;
+  for (auto&& par : m_parameters) {
+    if (par->name == name) return par.get();
   }
   cout << "ParametersAbs::var() : ERROR : no such parameter '" + name + "'." << endl;
   return nullptr;
@@ -30,8 +30,8 @@ Parameter* ParametersAbs::var(TString name) {
 /// Ranges:
 ///  free - here is where Feldman-Cousins-like forbidden regions get implemented
 ///
-RooRealVar* ParametersAbs::get(TString name) {
-  for (auto par : m_parameters) {
+RooFit::OwningPtr<RooRealVar> ParametersAbs::get(TString name) {
+  for (auto&& par : m_parameters) {
     if (par->name == name) {
       auto r = new RooRealVar(par->name, par->title, par->startvalue, par->unit);
       RooMsgService::instance().setGlobalKillBelow(WARNING);  // else we get messages for range creation
