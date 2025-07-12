@@ -1,6 +1,7 @@
 #include <Combiner.h>
 
 #include <algorithm>
+#include <memory>
 
 #include <RooProdPdf.h>
 #include <RooRandom.h>
@@ -11,24 +12,20 @@ using namespace std;
 using namespace RooFit;
 using namespace Utils;
 
-Combiner::Combiner(const OptParser* arg, TString title) : title(title) {
+Combiner::Combiner(const OptParser* arg, TString title) : title(title), arg(arg) {
   cout << "Combiner::Combiner() : WARNING : This constructor is deprecated. "
           "Use Combiner(OptParser *arg, TString name, TString title) instead."
        << endl;
   if (arg->debug) cout << "Combiner::Combiner() : new combiner title=" << title << endl;
-  this->arg = arg;
   TString wsname = "w" + getUniqueRootName();
-  w = new RooWorkspace(wsname, wsname);
+  w = std::make_unique<RooWorkspace>(wsname, wsname);
 }
 
-Combiner::Combiner(const OptParser* arg, TString name, TString title) : title(title), name(name) {
+Combiner::Combiner(const OptParser* arg, TString name, TString title) : title(title), name(name), arg(arg) {
   if (arg->debug) cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << endl;
-  this->arg = arg;
   TString wsname = "w" + getUniqueRootName();
-  w = new RooWorkspace(wsname, wsname);
+  w = std::make_unique<RooWorkspace>(wsname, wsname);
 }
-
-Combiner::~Combiner() { delete w; }
 
 ///
 /// Clone an existing combiner.
@@ -143,9 +140,9 @@ void Combiner::combine() {
     pdfList->add(*w->pdf(TString("pdf_" + name)));
 
     // now add to set strings
-    addSetNamesToList(parStr, w, "par_" + name);
-    addSetNamesToList(obsStr, w, "obs_" + name);
-    addSetNamesToList(thStr, w, "th_" + name);
+    addSetNamesToList(parStr, w.get(), "par_" + name);
+    addSetNamesToList(obsStr, w.get(), "obs_" + name);
+    addSetNamesToList(thStr, w.get(), "th_" + name);
   }
 
   // make the product
@@ -156,9 +153,9 @@ void Combiner::combine() {
   w->import(*prod);
 
   // define sets of combined parameters
-  makeNamedSet(w, "par_" + pdfName, parStr);
-  makeNamedSet(w, "obs_" + pdfName, obsStr);
-  makeNamedSet(w, "th_" + pdfName, thStr);
+  makeNamedSet(w.get(), "par_" + pdfName, parStr);
+  makeNamedSet(w.get(), "obs_" + pdfName, obsStr);
+  makeNamedSet(w.get(), "th_" + pdfName, thStr);
 
   // old thing
   // combine
@@ -175,9 +172,9 @@ void Combiner::combine() {
   //// define sets of combined parameters
   // parsName = "par_"+newName;
   // obsName = "obs_"+newName;
-  // mergeNamedSets(w, parsName, "par_"+pdfName, "par_"+pdfNames[i]);
-  // mergeNamedSets(w, obsName,  "obs_"+pdfName, "obs_"+pdfNames[i]);
-  // mergeNamedSets(w, "th_"+newName, "th_" +pdfName, "th_" +pdfNames[i]);
+  // mergeNamedSets(w.get(), parsName, "par_"+pdfName, "par_"+pdfNames[i]);
+  // mergeNamedSets(w.get(), obsName,  "obs_"+pdfName, "obs_"+pdfNames[i]);
+  // mergeNamedSets(w.get(), "th_"+newName, "th_" +pdfName, "th_" +pdfNames[i]);
   // pdfName = newName;
   //}
   setParametersConstant();
@@ -484,7 +481,7 @@ void Combiner::setObservablesToToyValues() {
     cout << "Combiner::setObservablesToToyValues() : generated toy observables to:" << endl;
     toyData->Print("v");
   }
-  setParameters(w, "obs_" + pdfName, toyData);
+  setParameters(w.get(), "obs_" + pdfName, toyData);
   delete dataset;
 }
 
@@ -510,7 +507,7 @@ void Combiner::loadParameterLimits() {
   }
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
   if (arg->debug) cout << "Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
-  for (const auto p : *w->set("par_" + pdfName)) setLimit(w, p->GetName(), rangeName);
+  for (const auto p : *w->set("par_" + pdfName)) setLimit(w.get(), p->GetName(), rangeName);
 }
 
 ///
