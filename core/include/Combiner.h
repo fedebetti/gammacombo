@@ -1,10 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #ifndef Combiner_h
 #define Combiner_h
 
@@ -12,11 +5,13 @@
 #include "PDF_Abs.h"
 #include "Utils.h"
 
+#include <memory>
+#include <vector>
+
 class Combiner {
  public:
   Combiner(const OptParser* arg, TString title);
   Combiner(const OptParser* arg, TString name, TString title);
-  ~Combiner();
 
   /// Add a PDF to the combiner.
   void addPdf(PDF_Abs* p);
@@ -61,7 +56,7 @@ class Combiner {
   };  ///< Returns name of combined observables set. Call combine() first.
   RooAbsPdf* getPdf();
   inline std::vector<PDF_Abs*>& getPdfs() { return pdfs; };
-  inline RooWorkspace* getWorkspace() { return w; };
+  inline RooWorkspace* getWorkspace() { return w.get(); };
   inline bool isCombined() const { return _isCombined; }
   void loadParameterLimits();
   void print() const;
@@ -80,7 +75,7 @@ class Combiner {
   TString parsName;                   // Name of combined parameter set. Call combine() first.
   TString obsName;                    // Name of combined observables set. Call combine() first.
   const OptParser* arg;               // command line arguments
-  RooWorkspace* w;                    // holds all input pdfs, parameters, and observables, as well as the combination
+  std::unique_ptr<RooWorkspace> w;    // holds all input pdfs, parameters, and observables, as well as the combination
   std::vector<std::string> pdfNames;  // hold all unique names of the pdfs to be combined
   bool _isCombined = false;           // make sure we'll only combine once - else all PDFs get double counted!
   std::vector<Utils::FixPar> constVars;  // hold variables that will be set constant (filled by fixParameter())
