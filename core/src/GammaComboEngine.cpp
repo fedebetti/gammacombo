@@ -54,7 +54,7 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
 
   // run ROOT in interactive mode, if requested (-i)
   if (arg->interactive)
-    theApp = new TApplication("App", &argc, argv);
+    theApp = std::make_unique<TApplication>("App", &argc, argv);
   else
     gROOT->SetBatch(false);
 
@@ -865,9 +865,9 @@ void GammaComboEngine::customizeCombinerTitles() {
 ///
 void GammaComboEngine::setUpPlot() {
   if (arg->var.size() == 1) {
-    plot = new OneMinusClPlot(arg.get(), m_fnamebuilder->getFileNamePlot(cmb), "p-value curves");
+    plot = std::make_unique<OneMinusClPlot>(arg.get(), m_fnamebuilder->getFileNamePlot(cmb), "p-value curves");
   } else {
-    plot = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlot(cmb), "p-value contours");
+    plot = std::make_unique<OneMinusClPlot2d>(arg.get(), m_fnamebuilder->getFileNamePlot(cmb), "p-value contours");
   }
   plot->disableLegend(arg->plotlegend);
 }
@@ -1184,9 +1184,9 @@ void GammaComboEngine::make2dPluginScan(MethodPluginScan* scannerPlugin, int cId
     scannerPlugin->saveScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
     // plot chi2
     cout << "making full chi2 plot ..." << endl;
-    auto plotf = new OneMinusClPlot2d(arg.get(), plot->getName() + "_plugin_full",
-                                      "p-value histogram: " + scannerPlugin->getTitle());
-    scannerPlugin->plotOn(plotf);
+    auto plotf = std::make_unique<OneMinusClPlot2d>(arg.get(), plot->getName() + "_plugin_full",
+                                                    "p-value histogram: " + scannerPlugin->getTitle());
+    scannerPlugin->plotOn(plotf.get());
     plotf->DrawFull();
     plotf->save();
   }
@@ -1254,9 +1254,9 @@ void GammaComboEngine::make1dProbPlot(MethodProbScan* scanner, int cId) {
       scanner->computeCLvalues();  // compute new CL values depending on test stat, even if not a rescan is wished
     if (arg->cls.size() > 0) {
       if (runOnDataSet) ((MethodDatasetsProbScan*)scanner)->plotFitRes(m_fnamebuilder->getFileNamePlot(cmb) + "_fit");
-      scanner->plotOn(plot, 1);  // for prob ClsType>1 doesn't exist
+      scanner->plotOn(plot.get(), 1);  // for prob ClsType>1 doesn't exist
     }
-    scanner->plotOn(plot);
+    scanner->plotOn(plot.get());
     int colorId = cId;
     if (arg->color.size() > cId) colorId = arg->color[cId];
     // scanner->setLineColor(colorsLine[colorId]);
@@ -1321,15 +1321,15 @@ void GammaComboEngine::make1dPluginPlot(MethodPluginScan* sPlugin, MethodProbSca
     make1dPluginOnlyPlot(sPlugin, cId);
     sProb->setLineColor(kBlack);
     sProb->setDrawSolution(arg->plotsolutions[cId]);
-    if (arg->cls.size() > 0) sProb->plotOn(plot, 1);
-    sProb->plotOn(plot);
+    if (arg->cls.size() > 0) sProb->plotOn(plot.get(), 1);
+    sProb->plotOn(plot.get());
   } else {
     make1dProbPlot(sProb, cId);
     sPlugin->setLineColor(kBlack);
     sPlugin->setDrawSolution(arg->plotsolutions[cId]);
-    if (std::count(arg->cls.begin(), arg->cls.end(), 1)) sPlugin->plotOn(plot, 1);
-    if (std::count(arg->cls.begin(), arg->cls.end(), 2)) sPlugin->plotOn(plot, 2);
-    sPlugin->plotOn(plot);
+    if (std::count(arg->cls.begin(), arg->cls.end(), 1)) sPlugin->plotOn(plot.get(), 1);
+    if (std::count(arg->cls.begin(), arg->cls.end(), 2)) sPlugin->plotOn(plot.get(), 2);
+    sPlugin->plotOn(plot.get());
   }
   plot->Draw();
 }
@@ -1361,11 +1361,11 @@ void GammaComboEngine::make2dPluginPlot(MethodPluginScan* sPlugin, MethodProbSca
   sProb->setFillTransparency(fillTransparencies[cId]);
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
   if (arg->isQuickhack(17)) {
-    sPlugin->plotOn(plot);
-    sProb->plotOn(plot);
+    sPlugin->plotOn(plot.get());
+    sProb->plotOn(plot.get());
   } else {
-    sProb->plotOn(plot);
-    sPlugin->plotOn(plot);
+    sProb->plotOn(plot.get());
+    sPlugin->plotOn(plot.get());
   }
   plot->Draw();
 }
@@ -1378,7 +1378,7 @@ void GammaComboEngine::make2dPluginPlot(MethodPluginScan* sPlugin, MethodProbSca
 /// \param cId - the id of this combination on the command line
 ///
 void GammaComboEngine::make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) {
-  ((OneMinusClPlot*)plot)->setPluginMarkers(false);
+  static_cast<OneMinusClPlot*>(plot.get())->setPluginMarkers(false);
   int colorId = cId;
   if (arg->color.size() > cId) colorId = arg->color[cId];
   sPlugin->setTextColor(colorsText[colorId]);
@@ -1389,8 +1389,8 @@ void GammaComboEngine::make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) 
   sPlugin->setFillStyle(fillStyles[cId]);
   sPlugin->setFillTransparency(fillTransparencies[cId]);
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
-  for (const auto cl : arg->cls) sPlugin->plotOn(plot, cl);
-  sPlugin->plotOn(plot);
+  for (const auto cl : arg->cls) sPlugin->plotOn(plot.get(), cl);
+  sPlugin->plotOn(plot.get());
   plot->Draw();
 }
 
@@ -1402,7 +1402,7 @@ void GammaComboEngine::make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) 
 ///
 void GammaComboEngine::make2dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) {
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
-  sPlugin->plotOn(plot);
+  sPlugin->plotOn(plot.get());
   plot->Draw();
 }
 
@@ -1442,32 +1442,34 @@ void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, int cId) {
 ///
 void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
   // plot full
-  OneMinusClPlot2d* plotf = nullptr;
+  std::unique_ptr<OneMinusClPlot2d> plotf;
   if (scanner->getMethodName() == "Prob")
-    plotf = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlotSingle(cmb, cId) + "_full",
-                                 "p-value histogram: " + scanner->getTitle());
+    plotf = std::make_unique<OneMinusClPlot2d>(arg.get(), m_fnamebuilder->getFileNamePlotSingle(cmb, cId) + "_full",
+                                               "p-value histogram: " + scanner->getTitle());
   else if (scanner->getMethodName() == "DatasetsProb")
-    plotf = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlot(cmb) + "_full",
-                                 "p-value histogram: " + scanner->getTitle());  // Titus: change to make datasets plot
-                                                                                // possible
+    plotf = std::make_unique<OneMinusClPlot2d>(arg.get(), m_fnamebuilder->getFileNamePlot(cmb) + "_full",
+                                               "p-value histogram: " + scanner->getTitle());  // Titus: change to make
+                                                                                              // datasets plot possible
   else
     cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
-  scanner->plotOn(plotf, 0);
+  scanner->plotOn(plotf.get(), 0);
   plotf->DrawFull();
   plotf->save();
   // plot full CLs
   if (arg->cls.size() > 0) {
-    OneMinusClPlot2d* plotfcls = nullptr;
+    std::unique_ptr<OneMinusClPlot2d> plotfcls;
     if (scanner->getMethodName() == "Prob")
-      plotfcls = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlotSingle(cmb, cId) + "_cls_full",
-                                      "p-value histogram: " + scanner->getTitle());
+      plotfcls =
+          std::make_unique<OneMinusClPlot2d>(arg.get(), m_fnamebuilder->getFileNamePlotSingle(cmb, cId) + "_cls_full",
+                                             "p-value histogram: " + scanner->getTitle());
     else if (scanner->getMethodName() == "DatasetsProb")
-      plotfcls = new OneMinusClPlot2d(arg.get(), m_fnamebuilder->getFileNamePlot(cmb) + "_cls_full",
-                                      "p-value histogram: " + scanner->getTitle());  // Titus: change to make datasets
-                                                                                     // plot possible
+      plotfcls =
+          std::make_unique<OneMinusClPlot2d>(arg.get(), m_fnamebuilder->getFileNamePlot(cmb) + "_cls_full",
+                                             "p-value histogram: " + scanner->getTitle());  // Titus: change to make
+                                                                                            // datasets plot possible
     else
       cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
-    scanner->plotOn(plotfcls, 1);
+    scanner->plotOn(plotfcls.get(), 1);
     plotfcls->DrawFull();
     plotfcls->save();
   }
@@ -1480,8 +1482,8 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
   scanner->setFillColor(fillColors[cId]);
   scanner->setFillStyle(fillStyles[cId]);
   scanner->setFillTransparency(fillTransparencies[cId]);
-  if (arg->cls.size() > 0) scanner->plotOn(plot, 1);
-  scanner->plotOn(plot, 0);
+  if (arg->cls.size() > 0) scanner->plotOn(plot.get(), 1);
+  scanner->plotOn(plot.get(), 0);
   // only draw the plot once when multiple scanners are plotted,
   // else we end up with too many graphs, and the transparency setting
   // gets screwed up
@@ -1736,7 +1738,8 @@ void GammaComboEngine::saveWorkspace(Combiner* c, int i) {
 void GammaComboEngine::compareCombinations() {
   for (int i = 0; i < comparisonScanners.size(); i++) {
     for (int j = i + 1; j < comparisonScanners.size(); j++) {
-      TH2F* pull_corr = new TH2F(Form("c%d_vs_c%d_corr", i, j),
+      auto pull_corr =
+          std::make_unique<TH2F>(Form("c%d_vs_c%d_corr", i, j),
                                  Form("; Obs pulls for %s [#sigma]; Obs pulls %s [#sigma]",
                                       comparisonScanners[i]->getName().Data(), comparisonScanners[j]->getName().Data()),
                                  10, -5, 5, 10, -5, 5);
@@ -1824,16 +1827,16 @@ void GammaComboEngine::compareCombinations() {
       pull_corr->GetXaxis()->SetLabelSize(0.045);
       pull_corr->GetYaxis()->SetLabelSize(0.045);
       pull_corr->Draw("scat");
-      auto line = new TLine();
-      line->DrawLine(-5, 0, 5, 0);
-      line->DrawLine(0, -5, 0, 5);
+      TLine line;
+      line.DrawLine(-5, 0, 5, 0);
+      line.DrawLine(0, -5, 0, 5);
       pull_corr->Draw("scatsame");
-      TF1* f1 = new TF1("f1", "[0]*x", -5, 5);
-      f1->SetParameter(0, corr);
-      f1->Draw("Lsame");
-      auto lat = new TLatex();
-      lat->DrawLatex(3, 4, Form("#rho = %3.1f", corr));
-      lat->DrawLatex(3, 3, Form("#sigma = %3.1f", TMath::Abs(diff) / err));
+      TF1 f1("f1", "[0]*x", -5, 5);
+      f1.SetParameter(0, corr);
+      f1.Draw("Lsame");
+      TLatex lat;
+      lat.DrawLatex(3, 4, Form("#rho = %3.1f", corr));
+      lat.DrawLatex(3, 3, Form("#sigma = %3.1f", TMath::Abs(diff) / err));
       Utils::savePlot(canv, Form("pull_corr_%s_%s", comparisonScanners[i]->getName().Data(),
                                  comparisonScanners[j]->getName().Data()));
       // total_pull = sqrt(total_pull) / nmatch;
@@ -1969,7 +1972,7 @@ void GammaComboEngine::scan() {
 
     if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
         !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
-      auto scannerProb = new MethodProbScan(c);
+      auto scannerProb = std::make_unique<MethodProbScan>(c);
       // pvalue corrector
       if (arg->coverageCorrectionID > 0) {
         auto pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
@@ -1982,21 +1985,21 @@ void GammaComboEngine::scan() {
       // 1D SCANS
       if (arg->var.size() == 1) {
         if (arg->isAction("plot")) {
-          scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
+          scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
         } else {
-          make1dProbScan(scannerProb, i);
+          make1dProbScan(scannerProb.get(), i);
         }
-        make1dProbPlot(scannerProb, i);
-        if (arg->compare) comparisonScanners.push_back(scannerProb);
+        make1dProbPlot(scannerProb.get(), i);
+        if (arg->compare) comparisonScanners.push_back(scannerProb.get());
       }
       // 2D SCANS
       else if (arg->var.size() == 2) {
         if (arg->isAction("plot")) {
-          scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
+          scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
         } else {
-          make2dProbScan(scannerProb, i);
+          make2dProbScan(scannerProb.get(), i);
         }
-        make2dProbPlot(scannerProb, i);
+        make2dProbPlot(scannerProb.get(), i);
       }
     }
 
@@ -2010,10 +2013,10 @@ void GammaComboEngine::scan() {
       // 1D SCANS
       if (arg->var.size() == 1) {
         if (arg->isAction("pluginbatch")) {
-          auto scannerProb = new MethodProbScan(c);
-          make1dProbScan(scannerProb, i);
-          auto scannerPlugin = new MethodPluginScan(scannerProb);
-          make1dPluginScan(scannerPlugin, i);
+          auto scannerProb = std::make_unique<MethodProbScan>(c);
+          make1dProbScan(scannerProb.get(), i);
+          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
+          make1dPluginScan(scannerPlugin.get(), i);
         }
         // if ( arg->isAction("pluginhybridbatch") ){
         //// Hybrid Plugin: compute a second profile likelihood to define the parameter evolution
@@ -2031,23 +2034,23 @@ void GammaComboEngine::scan() {
           // Create the Prob scanner: load from disc if it exists, else redo the scan.
           // We don't need the prob scanner for the plugin only plot, if we either just
           // want to replot it.
-          auto scannerProb = new MethodProbScan(c);
+          auto scannerProb = std::make_unique<MethodProbScan>(c);
           if (!arg->plotpluginonly || (arg->plotpluginonly && !arg->isAction("plot"))) {
-            if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb))) {
-              scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
+            if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb.get()))) {
+              scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
             } else {
               cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << endl;
               cout << "          scan now. You should have run the Prob scan locally" << endl;
               cout << "          before running the Plugin scan." << endl;
-              cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb) << endl;
+              cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get()) << endl;
               cout << endl;
-              make1dProbScan(scannerProb, i);
+              make1dProbScan(scannerProb.get(), i);
             }
           }
           // create Plugin scanner
-          auto scannerPlugin = new MethodPluginScan(scannerProb);
+          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
           if (arg->isAction("plot")) {
-            scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
+            scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
           } else {
             if (arg->coverageCorrectionID > 0) {
               auto pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
@@ -2056,12 +2059,12 @@ void GammaComboEngine::scan() {
               pvalueCorrector->write("root/pvalueCorrection_plugin.root");
               scannerPlugin->setPValueCorrector(pvalueCorrector);
             }
-            make1dPluginScan(scannerPlugin, i);
+            make1dPluginScan(scannerPlugin.get(), i);
           }
           if (arg->plotpluginonly) {
-            make1dPluginOnlyPlot(scannerPlugin, i);
+            make1dPluginOnlyPlot(scannerPlugin.get(), i);
           } else {
-            make1dPluginPlot(scannerPlugin, scannerProb, i);
+            make1dPluginPlot(scannerPlugin.get(), scannerProb.get(), i);
           }
         }
 
@@ -2069,26 +2072,26 @@ void GammaComboEngine::scan() {
       // 2D SCANS
       else if (arg->var.size() == 2) {
         if (arg->isAction("pluginbatch")) {
-          auto scannerProb = new MethodProbScan(c);
-          make2dProbScan(scannerProb, i);
-          auto scannerPlugin = new MethodPluginScan(scannerProb);
-          make2dPluginScan(scannerPlugin, i);
+          auto scannerProb = std::make_unique<MethodProbScan>(c);
+          make2dProbScan(scannerProb.get(), i);
+          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
+          make2dPluginScan(scannerPlugin.get(), i);
         } else if (arg->isAction("plugin")) {
-          auto scannerProb = new MethodProbScan(c);
+          auto scannerProb = std::make_unique<MethodProbScan>(c);
           if (!(arg->isAction("plot") && arg->plotpluginonly)) {
             // we don't need the prob scanner if we just want to replot the plugin only
-            scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
+            scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
           }
-          auto scannerPlugin = new MethodPluginScan(scannerProb);
+          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
           if (arg->isAction("plot")) {
-            scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
+            scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
           } else {
-            make2dPluginScan(scannerPlugin, i);
+            make2dPluginScan(scannerPlugin.get(), i);
           }
           if (arg->plotpluginonly) {
-            make2dPluginOnlyPlot(scannerPlugin, i);
+            make2dPluginOnlyPlot(scannerPlugin.get(), i);
           } else {
-            make2dPluginPlot(scannerPlugin, scannerProb, i);
+            make2dPluginPlot(scannerPlugin.get(), scannerProb.get(), i);
           }
         }
       }
@@ -2105,22 +2108,22 @@ void GammaComboEngine::scan() {
         cerr << "ERROR -- you can only scan in 1D for a coverage check" << endl;
         exit(1);
       }
-      auto coverageScan = new MethodCoverageScan(c);
+      auto coverageScan = std::make_unique<MethodCoverageScan>(c);
       if (arg->isAction("coveragebatch")) {
-        make1dCoverageScan(coverageScan, i);
+        make1dCoverageScan(coverageScan.get(), i);
       } else if (arg->isAction("coverage")) {
         if (arg->isAction("plot")) {
-          if (FileExists(m_fnamebuilder->getFileNameScanner(coverageScan))) {
-            coverageScan->loadScanner(m_fnamebuilder->getFileNameScanner(coverageScan));
+          if (FileExists(m_fnamebuilder->getFileNameScanner(coverageScan.get()))) {
+            coverageScan->loadScanner(m_fnamebuilder->getFileNameScanner(coverageScan.get()));
           } else {
-            cout << "\nERROR : Couldn't load the coverage scanner: " << m_fnamebuilder->getFileNameScanner(coverageScan)
-                 << endl;
+            cout << "\nERROR : Couldn't load the coverage scanner: "
+                 << m_fnamebuilder->getFileNameScanner(coverageScan.get()) << endl;
             exit(1);
           }
         } else {
-          make1dCoverageScan(coverageScan, i);
+          make1dCoverageScan(coverageScan.get(), i);
         }
-        make1dCoveragePlot(coverageScan, i);
+        make1dCoveragePlot(coverageScan.get(), i);
       }
     }
 
@@ -2153,25 +2156,25 @@ void GammaComboEngine::scanDataSet() {
 
   if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
       !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
-    auto probScanner = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
+    auto probScanner = std::make_unique<MethodDatasetsProbScan>((PDF_Datasets*)pdf[0], arg.get());
 
     // 1D SCANS
     if (arg->var.size() == 1) {
       if (arg->isAction("plot")) {
-        probScanner->loadScanner(m_fnamebuilder->getFileNameScanner(probScanner));
+        probScanner->loadScanner(m_fnamebuilder->getFileNameScanner(probScanner.get()));
       } else {
-        make1dProbScan(probScanner, 0);
+        make1dProbScan(probScanner.get(), 0);
       }
-      make1dProbPlot(probScanner, 0);
+      make1dProbPlot(probScanner.get(), 0);
     }
     // 2D SCANS
     else if (arg->var.size() == 2) {
       if (arg->isAction("plot")) {
-        probScanner->loadScanner(m_fnamebuilder->getFileNameScanner(probScanner));
+        probScanner->loadScanner(m_fnamebuilder->getFileNameScanner(probScanner.get()));
       } else {
-        make2dProbScan(probScanner, 0);
+        make2dProbScan(probScanner.get(), 0);
       }
-      make2dProbPlot(probScanner, 0);
+      make2dProbPlot(probScanner.get(), 0);
     }
   }
 
@@ -2185,46 +2188,48 @@ void GammaComboEngine::scanDataSet() {
     // 1D SCANS
     if (arg->var.size() == 1) {
       if (arg->isAction("pluginbatch")) {
-        auto scannerProb = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
-        if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb))) {
+        auto scannerProb = std::make_unique<MethodDatasetsProbScan>((PDF_Datasets*)pdf[0], arg.get());
+        if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb.get()))) {
           scannerProb->initScan();
-          scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
+          scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
         } else {
           cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << endl;
           cout << "          scan now. You should have run the Prob scan locally" << endl;
           cout << "          before running the Plugin scan." << endl;
-          cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb) << endl;
+          cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get()) << endl;
           cout << endl;
-          make1dProbScan(scannerProb, 0);
+          make1dProbScan(scannerProb.get(), 0);
         }
-        auto scannerPlugin = new MethodDatasetsPluginScan(scannerProb, (PDF_Datasets*)pdf[0], arg.get());
-        make1dPluginScan(scannerPlugin, 0);
+        auto scannerPlugin =
+            std::make_unique<MethodDatasetsPluginScan>(scannerProb.get(), (PDF_Datasets*)pdf[0], arg.get());
+        make1dPluginScan(scannerPlugin.get(), 0);
       } else if (arg->isAction("plugin")) {
-        auto scannerProb = new MethodDatasetsProbScan((PDF_Datasets*)pdf[0], arg.get());
+        auto scannerProb = std::make_unique<MethodDatasetsProbScan>((PDF_Datasets*)pdf[0], arg.get());
         if (!arg->plotpluginonly || (arg->plotpluginonly && !arg->isAction("plot"))) {
-          if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb))) {
+          if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb.get()))) {
             scannerProb->initScan();
-            scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb));
+            scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
           } else {
             cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << endl;
             cout << "          scan now. You should have run the Prob scan locally" << endl;
             cout << "          before running the Plugin scan." << endl;
-            cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb) << endl;
+            cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get()) << endl;
             cout << endl;
-            make1dProbScan(scannerProb, 0);
+            make1dProbScan(scannerProb.get(), 0);
           }
         }
         // create Plugin scanner
-        auto scannerPlugin = new MethodDatasetsPluginScan(scannerProb, (PDF_Datasets*)pdf[0], arg.get());
+        auto scannerPlugin =
+            std::make_unique<MethodDatasetsPluginScan>(scannerProb.get(), (PDF_Datasets*)pdf[0], arg.get());
         if (arg->isAction("plot")) {
-          scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
+          scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
         } else {
-          make1dPluginScan(scannerPlugin, 0);
+          make1dPluginScan(scannerPlugin.get(), 0);
         }
         if (arg->plotpluginonly) {
-          make1dPluginOnlyPlot(scannerPlugin, 0);
+          make1dPluginOnlyPlot(scannerPlugin.get(), 0);
         } else {
-          make1dPluginPlot(scannerPlugin, scannerProb, 0);
+          make1dPluginPlot(scannerPlugin.get(), scannerProb.get(), 0);
         }
       }
     } else if (arg->var.size() == 2) {

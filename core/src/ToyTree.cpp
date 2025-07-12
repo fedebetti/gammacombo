@@ -8,6 +8,7 @@
 #include <TFile.h>
 
 #include <algorithm>
+#include <memory>
 #include <ranges>
 
 using namespace std;
@@ -368,8 +369,8 @@ void ToyTree::computeMinMaxN() {
   if (branches->FindObject("scanpointy")) t->SetBranchStatus("scanpointy", 1);
   Long64_t nentries = t->GetEntries();
   if (nentries == 0) return;
-  ProgressBar* pb = nullptr;
-  if (!quiet) pb = new ProgressBar(arg, nentries);
+  std::unique_ptr<ProgressBar> pb = nullptr;
+  if (!quiet) pb = std::make_unique<ProgressBar>(arg, nentries);
   if (arg->debug) cout << "ToyTree::computeMinMaxN() : ";
   if (!quiet) cout << "analysing toys ..." << endl;
   for (Long64_t i = 0; i < nentries; i++) {

@@ -1079,9 +1079,9 @@ int Utils::makeNewColor(string hex) {
   double r = double(ri) / 255.;
   double g = double(gi) / 255.;
   double b = double(bi) / 255.;
-  auto col = new TColor(ci, r, g, b);
+  TColor col(ci, r, g, b);
   cout << ci << " " << hex << " " << r << " " << g << " " << b << endl;
-  return col->GetNumber();
+  return col.GetNumber();
 }
 
 ///
