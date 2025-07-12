@@ -586,7 +586,7 @@ bool MethodAbsScan::interpolate(TH1* h, int i, double y, double central, bool up
   if (arg->controlplot) {
     TString debugTitle = methodName + Form(" y=%.2f ", y);
     debugTitle += upper ? Form("%f upper", central) : Form("%f lower", central);
-    TCanvas* c = newNoWarnTCanvas(getUniqueRootName(), debugTitle);
+    auto c = newNoWarnTCanvas(getUniqueRootName(), debugTitle);
     g->SetMarkerStyle(3);
     auto th1f = dynamic_cast<TH1F*>(h);
     if (!th1f) {
@@ -597,8 +597,8 @@ bool MethodAbsScan::interpolate(TH1* h, int i, double y, double central, bool up
     h->Draw();
     g->Draw("p");
     f2->Draw("SAME");
-    savePlot(c, TString(name + "_" + scanVar1 + "_boundary_interpolation_" + methodName + "_" + TString(h->GetName()) +
-                        "_" + std::to_string(y)));
+    savePlot(c.get(), TString(name + "_" + scanVar1 + "_boundary_interpolation_" + methodName + "_" +
+                              TString(h->GetName()) + "_" + std::to_string(y)));
   }
 
   if ((h->GetBinCenter(i - 2) > sol0 || sol0 > h->GetBinCenter(i + 2)) &&
@@ -1017,13 +1017,13 @@ void MethodAbsScan::plot1d(TString var) {
   //   RooNLLVar nll("nll", "nll", *(w->pdf(pdfName)), *(w->data(dataName))) ;
   //
   //   TString plotName = "plot1d_"+name+"_"+var;
-  //   TCanvas *c1 = newNoWarnTCanvas();
+  //   auto c1 = newNoWarnTCanvas();
   //   RooPlot *frame = vx->frame();
   //   // w->pdf(pdfName)->plotOn(frame);
   //   nll.plotOn(frame);
   //   frame->Draw();
   //
-  //   savePlot(c1, plotName);
+  //   savePlot(c1.get(), plotName);
 }
 
 ///
@@ -1058,11 +1058,11 @@ void MethodAbsScan::plot2d(TString varx, TString vary) {
   gStyle->SetPalette(1);
 
   TString plotName = "plot2d_" + name + "_" + varx + "_" + vary;
-  TCanvas* c1 = newNoWarnTCanvas(plotName, plotName);
+  auto c1 = newNoWarnTCanvas(plotName, plotName);
   auto h = w->pdf(pdfName)->createHistogram(plotName, *vx, YVar(*vy));
   h->Draw("colz");
 
-  savePlot(c1, plotName + arg->plotext);
+  savePlot(c1.get(), plotName + arg->plotext);
 }
 
 ///

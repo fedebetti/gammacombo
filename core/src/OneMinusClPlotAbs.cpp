@@ -21,11 +21,6 @@ OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* _arg, TString _name, TString _ti
   gStyle->SetLabelOffset(0.010, "Y");
 }
 
-/// Destructor.
-OneMinusClPlotAbs::~OneMinusClPlotAbs() {
-  if (m_mainCanvas) delete m_mainCanvas;
-}
-
 /// Add a new scanner to this plot.
 void OneMinusClPlotAbs::addScanner(MethodAbsScan* s, int CLsType) {
   if (arg->debug) std::cout << "OneMinusClPlotAbs::addScanner() : adding " << s->getName() << std::endl;
@@ -46,7 +41,7 @@ void OneMinusClPlotAbs::save() const {
               << std::endl;
     return;
   }
-  Utils::savePlot(m_mainCanvas, name + arg->plotext);
+  Utils::savePlot(m_mainCanvas.get(), name + arg->plotext);
 }
 
 /**

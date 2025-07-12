@@ -841,7 +841,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
       leg->AddEntry(bkg_pvals_clsb, "CLs+b", "L");
       leg->AddEntry(bkg_pvals_clb, "CLb", "L");
       leg->Draw("same");
-      savePlot(canvasdebug, TString(Form("p_values%d", i)) + "_" + scanVar1);
+      savePlot(canvasdebug.get(), TString(Form("p_values%d", i)) + "_" + scanVar1);
     }
 
     std::vector<double> probs = {TMath::Prob(4, 1) / 2., TMath::Prob(1, 1) / 2., 0.5, 1. - (TMath::Prob(1, 1) / 2.),
@@ -966,7 +966,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   }
 
   // //Test median errors...
-  // TCanvas *canvas_medianerr = newNoWarnTCanvas("canvas_medianerr", "canvas1", 1200, 1000);
+  // auto canvas_medianerr = newNoWarnTCanvas("canvas_medianerr", "canvas1", 1200, 1000);
   // canvas_medianerr->SetRightMargin(0.11);
   // // mederr_bootstrap->GetYaxis()->SetRangeUser(0.,0.1);
   // mederr_bootstrap->Draw("P");
@@ -999,7 +999,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     // arg->plotid==5 ) cp.ctrlPlotChi2Distribution(); if ( arg->plotid==0 || arg->plotid==6 )
     // cp.ctrlPlotChi2Parabola(); if ( arg->plotid==0 || arg->plotid==7 ) cp.ctrlPlotPvalue(); cp.saveCtrlPlots();
 
-    TCanvas* biascanv = newNoWarnTCanvas("biascanv", "biascanv");
+    auto biascanv = newNoWarnTCanvas("biascanv", "biascanv");
     biascanv->SetRightMargin(0.11);
     h_sig_bkgtoys->GetXaxis()->SetTitle("POI residual for bkg-only toys");
     h_sig_bkgtoys->GetYaxis()->SetTitle("Entries");
@@ -1021,7 +1021,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     leg->AddEntry(static_cast<TObject*>(nullptr),
                   Form("#sigma=%4.2g +/- %4.2g", h_sig_bkgtoys->GetStdDev(), h_sig_bkgtoys->GetStdDevError()), "");
     leg->Draw("same");
-    savePlot(biascanv, "BiasControlPlot_bkg-only_" + scanVar1);
+    savePlot(biascanv.get(), "BiasControlPlot_bkg-only_" + scanVar1);
     hCLb->GetXaxis()->SetTitle(w->var(scanVar1)->GetTitle());
     hCLb->GetYaxis()->SetTitle("CL_{b}");
     hCLb->GetXaxis()->SetTitleSize(0.06);
@@ -1031,7 +1031,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     hCLb->SetLineWidth(2);
     hCLb->GetYaxis()->SetRangeUser(0., 1.05);
     hCLb->Draw("PE");
-    savePlot(biascanv, "CLb_values_" + scanVar1);
+    savePlot(biascanv.get(), "CLb_values_" + scanVar1);
   }
 
   if (arg->debug || arg->controlplot) {
@@ -1042,7 +1042,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     bkg_pvals->SetLineWidth(2);
     bkg_pvals->SetXTitle("bkg-only p value");
     bkg_pvals->Draw();
-    savePlot(canvas1, "bkg-only_pvalues_" + scanVar1);
+    savePlot(canvas1.get(), "bkg-only_pvalues_" + scanVar1);
 
     // Distributions of fractions of failed fits for the scan toys and the bkg-only toys.
     // Fraction should be small and hopefully independent of the scanvariable.
@@ -1090,7 +1090,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
 
     // Distribution of good plugin toys
     // Values should be 1. and flat.
-    savePlot(canvas1, "failed_toys_plugin_" + scanVar1);
+    savePlot(canvas1.get(), "failed_toys_plugin_" + scanVar1);
     auto can = newNoWarnTCanvas("can", "can");
     can->cd();
     gStyle->SetOptTitle(0);
@@ -1103,7 +1103,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     h_fracGoodToys->SetXTitle(w->var(scanVar1)->GetTitle());
     h_fracGoodToys->SetYTitle("fraction of good plugin toys");
     h_fracGoodToys->Draw("PE");
-    savePlot(can, "good toys_" + scanVar1);
+    savePlot(can.get(), "good toys_" + scanVar1);
 
     auto canvas = newNoWarnTCanvas("canvas", "canvas");
     canvas->Divide(2, 2);
@@ -1150,7 +1150,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     leg_neg->AddEntry(h_background, "plugin toys", "PE");
     leg_neg->AddEntry(h_negtest_bkg, "bkg-only toys", "PE");
     leg_neg->Draw("same");
-    savePlot(canvas, "debug_plots_" + scanVar1);
+    savePlot(canvas.get(), "debug_plots_" + scanVar1);
   }
   // goodness-of-fit
 
@@ -2249,7 +2249,7 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
     std::vector<double> quantiles = Quantile<double>(bVals[i], probs);
     std::vector<double> clsb_vals;
     for (const auto val : quantiles) { clsb_vals.push_back(getVectorFracAboveValue(sbVals[i], val)); }
-    TCanvas* c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
+    auto c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
     double max = *(std::max_element(bVals[i].begin(), bVals[i].end()));
     TH1F* hb = new TH1F(Form("hb%d", i), "hbq", 50, 0, max);
     TH1F* hsb = new TH1F(Form("hsb%d", i), "hsbq", 50, 0, max);
@@ -2331,10 +2331,10 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
     leg->Draw("same");
     c->SetLogy();
     c->SetRightMargin(0.11);
-    savePlot(c, TString(Form("cls_testStatControlPlot_p%d", i)) + "_" + scanVar1);
+    savePlot(c.get(), TString(Form("cls_testStatControlPlot_p%d", i)) + "_" + scanVar1);
   }
 
-  TCanvas* c = newNoWarnTCanvas("cls_ctr", "CLs Control");
+  auto c = newNoWarnTCanvas("cls_ctr", "CLs Control");
   hCLsFreq->SetLineColor(kBlack);
   hCLsFreq->SetLineWidth(3);
   hCLsExp->SetLineColor(kRed);
@@ -2367,13 +2367,13 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
   hCLsExp->Draw("Lsame");
   hCLsFreq->Draw("Lsame");
 
-  savePlot(c, "cls_ControlPlot_" + scanVar1);
+  savePlot(c.get(), "cls_ControlPlot_" + scanVar1);
 }
 
 void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, vector<double>> biasVals) {
   for (int i = 1; i <= hCLs->GetNbinsX(); i++) {
 
-    TCanvas* c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
+    auto c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
     c->SetRightMargin(0.11);
     double range_max = *(std::max_element(biasVals[i].begin(), biasVals[i].end()));
     double range_min = *(std::min_element(biasVals[i].begin(), biasVals[i].end()));
@@ -2413,7 +2413,7 @@ void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, vector<double>> bia
     leg->AddEntry(static_cast<TObject*>(nullptr),
                   Form("#sigma=%4.2g +/- %4.2g", fitresult->Parameter(2), fitresult->ParError(2)), "");
     leg->Draw("same");
-    savePlot(c, TString(Form("BiasControlPlot_p%d", i)) + "_" + scanVar1);
+    savePlot(c.get(), TString(Form("BiasControlPlot_p%d", i)) + "_" + scanVar1);
   }
   return;
 }

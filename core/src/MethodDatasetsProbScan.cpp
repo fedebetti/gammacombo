@@ -648,7 +648,7 @@ int MethodDatasetsProbScan::scan2d() {
 
   // initialize some control plots
   gStyle->SetOptTitle(1);
-  TCanvas* cDbg = newNoWarnTCanvas(getUniqueRootName(), Form("DeltaChi2 for 2D scan %i", nScansDone));
+  auto cDbg = newNoWarnTCanvas(getUniqueRootName(), Form("DeltaChi2 for 2D scan %i", nScansDone));
   cDbg->SetMargin(0.1, 0.15, 0.1, 0.1);
   double hChi2min2dMin = hChi2min2d->GetMinimum();
   bool firstScanDone = hChi2min2dMin < 1e5;
@@ -898,7 +898,7 @@ void MethodDatasetsProbScan::plotFitRes(TString fName) {
       std::cerr << ". Will not plot." << std::endl;
       return;
     }
-    TCanvas* fitCanv =
+    auto fitCanv =
         newNoWarnTCanvas(getUniqueRootName(), Form("S+B and B only fits to the dataset for %s", fitVar.Data()));
     auto leg = new TLegend(0.6, 0.7, 0.92, 0.92);
     leg->SetFillColor(0);
@@ -954,6 +954,6 @@ void MethodDatasetsProbScan::plotFitRes(TString fName) {
     }
     plot->Draw();
     leg->Draw("same");
-    savePlot(fitCanv, fName);
+    savePlot(fitCanv.get(), fName);
   }
 }

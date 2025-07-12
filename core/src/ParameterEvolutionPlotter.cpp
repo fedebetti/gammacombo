@@ -202,7 +202,7 @@ void ParameterEvolutionPlotter::saveEvolutionPlots() {
   for (int i = 0; i < m_canvases.size(); i++) {
     TString fName = "parEvolution_" + name + "_" + scanVar1;
     fName += Form("_%i", i + 1);
-    savePlot(m_canvases[i], fName);
+    savePlot(m_canvases[i].get(), fName);
   }
 }
 
@@ -216,7 +216,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   vector<RooSlimFitResult*> results = curveResults;
 
   cout << "ParameterEvolutionPlotter::plotObsScanCheck() : plotting ..." << endl;
-  TCanvas* c2 = newNoWarnTCanvas("plotObsScanCheck" + getUniqueRootName(), title, 800, 600);
+  auto c2 = newNoWarnTCanvas("plotObsScanCheck" + getUniqueRootName(), title, 800, 600);
   c2->SetLeftMargin(0.2);
 
   // get observable
@@ -257,7 +257,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   g->Draw("lxsame");
   c2->Update();
 
-  savePlot(c2, "parEvolutionObsSanCheck_" + name + "_" + scanVar1);
+  savePlot(c2.get(), "parEvolutionObsSanCheck_" + name + "_" + scanVar1);
 }
 
 ///
@@ -266,16 +266,16 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
 /// \return pointer to the new canvas. Caller assumes ownership
 ///
 TCanvas* ParameterEvolutionPlotter::selectNewCanvas(TString title) {
-  title.ReplaceAll(name + " ", "");
-  TCanvas* c1 = newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900);
-  c1->Divide(3, 2);
-  m_canvases.push_back(c1);
   m_padId = 0;
-  return c1;
+  title.ReplaceAll(name + " ", "");
+  auto c1 = newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900);
+  c1->Divide(3, 2);
+  m_canvases.push_back(std::move(c1));
+  return m_canvases.back().get();
 }
 
 TVirtualPad* ParameterEvolutionPlotter::selectNewPad() {
-  TCanvas* c1 = m_canvases[m_canvases.size() - 1];
+  auto c1 = m_canvases[m_canvases.size() - 1].get();
   if (m_padId >= 6) {
     // Create a new canvas that has the old title "foo 3" but with
     // incremented number: "foo 4". Only one-digit numbers are supported.
@@ -292,6 +292,6 @@ TVirtualPad* ParameterEvolutionPlotter::selectNewPad() {
 /// Update the current control plot canvas.
 ///
 void ParameterEvolutionPlotter::updateCurrentCanvas() {
-  TCanvas* c1 = m_canvases[m_canvases.size() - 1];
+  auto c1 = m_canvases[m_canvases.size() - 1].get();
   c1->Update();
 }

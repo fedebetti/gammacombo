@@ -501,7 +501,7 @@ void MethodCoverageScan::plot() const {
   h_sol->GetXaxis()->SetTitleOffset(0.8);
   h_sol->GetYaxis()->SetTitleOffset(0.85);
   h_sol->Draw();
-  savePlot(c1, name + "_bestfit" + arg->plotext);
+  savePlot(c1.get(), name + "_bestfit" + arg->plotext);
 
   // plot p-values
   auto c2 = newNoWarnTCanvas(name + getUniqueRootName(), "Coverage p-value (Prob)", 800, 600);
@@ -540,7 +540,7 @@ void MethodCoverageScan::plot() const {
   leg->AddEntry(h_pvalue_prob, "Prob", "l");
   leg->AddEntry(h_pvalue_plugin, "Plugin", "l");
   leg->Draw();
-  savePlot(c2, name + "_pvalue" + arg->plotext);
+  savePlot(c2.get(), name + "_pvalue" + arg->plotext);
 
   // compute coverage
   auto n = (double)(nentries - nfailed);

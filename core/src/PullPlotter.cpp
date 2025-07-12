@@ -96,7 +96,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
   // pull axis
   double xminPullAxis = -pullRange;
   double xmaxPullAxis = +pullRange;
-  TCanvas* cPulls =
+  auto cPulls =
       newNoWarnTCanvas("cPulls" + getUniqueRootName(), cmb->getTitle(), 0, 0, 600, 40 * observables.size() + 120);
   cPulls->Range(xminCoords, yminCoords, xmaxCoords, ymaxCoords);
 
@@ -199,7 +199,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
         ->SetTextSize(25);
     t3->Draw();
   }
-  savePlot(cPulls, Form("pulls_" + cmb->getName() + "_sol%i_%iof%i", nSolution, currentid, maxid));
+  savePlot(cPulls.get(), Form("pulls_" + cmb->getName() + "_sol%i_%iof%i", nSolution, currentid, maxid));
 }
 
 ///
@@ -332,7 +332,7 @@ void PullPlotter::plotPulls() {
   }
 
   // and plot all the pulls
-  TCanvas* cPull = newNoWarnTCanvas("cPull" + getUniqueRootName(), cmb->getTitle(), 0, 0, 600, 400);
+  auto cPull = newNoWarnTCanvas("cPull" + getUniqueRootName(), cmb->getTitle(), 0, 0, 600, 400);
   cPull->cd();
   hPulls->GetXaxis()->SetTitle("Pull [#sigma]");
   TFitResultPtr r = hPulls->Fit("gaus", "SQ");
@@ -345,7 +345,7 @@ void PullPlotter::plotPulls() {
   l.DrawLatex(0.7, 0.66, "Fit:");
   l.DrawLatex(0.72, 0.60, Form("#mu = (%4.2f #pm %4.2f)", r->Parameter(1), r->ParError(1)));
   l.DrawLatex(0.72, 0.54, Form("#sigma = (%4.2f #pm %4.2f)", r->Parameter(2), r->ParError(2)));
-  savePlot(cPull, "pull_tot_" + cmb->getName());
+  savePlot(cPull.get(), "pull_tot_" + cmb->getName());
 }
 
 ///

@@ -679,7 +679,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, bool smooth, bool obsError)
   m_mainCanvas->Update();
   m_mainCanvas->Modified();
   m_mainCanvas->Show();
-  savePlot(m_mainCanvas, name + "_expected" + arg->plotext);
+  savePlot(m_mainCanvas.get(), name + "_expected" + arg->plotext);
   m_mainCanvas->SetTicks(false);
 }
 

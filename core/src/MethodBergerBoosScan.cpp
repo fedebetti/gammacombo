@@ -135,10 +135,9 @@ void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, 
       hBBPoints->SetBinContent(nBinX, nBinY, (tree->GetLeaf("BergerBoos_id")->GetValue() + 1));
     }
   }
-  TCanvas* c1 = newNoWarnTCanvas("c", varY + " vs " + varX, 800, 600);
+  auto c1 = newNoWarnTCanvas("c", varY + " vs " + varX, 800, 600);
   hBBPoints->Draw("COLZTEXT");
-  if (save) { savePlot(c1, varY + "_vs_" + varX + "_BB_id"); }
-  delete c1;
+  if (save) { savePlot(c1.get(), varY + "_vs_" + varX + "_BB_id"); }
 };
 
 ///
@@ -272,7 +271,7 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
   }
 
   // 1-CL construction controlplot
-  // TCanvas* c1 = newNoWarnTCanvas("asdf");
+  // auto c1 = newNoWarnTCanvas("asdf");
   // c1->Divide(2,1);
   // c1->cd(1); h_better->Draw("colz");
   // c1->cd(2); h_all->Draw("colz");
