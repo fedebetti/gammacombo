@@ -24,7 +24,7 @@ class Combiner {
   }
 
   void adjustPhysRange(const TString varName, const double min, const double max);
-  Combiner* Clone(const TString name, const TString title);
+  std::unique_ptr<Combiner> Clone(const TString name, const TString title);
   void combine();
   void fixParameter(const TString var, const double value);
   void fixParameters(TString vars);

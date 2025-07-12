@@ -44,7 +44,7 @@ class GammaComboEngine {
                     TString title = "");
 
   void setPdf(PDF_Abs* pdf);
-  void addCombiner(int id, Combiner* cmb);
+  void addCombiner(int id, std::unique_ptr<Combiner> cmb);
   void cloneCombiner(int newId, int oldId, TString name, TString title);
   Combiner* getCombiner(const int id) const;
   std::vector<int> getCombinersIds() const;
@@ -123,7 +123,7 @@ class GammaComboEngine {
   void runToys(Combiner* c);
 
   std::unique_ptr<OptParser> arg;
-  std::vector<Combiner*> cmb;
+  std::vector<std::unique_ptr<Combiner>> cmb;
   std::vector<int> colorsLine;
   std::vector<int> colorsText;
   std::vector<int> fillStyles;

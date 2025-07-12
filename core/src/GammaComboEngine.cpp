@@ -115,7 +115,7 @@ void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
   if (pdfExists(id)) error(std::format("Requested PDF id {:d} exists already in GammaComboEngine", id));
 
   // enlarge storage if necessary and add the pdf
-  if (id >= this->pdf.size()) this->pdf.resize(id + 1, nullptr);
+  if (id >= this->pdf.size()) this->pdf.resize(id + 1);
   this->pdf[id] = pdf;
   if (title != "") this->pdf[id]->setTitle(title);
   this->pdf[id]->setGcId(id);
@@ -228,7 +228,7 @@ void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3
 ///
 /// Add a Combiner to the GammaComboEngine object.
 ///
-void GammaComboEngine::addCombiner(int id, Combiner* cmb) {
+void GammaComboEngine::addCombiner(int id, std::unique_ptr<Combiner> cmb) {
   auto error = [](std::string msg) { return errorBase("addCombiner()", msg); };
   if (runOnDataSet) {
     error("You're trying to make a combiner but the runOnDataSet flag is true. You cannot make a combination with this "
@@ -237,8 +237,8 @@ void GammaComboEngine::addCombiner(int id, Combiner* cmb) {
   if (!cmb) error("Trying to add nullptr as the Combiner.");
   if (combinerExists(id)) error("Requested Combiner id exists already in GammaComboEngine");
 
-  if (id >= this->cmb.size()) { this->cmb.resize(id + 1, nullptr); }
-  this->cmb[id] = cmb;
+  if (id >= this->cmb.size()) { this->cmb.resize(id + 1); }
+  this->cmb[id] = std::move(cmb);
 }
 
 ///
@@ -265,7 +265,7 @@ void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString
 Combiner* GammaComboEngine::getCombiner(const int id) const {
   auto error = [](std::string msg) { return errorBase("getCombiner()", msg); };
   if (!combinerExists(id)) error(std::format("Requested Combiner id {:d} doesn't exist in GammaComboEngine", id));
-  return cmb[id];
+  return cmb[id].get();
 }
 
 ///
@@ -300,9 +300,9 @@ PDF_Abs* GammaComboEngine::operator[](int idx) { return getPdf(idx); }
 void GammaComboEngine::newCombiner(const int id, const TString name, const TString title, const vector<int>& pdfs) {
   auto error = [](std::string msg) { return errorBase("newCombiner()", msg); };
   if (combinerExists(id)) error(std::format("Requested new Combiner id {:d} exists already in GammaComboEngine", id));
-  auto c = new Combiner(arg.get(), name, title);
+  auto c = std::make_unique<Combiner>(arg.get(), name, title);
   for (auto pdf : pdfs) { c->addPdf(getPdf(pdf)); }
-  addCombiner(id, c);
+  addCombiner(id, std::move(c));
 }
 
 ///
@@ -723,7 +723,7 @@ void GammaComboEngine::makeAddDelCombinations() {
   // loop over list of modifications
   for (int i = 0; i < arg->combmodifications.size(); i++) {
     // get combiner that is to be modified
-    Combiner* cOld = cmb[arg->combid[i]];
+    Combiner* cOld = cmb[arg->combid[i]].get();
     // see if anything is to be added or subtracted
     if (arg->combmodifications[i].size() == 0) continue;
     // there are modifications to be done!
@@ -748,7 +748,7 @@ void GammaComboEngine::makeAddDelCombinations() {
       }
     }
     // make the new combiner
-    Combiner* cNew = cOld->Clone(nameNew, titleNew);
+    auto cNew = cOld->Clone(nameNew, titleNew);
     // add/delete pdfs
     for (auto cm : arg->combmodifications[i]) {
       int pdfId = abs(cm);
@@ -761,7 +761,7 @@ void GammaComboEngine::makeAddDelCombinations() {
       }
     }
     // add to list of combinations to compute this round
-    cmb.push_back(cNew);
+    cmb.push_back(std::move(cNew));
     arg->combid[i] = cmb.size() - 1;
   }
 }
@@ -783,7 +783,7 @@ void GammaComboEngine::printCombinerStructure(Combiner* c) const {
 void GammaComboEngine::customizeCombinerTitles() {
   for (int i = 0; i < arg->combid.size(); i++) {
     int combinerId = arg->combid[i];
-    Combiner* c = cmb[combinerId];
+    Combiner* c = cmb[combinerId].get();
     if (i < arg->title.size()) {
       if (arg->title[i] != TString("default")) c->setTitle(arg->title[i]);
     }
@@ -1476,8 +1476,8 @@ void GammaComboEngine::setupToyVariationSets(Combiner* c, int cId) {
 /// name is returned.
 ///
 TString GammaComboEngine::getStartParFileName(int cId) const {
-  if (arg->loadParamsFile.size() <= cId) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
-  if (arg->loadParamsFile[cId].EqualTo("default")) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
+  if (arg->loadParamsFile.size() <= cId) return m_fnamebuilder->getFileNameStartPar(cmb[cId].get());
+  if (arg->loadParamsFile[cId].EqualTo("default")) return m_fnamebuilder->getFileNameStartPar(cmb[cId].get());
   return arg->loadParamsFile[cId];
 }
 
@@ -1614,7 +1614,7 @@ void GammaComboEngine::writebatchscripts() {
   if (runOnDataSet) {
     m_batchscriptwriter->writeScripts_datasets(arg.get(), getPdf(0));
   } else {
-    m_batchscriptwriter->writeScripts(arg.get(), &cmb);
+    m_batchscriptwriter->writeScripts(arg.get(), cmb);
   }
   exit(0);
 }
@@ -1837,7 +1837,7 @@ void GammaComboEngine::runToys(Combiner* c) {
 /// scan engine
 ///
 void GammaComboEngine::scan() {
-  // if we're running with the dataset option then we go off and do that somewhere else
+
   if (runOnDataSet) {
     scanDataSet();
     return;
@@ -1846,14 +1846,15 @@ void GammaComboEngine::scan() {
   // combination scanning action happens here
   for (int i = 0; i < arg->combid.size(); i++) {
     int combinerId = arg->combid[i];
-    Combiner* c = cmb[combinerId];
+    Combiner* c = cmb[combinerId].get();
 
     // read observable values, uncertainties and correlations from a file
     setObservablesFromFile(c, i);
 
     // work with a clone - this way we can easily make plots with the
     // same combination in twice (once with asimov, for example)
-    c = c->Clone(c->getName(), c->getTitle());
+    cmb[combinerId] = c->Clone(c->getName(), c->getTitle());
+    c = cmb[combinerId].get();
 
     // fix parameters according to the command line - only possible before combining
     fixParameters(c, i);
