@@ -1,20 +1,16 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #include <OneMinusClPlotAbs.h>
 #include <Utils.h>
 
 #include <TPaveText.h>
 #include <TStyle.h>
 
-using namespace std;
-using namespace Utils;
+#include <exception>
+#include <format>
+#include <string>
 
-OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title) {
+/// Constructor
+OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* _arg, TString _name, TString _title)
+    : arg{_arg}, name{_name}, title{_title} {
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
   gStyle->SetPadTopMargin(0.05);
@@ -23,51 +19,42 @@ OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetLabelOffset(0.005, "X");
   gStyle->SetLabelOffset(0.010, "Y");
-
-  this->arg = arg;
-  this->name = name;
-  this->title = title;
 }
 
+/// Destructor.
 OneMinusClPlotAbs::~OneMinusClPlotAbs() {
   if (m_mainCanvas) delete m_mainCanvas;
 }
 
-///
-/// Add a scanner to this plot.
-///
+/// Add a new scanner to this plot.
 void OneMinusClPlotAbs::addScanner(MethodAbsScan* s, int CLsType) {
-  if (arg->debug) cout << "OneMinusClPlotAbs::addScanner() : adding " << s->getName() << endl;
+  if (arg->debug) std::cout << "OneMinusClPlotAbs::addScanner() : adding " << s->getName() << std::endl;
   if (CLsType == 0 || (CLsType == 1 && s->getHCLs()) || (CLsType == 2 && s->getHCLsFreq())) {
     scanners.push_back(s);
     do_CLs.push_back(CLsType);
+  } else {
+    throw std::invalid_argument(
+        std::format("OneMinusClPlotAbs::addScanner() : Invalid arguments (MethodAbsScan={:s},CLsType={:d})",
+                    std::string(s->getName()), CLsType));
   }
-  // else if ((CLsType==1 && !s->getHCLs()) || (CLsType==2 && !s->getHCLsFreq()))
-  // {
-  //  cout << "No CLs histogram was determined. Will not plot." << endl;
-  // }
 }
 
-///
-/// Save the plot.
-///
+/// Save the plot
 void OneMinusClPlotAbs::save() const {
   if (!m_mainCanvas) {
-    cout << "OneMinusClPlotAbs::save() : ERROR : Empty canvas. Call Draw() or DrawFull() before saving!" << endl;
+    std::cout << "OneMinusClPlotAbs::save() : ERROR : Empty canvas. Call Draw() or DrawFull() before saving!"
+              << std::endl;
     return;
   }
-  savePlot(m_mainCanvas, name + arg->plotext);
+  Utils::savePlot(m_mainCanvas, name + arg->plotext);
 }
 
-///
-/// Draw the group label on plots.
-/// The label can be configured through the --group command line
-/// argument.
-/// It is possible to configure the position of the label through
-/// the --groupPos command line argument.
-/// The command line arguments --prelim and --unoff add "Preliminary"
-/// and "Unofficial" strings, respectively.
-///
+/**
+ * Draw the group label on plots.
+ * The label can be configured through the --group command line argument.
+ * It is possible to configure the position of the label through the --groupPos command line argument.
+ * The command line arguments --prelim and --unoff add "Preliminary" and "Unofficial" strings, respectively.
+ */
 void OneMinusClPlotAbs::drawGroup(double yPos) const {
   if (arg->group == TString("off")) return;
   m_mainCanvas->cd();
