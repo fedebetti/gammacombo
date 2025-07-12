@@ -1208,16 +1208,16 @@ std::vector<std::vector<int>> Utils::transpose(std::vector<std::vector<int>>& v)
   return newVector;
 }
 
-TCanvas* Utils::newNoWarnTCanvas(TString name, TString title, int width, int height) {
+std::unique_ptr<TCanvas> Utils::newNoWarnTCanvas(TString name, TString title, int width, int height) {
   gErrorIgnoreLevel = kError;
-  auto c = new TCanvas(name, title, width, height);
+  auto c = std::make_unique<TCanvas>(name, title, width, height);
   gErrorIgnoreLevel = kInfo;
   return c;
 }
 
-TCanvas* Utils::newNoWarnTCanvas(TString name, TString title, int x, int y, int width, int height) {
+std::unique_ptr<TCanvas> Utils::newNoWarnTCanvas(TString name, TString title, int x, int y, int width, int height) {
   gErrorIgnoreLevel = kError;
-  auto c = new TCanvas(name, title, x, y, width, height);
+  auto c = std::make_unique<TCanvas>(name, title, x, y, width, height);
   gErrorIgnoreLevel = kInfo;
   return c;
 }

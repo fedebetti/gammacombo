@@ -15,7 +15,6 @@ class MethodAbsScan;
 class OneMinusClPlotAbs {
  public:
   OneMinusClPlotAbs(OptParser* arg, TString name = "c1", TString title = "c1");
-  virtual ~OneMinusClPlotAbs();
 
   virtual void addScanner(MethodAbsScan* s, int CLsType = 0);
   inline void disableLegend(bool yesNo = false) { plotLegend = yesNo; };
@@ -38,7 +37,7 @@ class OneMinusClPlotAbs {
   std::vector<MethodAbsScan*> scanners;
   std::vector<int> do_CLs;   ///< vector, which stores the cls method type to be plotted
   OptParser* arg = nullptr;  ///< command line options
-  TCanvas* m_mainCanvas = nullptr;
+  std::unique_ptr<TCanvas> m_mainCanvas;
   TString name;
   TString title;
   TString label;

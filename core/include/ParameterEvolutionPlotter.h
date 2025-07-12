@@ -42,19 +42,19 @@ class ParameterEvolutionPlotter {
   TVirtualPad* selectNewPad();
   void updateCurrentCanvas();
 
-  const OptParser* arg;                         ///< command line arguments
-  std::unique_ptr<RooWorkspace> w;              ///< a clone of the scanner's workspace
-  std::vector<RooSlimFitResult*> allResults;    ///< all results of all scan points
-  std::vector<RooSlimFitResult*> curveResults;  ///< only the results of scan points that were accepted into the CL
-                                                ///< curve
-  TString title;                                ///< canvas title
-  TString name;                                 ///< scanner name, part of the file name of the plots
-  TString parsName;                             ///< name of parameter set inside the workspace
-  TString obsName;                              ///< name of observables set inside the workspace
-  TString scanVar1;                             ///< name of the can variable
-  std::vector<double> m_localMinPositions;      ///< positions of the local minima in scan steps
-  std::vector<TCanvas*> m_canvases;             ///< Pointers to the canvases of the plots, see selectNewCanvas().
-  int m_padId;                                  ///< ID of currently selected pad, see selectNewPad().
+  const OptParser* arg;                              ///< command line arguments
+  std::unique_ptr<RooWorkspace> w;                   ///< a clone of the scanner's workspace
+  std::vector<RooSlimFitResult*> allResults;         ///< all results of all scan points
+  std::vector<RooSlimFitResult*> curveResults;       ///< only the results of scan points that were accepted into the CL
+                                                     ///< curve
+  TString title;                                     ///< canvas title
+  TString name;                                      ///< scanner name, part of the file name of the plots
+  TString parsName;                                  ///< name of parameter set inside the workspace
+  TString obsName;                                   ///< name of observables set inside the workspace
+  TString scanVar1;                                  ///< name of the can variable
+  std::vector<double> m_localMinPositions;           ///< positions of the local minima in scan steps
+  std::vector<std::unique_ptr<TCanvas>> m_canvases;  ///< Pointers to the canvases of the plots, see selectNewCanvas().
+  int m_padId;                                       ///< ID of currently selected pad, see selectNewPad().
 };
 
 #endif

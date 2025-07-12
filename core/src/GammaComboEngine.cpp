@@ -1815,7 +1815,7 @@ void GammaComboEngine::compareCombinations() {
       cout << "CORRELATION:   " << corr << endl;
       cout << "COMPATIBILITY: " << TMath::Abs(diff) / err << " sigma" << endl;
 
-      TCanvas* canv = newNoWarnTCanvas("pull_corr" + getUniqueRootName());
+      auto canv = newNoWarnTCanvas("pull_corr" + getUniqueRootName());
       pull_corr->SetMarkerStyle(kMultiply);
       pull_corr->SetMarkerColor(kBlue + 2);
       pull_corr->GetXaxis()->SetTitleSize(0.045);
@@ -1833,8 +1833,8 @@ void GammaComboEngine::compareCombinations() {
       TLatex lat;
       lat.DrawLatex(3, 4, Form("#rho = %3.1f", corr));
       lat.DrawLatex(3, 3, Form("#sigma = %3.1f", TMath::Abs(diff) / err));
-      Utils::savePlot(canv, Form("pull_corr_%s_%s", comparisonScanners[i]->getName().Data(),
-                                 comparisonScanners[j]->getName().Data()));
+      Utils::savePlot(canv.get(), Form("pull_corr_%s_%s", comparisonScanners[i]->getName().Data(),
+                                       comparisonScanners[j]->getName().Data()));
       // total_pull = sqrt(total_pull) / nmatch;
     }
   }

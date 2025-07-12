@@ -39,7 +39,7 @@ ControlPlots::ControlPlots(ToyTree* tt) {
 ///
 void ControlPlots::ctrlPlotPvalue() {
   gStyle->SetOptStat(1111);
-  TCanvas* c2 = newNoWarnTCanvas(getUniqueRootName(), name + " P-value Plots", 900, 600);
+  auto c2 = newNoWarnTCanvas(getUniqueRootName(), name + " P-value Plots", 900, 600);
   c2->Divide(1, 1);
   int ip = 1;
   TPad* pad;
@@ -129,7 +129,7 @@ void ControlPlots::ctrlPlotPvalue() {
 ///
 void ControlPlots::ctrlPlotChi2() {
   gStyle->SetOptStat(1111);
-  TCanvas* c2 = newNoWarnTCanvas(getUniqueRootName(), name + " Chi2 Plots", 900, 600);
+  auto c2 = newNoWarnTCanvas(getUniqueRootName(), name + " Chi2 Plots", 900, 600);
   c2->Divide(3, 2);
   int ip = 1;
   TPad* pad;
@@ -272,7 +272,7 @@ void ControlPlots::ctrlPlotChi2() {
   leg6.SetFillStyle(1001);
   leg6.Draw();
 
-  ctrlPlotCanvases.push_back(c2);
+  ctrlPlotCanvases.push_back(std::move(c2));
 }
 
 ///
@@ -610,17 +610,20 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plots done.        " << endl;
 }
 
+/**
+ * Add a new 4x3 canvas to the back of ctrlPlotCanvases and return a pointer to it.
+ */
 TCanvas* ControlPlots::selectNewCanvas(TString title) {
   title.ReplaceAll(name + " ", "");
-  TCanvas* c1 = newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900);
+  auto c1 = newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900);
   c1->Divide(4, 3);
-  ctrlPlotCanvases.push_back(c1);
+  ctrlPlotCanvases.push_back(std::move(c1));
   ctrlPadId = 0;
-  return c1;
+  return ctrlPlotCanvases.back().get();
 }
 
 TVirtualPad* ControlPlots::selectNewPad() {
-  TCanvas* c1 = ctrlPlotCanvases[ctrlPlotCanvases.size() - 1];
+  TCanvas* c1 = ctrlPlotCanvases.back().get();
 
   if (ctrlPadId >= 12) {
     // Create a new canvas that has the old title "foo 3" but with
@@ -640,22 +643,19 @@ TVirtualPad* ControlPlots::selectNewPad() {
 /// Save all control plots that were created so far.
 ///
 void ControlPlots::saveCtrlPlots() {
-  for (auto c : ctrlPlotCanvases) {
+  for (auto&& c : ctrlPlotCanvases) {
     TString fName = c->GetTitle();
     fName.ReplaceAll(name + " ", name + "_" + arg->var[0] + "_");
     fName.ReplaceAll(" ", "_");
     fName = "ctrlPlot_" + fName;
-    savePlot(c, fName);
+    savePlot(c.get(), fName);
   }
 }
 
 ///
 /// Update the current control plot canvas.
 ///
-void ControlPlots::updateCurrentCanvas() {
-  TCanvas* c1 = ctrlPlotCanvases[ctrlPlotCanvases.size() - 1];
-  c1->Update();
-}
+void ControlPlots::updateCurrentCanvas() { ctrlPlotCanvases.back()->Update(); }
 
 ///
 /// Apply some generic beautifications to histograms on the ROOT stack.

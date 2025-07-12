@@ -1149,7 +1149,7 @@ std::unique_ptr<TH1F> MethodPluginScan::analyseToys(ToyTree* t, int id, bool qui
         bkg_pvals_clb->Fill(TMath::Min(clb_vals[j], 1.));
       }
 
-      TCanvas* canvasdebug = newNoWarnTCanvas("canvasdebug", "canvas1", 1200, 1000);
+      auto canvasdebug = newNoWarnTCanvas("canvasdebug", "canvas1", 1200, 1000);
       bkg_pvals_cls->Draw();
       bkg_pvals_clsb->Draw("same");
       bkg_pvals_clb->Draw("same");
@@ -1160,7 +1160,7 @@ std::unique_ptr<TH1F> MethodPluginScan::analyseToys(ToyTree* t, int id, bool qui
       leg->AddEntry(bkg_pvals_clsb, "CLs+b", "L");
       leg->AddEntry(bkg_pvals_clb, "CLb", "L");
       leg->Draw("same");
-      savePlot(canvasdebug, TString(Form("p_values%d", i)) + "_" + scanVar1);
+      savePlot(canvasdebug.get(), TString(Form("p_values%d", i)) + "_" + scanVar1);
     }
 
     std::vector<double> probs = {TMath::Prob(4, 1) / 2., TMath::Prob(1, 1) / 2., 0.5, 1. - (TMath::Prob(1, 1) / 2.),
@@ -1483,7 +1483,7 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
     std::vector<double> quantiles = Quantile<double>(bVals[i], probs);
     std::vector<double> clsb_vals;
     for (const auto val : quantiles) { clsb_vals.push_back(getVectorFracAboveValue(sbVals[i], val)); }
-    TCanvas* c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
+    auto c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
     double max = *(std::max_element(bVals[i].begin(), bVals[i].end()));
     TH1F* hb = new TH1F(Form("hb%d", i), "hbq", 50, 0, max);
     TH1F* hsb = new TH1F(Form("hsb%d", i), "hsbq", 50, 0, max);
@@ -1559,10 +1559,10 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
     leg->AddEntry(lD, "Data", "L");
     leg->Draw("same");
     c->SetLogy();
-    savePlot(c, TString(Form("cls_testStatControlPlot_p%d", i)) + "_" + scanVar1);
+    savePlot(c.get(), TString(Form("cls_testStatControlPlot_p%d", i)) + "_" + scanVar1);
   }
 
-  TCanvas* c = newNoWarnTCanvas("cls_ctr", "CLs Control");
+  auto c = newNoWarnTCanvas("cls_ctr", "CLs Control");
   hCLsFreq->SetLineColor(kBlack);
   hCLsFreq->SetLineWidth(3);
   hCLsExp->SetLineColor(kRed);
@@ -1595,5 +1595,5 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
   hCLsExp->Draw("Lsame");
   hCLsFreq->Draw("Lsame");
 
-  savePlot(c, "cls_ControlPlot_" + scanVar1);
+  savePlot(c.get(), "cls_ControlPlot_" + scanVar1);
 }
