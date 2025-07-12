@@ -293,7 +293,7 @@ void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString
 /// Get a combiner.
 /// \param id - combiner ID, set when defining the combiner using addCombiner(), cloneCombiner(), or newCombiner()
 ///
-Combiner* GammaComboEngine::getCombiner(int id) const {
+Combiner* GammaComboEngine::getCombiner(const int id) const {
   if (!combinerExists(id)) {
     cout << "GammaComboEngine::getCombiner() : ERROR : Requested Combiner id " << id
          << " doesn't exist in GammaComboEngine. Exit." << endl;
