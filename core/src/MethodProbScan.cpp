@@ -1,9 +1,3 @@
-/*
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- */
 #include <MethodProbScan.h>
 #include <RooSlimFitResult.h>
 #include <Utils.h>
@@ -211,8 +205,8 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
         fr = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
       double chi2minScan = fr->minNll();
       if (std::isinf(chi2minScan)) chi2minScan = 1e4;  // else the toys in PDF_testConstraint don't work
-      auto r = new RooSlimFitResult(fr.get());         // try to save memory by using the slim fit result
-      allResults.push_back(r);
+      allResults.push_back(std::make_unique<RooSlimFitResult>(fr.get()));  // save memory by using the slim fit result
+      auto sfr = allResults.back().get();
       bestMinFoundInScan = TMath::Min((double)chi2minScan, (double)bestMinFoundInScan);
 
       TString warningChi2Neg;
@@ -254,7 +248,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
         hCL->SetBinContent(hCL->FindBin(scanvalue), oneMinusCL);
         hChi2min->SetBinContent(hCL->FindBin(scanvalue), chi2minScan);
         int iRes = hCL->FindBin(scanvalue) - 1;
-        curveResults[iRes] = r;
+        curveResults[iRes] = sfr;
       }
       nStep++;
     }
@@ -335,14 +329,13 @@ int MethodProbScan::computeCLvalues() {
   return 0;
 }
 
-///
-/// Delete a pointer if it is not included in
-/// the curveResults2d vector. Also removes it
-/// from the allResults vector by setting the entry
-/// to 0.
-/// \return true if r was deleted, or if it is 0
-///
-bool MethodProbScan::deleteIfNotInCurveResults2d(RooSlimFitResult* r) {
+/**
+ * Delete a pointer if it is not included in the curveResults2d vector.
+ * Also removes it from the allResults vector by setting the entry to 0.
+ *
+ * :return: true if r was deleted, or if it is 0
+ */
+bool MethodProbScan::deleteIfNotInCurveResults2d(const RooSlimFitResult* r) {
   if (!r) return true;
   bool del = true;
   for (int j = 0; j < hCL2d->GetNbinsX(); j++)
@@ -353,10 +346,8 @@ bool MethodProbScan::deleteIfNotInCurveResults2d(RooSlimFitResult* r) {
       }
     }
   if (del) {
-    delete r;
-    // remove also from allResults vector
-    for (auto result : allResults) {
-      if (r == result) result = nullptr;
+    for (auto&& result : allResults) {
+      if (r == result.get()) result = nullptr;
     }
   }
   return del;
@@ -432,16 +423,9 @@ int MethodProbScan::scan2d() {
   // Leave this at 1 for now, as the "2D sigma" contours are computed from hChi2min2d, not hCL.
   int ndof = 1;
 
-  // Set up storage for fit results of this particular
-  // scan. This is used for the drag start parameters.
-  // We cannot use the curveResults2d member because that
-  // only holds better results.
-  vector<vector<RooSlimFitResult*>> mycurveResults2d;
-  for (int i = 0; i < nPoints2dx; i++) {
-    vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
-    mycurveResults2d.push_back(tmp);
-  }
+  // Set up storage for fit results of this particular scan. This is used for the drag start parameters.
+  // We cannot use the curveResults2d member because that only holds better results.
+  vector<vector<RooSlimFitResult*>> mycurveResults2d(nPoints2dx, vector<RooSlimFitResult*>(nPoints2dy, nullptr));
 
   // store start parameters so we can reset them later
   startPars = std::make_unique<RooDataSet>("startPars", "startPars", *w->set(parsName));
@@ -564,11 +548,11 @@ int MethodProbScan::scan2d() {
         double chi2minScan = fr->minNll();
         tFit.Stop();
         tSlimResult.Start(false);
-        auto r = new RooSlimFitResult(fr.get());  // try to save memory by using the slim fit result
+        allResults.push_back(std::make_unique<RooSlimFitResult>(fr.get()));  // save memory by using the slim fit result
         tSlimResult.Stop();
-        allResults.push_back(r);
+        auto sfr = allResults.back().get();
         bestMinFoundInScan = TMath::Min((double)chi2minScan, (double)bestMinFoundInScan);
-        mycurveResults2d[i - 1][j - 1] = r;
+        mycurveResults2d[i - 1][j - 1] = sfr;
 
         // If we find a new global minumum, this means that all
         // previous 1-CL values are too high. We'll save the new possible solution, adjust the global
@@ -597,7 +581,7 @@ int MethodProbScan::scan2d() {
           hCL2d->SetBinContent(i, j, oneMinusCL);
           hChi2min2d->SetBinContent(i, j, chi2minScan);
           hDbgChi2min2d->SetBinContent(i, j, chi2minScan);
-          curveResults2d[i - 1][j - 1] = r;
+          curveResults2d[i - 1][j - 1] = sfr;
         }
 
         // draw/update histograms - doing only every nth update
@@ -640,7 +624,7 @@ int MethodProbScan::scan2d() {
   if (arg->confirmsols) confirmSolutions();
 
   // clean all fit results that didn't make it into the final result
-  for (auto result : allResults) { deleteIfNotInCurveResults2d(result); }
+  for (auto&& result : allResults) { deleteIfNotInCurveResults2d(result.get()); }
 
   if (bestMinFoundInScan - bestMinOld > 0.1) {
     cout << "MethodProbScan::scan2d() : WARNING: Scan didn't find minimum that was found before!" << endl;
@@ -653,19 +637,14 @@ int MethodProbScan::scan2d() {
   return 0;
 }
 
-///
-/// Find the RooFitResults corresponding to all local
-/// minima from the curveResults vector
-/// and save them into the solutions vector.
-/// It will be sorted for minChi2. Index 0
-/// will correspond to the least chi2.
-///
+/**
+ * Find the RooFitResults corresponding to all local minima from the curveResults vector and save them into the
+ * solutions vector. It will be sorted for minChi2. Index 0 will correspond to the least chi2.
+ */
 void MethodProbScan::saveSolutions() {
   if (arg->debug) cout << "MethodProbScan::saveSolutions() : searching for minima in hChi2min ..." << endl;
 
-  // delete old solutions if any
-  vector<RooSlimFitResult*> tmp;
-  solutions = tmp;
+  solutions.clear();
 
   // loop over chi2 histogram to locate local maxima
   for (int i = 2; i < hChi2min->GetNbinsX() - 1; i++) {
@@ -688,12 +667,12 @@ void MethodProbScan::saveSolutions() {
           cout << "MethodProbScan::saveSolutions() : saving solution " << j << ":" << endl;
           curveResults[j]->Print();
         }
-        solutions.push_back(curveResults[j]);
+        solutions.push_back(curveResults[j]->Clone());
       }
     }
   }
 
-  if (solutions.size() == 0) { cout << "MethodProbScan::saveSolutions() : ERROR : No solutions found." << endl; }
+  if (solutions.empty()) { cout << "MethodProbScan::saveSolutions() : ERROR : No solutions found." << endl; }
 
   sortSolutions();
 }
@@ -712,9 +691,6 @@ void MethodProbScan::saveSolutions() {
 void MethodProbScan::saveSolutions2d() {
   if (arg->debug) cout << "MethodProbScan::saveSolutions2d() : searching for minima in hChi2min2d ..." << endl;
 
-  // delete old solutions if any
-  for (auto sol : solutions)
-    if (sol) delete sol;
   solutions.clear();
 
   // loop over chi2 histogram to locate local minima
@@ -730,7 +706,7 @@ void MethodProbScan::saveSolutions2d() {
             hChi2min2d->GetBinContent(i - 1, j + 1) > hChi2min2d->GetBinContent(i, j)))
         continue;
 
-      RooSlimFitResult* r = curveResults2d[i - 1][j - 1];  // -1 because it starts counting at 0, but histograms at 1
+      const auto r = curveResults2d[i - 1][j - 1];  // -1 because it starts counting at 0, but histograms at 1
       if (!r) {
         cout << "MethodProbScan::saveSolutions2d() : ERROR : No corresponding RooFitResult found! Skipping (i,j)="
              << Form("(%i,%i)", i, j) << endl;
@@ -739,7 +715,7 @@ void MethodProbScan::saveSolutions2d() {
       if (arg->debug)
         cout << "MethodProbScan::saveSolutions2d() : saving solution of bin " << Form("(%i,%i)", i, j) << " ..."
              << endl;
-      solutions.push_back((RooSlimFitResult*)curveResults2d[i - 1][j - 1]->Clone());
+      solutions.push_back(curveResults2d[i - 1][j - 1]->Clone());
     }
   }
 

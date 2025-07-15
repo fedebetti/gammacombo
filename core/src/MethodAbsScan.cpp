@@ -1,10 +1,3 @@
-/*
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- */
-
 #include <CLIntervalMaker.h>
 #include <CLIntervalPrinter.h>
 #include <FileNameBuilder.h>
@@ -30,11 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace Utils;
 
-MethodAbsScan::MethodAbsScan(Combiner* c)
-    : MethodAbsScan(c->getArg())
-// C++11 onwards, one can delegate constructors,
-// but then, there can be no other initializers
-{
+MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
   combiner = c;
   w = c->getWorkspace();
   name = c->getName();
@@ -63,7 +52,7 @@ MethodAbsScan::MethodAbsScan(Combiner* c)
   }
 }
 
-// constructor without combiner, this is atm still needed for the datasets stuff
+/// Constructor without combiner. This is still needed for the datasets stuff
 MethodAbsScan::MethodAbsScan(const OptParser* opt)
     : arg(opt), scanVar1(opt->var[0]), verbose(opt->verbose), nPoints1d(opt->npoints1d), nPoints2dx(opt->npoints2dx),
       nPoints2dy(opt->npoints2dy) {
@@ -74,12 +63,6 @@ MethodAbsScan::MethodAbsScan(const OptParser* opt)
     ConfidenceLevels.push_back(0.6827);  // 1sigma
     ConfidenceLevels.push_back(0.9545);  // 2sigma
     ConfidenceLevels.push_back(0.9973);  // 3sigma
-  }
-}
-
-MethodAbsScan::~MethodAbsScan() {
-  for (auto result : allResults) {
-    if (result) delete result;
   }
 }
 
@@ -253,15 +236,11 @@ void MethodAbsScan::initScan() {
 
   // 1d:
   curveResults.clear();
-  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(nullptr);
+  curveResults.resize(nPoints1d, nullptr);
 
   // 2d:
   curveResults2d.clear();
-  for (int i = 0; i < nPoints2dx; i++) {
-    vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
-    curveResults2d.push_back(tmp);
-  }
+  curveResults2d.resize(nPoints2dx, vector<RooSlimFitResult*>(nPoints2dy, nullptr));
 
   // global minimum
   doInitialFit();
@@ -303,7 +282,7 @@ void MethodAbsScan::saveScanner(TString fName) const {
   else
     hChi2min->Write("hChi2min");
   // save solutions
-  for (int i = 0; i < solutions.size(); i++) { f.WriteObject(solutions[i], Form("sol%i", i)); }
+  for (int i = 0; i < solutions.size(); i++) { f.WriteObject(solutions[i].get(), Form("sol%i", i)); }
 }
 
 ///
@@ -429,9 +408,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
   solutions.clear();
   int nSol = 100;
   for (int i = 0; i < nSol; i++) {
-    auto r = (RooSlimFitResult*)f->Get(Form("sol%i", i));
-    if (!r) break;
-    solutions.push_back(r);
+    if (auto sfr = dynamic_cast<RooSlimFitResult*>(f->Get(Form("sol%i", i)))) solutions.push_back(sfr->Clone());
   }
   if (f->Get(Form("sol%i", nSol))) {
     cout << "MethodAbsScan::loadScanner() : WARNING : Only the first 100 solutions read from: " << fName << endl;
@@ -1146,7 +1123,7 @@ void MethodAbsScan::saveLocalMinima(TString fName) const {
 /// \return -9999 no such variable
 ///
 double MethodAbsScan::getScanVarSolution(int iVar, int iSol) {
-  if (solutions.size() == 0) { return -999; }
+  if (solutions.empty()) { return -999; }
   if (iSol >= solutions.size()) {
     cout << "MethodAbsScan::getScanVarSolution() : ERROR : no solution with id " << iSol << endl;
     return -99.;
@@ -1191,22 +1168,8 @@ double MethodAbsScan::getScanVar2Solution(int iSol) { return getScanVarSolution(
 ///
 void MethodAbsScan::sortSolutions() {
   if (arg->debug) cout << "MethodAbsScan::sortSolutions() : sorting solutions ..." << endl;
-  vector<RooSlimFitResult*> solutionsUnSorted = solutions;
-  vector<RooSlimFitResult*> tmp;
-  solutions = tmp;
-  int nSolutions = solutionsUnSorted.size();
-  for (int i = 0; i < nSolutions; i++) {
-    double min = solutionsUnSorted[0]->minNll();
-    int iMin = 0;
-    for (int i = 0; i < solutionsUnSorted.size(); i++) {
-      if (solutionsUnSorted[i]->minNll() < min) {
-        min = solutionsUnSorted[i]->minNll();
-        iMin = i;
-      }
-    }
-    solutions.push_back(solutionsUnSorted[iMin]);
-    solutionsUnSorted.erase(solutionsUnSorted.begin() + iMin);
-  }
+  std::ranges::sort(solutions, [](const std::unique_ptr<RooSlimFitResult>& a,
+                                  const std::unique_ptr<RooSlimFitResult>& b) { return a->minNll() < b->minNll(); });
   if (arg->debug) cout << "MethodAbsScan::sortSolutions() : solutions sorted: " << solutions.size() << endl;
 }
 
@@ -1221,7 +1184,7 @@ void MethodAbsScan::confirmSolutions() {
   FitResultCache frCache(arg);
   frCache.storeParsAtFunctionCall(w->set(parsName));
 
-  vector<RooSlimFitResult*> confirmedSolutions;
+  vector<std::unique_ptr<RooSlimFitResult>> confirmedSolutions;
   RooRealVar* par1 = w->var(scanVar1);
   RooRealVar* par2 = w->var(scanVar2);
   if (par1) par1->setConstant(false);
@@ -1309,9 +1272,9 @@ void MethodAbsScan::confirmSolutions() {
     }
     if (isConfirmed) {
       if (arg->debug) cout << "MethodAbsScan::confirmSolutions() : solution " << i << " accepted." << endl;
-      auto sr = new RooSlimFitResult(r.get(), true);  // true saves correlation matrix
+      auto sr = make_unique<RooSlimFitResult>(r.get(), true);  // true saves correlation matrix
       sr->setConfirmed(true);
-      confirmedSolutions.push_back(sr);
+      confirmedSolutions.push_back(std::move(sr));
     } else {
       cout << "MethodAbsScan::confirmSolutions() : WARNING : solution " << i
            << " rejected "
@@ -1320,7 +1283,7 @@ void MethodAbsScan::confirmSolutions() {
     }
   }
   // do NOT delete the old solutions! They are still in allResults and curveResults.
-  solutions = confirmedSolutions;
+  solutions = std::move(confirmedSolutions);
   sortSolutions();
   if (arg->debug) printLocalMinima();
   removeDuplicateSolutions();
@@ -1339,15 +1302,15 @@ void MethodAbsScan::confirmSolutions() {
 ///
 void MethodAbsScan::removeDuplicateSolutions() {
   if (arg->isQuickhack(9)) return;
-  vector<RooSlimFitResult*> solutionsNoDup;
+  vector<std::unique_ptr<RooSlimFitResult>> solutionsNoDup;
   for (int i = 0; i < solutions.size(); i++) {
     bool found = false;
     for (int j = i + 1; j < solutions.size(); j++) {
-      if (compareSolutions(solutions[i], solutions[j])) found = true;
+      if (compareSolutions(solutions[i].get(), solutions[j].get())) found = true;
       if (found == true) continue;
     }
     if (!found)
-      solutionsNoDup.push_back(solutions[i]);
+      solutionsNoDup.push_back(solutions[i]->Clone());
     else {
       if (arg->debug) cout << "MethodAbsScan::removeDuplicateSolutions() : removing duplicate solution " << i << endl;
     }
@@ -1360,7 +1323,7 @@ void MethodAbsScan::removeDuplicateSolutions() {
     cout << "       that case removing them is perhaps not desired. You can keep all solutions" << endl;
     cout << "       using --qh 9\n" << endl;
   }
-  solutions = solutionsNoDup;
+  solutions = std::move(solutionsNoDup);
 }
 
 ///
@@ -1369,7 +1332,7 @@ void MethodAbsScan::removeDuplicateSolutions() {
 /// \param r2 Second solution
 /// \return true, if both are equal inside a certain margin
 ///
-bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2) const {
+bool MethodAbsScan::compareSolutions(const RooSlimFitResult* r1, const RooSlimFitResult* r2) const {
   // compare chi2
   if (fabs(r1->minNll() - r2->minNll()) > 0.05) return false;
   // construct parameter lists
@@ -1400,11 +1363,11 @@ bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2)
 ///         i=0 is that with the smallest chi2.
 ///
 RooSlimFitResult* MethodAbsScan::getSolution(int i) {
-  if (i >= solutions.size()) {
+  if (i < 0 || i >= solutions.size()) {
     cout << Form("MethodAbsScan::getSolution() : ERROR : No solution with id %i.", i) << endl;
     return nullptr;
   }
-  return solutions[i];
+  return solutions[i].get();
 }
 
 ///
@@ -1412,9 +1375,9 @@ RooSlimFitResult* MethodAbsScan::getSolution(int i) {
 /// scanner. Clears the solutions vector and sets the one
 /// given.
 ///
-void MethodAbsScan::setSolutions(vector<RooSlimFitResult*> sols) {
+void MethodAbsScan::setSolutions(const vector<std::unique_ptr<RooSlimFitResult>>& sols) {
   solutions.clear();
-  for (const auto sol : sols) { solutions.push_back(sol); }
+  for (auto&& sol : sols) solutions.emplace_back(sol->Clone());
 }
 
 ///

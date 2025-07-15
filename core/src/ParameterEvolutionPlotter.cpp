@@ -28,8 +28,8 @@ ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
   scanVar1 = scanner->getScanVar1()->GetName();
 
   // copy over non-empty curve results
-  for (auto result : scanner->getAllResults()) {
-    if (result) allResults.push_back(result);
+  for (auto&& result : scanner->getAllResults()) {
+    if (result) allResults.push_back(result.get());
   }
   for (auto cr : scanner->getCurveResults()) {
     if (cr) curveResults.push_back(cr);

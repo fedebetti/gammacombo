@@ -1,14 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2013
- *
- * Class to mimic a RooFitResult, but only store the things
- * we actually need, therefore saving a lot of memory in the
- * 2d scans.
- *
- **/
-
 #ifndef RooSlimFitResult_h
 #define RooSlimFitResult_h
 
@@ -18,19 +7,20 @@
 #include <RooFitResult.h>
 #include <RooRealVar.h>
 
-///
-/// Class that essentially mimics the functionality of a RooFitResult,
-/// but uses less internal memory by not storing the correlation matrix,
-/// if not specifically requested. It also contains a few extra getters.
-///
+/**
+ *  Class that mimics the functionality of RooFitResult, but uses less internal memory by not storing the correlation
+ *  matrix, if not specifically requested. It is useful to save memory in 2D scans.
+ *  It also contains a few extra getters.
+ **/
 class RooSlimFitResult : public TObject {
  public:
-  RooSlimFitResult();
+  /// Default constructor (needed for TObject serialisation).
+  RooSlimFitResult() = default;
   RooSlimFitResult(const RooFitResult* r, bool storeCorrelation = false);
   RooSlimFitResult(const RooSlimFitResult* other);
   RooSlimFitResult(const RooSlimFitResult& r);
 
-  RooSlimFitResult* Clone();
+  std::unique_ptr<RooSlimFitResult> Clone();
   RooArgList& constPars() const;
   inline TMatrixDSym correlationMatrix() const { return _correlationMatrix; };
   inline Int_t covQual() const { return _covQual; };
@@ -40,7 +30,11 @@ class RooSlimFitResult : public TObject {
   double getParErr(TString name) const;
   double getConstParVal(TString name) const;
   double getFloatParFinalVal(TString name) const;
+  const std::vector<std::string>& getParsNames() const { return _parsNames; };
+  double getParVal(const int i) const { return _parsVal[i]; };
+  std::vector<double>& getParsVal() { return _parsVal; };
   bool hasParameter(TString name) const;
+  bool isAngle(RooRealVar* v) const;
   inline bool isConfirmed() const { return _isConfirmed; };
   inline Double_t minNll() const { return _minNLL; };
   void Print(bool verbose = false, bool printcor = false) const;
@@ -48,11 +42,9 @@ class RooSlimFitResult : public TObject {
   inline void setConfirmed(bool c) { _isConfirmed = c; };
   inline Int_t status() const { return _status; };
 
-  // private:
-
+ private:
   template <class FitResult>
   void init(const FitResult* r, bool storeCorrelation = false);
-  bool isAngle(RooRealVar* v) const;
 
   std::vector<std::string> _parsNames;  // variable names
   std::vector<int> _parsFloatId;  // ID of floating parameter - this corresponds to the correlation matrix position
@@ -60,20 +52,21 @@ class RooSlimFitResult : public TObject {
   std::vector<double> _parsErr;
   std::vector<bool> _parsAngle;  // is it an angle?
   std::vector<bool> _parsConst;  // is it constant?
-  Double_t _edm;
-  Double_t _minNLL;
-  Int_t _covQual;
-  Int_t _status;
-  TMatrixDSym _correlationMatrix;
+  double _edm = std::numeric_limits<double>::quiet_NaN();
+  double _minNLL = std::numeric_limits<double>::quiet_NaN();
+  int _covQual = -9;
+  int _status = -9;
+  TMatrixDSym _correlationMatrix{0};
 
   // dummy variables only needed for constPars() and floatParsFinal():
   mutable RooArgList _constParsDummy;  //! <- The exlcamation mark turns off storing in a root file (marks the member
                                        //! transient)
   mutable RooArgList _floatParsFinalDummy;  //! mutables can be changed in const methods
 
-  ClassDef(RooSlimFitResult, 1)  // defines version number, ClassDef is a macro
+  bool _isConfirmed = false;
 
-      private : bool _isConfirmed;
+ public:
+  ClassDef(RooSlimFitResult, 1)  // defines version number, ClassDef is a macro
 };
 
 //
@@ -116,8 +109,6 @@ void RooSlimFitResult::init(const FitResult* r, bool storeCorrelation) {
     _correlationMatrix.ResizeTo(r->correlationMatrix());
     _correlationMatrix = r->correlationMatrix();
   }
-  // initialize other members
-  _isConfirmed = false;
 }
 
 #endif

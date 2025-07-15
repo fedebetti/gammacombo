@@ -1,6 +1,8 @@
 #include <RooSlimFitResult.h>
 
-#include <TMath.h>
+#include <cmath>
+#include <memory>
+#include <numbers>
 
 using namespace std;
 
@@ -15,18 +17,7 @@ RooSlimFitResult::RooSlimFitResult(const RooSlimFitResult& r) : TObject(reinterp
   init(&r);
 }
 
-///
-/// default constructor (needed for TObject serialization)
-///
-RooSlimFitResult::RooSlimFitResult() : _correlationMatrix(0) {
-  _edm = std::numeric_limits<double>::quiet_NaN();  // set to nan
-  _minNLL = std::numeric_limits<double>::quiet_NaN();
-  _covQual = -9;
-  _status = -9;
-  _isConfirmed = false;
-}
-
-RooSlimFitResult* RooSlimFitResult::Clone() { return new RooSlimFitResult(this); }
+std::unique_ptr<RooSlimFitResult> RooSlimFitResult::Clone() { return std::make_unique<RooSlimFitResult>(this); }
 
 ///
 /// Return a RooArgList of RooRealVars that constitute the
@@ -153,8 +144,8 @@ void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor)
     double val = _parsVal[i];
     double err = _parsErr[i];
     if (_parsAngle[i]) {
-      val *= 180. / TMath::Pi();
-      err *= 180. / TMath::Pi();
+      val *= 180. / std::numbers::pi;
+      err *= 180. / std::numbers::pi;
     }
     // print constant parameters
     if (_parsConst[i]) {
@@ -186,7 +177,7 @@ void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor)
     outfile << Form("  %-22s", myParNames[j].Data());
     for (int i = 0; i < _correlationMatrix.GetNcols(); i++) {
       outfile << " & $";
-      if (TMath::Abs(_correlationMatrix[i][j]) < 0.01)
+      if (std::abs(_correlationMatrix[i][j]) < 0.01)
         outfile << "\\phantom{-}0   $";
       else {
         if (_correlationMatrix[i][j] > 0)
@@ -213,8 +204,8 @@ void RooSlimFitResult::Print(bool verbose, bool printcor) const {
     double val = _parsVal[i];
     double err = _parsErr[i];
     if (_parsAngle[i]) {
-      val *= 180. / TMath::Pi();
-      err *= 180. / TMath::Pi();
+      val *= 180. / std::numbers::pi;
+      err *= 180. / std::numbers::pi;
     }
     // print constant parameters
     if (_parsConst[i]) {

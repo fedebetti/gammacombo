@@ -1,10 +1,3 @@
-/*
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- */
-
 #ifndef MethodAbsScan_h
 #define MethodAbsScan_h
 
@@ -31,13 +24,12 @@ class MethodAbsScan {
   MethodAbsScan() = default;
   MethodAbsScan(Combiner* c);
   MethodAbsScan(const OptParser* opt);
-  virtual ~MethodAbsScan();
 
   virtual void calcCLintervals(int CLsType = 0, bool calc_expected = false, bool quiet = false);
   void confirmSolutions();
   void doInitialFit(bool force = false);
   inline const OptParser* getArg() const { return arg; };
-  inline const std::vector<RooSlimFitResult*>& getAllResults() const { return allResults; };
+  inline const std::vector<std::unique_ptr<RooSlimFitResult>>& getAllResults() const { return allResults; };
   inline const std::vector<RooSlimFitResult*>& getCurveResults() const { return curveResults; };
   inline double getChi2minGlobal() const { return chi2minGlobal; }
   inline double getChi2minBkg() const { return chi2minBkg; }
@@ -81,7 +73,7 @@ class MethodAbsScan {
   RooRealVar* getScanVar2();
   TString getScanVar2Name() const { return scanVar2; }
   double getScanVar2Solution(int i = 0);
-  inline std::vector<RooSlimFitResult*> getSolutions() { return solutions; };
+  inline const std::vector<std::unique_ptr<RooSlimFitResult>>& getSolutions() { return solutions; };
   RooSlimFitResult* getSolution(int i = 0);
   inline const RooArgSet* getTheory() { return w->set(thName); }
   inline int getTextColor() const { return textColor; };
@@ -122,7 +114,7 @@ class MethodAbsScan {
   inline void setFillTransparency(double c) { fillTransparency = c; };
   inline void setTitle(TString s) { title = s; };
   void setChi2minGlobal(double x);
-  void setSolutions(std::vector<RooSlimFitResult*> s);
+  void setSolutions(const std::vector<std::unique_ptr<RooSlimFitResult>>& s);
   inline void setVerbose(bool yesNo = true) { verbose = yesNo; };
   inline void setHCL(TH1* h) { hCL = std::unique_ptr<TH1>(h); };
   inline void setHchisq(TH1* h) { hChi2min = std::unique_ptr<TH1>(h); };
@@ -135,16 +127,18 @@ class MethodAbsScan {
                                                  bool qubic = false) const;
   virtual bool checkCLs() const;
 
-  std::vector<RooSlimFitResult*> allResults;    ///< All fit results we encounter along the scan.
-  std::vector<RooSlimFitResult*> curveResults;  ///< All fit results of the the points that make it into the 1-CL curve.
-  ///< Index is the bin number of hCL bins -1.
-  std::vector<std::vector<RooSlimFitResult*>> curveResults2d;  ///< All fit results of the the points that make it into
-                                                               ///< the 1-CL curve.
-  ///< Index is the gobal bin number of hCL2d -1.
-  std::vector<RooSlimFitResult*> solutions;  ///< Local minima filled by saveSolutions() and saveSolutions2d().
+  /// All fit results we encounter along the scan.
+  std::vector<std::unique_ptr<RooSlimFitResult>> allResults;
+  /// All fit results of the the points that make it into the 1-CL curve. Index is the bin number of hCL bins -1.
+  std::vector<RooSlimFitResult*> curveResults;
+  /// All fit results of the the points that make it into the 1-CL curve. Index is the gobal bin number of hCL2d -1.
+  std::vector<std::vector<RooSlimFitResult*>> curveResults2d;
 
-  ///< The names of the CL interval std::vectors might be misleading. They correspond to the default CL intervals.
-  ///< If the option --CL is given, the 1-3 sigma correspond to the first, second,... given value of the CL.
+  /// Local minima filled by saveSolutions() and saveSolutions2d().
+  /// The names of the CL interval std::vectors might be misleading. They correspond to the default CL intervals.
+  /// If the option --CL is given, the 1-3 sigma correspond to the first, second,... given value of the CL.
+  std::vector<std::unique_ptr<RooSlimFitResult>> solutions;
+
   std::vector<CLInterval> clintervals1sigma;  ///< all 1 sigma intervals that were found by calcCLintervals()
   std::vector<CLInterval> clintervals2sigma;  ///< all 2 sigma intervals that were found by calcCLintervals()
   std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
@@ -213,7 +207,7 @@ class MethodAbsScan {
   std::vector<double> ConfidenceLevels;  ///< container of the confidence levels to be computed
 
  private:
-  bool compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2) const;
+  bool compareSolutions(const RooSlimFitResult* r1, const RooSlimFitResult* r2) const;
   double pq(double p0, double p1, double p2, double y, int whichSol = 0) const;
   void removeDuplicateSolutions();
   bool interpolate(TH1* h, int i, double y, double central, bool upper, double& val, double& err) const;
