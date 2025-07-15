@@ -17,7 +17,6 @@ class MethodProbScan : public MethodAbsScan {
   MethodProbScan(Combiner* comb);
   MethodProbScan(OptParser* opt);
   MethodProbScan();
-  virtual ~MethodProbScan() = default;
 
   virtual int computeCLvalues();  // compute CL histograms depending on desired test statistic
   double getChi2min(double scanpoint) const;
@@ -31,7 +30,7 @@ class MethodProbScan : public MethodAbsScan {
  protected:
   bool computeInnerTurnCoords(const int iStart, const int jStart, const int i, const int j, int& iResult, int& jResult,
                               int nTurn) const;
-  bool deleteIfNotInCurveResults2d(RooSlimFitResult* r);
+  bool deleteIfNotInCurveResults2d(const RooSlimFitResult* r);
   void sanityChecks() const;
   bool scanDisableDragMode = false;
   int nScansDone = 0;  // count the number of times a scan was done

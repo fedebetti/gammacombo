@@ -140,16 +140,10 @@ void MethodDatasetsProbScan::initScan() {
   // Note that allResults still needs to hold all results, so don't delete the RooFitResults.
 
   curveResults.clear();
-  for (int i = 0; i < nPoints1d; i++) curveResults.push_back(nullptr);
+  curveResults.resize(nPoints1d, nullptr);
 
-  //////////////////////////////////////////////////////////
-  // Titus: 2d:
   curveResults2d.clear();
-  for (int i = 0; i < nPoints2dx; i++) {
-    vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
-    curveResults2d.push_back(tmp);
-  }
+  curveResults2d.resize(nPoints2dx, vector<RooSlimFitResult*>(nPoints2dy, nullptr));
   //////////////////////////////////////////////////////////
 
   // turn off some messages
@@ -403,9 +397,8 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   // do a free fit
   auto result = this->loadAndFit(this->pdf);  // fit on data
   assert(result);
-  auto slimresult = new RooSlimFitResult(result.get(), true);
-  slimresult->setConfirmed(true);
-  solutions.push_back(slimresult);
+  solutions.push_back(std::make_unique<RooSlimFitResult>(result.get(), true));
+  solutions.back()->setConfirmed(true);
   Utils::setParameters(w, result.get());  // Set parameters to result (necessary to get correct freeDataFitValue if
                                           // using a multipdf)
   double freeDataFitValue = w->var(scanVar1)->getVal();
@@ -592,16 +585,9 @@ int MethodDatasetsProbScan::scan2d() {
   // Titus: Change this to 2, since there is no reason to do wrong hCL contours.
   int ndof = 2;
 
-  // Set up storage for fit results of this particular
-  // scan. This is used for the drag start parameters.
-  // We cannot use the curveResults2d member because that
-  // only holds better results.
-  vector<vector<RooSlimFitResult*>> mycurveResults2d;
-  for (int i = 0; i < nPoints2dx; i++) {
-    vector<RooSlimFitResult*> tmp;
-    for (int j = 0; j < nPoints2dy; j++) tmp.push_back(nullptr);
-    mycurveResults2d.push_back(tmp);
-  }
+  // Set up storage for fit results of this particular scan. This is used for the drag start parameters.
+  // We cannot use the curveResults2d member because that only holds better results.
+  vector<vector<RooSlimFitResult*>> mycurveResults2d(nPoints2dx, vector<RooSlimFitResult*>(nPoints2dy, nullptr));
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // // Titus: Saving is done via saveSolutions2d() in the combination, but maybe we need it inline for now \todo:
@@ -705,7 +691,7 @@ int MethodDatasetsProbScan::scan2d() {
         // set start parameters from inner turn of the spiral
         int xStartPars, yStartPars;
         computeInnerTurnCoords(iStart, jStart, i, j, xStartPars, yStartPars, 1);
-        RooSlimFitResult* rStartPars = mycurveResults2d[xStartPars - 1][yStartPars - 1];
+        auto rStartPars = mycurveResults2d[xStartPars - 1][yStartPars - 1];
         if (rStartPars) setParameters(w, parsName, rStartPars);
 
         // memory management:
@@ -742,11 +728,11 @@ int MethodDatasetsProbScan::scan2d() {
         double chi2minScan = 2 * pdf->getMinNll();
         tFit.Stop();
         tSlimResult.Start(false);
-        auto r = new RooSlimFitResult(fr.get());  // try to save memory by using the slim fit result
+        allResults.push_back(std::make_unique<RooSlimFitResult>(fr.get()));  // save memory by using the slim fit result
+        auto sfr = allResults.back().get();
         tSlimResult.Stop();
-        allResults.push_back(r);
         bestMinFoundInScan = std::min(chi2minScan, bestMinFoundInScan);
-        mycurveResults2d[i - 1][j - 1] = r;
+        mycurveResults2d[i - 1][j - 1] = sfr;
 
         // If we find a new global minumum, this means that all
         // previous 1-CL values are too high. We'll save the new possible solution, adjust the global
@@ -789,7 +775,7 @@ int MethodDatasetsProbScan::scan2d() {
           hCLs2d->SetBinContent(i, j, TMath::Prob(cls_pval, ndof));
           hChi2min2d->SetBinContent(i, j, deltaChi2);
           hDbgChi2min2d->SetBinContent(i, j, chi2minScan);
-          curveResults2d[i - 1][j - 1] = r;
+          curveResults2d[i - 1][j - 1] = sfr;
         }
 
         // draw/update histograms - doing only every nth update
@@ -832,7 +818,7 @@ int MethodDatasetsProbScan::scan2d() {
   // which is not achieved yet
 
   // clean all fit results that didn't make it into the final result
-  for (auto result : allResults) { deleteIfNotInCurveResults2d(result); }
+  for (auto&& result : allResults) { deleteIfNotInCurveResults2d(result.get()); }
 
   if (bestMinFoundInScan - bestMinOld > 0.1) {
     cout << "MethodDatasetsProbScan::scan2d() : WARNING: Scan didn't find minimum that was found before!" << endl;

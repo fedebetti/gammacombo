@@ -475,9 +475,9 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
   if (solutions.size() == 0) {
     if (arg->verbose || arg->debug)
       std::cout << "MethodPluginScan::getPvalue1d() : WARNING: setting solutions from PL scan" << std::endl;
-    vector<RooSlimFitResult*> s;
-    s.push_back(plhScan);
-    setSolutions(s);
+    std::vector<std::unique_ptr<RooSlimFitResult>> plhSolutions;
+    plhSolutions.emplace_back(plhScan->Clone());
+    setSolutions(plhSolutions);
   }
   auto h = analyseToys(myTree, id, quiet);
   double scanpoint = plhScan->getParVal(scanVar1);
@@ -654,104 +654,98 @@ void MethodPluginScan::scan2d(int nRun) {
       // Get the global chi2 minimum from the fit to data.
       t.chi2minGlobal = profileLH->getChi2minGlobal();
 
-      // Get nuisances. This is the point in parameter space where
-      // the toys need to be generated.
-      RooArgList* extCurveResult = nullptr;
-      {
-        int iCurveRes1 = profileLH->getHCL2d()->GetXaxis()->FindBin(scanpoint1) - 1;
-        int iCurveRes2 = profileLH->getHCL2d()->GetYaxis()->FindBin(scanpoint2) - 1;
-        if (!profileLH->curveResults2d[iCurveRes1][iCurveRes2]) {
-          printf("MethodPluginScan::scan2d() : WARNING : curve result not found, "
+      // Get nuisances. This is the point in parameter space where the toys need to be generated.
+      int iCurveRes1 = profileLH->getHCL2d()->GetXaxis()->FindBin(scanpoint1) - 1;
+      int iCurveRes2 = profileLH->getHCL2d()->GetYaxis()->FindBin(scanpoint2) - 1;
+      if (!profileLH->curveResults2d[iCurveRes1][iCurveRes2]) {
+        printf("MethodPluginScan::scan2d() : WARNING : curve result not found, "
+               "id=[%i,%i], val=[%f,%f]\n",
+               iCurveRes1, iCurveRes2, scanpoint1, scanpoint2);
+      } else {
+        if (arg->debug) {
+          printf("MethodPluginScan::scan2d() : loading start parameters from external 1-CL curve: "
                  "id=[%i,%i], val=[%f,%f]\n",
                  iCurveRes1, iCurveRes2, scanpoint1, scanpoint2);
-        } else {
-          if (arg->debug) {
-            printf("MethodPluginScan::scan2d() : loading start parameters from external 1-CL curve: "
-                   "id=[%i,%i], val=[%f,%f]\n",
-                   iCurveRes1, iCurveRes2, scanpoint1, scanpoint2);
+        }
+        auto extCurveResult =
+            std::make_unique<RooArgList>(profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal());
+
+        // Set nuisances. This is the point in parameter space where the toys need to be generated.
+        setParameters(w, parsName, extCurveResult.get());
+
+        // Kenzie-Cousins-Highland (randomize nuisance parameters within a uniform range)
+        if (arg->isAction("uniform")) {
+          // set parameter ranges to their bb range (should be something wide 95, 99% CL)
+          const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
+          for (const auto var : *pars) { setLimit(static_cast<RooRealVar*>(var), "bboos"); }
+          if (verbose) {
+            cout << "Uniform generating from:" << endl;
+            pars->Print("v");
           }
-          extCurveResult = new RooArgList(profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal());
-
-          // Set nuisances. This is the point in parameter space where
-          // the toys need to be generated.
-          setParameters(w, parsName, extCurveResult);
-
-          // Kenzie-Cousins-Highland (randomize nuisance parameters within a uniform range)
-          if (arg->isAction("uniform")) {
-            // set parameter ranges to their bb range (should be something wide 95, 99% CL)
-            const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
-            for (const auto var : *pars) { setLimit(static_cast<RooRealVar*>(var), "bboos"); }
-            if (verbose) {
-              cout << "Uniform generating from:" << endl;
-              pars->Print("v");
-            }
-            randomizeParameters(w, parsName);
-            if (verbose) {
-              cout << "Set:" << endl;
-              w->set(parsName)->Print("v");
-            }
+          randomizeParameters(w, parsName);
+          if (verbose) {
+            cout << "Set:" << endl;
+            w->set(parsName)->Print("v");
           }
+        }
 
-          // Cousins-Highland (randomize nuisance parameters according to a Gaussian with their
-          // best fit value and uncertainty from the PLH scan)
-          if (arg->isAction("gaus")) {
-            if (verbose) {
-              cout << "Gaussian generating from:" << endl;
-              profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal().Print("v");
-            }
-            randomizeParametersGaussian(w, toysName, profileLH->curveResults2d[iCurveRes1][iCurveRes2]);
-            if (verbose) {
-              cout << "Set:" << endl;
-              w->set(parsName)->Print("v");
-            }
+        // Cousins-Highland (randomize nuisance parameters according to a Gaussian with their
+        // best fit value and uncertainty from the PLH scan)
+        if (arg->isAction("gaus")) {
+          if (verbose) {
+            cout << "Gaussian generating from:" << endl;
+            profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal().Print("v");
           }
+          randomizeParametersGaussian(w, toysName, profileLH->curveResults2d[iCurveRes1][iCurveRes2]);
+          if (verbose) {
+            cout << "Set:" << endl;
+            w->set(parsName)->Print("v");
+          }
+        }
 
-          t.chi2min = profileLH->curveResults2d[iCurveRes1][iCurveRes2]->minNll();
+        t.chi2min = profileLH->curveResults2d[iCurveRes1][iCurveRes2]->minNll();
 
-          // check if the scan variable here differs from that of
-          // the external curve
-          RooArgList list = profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal();
-          list.add(profileLH->curveResults2d[iCurveRes1][iCurveRes2]->constPars());
-          auto var1 = (RooRealVar*)list.find(scanVar1);
-          auto var2 = (RooRealVar*)list.find(scanVar2);
-          if (var1 && var2) {
-            // print warnings
-            if (fabs((scanpoint1 - var1->getVal()) / scanpoint1) > 0.01 ||
-                fabs((scanpoint2 - var2->getVal()) / scanpoint2) > 0.01) {
-              if (nWarnExtPointDiffer < nWarnExtPointDifferMax || arg->debug) {
-                if (fabs((scanpoint1 - var1->getVal()) / scanpoint1) > 0.01)
-                  cout
-                      << "MethodPluginScan::scan2d() : WARNING : scanpoint1 and external point differ by more than 1%: "
-                      << "scanpoint1=" << scanpoint1 << " var1=" << var1->getVal() << endl;
-                if (fabs((scanpoint2 - var2->getVal()) / scanpoint2) > 0.01)
-                  cout
-                      << "MethodPluginScan::scan2d() : WARNING : scanpoint2 and external point differ by more than 1%: "
-                      << "scanpoint2=" << scanpoint2 << " var2=" << var2->getVal() << endl;
-              }
-              if (nWarnExtPointDiffer == 0) {
-                cout << endl;
-                cout << "                                       Try using the same number of scan points for both "
-                        "Plugin and Prob."
-                     << endl;
-                cout << "                                       See --npoints, --npoints2dx, --npoints2dy, --npointstoy"
-                     << endl;
-                cout << endl;
-              }
-              if (nWarnExtPointDiffer == nWarnExtPointDifferMax) {
+        // check if the scan variable here differs from that of
+        // the external curve
+        RooArgList list = profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal();
+        list.add(profileLH->curveResults2d[iCurveRes1][iCurveRes2]->constPars());
+        auto var1 = (RooRealVar*)list.find(scanVar1);
+        auto var2 = (RooRealVar*)list.find(scanVar2);
+        if (var1 && var2) {
+          // print warnings
+          if (fabs((scanpoint1 - var1->getVal()) / scanpoint1) > 0.01 ||
+              fabs((scanpoint2 - var2->getVal()) / scanpoint2) > 0.01) {
+            if (nWarnExtPointDiffer < nWarnExtPointDifferMax || arg->debug) {
+              if (fabs((scanpoint1 - var1->getVal()) / scanpoint1) > 0.01)
                 cout << "MethodPluginScan::scan2d() : WARNING : scanpoint1 and external point differ by more than 1%: "
-                        "[further warnings suppressed.]"
-                     << endl;
-              }
-              nWarnExtPointDiffer++;
+                     << "scanpoint1=" << scanpoint1 << " var1=" << var1->getVal() << endl;
+              if (fabs((scanpoint2 - var2->getVal()) / scanpoint2) > 0.01)
+                cout << "MethodPluginScan::scan2d() : WARNING : scanpoint2 and external point differ by more than 1%: "
+                     << "scanpoint2=" << scanpoint2 << " var2=" << var2->getVal() << endl;
             }
-          } else {
-            cout << "MethodPluginScan::scan2d() : WARNING : variable 1 or 2 not found"
-                    ", var1="
-                 << scanVar1 << ", var2=" << scanVar1 << endl;
-            cout << "MethodPluginScan::scan2d() : Printout follows:" << endl;
-            profileLH->curveResults2d[iCurveRes1][iCurveRes2]->Print();
-            exit(1);
+            if (nWarnExtPointDiffer == 0) {
+              cout << endl;
+              cout << "                                       Try using the same number of scan points for both "
+                      "Plugin and Prob."
+                   << endl;
+              cout << "                                       See --npoints, --npoints2dx, --npoints2dy, --npointstoy"
+                   << endl;
+              cout << endl;
+            }
+            if (nWarnExtPointDiffer == nWarnExtPointDifferMax) {
+              cout << "MethodPluginScan::scan2d() : WARNING : scanpoint1 and external point differ by more than 1%: "
+                      "[further warnings suppressed.]"
+                   << endl;
+            }
+            nWarnExtPointDiffer++;
           }
+        } else {
+          cout << "MethodPluginScan::scan2d() : WARNING : variable 1 or 2 not found"
+                  ", var1="
+               << scanVar1 << ", var2=" << scanVar1 << endl;
+          cout << "MethodPluginScan::scan2d() : Printout follows:" << endl;
+          profileLH->curveResults2d[iCurveRes1][iCurveRes2]->Print();
+          exit(1);
         }
       }
 

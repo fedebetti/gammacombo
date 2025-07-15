@@ -557,10 +557,10 @@ void Utils::setParameters(RooWorkspace* w, TString parname, const RooFitResult* 
 
 void Utils::setParameters(RooWorkspace* w, TString parname, const RooSlimFitResult* r, bool constAndFloat) {
   // avoid calls to floatParsFinal on a RooSlimFitResult - errgh!
-  const auto names = r->_parsNames;
+  const auto names = r->getParsNames();
   for (int i = 0; i < names.size(); i++) {
     auto var = (RooRealVar*)w->var(names[i].c_str());
-    if (var) var->setVal(r->_parsVal[i]);
+    if (var) var->setVal(r->getParVal(i));
   }
 }
 

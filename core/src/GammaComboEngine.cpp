@@ -1218,11 +1218,11 @@ void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* p
     cout << "first scan ..." << endl;
     scanner->scan1d();
     if (!arg->probforce) {
-      vector<RooSlimFitResult*> firstScanSolutions = scanner->getSolutions();
+      auto&& firstScanSolutions = scanner->getSolutions();
       for (int i = 0; i < firstScanSolutions.size(); i++) {
         cout << "Scan i: " << i << endl;
         // scanner->loadSolution(i);
-        scanner->loadParameters(firstScanSolutions[i]);
+        scanner->loadParameters(firstScanSolutions[i].get());
         scanner->scan1d(true);
       }
     }
