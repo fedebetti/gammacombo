@@ -109,6 +109,7 @@ void RooSlimFitResult::init(const FitResult* r, bool storeCorrelation) {
     _correlationMatrix.ResizeTo(r->correlationMatrix());
     _correlationMatrix = r->correlationMatrix();
   }
+  if constexpr (std::is_same_v<FitResult, RooSlimFitResult>) _isConfirmed = r->isConfirmed();
 }
 
 #endif

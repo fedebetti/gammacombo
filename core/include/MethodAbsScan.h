@@ -2,6 +2,7 @@
 #define MethodAbsScan_h
 
 #include <memory>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -25,7 +26,7 @@ class MethodAbsScan {
   MethodAbsScan(Combiner* c);
   MethodAbsScan(const OptParser* opt);
 
-  virtual void calcCLintervals(int CLsType = 0, bool calc_expected = false, bool quiet = false);
+  virtual void calcCLintervals(const int CLsType = 0, const bool calc_expected = false, const bool quiet = false);
   void confirmSolutions();
   void doInitialFit(bool force = false);
   inline const OptParser* getArg() const { return arg; };
@@ -66,7 +67,7 @@ class MethodAbsScan {
   inline const RooArgSet* getObservables() const { return w->set(obsName); }
   inline TString getObsName() const { return obsName; };
   inline TString getParsName() const { return parsName; };
-  double getScanVarSolution(int iVar, int iSol);
+  double getScanVarSolution(const int iVar, const int iSol);
   RooRealVar* getScanVar1();
   TString getScanVar1Name() const { return scanVar1; }
   double getScanVar1Solution(int i = 0);
@@ -74,21 +75,21 @@ class MethodAbsScan {
   TString getScanVar2Name() const { return scanVar2; }
   double getScanVar2Solution(int i = 0);
   inline const std::vector<std::unique_ptr<RooSlimFitResult>>& getSolutions() { return solutions; };
-  RooSlimFitResult* getSolution(int i = 0);
+  RooSlimFitResult* getSolution(const int i = 0);
   inline const RooArgSet* getTheory() { return w->set(thName); }
   inline int getTextColor() const { return textColor; };
   inline TString getTitle() const { return title; };
   inline RooWorkspace* getWorkspace() { return w; };
   virtual void initScan();
   void loadParameters(const RooSlimFitResult* r);
-  bool loadSolution(int i = 0);
+  bool loadSolution(const int i = 0);
   virtual bool loadScanner(TString fName = "");
   void plot2d(TString varx, TString vary);
   void plot1d(TString var);
   void plotOn(OneMinusClPlotAbs* plot, int CLsType = 0);
   void plotPulls(int nSolution = 0);
   virtual void print() const;
-  void printCLintervals(int CLsType, bool calc_expected = false);
+  void printCLintervals(const int CLsType, const bool calc_expected = false);
   void printLocalMinima() const;
   void saveLocalMinima(TString fName = "") const;
   void saveScanner(TString fName = "") const;
@@ -183,9 +184,9 @@ class MethodAbsScan {
   std::unique_ptr<TH2> hCLs2d;             ///< 1-CL curve
   std::unique_ptr<TH1> hChi2min;           ///< histogram for the chi2min values before Prob()
   std::unique_ptr<TH2> hChi2min2d;         ///< histogram for the chi2min values before Prob()
-  double chi2minGlobal = 0.;               ///< chi2 value at global minimum
-  double chi2minBkg = 0.;                  ///< chi2 value at global minimum
-  bool chi2minGlobalFound = false;         ///< flag to avoid finding minimum twice
+  double chi2minGlobal = std::numeric_limits<double>::max();  ///< chi2 value at global minimum
+  double chi2minBkg = std::numeric_limits<double>::max();     ///< chi2 value at global minimum
+  bool chi2minGlobalFound = false;                            ///< flag to avoid finding minimum twice
   int lineColor = kBlue - 8;
   int textColor = kBlack;  ///< color used for plotted central values
   int lineStyle = 0;

@@ -1,6 +1,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <algorithm>
+#include <format>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -173,7 +174,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, TString name
   startPars.add(*w->set(parsName));
 
   // set up parameters and ranges
-  auto varyPars = new RooArgList();
+  auto varyPars = std::make_unique<RooArgList>();
   for (const auto p : *w->set(parsName)) {
     if (p->isConstant()) continue;
     if (forceVariables == "" &&

@@ -47,13 +47,12 @@ class Combiner {
   std::vector<std::string>& getObservableNames() const;
   inline TString getTitle() const { return title; };
   inline TString getName() const { return name; };
-  inline TString getPdfName() const { return pdfName; };  ///< Returns name of combined pdf. Call combine() first.
-  inline TString getParsName() const {
-    return parsName;
-  };  ///< Returns name of combined parameter set. Call combine() first.
-  inline TString getObsName() const {
-    return obsName;
-  };  ///< Returns name of combined observables set. Call combine() first.
+  /// Returns name of combined pdf. Call combine() first.
+  inline TString getPdfName() const { return pdfName; };
+  /// Returns name of combined parameter set. Call combine() first.
+  inline TString getParsName() const { return parsName; };
+  /// Returns name of combined observables set. Call combine() first.
+  inline TString getObsName() const { return obsName; };
   RooAbsPdf* getPdf();
   inline std::vector<PDF_Abs*>& getPdfs() { return pdfs; };
   inline RooWorkspace* getWorkspace() { return w.get(); };
