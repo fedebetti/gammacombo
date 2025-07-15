@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <array>
+#include <format>
 
 #include <RooRealVar.h>
 
@@ -171,7 +172,7 @@ void MethodAbsScan::initScan() {
   // Init the 1-CL histograms. Range is taken from the scan range defined in
   // the ParameterAbs class (and derived ones), unless the --scanrange command
   // line argument is set.
-  RooRealVar* par1 = w->var(scanVar1);
+  auto par1 = w->var(scanVar1);
   if (!par1) {
     if (arg->debug) cout << "MethodAbsScan::initScan() : ";
     cout << "ERROR : No such scan parameter: " << scanVar1 << endl;
@@ -634,15 +635,15 @@ bool MethodAbsScan::interpolate(TH1* h, int i, double y, double central, bool up
   return true;
 }
 
-///
-/// Calculate the CL intervals from the CL curve. Start from
-/// known local minima and scan upwards and downwards to find the interval
-/// boundaries. Then scan again from the boundaries of the scan range to
-/// cover the case where an CL interval is not closed yet at the boundary.
-/// Use a fit-based interpolation (interpolate()) if we have more than 25 bins,
-/// else revert to a straight line interpolation (interpolateSimple()).
-///
-void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet) {
+/**
+ * Calculate the CL intervals from the CL curve.
+ *
+ * Start from known local minima and scan upwards and downwards to find the interval boundaries. Then scan again from
+ * the boundaries of the scan range to cover the case where an CL interval is not closed yet at the boundary.
+ * Use a fit-based interpolation (@see interpolate()) if we have more than 25 bins, else revert to a straight line
+ * interpolation (@see interpolateSimple()).
+ */
+void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected, const bool quiet) {
   auto histogramCL = this->getHCL();
   // calc CL intervals with CLs method
   if (CLsType == 1 && this->getHCLs()) {
@@ -654,8 +655,12 @@ void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet)
     histogramCL = this->getHCLsExp();
     std::cout << "Determine expected upper limit:" << std::endl;
   }
+  if (!histogramCL) {
+    std::cerr << "ERROR : Could not retrieve the histogram. Will not calculate the CLs" << endl;
+    return;
+  }
 
-  if (CLsType != 0) { std::cout << "Confidence Intervals for CLs method " << CLsType << ":" << std::endl; }
+  if (CLsType != 0) { std::cout << std::format("Confidence Intervals for CLs method {:d}:", CLsType) << std::endl; }
   if (arg->isQuickhack(8)) {
     // \todo Switch to the new CLIntervalMaker mechanism. It can be activated
     // already using --qh 8, but it really is in beta stage still
@@ -664,16 +669,14 @@ void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet)
     CLIntervalMaker clm(arg, histogramCL);
     clm.findMaxima(0.04);  // ignore maxima under pvalue=0.04
     for (int iSol = 0; iSol < solutions.size(); iSol++) {
-      double sol = getScanVar1Solution(iSol);
+      auto sol = getScanVar1Solution(iSol);
       clm.provideMorePreciseMaximum(sol, "max PLH");
     }
     clm.calcCLintervals();
     // print
     TString unit = w->var(scanVar1)->getUnit();
-    CLIntervalPrinter clp(arg, name, scanVar1, unit, methodName);
-    if (calc_expected) {
-      clp = CLIntervalPrinter(arg, name, scanVar1, unit, methodName + TString("_expected_standardCLs"));
-    }
+    CLIntervalPrinter clp(arg, name, scanVar1, unit,
+                          methodName + (calc_expected ? TString("_expected_standardCLs") : ""));
     clp.setDegrees(isAngle(w->var(scanVar1)));
     clp.addIntervals(clm.getClintervals1sigma());
     clp.addIntervals(clm.getClintervals2sigma());
@@ -682,44 +685,44 @@ void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet)
   }
 
   if (solutions.empty()) {
-    cout << "MethodAbsScan::calcCLintervals() : Solutions vector empty. "
-         << "Using simple method with  linear splines." << endl;
+    cout << "MethodAbsScan::calcCLintervals() : Solutions vector empty. Using simple method with linear splines."
+         << endl;
     this->calcCLintervalsSimple(CLsType, calc_expected);
     return;
   } else if ((CLsType == 1 || CLsType == 2) && !this->getHCLs()) {
-    cout << "Using simple method with  linear splines." << endl;
+    cout << "Using simple method with linear splines." << endl;
     this->calcCLintervalsSimple(CLsType, calc_expected);
   }
 
   if (arg->debug) cout << "MethodAbsScan::calcCLintervals() : ";
-  if (!quiet) cout << "CONFIDENCE INTERVALS for combination " << name << endl << endl;
+  if (!quiet) cout << std::format("\nCONFIDENCE INTERVALS for combination `{:s}`\n", std::string(name)) << endl;
 
-  clintervals1sigma.clear();  // clear, else calling this function twice doesn't work
+  clintervals1sigma.clear();
   clintervals2sigma.clear();
   clintervals3sigma.clear();
   clintervalsuser.clear();
-  int n = histogramCL->GetNbinsX();
-  RooRealVar* par = w->var(scanVar1);
+  auto n = histogramCL->GetNbinsX();
+  auto par = w->var(scanVar1);
 
   for (int iSol = 0; iSol < solutions.size(); iSol++) {
     const int NumOfCL = ConfidenceLevels.size();
-    std::vector<double> CLhi(NumOfCL, 0.0);
-    std::vector<double> CLhiErr(NumOfCL, 0.0);
-    std::vector<double> CLlo(NumOfCL, 0.0);
-    std::vector<double> CLloErr(NumOfCL, 0.0);
+    std::vector<double> CLhi(NumOfCL, std::numeric_limits<double>::quiet_NaN());
+    std::vector<double> CLhiErr(NumOfCL, std::numeric_limits<double>::quiet_NaN());
+    std::vector<double> CLlo(NumOfCL, std::numeric_limits<double>::quiet_NaN());
+    std::vector<double> CLloErr(NumOfCL, std::numeric_limits<double>::quiet_NaN());
 
+    const auto sol = getScanVar1Solution(iSol);
+    int sBin = histogramCL->FindBin(sol);
+    if (histogramCL->IsBinOverflow(sBin) || histogramCL->IsBinUnderflow(sBin)) {
+      std::cout << "MethodAbsScan::calcCLintervals(): WARNING: no solution in scanrange found, will use lowest bin!"
+                << std::endl;
+      sBin = 1;
+    }
+    if (arg->debug) std::cout << "solution bin: " << sBin << std::endl;
     for (int c = 0; c < NumOfCL; c++) {
       CLlo[c] = histogramCL->GetXaxis()->GetXmin();
       CLhi[c] = histogramCL->GetXaxis()->GetXmax();
       double y = 1. - ConfidenceLevels[c];
-      double sol = getScanVar1Solution(iSol);
-      int sBin = histogramCL->FindBin(sol);
-      if (arg->debug) std::cout << "solution bin: " << sBin << std::endl;
-      if (histogramCL->IsBinOverflow(sBin) || histogramCL->IsBinUnderflow(sBin)) {
-        std::cout << "MethodAbsScan::calcCLintervals(): WARNING: no solution in scanrange found, will use lowest bin!"
-                  << std::endl;
-        sBin = 1;
-      }
 
       // find lower interval bound
       for (int i = sBin; i > 0; i--) {
@@ -855,20 +858,30 @@ void MethodAbsScan::calcCLintervals(int CLsType, bool calc_expected, bool quiet)
   // Print fit chi2 etc. (not done for datasets running)
   if (!combiner) return;
   if (!combiner->isCombined()) return;
-  double chi2 = this->getSolution(0)->minNll();
+  auto chi2 = this->getSolution(0)->minNll();
   int nObs = combiner->getObservables()->getSize();
   int nPar = combiner->getParameters()->getSize();
-  double prob = TMath::Prob(chi2, nObs - nPar);
-  cout << "Fit quality: chi2/(nObs-nPar) = " << Form("%.2f", chi2) << "/(" << nObs << "-" << nPar
-       << "), P = " << Form("%4.1f%%", prob * 100.) << endl;
-  cout << endl;
+  auto prob = TMath::Prob(chi2, nObs - nPar);
+  if (nObs == nPar) {
+    if (std::abs(chi2) > 1e-3)
+      cerr << "ERROR : Chi2 is not zero ({:.4f}), even if the number of degrees of freedom is zero\n" << endl;
+    else
+      cout << std::format(
+                  "Fit quality is meaningless for zero degrees of freedom (chi2 = 0): (nObs, nPar) = ({:d}, {:d})\n",
+                  nObs, nPar)
+           << endl;
+  } else {
+    cout << std::format("Fit quality: chi2/(nObs-nPar) = {:.2f}/({:d}-{:d}), P = {:4.1f}%\n", chi2, nObs, nPar,
+                        prob * 100.)
+         << endl;
+  }
 }
 
 ///
 /// Print CL intervals.
 ///
-void MethodAbsScan::printCLintervals(int CLsType, bool calc_expected) {
-  TString unit = w->var(scanVar1)->getUnit();
+void MethodAbsScan::printCLintervals(const int CLsType, const bool calc_expected) {
+  const auto unit = w->var(scanVar1)->getUnit();
   CLIntervalPrinter clp(arg, name, scanVar1, unit, methodName, CLsType);
   if (calc_expected) {
     clp = CLIntervalPrinter(arg, name, scanVar1, unit, methodName + TString("_expected_standardCLs"));
@@ -894,7 +907,7 @@ void MethodAbsScan::printCLintervals(int CLsType, bool calc_expected) {
       if (cli.min < sol && sol < cli.max) cont = true;
     for (const auto cli : clintervalsuser)
       if (cli.min < sol && sol < cli.max) cont = true;
-    if (cont == true) continue;
+    if (cont) continue;
     if (w->var(scanVar1)->getUnit() == TString("Rad")) sol = RadToDeg(sol);
     int d = arg->digits;
     if (d <= 0) d = 3;
@@ -903,6 +916,7 @@ void MethodAbsScan::printCLintervals(int CLsType, bool calc_expected) {
     cout << endl;
   }
 }
+
 ///
 /// Get the CL interval that includes the best-fit value.
 /// \param sigma 1,2
@@ -1042,13 +1056,14 @@ void MethodAbsScan::plot2d(TString varx, TString vary) {
   savePlot(c1.get(), plotName + arg->plotext);
 }
 
-///
-/// Load the values at a specific minimum into
-/// the workspace. This way we can use it for
-/// goodness of fit, start points, etc.
-/// \param i Index of the solution, i=0 corresponds to the best one.
-///
-bool MethodAbsScan::loadSolution(int i) {
+/**
+ * Load the values at a specific minimum into the workspace.
+ *
+ * This way we can use it for goodness of fit, start points, etc.
+ *
+ * @param i Index of the solution, i=0 corresponds to the best one.
+ */
+bool MethodAbsScan::loadSolution(const int i) {
   if (arg->debug) cout << "MethodAbsScan::loadSolution() : loading solution " << i << endl;
   if (i < 0 || i >= solutions.size()) {
     cout << "MethodAbsScan::loadSolution() : ERROR : solution ID out of range." << endl;
@@ -1112,33 +1127,33 @@ void MethodAbsScan::saveLocalMinima(TString fName) const {
   outfile.close();
 }
 
-///
-/// Get value of scan parameter at a certain solution.
-/// \param iVar - Index of scan variable, 1 or 2.
-/// \param iSol - Index of solution. 0 corresponds to the best one,
-///               indices increase in order of chi2.
-/// \return central value of the solution
-/// \return -999 no solutions available
-/// \return -99 solution not found
-/// \return -9999 no such variable
-///
-double MethodAbsScan::getScanVarSolution(int iVar, int iSol) {
-  if (solutions.empty()) { return -999; }
-  if (iSol >= solutions.size()) {
-    cout << "MethodAbsScan::getScanVarSolution() : ERROR : no solution with id " << iSol << endl;
-    return -99.;
-  }
-  RooSlimFitResult* r = getSolution(iSol);
+/**
+ * Get value of scan parameter at a certain solution.
+ *
+ * @param iVar Index of scan variable, 1 or 2.
+ * @param iSol Index of solution. 0 corresponds to the best one, indices increase in order of chi2.
+ *
+ * @return     Central value of the solution
+ *             -999 no solutions available
+ *             -99 solution not found
+ *             -9999 no such variable
+ */
+double MethodAbsScan::getScanVarSolution(const int iVar, const int iSol) {
+  auto error = [](const std::string& msg, const double err) {
+    std::cerr << "GammaComboEngine::getScanVarSolution() : ERROR : " << msg << endl;
+    return err;
+  };
+  if (solutions.empty()) error("The vector of solutions is empty", -999.);
+  if (iSol >= solutions.size()) error(std::format("No solution with id {:d}", iSol), -99.);
+  auto r = getSolution(iSol);
   assert(r);
   TString varName;
   if (iVar == 1)
     varName = getScanVar1Name();
   else if (iVar == 2)
     varName = getScanVar2Name();
-  else {
-    cout << "MethodAbsScan::getScanVarSolution() : WARNING : no such variable " << iVar << endl;
-    return -9999.;
-  }
+  else
+    error(std::format("No such variable {:d}", iVar), -9999.);
   if (r->isConfirmed()) {
     return r->getFloatParFinalVal(varName);
   } else {
@@ -1148,19 +1163,18 @@ double MethodAbsScan::getScanVarSolution(int iVar, int iSol) {
   }
 }
 
-///
-/// Get value of scan parameter 1 a certain solution.
-/// \param iSol Index of solution. 0 corresponds to the best one,
-/// indices increase in order of chi2.
-///
+/**
+ * Get value of scan parameter 1 a certain solution.
+ *
+ * @param iSol Index of solution (0 corresponds to the best one, indices increase in order of chi2).
+ */
 double MethodAbsScan::getScanVar1Solution(int iSol) { return getScanVarSolution(1, iSol); }
 
-///
-/// Get value of scan parameter 2 a certain solution
-/// (only meaningful for 2d scan).
-/// \param iSol Index of solution. 0 corresponds to the best one,
-/// indices increase in order of chi2.
-///
+/**
+ * Get value of scan parameter 2 a certain solution.
+ *
+ * @param iSol Index of solution (0 corresponds to the best one, indices increase in order of chi2).
+ */
 double MethodAbsScan::getScanVar2Solution(int iSol) { return getScanVarSolution(2, iSol); }
 
 ///
@@ -1170,28 +1184,30 @@ void MethodAbsScan::sortSolutions() {
   if (arg->debug) cout << "MethodAbsScan::sortSolutions() : sorting solutions ..." << endl;
   std::ranges::sort(solutions, [](const std::unique_ptr<RooSlimFitResult>& a,
                                   const std::unique_ptr<RooSlimFitResult>& b) { return a->minNll() < b->minNll(); });
-  if (arg->debug) cout << "MethodAbsScan::sortSolutions() : solutions sorted: " << solutions.size() << endl;
 }
 
-///
-/// Refit all possible solutions with the scan parameter left
-/// free to confirm the solutions. We will reject solutions as
-/// fake if the free fit using them as the starting point will
-/// move too far away. Or, if their Delta chi2 value is above 25.
-///
+/**
+ * Refit all possible solutions with the scan parameter left free to confirm the solutions.
+ * We will reject solutions as fake if the free fit using them as the starting point will move too far away,
+ * or if their Delta chi2 value is above 25.
+ */
 void MethodAbsScan::confirmSolutions() {
   if (arg->debug) cout << "MethodAbsScan::confirmSolutions() : Confirming solutions ..." << endl;
   FitResultCache frCache(arg);
   frCache.storeParsAtFunctionCall(w->set(parsName));
 
   vector<std::unique_ptr<RooSlimFitResult>> confirmedSolutions;
-  RooRealVar* par1 = w->var(scanVar1);
-  RooRealVar* par2 = w->var(scanVar2);
+  auto par1 = w->var(scanVar1);
+  auto par2 = w->var(scanVar2);
   if (par1) par1->setConstant(false);
   if (par2) par2->setConstant(false);
   for (int i = 0; i < solutions.size(); i++) {
-    bool ok = loadSolution(i);
-    if (!ok) continue;
+    if (!loadSolution(i)) {
+      cout << std::format(
+                  "MethodAbsScan::confirmSolutions() : WARNING Could not load solution {:d}, so I will not confirm", i)
+           << endl;
+      continue;
+    }
     if (arg->debug) {
       cout << "MethodAbsScan::confirmSolutions() : solution " << i;
       cout << " " << par1->GetName() << "=" << par1->getVal();
@@ -1199,8 +1215,7 @@ void MethodAbsScan::confirmSolutions() {
       cout << endl;
     }
 
-    // refit the solution
-    // true uses thorough fit with HESSE, -1 silences output
+    // Refit the solution. `true` uses thorough fit with HESSE, -1 silences output
     auto r = fitToMinBringBackAngles(w->pdf(pdfName), true, -1);
 
     // Check scan parameter shift.
@@ -1217,14 +1232,13 @@ void MethodAbsScan::confirmSolutions() {
       // 2d scan
       double par1stepsize = (par1->getMax("scan") - par1->getMin("scan")) / arg->npoints2dx;
       double par2stepsize = (par2->getMax("scan") - par2->getMin("scan")) / arg->npoints2dy;
-      auto par1New = (RooRealVar*)r->floatParsFinal().find(par1->GetName());
-      auto par2New = (RooRealVar*)r->floatParsFinal().find(par2->GetName());
+      auto par1New = static_cast<RooRealVar*>(r->floatParsFinal().find(par1->GetName()));
+      auto par2New = static_cast<RooRealVar*>(r->floatParsFinal().find(par2->GetName()));
       double par1stepsizeInSigma = par1New->getError() > 0 ? par1stepsize / par1New->getError() : 1.;
       double par2stepsizeInSigma = par2New->getError() > 0 ? par2stepsize / par2New->getError() : 1.;
-      allowedSigma = TMath::Max(3. * par1stepsizeInSigma, 3. * par2stepsizeInSigma);
+      allowedSigma = std::max(3. * par1stepsizeInSigma, 3. * par2stepsizeInSigma);
     }
 
-    TIterator* it = nullptr;
     // Warn if a parameter is close to its limit
     for (const auto pAbs : r->floatParsFinal()) {
       auto p = static_cast<RooRealVar*>(pAbs);
@@ -1264,7 +1278,7 @@ void MethodAbsScan::confirmSolutions() {
         }
       }
     }
-    if (r->minNll() - chi2minGlobal > 25) {
+    if (r->minNll() - chi2minGlobal > 25.) {
       cout << "MethodAbsScan::confirmSolutions() : WARNING : local minimum has DeltaChi2>25." << endl;
       isConfirmed = false;
       rejectReason =
@@ -1276,10 +1290,9 @@ void MethodAbsScan::confirmSolutions() {
       sr->setConfirmed(true);
       confirmedSolutions.push_back(std::move(sr));
     } else {
-      cout << "MethodAbsScan::confirmSolutions() : WARNING : solution " << i
-           << " rejected "
-              "("
-           << rejectReason << ")" << endl;
+      cout << std::format("MethodAbsScan::confirmSolutions() : WARNING : solution {:d} rejected ({:s})", i,
+                          std::string(rejectReason))
+           << endl;
     }
   }
   // do NOT delete the old solutions! They are still in allResults and curveResults.
@@ -1291,16 +1304,14 @@ void MethodAbsScan::confirmSolutions() {
   setParameters(w, parsName, frCache.getParsAtFunctionCall());
 }
 
-///
-/// Remove duplicate solutions from the common solutions storage
-/// ('solutions' vector). Duplicate solutions can occur when two
-/// unconfirmed solutions converge to the same true local minimum
-/// when refitted by confirmSolutions().
-///
-/// No solutions will be removed if --qh 9 is given.
-/// \todo upgrade the quickhack to a proper option
-///
+/**
+ * Remove duplicate solutions from the common solutions storage ('solutions' vector).
+ *
+ * Duplicate solutions can occur when two unconfirmed solutions converge to the same true local minimum when refitted
+ * by confirmSolutions(). No solutions will be removed if --qh 9 is given.
+ */
 void MethodAbsScan::removeDuplicateSolutions() {
+  // TODO upgrade the quickhack to a proper option
   if (arg->isQuickhack(9)) return;
   vector<std::unique_ptr<RooSlimFitResult>> solutionsNoDup;
   for (int i = 0; i < solutions.size(); i++) {
@@ -1362,8 +1373,8 @@ bool MethodAbsScan::compareSolutions(const RooSlimFitResult* r1, const RooSlimFi
 /// \param i Index of the solution, they are orderd after increasing chi2,
 ///         i=0 is that with the smallest chi2.
 ///
-RooSlimFitResult* MethodAbsScan::getSolution(int i) {
-  if (i < 0 || i >= solutions.size()) {
+RooSlimFitResult* MethodAbsScan::getSolution(const int i) {
+  if (i < 0 || i >= solutions.size() || !solutions[i]) {
     cout << Form("MethodAbsScan::getSolution() : ERROR : No solution with id %i.", i) << endl;
     return nullptr;
   }

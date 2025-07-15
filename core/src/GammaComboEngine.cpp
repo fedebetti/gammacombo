@@ -33,7 +33,7 @@ using namespace std;
 using namespace Utils;
 
 auto errorBase = [](const std::string& caller, const std::string& msg) {
-  std::cerr << "GammaComboEngine::" << caller << " : ERROR : " << msg << ".Exit" << endl;
+  std::cerr << "GammaComboEngine::" << caller << " : ERROR : " << msg << ". Exit" << endl;
   exit(1);
 };
 
@@ -1220,7 +1220,7 @@ void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* p
     if (!arg->probforce) {
       auto&& firstScanSolutions = scanner->getSolutions();
       for (int i = 0; i < firstScanSolutions.size(); i++) {
-        cout << "Scan i: " << i << endl;
+        cout << std::format("Scan from solution {:d}:", i) << endl;
         // scanner->loadSolution(i);
         scanner->loadParameters(firstScanSolutions[i].get());
         scanner->scan1d(true);

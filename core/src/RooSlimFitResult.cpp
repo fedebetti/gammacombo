@@ -64,18 +64,18 @@ RooArgList& RooSlimFitResult::floatParsFinal() const {
   return _floatParsFinalDummy;
 }
 
-///
-/// Return the value of a constant parameter contained in this
-/// fit result.
-/// \param name - the parameter name
-/// \return - the value, NaN if the parameter wasn't found.
-///
+/**
+ * Return the value of a constant parameter contained in this fit result.
+ *
+ * @param name The parameter name.
+ *
+ * @return The value of the parameter, or NaN if the parameter is not found or is not constant.
+ */
 double RooSlimFitResult::getConstParVal(TString name) const {
   for (int i = 0; i < _parsNames.size(); i++) {
-    if (!_parsConst[i]) continue;
-    if (TString(_parsNames[i]) == name) return _parsVal[i];
+    if (_parsConst[i] && TString(_parsNames[i]) == name) return _parsVal[i];
   }
-  return std::numeric_limits<double>::quiet_NaN();  // return nan
+  return std::numeric_limits<double>::quiet_NaN();
 }
 
 ///
