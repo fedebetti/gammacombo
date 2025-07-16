@@ -91,6 +91,9 @@ namespace Utils {
   void randomizeParameters(RooWorkspace* w, TString setname);
   void randomizeParametersGaussian(RooWorkspace* w, TString setname, RooSlimFitResult* r);
   void randomizeParametersUniform(RooWorkspace* w, TString setname, RooSlimFitResult* r, double sigmaRange);
+
+  std::string replaceAll(const std::string& input, const std::string& toReplace, const std::string& replaceWith);
+
   void setParameters(const RooAbsCollection* setMe, const RooAbsCollection* values);
   void setParameters(RooWorkspace* w, TString parname, const RooAbsCollection* set);
   void setParameters(RooWorkspace* w, TString parname, const RooFitResult* r, bool constAndFloat = false);

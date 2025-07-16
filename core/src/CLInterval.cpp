@@ -1,11 +1,17 @@
-#include "CLInterval.h"
+#include <CLInterval.h>
 
+#include <format>
 #include <iostream>
 
-using namespace std;
-
 void CLInterval::print() const {
-  cout << "pvalue=" << pvalue << " pvalueAtCentral=" << pvalueAtCentral << " min=" << min << " max=" << max
-       << " central=" << central << " minclosed=" << minclosed << " maxclosed=" << maxclosed
-       << " minmethod=" << minmethod << " maxmethod=" << maxmethod << " centralmethod=" << centralmethod << endl;
+  std::cout << std::format("CLInterval {{\n"
+                           "  p-value           = {:.4f}\n"
+                           "  p-value at center = {:.4f}\n"
+                           "  {:.4e} [{:.4e}, {:4e}]\n"
+                           "  methods: {:s} [{:s}, {:s}]\n"
+                           "  closed borders: [{:s}, {:s}]\n"
+                           "}}",
+                           pvalue, pvalueAtCentral, central, min, max, std::string(centralmethod),
+                           std::string(minmethod), std::string(maxmethod), minclosed, maxclosed)
+            << std::endl;
 }

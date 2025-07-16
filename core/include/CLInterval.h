@@ -1,32 +1,37 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2014
- *
- **/
-
 #ifndef CLInterval_h
 #define CLInterval_h
 
+#include <limits>
+
 #include <TString.h>
 
-///
-/// Class that represents a confidence interval
-///
-class CLInterval {
- public:
+/**
+ * Class that represents a confidence interval.
+ */
+struct CLInterval {
+  /// Print the details of the CL interval.
   void print() const;
 
-  double pvalue = -1.;            // pvalue corresponding to this interval
-  double pvalueAtCentral = -1.;   // pvalue at the central value
-  double min = -1.;               // lower interval border
-  double max = -1.;               // upper interval border
-  double central = -1.;           // central value
-  bool minclosed = false;         // true if the interval was not closed by limited scan range
-  bool maxclosed = false;         // true if the interval was not closed by limited scan range
-  TString minmethod = "n/a";      // details on the algorithm that found this interval
-  TString maxmethod = "n/a";      // details on the algorithm that found this interval
-  TString centralmethod = "n/a";  // details on the algorithm that found the central value
+  /// P-value that defines the interval.
+  double pvalue = std::numeric_limits<double>::quiet_NaN();
+  /// P-value at the central value.
+  double pvalueAtCentral = std::numeric_limits<double>::quiet_NaN();
+  /// Lower interval border.
+  double min = std::numeric_limits<double>::quiet_NaN();
+  /// Upper interval border.
+  double max = std::numeric_limits<double>::quiet_NaN();
+  /// Central value.
+  double central = std::numeric_limits<double>::quiet_NaN();
+  /// True if the interval was not closed by limited scan range.
+  bool minclosed = false;
+  /// True if the interval was not closed by limited scan range.
+  bool maxclosed = false;
+  /// Identifier of the algorithm that found the lower border of the interval.
+  TString minmethod = "n/a";
+  /// Identifier of the algorithm that found the upper border of the interval.
+  TString maxmethod = "n/a";
+  /// Identifier of the algorithm that found the central value of the interval.
+  TString centralmethod = "n/a";
 };
 
 #endif
