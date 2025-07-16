@@ -3,6 +3,7 @@
 #include <Utils.h>
 
 #include <algorithm>
+#include <format>
 #include <string>
 
 using namespace std;
@@ -25,34 +26,34 @@ CLIntervalPrinter::CLIntervalPrinter(const OptParser* arg, TString name, TString
 ///
 /// \param intervals - vector of confidence intervals, each one corresponding to one solution
 ///
-void CLIntervalPrinter::addIntervals(vector<CLInterval>& intervals) { _intervals.push_back(intervals); }
+void CLIntervalPrinter::addIntervals(const vector<CLInterval>& intervals) { _intervals.push_back(intervals); }
 
 ///
 /// Helper function to sort the intervals according to their
 /// lower boundary.
 ///
-bool CLIntervalPrinter::compareByMin(const CLInterval& a, const CLInterval& b) { return a.min < b.min; }
 
-void CLIntervalPrinter::print() {
+void CLIntervalPrinter::print() const {
+  auto compareByMin = [](const CLInterval& a, const CLInterval& b) { return a.min < b.min; };
   for (auto intervals : _intervals) {
     vector<CLInterval> sortedIntervals(intervals);
     std::ranges::sort(sortedIntervals, compareByMin);
     for (auto sInterval : sortedIntervals) {
       CLInterval i = sInterval;
 
-      // convert to degrees if necessary
-      if (_degrees) {
+      std::string unit{_unit};
+      if (_convertToDeg) {
         i.central = RadToDeg(i.central);
         i.min = RadToDeg(i.min);
         i.max = RadToDeg(i.max);
-        _unit = "Deg";
+        unit = "Deg";
       }
 
       Rounder myRounder(_arg, i.min, i.max, i.central);
       int d = myRounder.getNsubdigits();
       printf("%s = [%7.*f, %7.*f] (%7.*f -%7.*f +%7.*f) @%3.2fCL", _var.Data(), d, myRounder.CLlo(), d,
              myRounder.CLhi(), d, myRounder.central(), d, myRounder.errNeg(), d, myRounder.errPos(), 1. - i.pvalue);
-      if (_unit != "") cout << ", [" << _unit << "]";
+      if (!unit.empty()) cout << std::format(", [{}]", unit);
       // \todo remove the following code from quickhack stage once we have switched
       // to the CLIntervalMaker mechanism to get more useful information
       // on the CL intervals
@@ -67,13 +68,12 @@ void CLIntervalPrinter::print() {
           cout << ", p(central): " << i.pvalueAtCentral;
         }
       }
-      cout << endl;
     }
     cout << endl;
   }
 }
 
-void CLIntervalPrinter::savePython() {
+void CLIntervalPrinter::savePython() const {
   TString dirname = "plots/cl";
   TString ofname;
   if (_clstype == 0)
@@ -87,18 +87,18 @@ void CLIntervalPrinter::savePython() {
   outf << "# Confidence Intervals" << endl;
   outf << "intervals = {" << endl;
 
-  double previousCL = -1.0;
+  double previousCL = -1.;
 
   for (auto intervals : _intervals)
     for (auto interval : intervals) {
       CLInterval i = interval;
 
-      // convert to degrees if necessary
-      if (_degrees) {
+      std::string unit{_unit};
+      if (_convertToDeg) {
         i.central = RadToDeg(i.central);
         i.min = RadToDeg(i.min);
         i.max = RadToDeg(i.max);
-        _unit = "Deg";
+        unit = "Deg";
       }
 
       Rounder myRounder(_arg, i.min, i.max, i.central);
@@ -113,7 +113,7 @@ void CLIntervalPrinter::savePython() {
       outf << Form("    {'var':'%s', 'min':'%.*f', 'max':'%.*f', 'central':'%.*f', "
                    "'neg':'%.*f', 'pos':'%.*f', 'cl':'%.2f', 'unit':'%s', 'method':'%s'},\n",
                    _var.Data(), d, myRounder.CLlo(), d, myRounder.CLhi(), d, myRounder.central(), d, myRounder.errNeg(),
-                   d, myRounder.errPos(), thisCL, _unit.Data(), _method.Data());
+                   d, myRounder.errPos(), thisCL, unit, _method.Data());
       previousCL = thisCL;
     }
   if (previousCL != -1) { outf << "  ]" << endl; }

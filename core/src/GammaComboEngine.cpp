@@ -10,6 +10,7 @@
 #include <ParameterEvolutionPlotter.h>
 #include <Utils.h>
 
+// Needed to define GAMMACOMBO_VERSION. Header created during CMake generation
 #include <VersionConfig.h>
 
 #include <RooRealVar.h>
@@ -2183,7 +2184,7 @@ void GammaComboEngine::runApplication() {
 }
 
 /**
- * Print the GammaCombo banner
+ * Print the GammaCombo banner.
  */
 void GammaComboEngine::printBanner() const {
   cout << "\n\033[1mGammaCombo " << GAMMACOMBO_VERSION << " \033[0m"
@@ -2192,7 +2193,7 @@ void GammaComboEngine::printBanner() const {
 }
 
 /**
- * Run GammaComboEngine (main steering function)
+ * Run GammaComboEngine (main steering function).
  */
 void GammaComboEngine::run() {
   if (arg->usage) usage();  // print usage and exit

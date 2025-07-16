@@ -2,6 +2,7 @@
 #define MethodAbsScan_h
 
 #include <memory>
+#include <optional>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -211,8 +212,9 @@ class MethodAbsScan {
   bool compareSolutions(const RooSlimFitResult* r1, const RooSlimFitResult* r2) const;
   double pq(double p0, double p1, double p2, double y, int whichSol = 0) const;
   void removeDuplicateSolutions();
-  bool interpolate(TH1* h, int i, double y, double central, bool upper, double& val, double& err) const;
-  void interpolateSimple(TH1* h, int i, double y, double& val) const;
+  std::optional<std::pair<double, double>> interpolate(TH1* h, const int i, const double y, const double central,
+                                                       const bool upper) const;
+  std::optional<double> interpolateSimple(const TH1* h, const int i, const double y) const;
 };
 
 #endif

@@ -460,6 +460,22 @@ void Utils::randomizeParametersUniform(RooWorkspace* w, TString setname, RooSlim
   }
 }
 
+/// Replace all occurrences of a substring in a string.
+std::string Utils::replaceAll(const std::string& input, const std::string& toReplace, const std::string& replaceWith) {
+  std::string output = input;
+  if (toReplace == replaceWith) return input;
+  size_t pos = 0;
+  size_t start_pos = 0;
+  do {
+    pos = output.find(toReplace, start_pos);
+    if (pos != std::string::npos) {
+      output.replace(pos, toReplace.length(), replaceWith);
+      start_pos = pos + toReplace.length();
+    }
+  } while (pos != std::string::npos);
+  return output;
+}
+
 ///
 /// Set each parameter in workspace to the values found
 /// in the fit result
