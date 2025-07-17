@@ -34,6 +34,29 @@ namespace {
 /// Constructor.
 OneMinusClPlot::OneMinusClPlot(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {}
 
+/// Helper function for operation that is repeated several times.
+std::unique_ptr<TH1> OneMinusClPlot::getHistogram(MethodAbsScan* s, const int CLsType, const bool removeErrs) const {
+  const TH1* pH = nullptr;
+  if (CLsType == 0)
+    pH = s->getHCL();
+  else if (CLsType == 1)
+    pH = s->getHCLs();
+  else if (CLsType == 2)
+    pH = s->getHCLsFreq();
+  if (!pH) {
+    std::cerr << "OneMinusClPlot::getHistogram() : ERROR : Could not retrieve the histogram" << std::endl;
+    exit(1);
+  }
+  auto h = std::unique_ptr<TH1>(dynamic_cast<TH1*>(pH->Clone(Utils::getUniqueRootName())));
+  // TODO this should not be needed
+  for (int i = 1; i <= h->GetNbinsX(); ++i) {
+    if (std::isnan(h->GetBinContent(i)) || std::isinf(h->GetBinContent(i))) h->SetBinContent(i, 0.);
+  }
+  // remove errors the hard way, else root always plots them
+  if (removeErrs) h = Utils::histHardCopy(h.get(), true, true);
+  return h;
+}
+
 /**
  * Make a TGraph out of a 1D histogram holding a 1-CL curve.
  *
@@ -64,20 +87,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
                      s->getMethodName() == "DatasetsPlugin") &&
                     plotPluginMarkers;
 
-  // Get the histogram
-  const TH1* pH = s->getHCL();
-  if (CLsType == 1)
-    pH = s->getHCLs();
-  else if (CLsType == 2)
-    pH = s->getHCLsFreq();
-  auto hCL = std::unique_ptr<TH1>(dynamic_cast<TH1*>((pH->Clone(Utils::getUniqueRootName()))));
-  // Fix inf and nan entries (TODO this should not be needed)
-  for (int i = 1; i <= hCL->GetNbinsX(); i++) {
-    if (std::isnan(hCL->GetBinContent(i)) || std::isinf(hCL->GetBinContent(i))) hCL->SetBinContent(i, 0.);
-  }
-  // remove errors the hard way, else root ALWAYS plots them
-  if (!plotPoints) hCL = Utils::histHardCopy(hCL.get(), true, true);
-
+  auto hCL = getHistogram(s, CLsType, !plotPoints);
   // disable any statistics box
   hCL->SetStats(0);
 
@@ -348,18 +358,7 @@ void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, const bool first, const 
   }
   canvas->cd();
 
-  // Get the histogram
-  const TH1* pH = s->getHCL();
-  if (CLsType == 1)
-    pH = s->getHCLs();
-  else if (CLsType == 2)
-    pH = s->getHCLsFreq();
-  auto hCLtmp = std::unique_ptr<TH1>(dynamic_cast<TH1*>((pH->Clone(Utils::getUniqueRootName()))));
-  // Fix inf and nan entries (TODO this should not be needed)
-  for (int i = 1; i <= hCLtmp->GetNbinsX(); i++) {
-    if (std::isnan(hCLtmp->GetBinContent(i)) || std::isinf(hCLtmp->GetBinContent(i))) hCLtmp->SetBinContent(i, 0.);
-  }
-  auto hCL = getTObjectOwnership<TH1>(std::move(hCLtmp));
+  auto hCL = getTObjectOwnership<TH1>(getHistogram(s, CLsType, false));
 
   int color = s->getLineColor();
   if (CLsType == 1) color = color + 2;
