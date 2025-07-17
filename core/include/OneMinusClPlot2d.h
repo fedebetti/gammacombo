@@ -5,8 +5,9 @@
 #include "OneMinusClPlotAbs.h"
 #include "Utils.h"
 
+#include <vector>
+
 #include <TH2.h>
-#include <TLegend.h>
 #include <TString.h>
 
 /**
@@ -16,13 +17,13 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
  public:
   OneMinusClPlot2d(OptParser* arg, TString name = "c1", TString title = "c1");
 
-  void addScanner(MethodAbsScan* s, int CLsType = 0);
-  void addFile(TString fName);
-  void Draw() override;
+  void addFile(const TString fName);
+  void addScanner(MethodAbsScan* s, const int CLsType = 0) override;
+  void Draw(const bool beautify) override;
   void DrawFull();
-  void drawCLcontent(bool isFull = false);
-  void drawMarker(double x, double y, int color = 0, int style = 3, double size = 2.0) const;
-  void drawGroup() const;
+  void drawCLcontent(const bool isFull = false);
+  void drawGroup();
+  void drawMarker(const double x, const double y, const int color = 0, const int style = 3, const double size = 2.0);
   void drawSolutions() override;
   inline int getNumberOfDefinedColors() const { return linecolor[0].size(); }
   inline void setContoursOnly() { contoursOnly = true; };
@@ -45,14 +46,13 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
 
  private:
   void drawLegend();
-  bool hasHistoType(Utils::histogramType t) const;
-  void makeNewPlotStyle(TString htmlColor, int ROOTColor = -1);
-  void makeOneColorPlotStyle(TString htmlColor, int ROOTColor = -1);
+  bool hasHistoType(const Utils::histogramType t) const;
+  void makeNewPlotStyle(const TString htmlColor, const int ROOTColor = -1);
+  void makeOneColorPlotStyle(const TString htmlColor, const int ROOTColor = -1);
 
   std::vector<Utils::histogramType> histosType;  ///< defines if histogram is interpreted as p-value or chi2
   std::vector<ConfidenceContours*> m_contours;   ///< holds the contours for each scanner
   std::vector<bool> m_contours_computed;  ///< true if the contours were computed for that scanner by computeContours()
-  std::unique_ptr<TLegend> m_legend = nullptr;  ///< pointer to the plot legend. Filled by drawLegend().
 };
 
 #endif

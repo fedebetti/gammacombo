@@ -1,15 +1,10 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #include <ColorBuilder.h>
 #include <OneMinusClPlot2d.h>
 #include <Utils.h>
 
-#include <memory>
+#include <iomanip>
+#include <string>
+#include <vector>
 
 #include <TColor.h>
 #include <TGaxis.h>
@@ -20,30 +15,27 @@
 #include <TPaveText.h>
 #include <TROOT.h>
 
-using namespace std;
-using namespace Utils;
+namespace {
+  auto msgBase = [](const std::string& prefix, const std::string& msg) {
+    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
+    std::cout << prefix << msgOut << std::endl;
+  };
+}
 
+/// Constructor.
 OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
   xTitle = arg->xtitle;
   yTitle = arg->ytitle;
   ColorBuilder cb;
 
-  // ==== define style ====
-  for (int i = 0; i < 9; i++) {
-    // initialize containers holding the plot style
-    vector<int> tmp1;
-    linecolor.push_back(tmp1);
-    vector<int> tmp2;
-    linestyle.push_back(tmp2);
-    vector<int> tmp3;
-    fillcolor.push_back(tmp3);
-    vector<int> tmp4;
-    fillstyle.push_back(tmp4);
-    vector<int> tmp5;
-    linewidth.push_back(tmp5);
-  }
+  const int size = 9;
+  linecolor.resize(size);
+  linestyle.resize(size);
+  fillcolor.resize(size);
+  fillstyle.resize(size);
+  linewidth.resize(size);
 
-  // fill from the options first
+  // Fill from the options first
   for (int ncont = 0; ncont < 9; ncont++) {
     for (const auto val : arg->linecolor) { linecolor[ncont].push_back(val); }
     for (const auto val : arg->linestyle) { linestyle[ncont].push_back(val); }
@@ -435,7 +427,7 @@ OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) 
 /// \param htmlColor - an HTML color, e.g. "#e6ab02". If ROOT is provided,
 /// the new scanner will be based on a predefined ROOT color.
 ///
-void OneMinusClPlot2d::makeNewPlotStyle(TString htmlColor, int ROOTColor) {
+void OneMinusClPlot2d::makeNewPlotStyle(const TString htmlColor, const int ROOTColor) {
   int currentNumberOfStyles = linecolor[0].size();
   // get index of new color. Either use the provided HTML color, or
   // take a predefined ROOT color.
@@ -497,7 +489,7 @@ void OneMinusClPlot2d::makeNewPlotStyle(TString htmlColor, int ROOTColor) {
   linewidth[8].push_back(2);
 }
 
-void OneMinusClPlot2d::makeOneColorPlotStyle(TString htmlColor, int ROOTColor) {
+void OneMinusClPlot2d::makeOneColorPlotStyle(const TString htmlColor, const int ROOTColor) {
   int currentNumberOfStyles = linecolor[0].size();
   // get index of new color. Either use the provided HTML color, or
   // take a predefined ROOT color.
@@ -562,18 +554,18 @@ void OneMinusClPlot2d::makeOneColorPlotStyle(TString htmlColor, int ROOTColor) {
 ///
 /// Add a scanner to the list of things to be plotted.
 ///
-void OneMinusClPlot2d::addScanner(MethodAbsScan* s, int CLsType) {
-  if (arg->debug) cout << "OneMinusClPlot2d::addScanner() : adding " << s->getName() << endl;
+void OneMinusClPlot2d::addScanner(MethodAbsScan* s, const int CLsType) {
+  if (arg->debug) std::cout << "OneMinusClPlot2d::addScanner() : adding " << s->getName() << std::endl;
   if ((CLsType == 1 || CLsType == 2) && !s->getHCLs2d()) {
-    cout << "OneMinusClPlot2d::addScanner() : ERROR : No hCLs available. Will not plot." << endl;
+    std::cout << "OneMinusClPlot2d::addScanner() : ERROR : No hCLs available. Will not plot." << std::endl;
     return;
   }
   scanners.push_back(s);
   if ((s->getMethodName().EqualTo("Prob") || s->getMethodName().EqualTo("DatasetsProb")) && CLsType == 0) {
-    histosType.push_back(kChi2);
+    histosType.push_back(Utils::kChi2);
     histos.push_back(s->getHchisq2d());
   } else {
-    histosType.push_back(kPvalue);
+    histosType.push_back(Utils::kPvalue);
     if (CLsType == 1 || CLsType == 2)
       histos.push_back(s->getHCLs2d());
     else
@@ -588,18 +580,18 @@ void OneMinusClPlot2d::addScanner(MethodAbsScan* s, int CLsType) {
   m_contours_computed.push_back(false);
 }
 
-void OneMinusClPlot2d::addFile(TString fName) {
-  if (arg->debug) cout << "OneMinusClPlot2d::addFile() : Opening " << fName << endl;
+void OneMinusClPlot2d::addFile(const TString fName) {
+  if (arg->debug) std::cout << "OneMinusClPlot2d::addFile() : Opening " << fName << std::endl;
   auto f = TFile::Open(fName, "ro");
   TH2F* hCL = (TH2F*)f->Get("hCL");
   if (!hCL) {
-    cout << "OneMinusClPlot2d::addFile() : ERROR : File doesn't contain hCL." << endl;
+    std::cout << "OneMinusClPlot2d::addFile() : ERROR : File doesn't contain hCL." << std::endl;
     return;
   }
   histos.push_back(hCL);
   if (arg->smooth2d)
     for (int i = 0; i < arg->nsmooth; i++) { histos[histos.size() - 1]->Smooth(); }
-  histosType.push_back(kPvalue);
+  histosType.push_back(Utils::kPvalue);
   m_contours.push_back(nullptr);
   m_contours_computed.push_back(false);
 }
@@ -607,15 +599,14 @@ void OneMinusClPlot2d::addFile(TString fName) {
 ///
 /// Draw the group label on a 2d plot at a higher position.
 ///
-void OneMinusClPlot2d::drawGroup() const { OneMinusClPlotAbs::drawGroup(0.775); }
+void OneMinusClPlot2d::drawGroup() { OneMinusClPlotAbs::drawGroup(0.775); }
 
-///
-/// Checks if one of the scanners to be plotted provided
-/// a histogram of a certain type
-///
-/// t - histogram type: kChi2 or kPvalue
-///
-bool OneMinusClPlot2d::hasHistoType(histogramType t) const {
+/**
+ * Checks if one of the scanners to be plotted provided a histogram of a certain type.
+ *
+ * @param t Histogram type (kChi2 or kPvalue).
+ */
+bool OneMinusClPlot2d::hasHistoType(const Utils::histogramType t) const {
   for (int i = 0; i < histosType.size(); i++) {
     if (histosType[i] == t) return true;
   }
@@ -625,7 +616,7 @@ bool OneMinusClPlot2d::hasHistoType(histogramType t) const {
 ///
 /// Draw a line stating the CL content of the contours.
 ///
-void OneMinusClPlot2d::drawCLcontent(bool isFull) {
+void OneMinusClPlot2d::drawCLcontent(const bool isFull) {
   double xLow, yLow;
   xLow = 0.17;
   yLow = 0.15;
@@ -634,7 +625,7 @@ void OneMinusClPlot2d::drawCLcontent(bool isFull) {
     xLow = 0.11;
     yLow = 0.11;
   }
-  auto t1 = new TPaveText(xLow, yLow, xLow + 0.20, yLow + 0.125, "BRNDC");
+  auto t1 = makeOwnedTObject<TPaveText>(xLow, yLow, xLow + 0.20, yLow + 0.125, "BRNDC");
   t1->SetBorderSize(0);
   t1->SetFillStyle(0);
   t1->SetTextAlign(12);
@@ -644,7 +635,7 @@ void OneMinusClPlot2d::drawCLcontent(bool isFull) {
   if (isFull) t1->SetTextColor(kRed);
   TString text;
   text = "contours hold ";
-  if (arg->plot2dcl[0] > 0 || (histos.size() == 1 && hasHistoType(kPvalue))) {
+  if (arg->plot2dcl[0] > 0 || (histos.size() == 1 && hasHistoType(Utils::kPvalue))) {
     if (arg->plotnsigmacont > 0) text += "68%";
     if (arg->plotnsigmacont > 1) text += ", 95%";
   } else {
@@ -661,87 +652,86 @@ void OneMinusClPlot2d::drawCLcontent(bool isFull) {
 /// Draw the full DeltaChi2 histogram of the first scanner.
 ///
 void OneMinusClPlot2d::DrawFull() {
-  if (arg->debug) { cout << "OneMinusClPlot2d::DrawFull() : drawing ..." << endl; }
-  if (histos.size() > 1) {
-    cout << "OneMinusClPlot2d::DrawFull() : WARNING : can only draw the full histogram of the first" << endl;
-    cout << "                                         scanner." << endl;
-  }
-  if (!m_mainCanvas) {
-    m_mainCanvas = newNoWarnTCanvas(name + getUniqueRootName(), title, 800, arg->square ? 800 : 600);
-  }
-  m_mainCanvas->cd();
-  m_mainCanvas->SetMargin(0.1, 0.15, 0.1, 0.1);
-  if (histos.size() == 0) std::cout << "OneMinusClPlot2d::DrawFull() : No histogram to plot!" << std::endl;
-  if (!histos[0]) std::cout << "OneMinusClPlot2d::DrawFull() : Histogram broken!" << std::endl;
+  auto info = [](const std::string& msg) { msgBase("OneMinusClPlot2d::DrawFull : ", msg); };
+  auto warning = [](const std::string& msg) { msgBase("OneMinusClPlot2d::DrawFull : WARNING : ", msg); };
+
+  if (arg->debug) info("Start...");
+  if (histos.size() > 1) warning("can only draw the full histogram of the first scanner");
+
+  canvas->cd();
+  canvas->SetMargin(0.1, 0.15, 0.1, 0.1);
+  if (histos.size() == 0) info("No histogram to plot!");
+  if (!histos[0]) info("Histogram broken!");
   auto hChi2 = histos[0];
   hChi2->SetContour(95);
   hChi2->GetXaxis()->SetTitle(xTitle != "" ? xTitle : (TString)scanners[0]->getScanVar1()->GetTitle());
   hChi2->GetYaxis()->SetTitle(yTitle != "" ? yTitle : (TString)scanners[0]->getScanVar2()->GetTitle());
   double zMin = hChi2->GetMinimum();
   double zMax;
-  if (histosType[0] == kChi2) {
+  if (histosType[0] == Utils::kChi2) {
     zMax = fmin(zMin + 81, hChi2->GetMaximum());
   } else {
     zMax = 1;
   }
   hChi2->GetZaxis()->SetRangeUser(zMin, zMax);
-  hChi2->GetZaxis()->SetTitle(histosType[0] == kChi2 ? "#Delta#chi^{2}" : "p-value");
+  hChi2->GetZaxis()->SetTitle(histosType[0] == Utils::kChi2 ? "#Delta#chi^{2}" : "p-value");
   hChi2->Draw("colz");
 
   // draw contours if requested
   auto cont = new ConfidenceContours(arg);
   cont->computeContours(histos[0], histosType[0], 0);
-  vector<int> linecolor{kRed, kRed, kRed, kRed, kRed, kRed, kRed};
-  // vector<int> linestyle { kDashed, kDashed, kDashed, kDashed, kDashed };
-  vector<int> linestyle{1, 2, 3, 4, 5, 6, 7};
+  const int size = 7;
+  std::vector<int> linecolor(size, kRed);
+  // std::vector<int> linestyle { kDashed, kDashed, kDashed, kDashed, kDashed };
+  std::vector<int> linestyle{1, 2, 3, 4, 5, 6, 7};
   TColor* col = gROOT->GetColor(0);
   col->SetAlpha(1.);
-  vector<int> fillcolor{0, 0, 0, 0, 0, 0, 0};
-  vector<int> fillstyle{0, 0, 0, 0, 0, 0, 0};
-  vector<int> linewidth{2, 2, 2, 2, 2, 2, 2};
+  std::vector<int> fillcolor(size, 0);
+  std::vector<int> fillstyle(size, 0);
+  std::vector<int> linewidth(size, 2);
   cont->setStyle(linecolor, linestyle, linewidth, fillcolor, fillstyle);
   cont->setTransparency(1.);
   cont->Draw();
 
   if (!arg->isQuickhack(15)) drawCLcontent(true);
 
-  auto title = new TPaveText(.10, .92, .90, .99, "BRNDC");
+  auto title = makeOwnedTObject<TPaveText>(.10, .92, .90, .99, "BRNDC");
   title->AddText(
-      Form("%s for %s", histosType[0] == kChi2 ? "#Delta#chi^{2}" : "p-value", scanners[0]->getTitle().Data()));
+      Form("%s for %s", histosType[0] == Utils::kChi2 ? "#Delta#chi^{2}" : "p-value", scanners[0]->getTitle().Data()));
   title->SetBorderSize(0);
   title->SetFillStyle(0);
   title->SetTextFont(133);
   title->SetTextSize(35);
   title->Draw();
-  m_mainCanvas->Update();
+  canvas->Update();
 }
 
 ///
 /// Draw the legend.
 ///
 void OneMinusClPlot2d::drawLegend() {
-  if (arg->debug) { cout << "OneMinusClPlot2d::drawLegend() : drawing legend ..." << endl; }
+  if (arg->debug) { std::cout << "OneMinusClPlot2d::drawLegend() : drawing legend ..." << std::endl; }
   // set up the legend
   double legendXmin = arg->plotlegx != -1. ? arg->plotlegx : 0.17;
   double legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.75;
   double legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.38);
   double legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.15);
-  m_legend = std::make_unique<TLegend>(legendXmin, legendYmin, legendXmax, legendYmax);
-  m_legend->SetNColumns(arg->plotlegcols);
-  m_legend->SetFillColor(0);
-  m_legend->SetFillStyle(0);
-  m_legend->SetBorderSize(0);
+  auto legend = makeOwnedTObject<TLegend>(legendXmin, legendYmin, legendXmax, legendYmax);
+  legend->SetNColumns(arg->plotlegcols);
+  legend->SetFillColor(0);
+  legend->SetFillStyle(0);
+  legend->SetBorderSize(0);
   if (arg->isQuickhack(35)) {
-    m_legend->SetFillColorAlpha(0, 0.7);
-    m_legend->SetFillStyle(1001);
-    m_legend->SetLineStyle(1);
-    m_legend->SetLineWidth(1);
-    m_legend->SetLineColor(kGray + 1);
-    m_legend->SetBorderSize(1);
+    legend->SetFillColorAlpha(0, 0.7);
+    legend->SetFillStyle(1001);
+    legend->SetLineStyle(1);
+    legend->SetLineWidth(1);
+    legend->SetLineColor(kGray + 1);
+    legend->SetBorderSize(1);
   }
-  m_legend->SetTextFont(font);
-  m_legend->SetTextSize(legendsize * 0.75);
-  if (arg->isQuickhack(26)) m_legend->SetTextSize(0.9 * legendsize);
+  legend->SetTextFont(font);
+  legend->SetTextSize(legendsize * 0.75);
+  if (arg->isQuickhack(26)) legend->SetTextSize(0.9 * legendsize);
 
   // build legend
   for (int i = 0; i < histos.size(); i++) {
@@ -756,12 +746,12 @@ void OneMinusClPlot2d::drawLegend() {
 
     if (histos.size() == 1) {
       // no legend symbol if only one scanner to be drawn
-      m_legend->AddEntry(static_cast<TObject*>(nullptr), legTitle, "");
+      legend->AddEntry(static_cast<TObject*>(nullptr), legTitle, "");
     } else {
       // construct a dummy TGraph that uses the style of the 1sigma line
       int styleId = i;
       if (arg->color.size() > i) styleId = arg->color[i];
-      auto g = new TGraph(1);
+      auto g = makeOwnedTObject<TGraph>(1);
       if (arg->isQuickhack(33))
         g->SetFillStyle(1001);  // solid
       else
@@ -777,12 +767,12 @@ void OneMinusClPlot2d::drawLegend() {
       g->SetMarkerSize(markersize[styleId]);
       TString options = "f";
       if (scanners[i]->getDrawSolution()) options += "p";  // only plot marker symbol when solutions are plotted
-      if (scanners[i]->getTitle() != "noleg") { m_legend->AddEntry(g, legTitle, options); }
+      if (scanners[i]->getTitle() != "noleg") { legend->AddEntry(g, legTitle, options); }
     }
   }
   if (arg->plotlegbox) {
-    auto legbox =
-        new TPaveText(legendXmin, legendYmin, legendXmin + arg->plotlegboxx, legendYmin + arg->plotlegboxy, "ndc");
+    auto legbox = makeOwnedTObject<TPaveText>(legendXmin, legendYmin, legendXmin + arg->plotlegboxx,
+                                              legendYmin + arg->plotlegboxy, "ndc");
     legbox->SetFillColorAlpha(0, 0.7);
     legbox->SetFillStyle(1001);
     legbox->SetLineStyle(1);
@@ -792,28 +782,28 @@ void OneMinusClPlot2d::drawLegend() {
     legbox->SetShadowColor(0);
     legbox->Draw();
   }
-  m_legend->Draw();
+  legend->Draw();
 }
 
-void OneMinusClPlot2d::Draw() {
-  if (arg->debug) { cout << "OneMinusClPlot2d::Draw() : drawing ..." << endl; }
+// TODO warning for passing parameter
+void OneMinusClPlot2d::Draw(const bool beautify) {
+  auto warning = [](const std::string& msg) { msgBase("OneMinusClPlot2d::Draw() : WARNING : ", msg); };
+
+  if (arg->debug) { std::cout << "OneMinusClPlot2d::Draw() : drawing ..." << std::endl; }
   if (scanners.size() == 0) {
-    cout << "OneMinusClPlot2d::Draw() : ERROR : cannot draw " << name << " : No plots were added!" << endl;
+    std::cout << "OneMinusClPlot2d::Draw() : ERROR : cannot draw " << name << " : No plots were added!" << std::endl;
     return;
   }
-  if (!m_mainCanvas) {
-    m_mainCanvas = newNoWarnTCanvas(name + getUniqueRootName(), title, 800, arg->square ? 800 : 600);
-    // put this in for exponent xaxes
-    if (!arg->isQuickhack(30)) m_mainCanvas->SetRightMargin(0.1);
-    // put this in for exponent yaxes
-    if (!arg->isQuickhack(30)) m_mainCanvas->SetTopMargin(0.07);
-    cout << m_mainCanvas->GetLeftMargin() << " " << m_mainCanvas->GetBottomMargin() << endl;
-    if (arg->square) m_mainCanvas->SetBottomMargin(0.14);
-  }
+  // put this in for exponent xaxes
+  if (!arg->isQuickhack(30)) canvas->SetRightMargin(0.1);
+  // put this in for exponent yaxes
+  if (!arg->isQuickhack(30)) canvas->SetTopMargin(0.07);
+  std::cout << canvas->GetLeftMargin() << " " << canvas->GetBottomMargin() << std::endl;
+  if (arg->square) canvas->SetBottomMargin(0.14);
 
-  if (arg->isQuickhack(14)) { m_mainCanvas->GetPad(0)->SetLeftMargin(0.16); }
+  if (arg->isQuickhack(14)) { canvas->GetPad(0)->SetLeftMargin(0.16); }
 
-  if (arg->grid) m_mainCanvas->SetGrid();
+  if (arg->grid) canvas->SetGrid();
 
   auto hCL = histos[0];
   double min1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
@@ -822,7 +812,7 @@ void OneMinusClPlot2d::Draw() {
   double max2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmax() : arg->scanrangeyMax;
 
   // build a histogram which holds the axes
-  auto haxes = std::make_unique<TH2F>("haxes" + getUniqueRootName(), "haxes", 100, min1, max1, 100, min2, max2);
+  auto haxes = makeOwnedTObject<TH2F>("haxes" + Utils::getUniqueRootName(), "haxes", 100, min1, max1, 100, min2, max2);
   haxes->GetXaxis()->SetTitle(xTitle != "" ? xTitle : (TString)scanners[0]->getScanVar1()->GetTitle());
   haxes->GetYaxis()->SetTitle(yTitle != "" ? yTitle : (TString)scanners[0]->getScanVar2()->GetTitle());
   haxes->GetXaxis()->SetLabelFont(font);
@@ -849,23 +839,19 @@ void OneMinusClPlot2d::Draw() {
   haxes->Draw();
 
   // draw origin if requested
-  TLine* lOrig;
   if (arg->plotoriginx > -99) {
-    lOrig = new TLine();
-    lOrig->DrawLine(arg->plotoriginx, arg->scanrangeyMin, arg->plotoriginx, arg->scanrangeyMax);
+    auto lOrig = makeOwnedTObject<TLine>(arg->plotoriginx, arg->scanrangeyMin, arg->plotoriginx, arg->scanrangeyMax);
+    lOrig->Draw();
   }
   if (arg->plotoriginy > -99) {
-    lOrig = new TLine();
-    lOrig->DrawLine(arg->scanrangeMin, arg->plotoriginy, arg->scanrangeMax, arg->plotoriginy);
+    auto lOrig = makeOwnedTObject<TLine>(arg->scanrangeMin, arg->plotoriginy, arg->scanrangeMax, arg->plotoriginy);
+    lOrig->Draw();
   }
 
   // make new scanner styles if we're plotting more scanners
   // than styles defined in the constructor.
-  if (linecolor[0].size() < histos.size()) {
-    cout << "OneMinusClPlot2d::Draw() : WARNING : making a new plot style" << endl;
-    cout << "OneMinusClPlot2d::Draw() :   for a new scanner that doesn't have" << endl;
-    cout << "OneMinusClPlot2d::Draw() :   a style defined in the constructor." << endl;
-  }
+  if (linecolor[0].size() < histos.size())
+    warning("making a new plot style for a new scanner that doesn't have a style defined in the constructor");
   for (int i = linecolor[0].size(); i < histos.size(); i++) { makeNewPlotStyle("ROOT"); }
 
   // make contours
@@ -875,7 +861,8 @@ void OneMinusClPlot2d::Draw() {
     cont->computeContours(histos[i], histosType[i], i);
     int styleId = i;
     if (arg->color.size() > i) styleId = arg->color[i];
-    // cout << i << " " << styleId << " " << linecolor[0][styleId] << " " << linestyle[0][i] << endl;
+    // std::cout << i << " " << styleId << " " << linecolor[0][styleId] << " " << linestyle[0][i] << std::endl;
+    using Utils::transpose;
     cont->setStyle(transpose(linecolor)[styleId], transpose(linestyle)[i], transpose(linewidth)[i],
                    transpose(fillcolor)[styleId], transpose(fillstyle)[i]);
     if (i < arg->filltransparency.size()) cont->setTransparency(arg->filltransparency[i]);
@@ -883,7 +870,7 @@ void OneMinusClPlot2d::Draw() {
     m_contours[i] = cont;
     m_contours_computed[i] = true;
   }
-  m_mainCanvas->cd();  // ConfidenceContours::computeContours() creates a temporary canvas
+  canvas->cd();  // ConfidenceContours::computeContours() creates a temporary canvas
 
   // overwrite transparency if requested
   if (arg->isQuickhack(12)) {
@@ -923,7 +910,7 @@ void OneMinusClPlot2d::Draw() {
     haxes->GetXaxis()->SetTickLength(0);
     haxes->GetYaxis()->SetTickLength(0);
 
-    m_mainCanvas->RedrawAxis();
+    canvas->RedrawAxis();
   }
 
   // configure axis draw options
@@ -939,17 +926,20 @@ void OneMinusClPlot2d::Draw() {
     ylchopt += "N";
     yrchopt += "N";
   }
+
+  using Utils::RadToDeg;
+
   // New X axis. For angles in units of degrees.
-  if (isAngle(scanners[0]->getScanVar1()) || arg->isQuickhack(36)) {
+  if (Utils::isAngle(scanners[0]->getScanVar1()) || arg->isQuickhack(36)) {
     haxes->GetXaxis()->SetTitle(haxes->GetXaxis()->GetTitle() + TString(" [#circ]"));
 
     // new axis for the top ticks
-    auto axist = new TGaxis(xmin, ymax, xmax, ymax, RadToDeg(xmin), RadToDeg(xmax), xndiv, xtchopt);
+    auto axist = makeOwnedTObject<TGaxis>(xmin, ymax, xmax, ymax, RadToDeg(xmin), RadToDeg(xmax), xndiv, xtchopt);
     axist->SetName("axist");
     axist->Draw();
 
     // new bottom axis
-    auto axisb = new TGaxis(xmin, ymin, xmax, ymin, RadToDeg(xmin), RadToDeg(xmax), xndiv, xbchopt);
+    auto axisb = makeOwnedTObject<TGaxis>(xmin, ymin, xmax, ymin, RadToDeg(xmin), RadToDeg(xmax), xndiv, xbchopt);
     axisb->SetName("axisb");
     axisb->SetLabelOffset(haxes->GetXaxis()->GetLabelOffset());
     axisb->SetLabelFont(font);
@@ -967,12 +957,12 @@ void OneMinusClPlot2d::Draw() {
       nmin *= 100;
       nmax *= 100;
     }
-    auto axist = new TGaxis(xmin, ymax, xmax, ymax, nmin, nmax, xndiv, xtchopt);
+    auto axist = makeOwnedTObject<TGaxis>(xmin, ymax, xmax, ymax, nmin, nmax, xndiv, xtchopt);
     axist->SetName("axist");
     axist->Draw();
 
     // draw a new bottom axis because the confidence contours can cover the old one
-    auto axisb = new TGaxis(xmin, ymin, xmax, ymin, nmin, nmax, xndiv, xbchopt);
+    auto axisb = makeOwnedTObject<TGaxis>(xmin, ymin, xmax, ymin, nmin, nmax, xndiv, xbchopt);
     axisb->SetName("axisb");
     axisb->SetLabelOffset(haxes->GetXaxis()->GetLabelOffset());
     axisb->SetLabelFont(font);
@@ -985,11 +975,11 @@ void OneMinusClPlot2d::Draw() {
   }
 
   // New Y axis. For angles in units of degrees.
-  if (isAngle(scanners[0]->getScanVar2()) || arg->isQuickhack(37)) {
+  if (Utils::isAngle(scanners[0]->getScanVar2()) || arg->isQuickhack(37)) {
     haxes->GetYaxis()->SetTitle(haxes->GetYaxis()->GetTitle() + TString(" [#circ]"));
 
     // new left axis
-    auto axisl = new TGaxis(xmin, ymin, xmin, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, ylchopt);
+    auto axisl = makeOwnedTObject<TGaxis>(xmin, ymin, xmin, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, ylchopt);
     axisl->SetName("axisl");
     axisl->SetLabelOffset(haxes->GetYaxis()->GetLabelOffset());
     axisl->SetLabelFont(font);
@@ -1002,7 +992,7 @@ void OneMinusClPlot2d::Draw() {
     axisl->Draw();
 
     // new axis for the right ticks
-    auto axisr = new TGaxis(xmax, ymin, xmax, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, yrchopt);
+    auto axisr = makeOwnedTObject<TGaxis>(xmax, ymin, xmax, ymax, RadToDeg(ymin), RadToDeg(ymax), yndiv, yrchopt);
     axisr->SetName("axisr");
     axisr->Draw();
   } else {
@@ -1014,7 +1004,7 @@ void OneMinusClPlot2d::Draw() {
       nmax *= 100;
     }
     haxes->GetYaxis()->SetNdivisions(0);
-    auto axisl = new TGaxis(xmin, ymin, xmin, ymax, nmin, nmax, yndiv, ylchopt);
+    auto axisl = makeOwnedTObject<TGaxis>(xmin, ymin, xmin, ymax, nmin, nmax, yndiv, ylchopt);
     axisl->SetName("axisl");
     axisl->SetLabelOffset(haxes->GetYaxis()->GetLabelOffset());
     axisl->SetLabelFont(font);
@@ -1027,7 +1017,7 @@ void OneMinusClPlot2d::Draw() {
     axisl->Draw();
 
     // new right axis
-    auto axisr = new TGaxis(xmax, ymin, xmax, ymax, nmin, nmax, yndiv, yrchopt);
+    auto axisr = makeOwnedTObject<TGaxis>(xmax, ymin, xmax, ymax, nmin, nmax, yndiv, yrchopt);
     axisr->SetName("axisr");
     axisr->Draw();
   }
@@ -1036,34 +1026,35 @@ void OneMinusClPlot2d::Draw() {
   drawLegend();
   drawGroup();
   if (!arg->isQuickhack(15)) drawCLcontent();
-  m_mainCanvas->Update();
-  m_mainCanvas->Show();
+  canvas->Update();
+  canvas->Show();
 }
 
-void OneMinusClPlot2d::drawMarker(double x, double y, int color, int style, double size) const {
-  auto m = TMarker(x, y, style);
-  m.SetMarkerSize(size);
-  m.SetMarkerColor(color);
-  m.Draw();
+void OneMinusClPlot2d::drawMarker(const double x, const double y, const int color, const int style, const double size) {
+  auto m = makeOwnedTObject<TMarker>(x, y, style);
+  m->SetMarkerSize(size);
+  m->SetMarkerColor(color);
+  m->Draw();
 }
 
-///
-/// Draw a marker at the position of
-/// each local minimum, as provided by MethodAbsScan::getScanVar1Solution()
-/// and MethodAbsScan::getScanVar2Solution().
-///
+/**
+ * Draw a marker at the position of each local minimum.
+ *
+ * Minima are provided by MethodAbsScan::getScanVar1Solution() and MethodAbsScan::getScanVar2Solution().
+ */
 void OneMinusClPlot2d::drawSolutions() {
-  m_mainCanvas->cd();
-  m_mainCanvas->Update();
+  canvas->cd();
+  canvas->Update();
 
   for (int i = 0; i < scanners.size(); i++) {
     if (scanners[i]->getDrawSolution() == 0) continue;
-    if (arg->debug) cout << "OneMinusClPlot2d::drawSolutions() : adding solutions for scanner " << i << " ..." << endl;
+    if (arg->debug)
+      std::cout << "OneMinusClPlot2d::drawSolutions() : adding solutions for scanner " << i << " ..." << std::endl;
     if (scanners[i]->getSolutions().size() == 0) {
-      cout << "OneMinusClPlot2d::drawSolutions() : WARNING : \n"
-              "        Plot solutions requested but no solutions found!\n"
-              "        Perform a 1d scan first or use MethodAbsScan::setSolutions()."
-           << endl;
+      std::cout << "OneMinusClPlot2d::drawSolutions() : WARNING : \n"
+                   "        Plot solutions requested but no solutions found!\n"
+                   "        Perform a 1d scan first or use MethodAbsScan::setSolutions()."
+                << std::endl;
     }
     int markerColor = 0;
     int styleId = i;
@@ -1071,17 +1062,17 @@ void OneMinusClPlot2d::drawSolutions() {
     if (i < linecolor[1].size())
       markerColor = linecolor[1][styleId];
     else
-      cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker colors" << endl;
+      std::cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker colors" << std::endl;
     int markerStyle = 3;
     if (i < markerstyle.size())
       markerStyle = markerstyle[styleId];
     else
-      cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker styles" << endl;
+      std::cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker styles" << std::endl;
     double markerSize = 2.0;
     if (i < markersize.size())
       markerSize = markersize[styleId];
     else
-      cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker sizes" << endl;
+      std::cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker sizes" << std::endl;
 
     for (int iSol = 0; iSol < scanners[i]->getSolutions().size(); iSol++) {
       /// if option 2 is given, only plot best fit points and equivalent ones
@@ -1090,7 +1081,7 @@ void OneMinusClPlot2d::drawSolutions() {
         continue;
       double xSol = scanners[i]->getScanVar1Solution(iSol);
       double ySol = scanners[i]->getScanVar2Solution(iSol);
-      if (arg->debug) cout << "OneMinusClPlot2d::drawSolutions() : " << xSol << " " << ySol << endl;
+      if (arg->debug) std::cout << "OneMinusClPlot2d::drawSolutions() : " << xSol << " " << ySol << std::endl;
       drawMarker(xSol, ySol, markerColor, markerStyle, markerSize);
     }
   }
