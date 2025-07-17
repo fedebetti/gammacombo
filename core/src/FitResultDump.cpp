@@ -23,29 +23,18 @@ void FitResultDump::dumpResult(string ofname, MethodAbsScan* scanner) const {
   bool angle = false;
   if (isAngle(scanner->getWorkspace()->var(scanner->getScanVar1Name()))) angle = true;
 
-  for (auto cl : scanner->clintervals1sigma) {
-    double central = cl.central;
-    double min = cl.min;
-    double max = cl.max;
-    if (angle) {
-      central = RadToDeg(central);
-      min = RadToDeg(min);
-      max = RadToDeg(max);
+  for (int cl = 0; cl < 2; ++cl) {
+    for (const auto& ci : scanner->clintervals[cl]) {
+      auto central = ci->central;
+      auto min = ci->min;
+      auto max = ci->max;
+      if (angle) {
+        central = RadToDeg(central);
+        min = RadToDeg(min);
+        max = RadToDeg(max);
+      }
+      outf << ci->pvalue << " " << central << " " << min << " " << max << endl;
     }
-
-    outf << cl.pvalue << " " << central << " " << min << " " << max << endl;
-  }
-  for (auto cl : scanner->clintervals2sigma) {
-    double central = cl.central;
-    double min = cl.min;
-    double max = cl.max;
-    if (angle) {
-      central = RadToDeg(central);
-      min = RadToDeg(min);
-      max = RadToDeg(max);
-    }
-
-    outf << cl.pvalue << " " << central << " " << min << " " << max << endl;
   }
 
   outf.close();

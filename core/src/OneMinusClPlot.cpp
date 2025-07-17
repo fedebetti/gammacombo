@@ -708,8 +708,8 @@ void OneMinusClPlot::drawSolutions() {
     if (scanners[i]->getDrawSolution() == 0) continue;
     if (arg->debug) cout << "OneMinusClPlot::drawSolutions() : adding solution for scanner " << i << " ..." << endl;
     double xCentral = scanners[i]->getScanVar1Solution(arg->plotsoln[i]);
-    double xCLmin = scanners[i]->getCLinterval(arg->plotsoln[i]).min;
-    double xCLmax = scanners[i]->getCLinterval(arg->plotsoln[i]).max;
+    double xCLmin = scanners[i]->getCLinterval(arg->plotsoln[i])->min;
+    double xCLmax = scanners[i]->getCLinterval(arg->plotsoln[i])->max;
     int color = scanners[i]->getTextColor();
 
     // draw vertical lines at central value and
