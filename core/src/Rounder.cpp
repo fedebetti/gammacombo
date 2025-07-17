@@ -1,31 +1,40 @@
 #include <Rounder.h>
 #include <Utils.h>
 
-using namespace Utils;
+#include <cmath>
 
-Rounder::Rounder(const OptParser* arg, double cllo, double clhi, double central)
-    : m_cllo(cllo), m_clhi(clhi), m_central(central) {
+using Utils::Round;
+
+Rounder::Rounder(const OptParser* arg, const double clMin, double clMax, double central)
+    : m_clMin(clMin), m_clMax(clMax), m_central(central) {
   assert(arg);
   this->arg = arg;
+  if (this->arg->digits > -1) {
+    m_nSubDigits = arg->digits;
+  } else {
+    // Base the number of digits to show on the parameters uncertainty or, if the central value is not available,
+    // on the width of the CL interval.
+    using Utils::calcNsubdigits;
+    if (!std::isnan(m_central))
+      m_nSubDigits =
+          std::max(calcNsubdigits(std::abs(m_central - m_clMin)), calcNsubdigits(std::abs(m_central - m_clMax)));
+    else
+      m_nSubDigits = calcNsubdigits(m_clMax - m_clMin);
+  }
 }
 
-int Rounder::getNsubdigits() const {
-  if (arg->digits > -1) return arg->digits;
-  return TMath::Max(calcNsubdigits(fabs(m_central - m_cllo)), calcNsubdigits(fabs(m_central - m_clhi)));
+double Rounder::central() const { return Round(m_central, m_nSubDigits); }
+
+double Rounder::errNeg() const { return Round(std::abs(m_central - m_clMin), m_nSubDigits); }
+
+double Rounder::errPos() const { return Round(std::abs(m_central - m_clMax), m_nSubDigits); }
+
+double Rounder::CLlo() const {
+  const auto clMin = central() - errNeg();
+  return (std::isnan(clMin)) ? Round(m_clMin, m_nSubDigits) : clMin;
 }
 
-double Rounder::CLlo() const { return Round(m_cllo, getNsubdigits()); }
-
-double Rounder::CLhi() const { return Round(m_clhi, getNsubdigits()); }
-
-double Rounder::central() const { return Round(m_central, getNsubdigits()); }
-
-///
-/// Compute rounded negative error.
-/// Use the rounded central values and interval boundaries for this.
-/// Would we round the +/- errors themselves, we'd be geting inconsistent intervals!
-/// \return minus error (always positive)
-///
-double Rounder::errNeg() const { return fabs(central() - CLlo()); }
-
-double Rounder::errPos() const { return fabs(central() - CLhi()); }
+double Rounder::CLhi() const {
+  const auto clMax = central() + errPos();
+  return (std::isnan(clMax)) ? Round(m_clMax, m_nSubDigits) : clMax;
+}
