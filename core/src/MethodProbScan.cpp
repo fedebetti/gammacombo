@@ -35,6 +35,13 @@
 using namespace std;
 using namespace Utils;
 
+namespace {
+  auto msgBase = [](const std::string& prefix, const std::string& msg) {
+    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
+    std::cout << prefix << msgOut << endl;
+  };
+}
+
 MethodProbScan::MethodProbScan(Combiner* comb) : MethodAbsScan(comb) { methodName = "Prob"; }
 
 MethodProbScan::MethodProbScan(OptParser* opt) : MethodAbsScan(opt) { methodName = "Prob"; }
@@ -58,7 +65,15 @@ MethodProbScan::MethodProbScan() { methodName = "Prob"; }
  * \return The scan status (2 = new global minimum found, 1 = error, 0 = success)
  */
 int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
-  if (arg->debug) cout << "MethodProbScan::scan1d() : starting ... " << endl;
+  auto debug = [](const std::string& msg) { msgBase("MethodProbScan::scan1d() : DEBUG : ", msg); };
+  auto warning = [](const std::string& msg) { msgBase("MethodProbScan::scan1d() : WARNING : ", msg); };
+  auto error = [](const std::string& msg) {
+    msgBase("MethodProbScan::scan1d() : ERROR : ", msg);
+    exit(1);
+  };
+
+  if (arg->debug) debug(std::format("Call with arguments ({:s}, {:s}, {:s})", fast, reverse, quiet));
+
   nScansDone++;
 
   // The "improve" method doesn't need multiple scans.
@@ -78,10 +93,8 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   }
   const auto min = hCL->GetXaxis()->GetXmin();
   const auto max = hCL->GetXaxis()->GetXmax();
-  if (abs(par->getMin() - min) > 1e-6 || abs(par->getMax() - max) > 1e-6) {
-    cout << "MethodProbScan::scan1d() : WARNING : Scan range was changed after initScan()"
-         << "                           was called so the old range will be used." << endl;
-  }
+  if (std::abs(par->getMin() - min) > 1e-6 || std::abs(par->getMax() - max) > 1e-6)
+    warning("Scan range was changed after initScan() was called so the old range will be used.");
   if (arg->verbose) {
     cout << "\nProb configuration:" << endl;
     cout << "  combination : " << title << endl;
@@ -151,14 +164,14 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
     nTotalSteps *= fast ? 1 : 2;
     const double printFreq = nTotalSteps > 15 ? 10. : static_cast<double>(nTotalSteps);
 
-    for (int i = 0; i < nPoints1d; i++) {
+    for (int i = 0; i < nPoints1d; ++i) {
       double scanvalue;
       if (scanUp) {
         scanvalue = min + (max - min) * i / nPoints1d + hCL->GetBinWidth(1) / 2.;
         if (scanvalue < scanStart) continue;
         if (scanvalue > scanStop) break;
       } else {
-        scanvalue = max - (max - min) * (i + 1) / nPoints1d + hCL->GetBinWidth(1) / 2.;
+        scanvalue = max - (max - min) * i / nPoints1d - hCL->GetBinWidth(1) / 2.;
         if (scanvalue > scanStart) continue;
         if (scanvalue < scanStop) break;
       }
@@ -179,8 +192,8 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
       if (!hasFreePars) {
         // There are no parameters to fit, just calculate NLL
         chi2minScan = nll.getVal();
-        // If we found another minimum, perform the fit!
-        if (chi2minScan < bestMinFoundInScan) performFit = true;
+        // If we found indications of a new global minimum, perform the fit to find it!
+        if (chi2minScan < chi2minGlobal) performFit = true;
       }
       if (performFit) {
         if (!hasFreePars) par->setConstant(false);
@@ -198,24 +211,23 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
         sfr = allResults.back().get();
         if (!hasFreePars) par->setConstant(true);
       }
-      bestMinFoundInScan = std::min(chi2minScan, bestMinFoundInScan);
-
-      // TODO what the hell?!
       if (chi2minScan < 0) {
-        double newChi2minScan = chi2minGlobal + 25.;  // 5sigma more than best point
-        cout << "MethodProbScan::scan1d() : WARNING : " << title
-             << std::format(" chi2 negative for scan point {:d}: {:.2f} setting to: {:.2f}", i, chi2minScan,
-                            newChi2minScan)
-             << endl;
-        chi2minScan = newChi2minScan;
+        error("I have found a new minimum with negative chi2. This should never happen");
+        // TODO are there reasons why we shouldn't exit in the previous command?
+        // double newChi2minScan = chi2minGlobal + 25.;  // 5sigma more than best point
+        // cout << "MethodProbScan::scan1d() : WARNING : " << title
+        //      << std::format(" chi2 negative for scan point {:d}: {:.2f} setting to: {:.2f}", i, chi2minScan,
+        //                     newChi2minScan)
+        //      << endl;
+        // chi2minScan = newChi2minScan;
       }
+      bestMinFoundInScan = std::min(chi2minScan, bestMinFoundInScan);
 
       // If we find a minimum smaller than the old "global" minimum, this means that all previous 1-CL values are too
       // high.
       if (chi2minScan < chi2minGlobal) {
         if (arg->verbose)
-          cout << "MethodProbScan::scan1d() : WARNING : '" << title << "' new global minimum found! "
-               << " chi2minScan=" << chi2minScan << endl;
+          warning(std::format("'{:s}' new global minimum found! chi2minScan={:.3f}", std::string(title), chi2minScan));
         chi2minGlobal = chi2minScan;
         // recompute previous 1-CL values
         for (int k = 1; k <= hCL->GetNbinsX(); k++) {
@@ -223,35 +235,32 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
         }
       }
 
-      double deltaChi2 = chi2minScan - chi2minGlobal;
-      double oneMinusCL = TMath::Prob(deltaChi2, 1);
-      double deltaChi2Bkg = TMath::Max(chi2minScan - hChi2min->GetBinContent(1), 0.);
+      const auto deltaChi2 = chi2minScan - chi2minGlobal;
+      const auto oneMinusCL = TMath::Prob(deltaChi2, 1);
+      auto deltaChi2Bkg = std::max(chi2minScan - hChi2min->GetBinContent(1), 0.);
       if (i == 0) deltaChi2Bkg = 0.;
-      double oneMinusCLBkg = TMath::Prob(deltaChi2Bkg, 1);
+      const auto oneMinusCLBkg = TMath::Prob(deltaChi2Bkg, 1);
       hCLs->SetBinContent(hCLs->FindBin(scanvalue), oneMinusCLBkg);
 
       if (i == 0) chi2minBkg = chi2minScan;
 
       // Save the 1-CL value and the corresponding fit result. But only if better than before!
-      if (hCL->GetBinContent(hCL->FindBin(scanvalue)) <= oneMinusCL) {
-        hCL->SetBinContent(hCL->FindBin(scanvalue), oneMinusCL);
-        hChi2min->SetBinContent(hCL->FindBin(scanvalue), chi2minScan);
-        if (sfr) {
-          int iRes = hCL->FindBin(scanvalue) - 1;
-          curveResults[iRes] = sfr;
-        }
+      if (const auto iBin = hCL->FindBin(scanvalue); hCL->GetBinContent(iBin) <= oneMinusCL) {
+        if (arg->debug)
+          debug(std::format("Setting bin {:3d} to {:.4f} (chi2minScan: {:.4f})", iBin, oneMinusCL, chi2minScan));
+        hCL->SetBinContent(iBin, oneMinusCL);
+        hChi2min->SetBinContent(iBin, chi2minScan);
+        if (sfr) { curveResults[iBin - 1] = sfr; }
       }
     }
   }
   cout << "MethodProbScan::scan1d() : scan done.           " << endl;
 
   if (bestMinFoundInScan - bestMinOld > 1e-2) {
-    cout << "MethodProbScan::scan1d() : WARNING: Scan didn't find similar minimum to what was found before!" << endl;
-    cout << "MethodProbScan::scan1d() :          Too strict parameter limits? Too coarse scan steps? Didn't load "
-            "global minimum?"
-         << endl;
-    cout << "MethodProbScan::scan1d() :          chi2 bestMinFoundInScan=" << bestMinFoundInScan
-         << ", bestMinOld=" << bestMinOld << endl;
+    warning(std::format("Scan didn't find similar minimum to what was found before!\n"
+                        "Too strict parameter limits? Too coarse scan steps? Didn't load global minimum?\n"
+                        "chi2 bestMinFoundInScan={:.3f}, bestMinOld={:.3f}",
+                        bestMinFoundInScan, bestMinOld));
   }
 
   // attempt to correct for undercoverage TODO
