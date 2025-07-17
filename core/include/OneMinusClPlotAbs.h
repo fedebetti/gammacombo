@@ -25,6 +25,7 @@ class MethodAbsScan;
 class OneMinusClPlotAbs {
  public:
   OneMinusClPlotAbs(OptParser* arg, TString name = "c1", TString title = "c1");
+  virtual ~OneMinusClPlotAbs() = default;
 
   virtual void addScanner(MethodAbsScan* s, const int CLsType = 0);
   inline void disableLegend(bool yesNo = false) { plotLegend = yesNo; };

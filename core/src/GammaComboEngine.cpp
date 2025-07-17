@@ -25,6 +25,7 @@
 #include <format>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
@@ -504,7 +505,7 @@ void GammaComboEngine::configureAsimovCombinerNames(Combiner* c, int i) {
 void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId) {
   if (arg->asimov[cId] == 0) return;
   cout << "\nAsimov point configuration:\n" << endl;
-  auto pCache = new ParameterCache(arg.get());
+  auto pCache = std::make_unique<ParameterCache>(arg.get());
   TString asimovfile;
   TString asimovfile2 = m_fnamebuilder->getFileNameAsimovPar(c);
   TString asimovfile3 =
@@ -1834,9 +1835,9 @@ void GammaComboEngine::runToys(Combiner* c) {
   f.Close();
 }
 
-///
-/// scan engine
-///
+/**
+ * Perform the likelihood scans of the parameter space as configured.
+ */
 void GammaComboEngine::scan() {
 
   if (runOnDataSet) {
@@ -1844,7 +1845,6 @@ void GammaComboEngine::scan() {
     return;
   }
 
-  // combination scanning action happens here
   for (int i = 0; i < arg->combid.size(); i++) {
     int combinerId = arg->combid[i];
     Combiner* c = cmb[combinerId].get();
@@ -1908,11 +1908,11 @@ void GammaComboEngine::scan() {
       auto scannerProb = std::make_unique<MethodProbScan>(c);
       // pvalue corrector
       if (arg->coverageCorrectionID > 0) {
-        auto pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
+        auto pvalueCorrector = std::make_unique<PValueCorrection>(arg->coverageCorrectionID, arg->verbose);
         pvalueCorrector->readFiles(m_fnamebuilder->getFileBaseName(c), arg->coverageCorrectionPoint,
                                    false);  // false means for prob
         pvalueCorrector->write("root/pvalueCorrection_prob.root");
-        scannerProb->setPValueCorrector(pvalueCorrector);
+        scannerProb->setPValueCorrector(std::move(pvalueCorrector));
       }
 
       // 1D SCANS
@@ -1986,11 +1986,11 @@ void GammaComboEngine::scan() {
             scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
           } else {
             if (arg->coverageCorrectionID > 0) {
-              auto pvalueCorrector = new PValueCorrection(arg->coverageCorrectionID, arg->verbose);
+              auto pvalueCorrector = std::make_unique<PValueCorrection>(arg->coverageCorrectionID, arg->verbose);
               pvalueCorrector->readFiles(m_fnamebuilder->getFileBaseName(c), arg->coverageCorrectionPoint,
                                          true);  // true means for plugin
               pvalueCorrector->write("root/pvalueCorrection_plugin.root");
-              scannerPlugin->setPValueCorrector(pvalueCorrector);
+              scannerPlugin->setPValueCorrector(std::move(pvalueCorrector));
             }
             make1dPluginScan(scannerPlugin.get(), i);
           }
@@ -2210,8 +2210,7 @@ void GammaComboEngine::run() {
   setUpPlot();
   scan();  // most thing gets done here
   if (arg->compare) compareCombinations();
-  if (arg->info || arg->latex || (arg->save != "" && !arg->saveAtMin))
-    return;  // if only info is requested then we can go home
+  if (arg->info || arg->latex || (arg->save != "" && !arg->saveAtMin)) return;
   if (!arg->isAction("pluginbatch") && !arg->isAction("coveragebatch") && !arg->isAction("coverage")) savePlot();
   cout << endl;
   t.Stop();

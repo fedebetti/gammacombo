@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include <TString.h>
+
 /**
  * Class that prints CL intervals and saves them to disk.
  */

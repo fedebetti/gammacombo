@@ -737,7 +737,6 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
   starts.emplace_back(histogramCL->GetXaxis()->GetXmin(), 1);
   starts.emplace_back(histogramCL->GetXaxis()->GetXmax(), n);
 
-  auto par = w->var(scanVar1);
   const int minBinsForInterpolation = 25;
   if (n <= minBinsForInterpolation) info("Low number of scan points. Will use linear interpolation");
 

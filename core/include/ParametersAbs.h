@@ -13,6 +13,7 @@
  */
 class ParametersAbs {
  public:
+  virtual ~ParametersAbs() = default;
   Parameter* var(const TString name);
   RooFit::OwningPtr<RooRealVar> get(const TString name);
   Parameter* newParameter(const TString name);
