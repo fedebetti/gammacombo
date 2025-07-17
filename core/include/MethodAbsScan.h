@@ -80,6 +80,7 @@ class MethodAbsScan {
   TString getScanVar2Name() const { return scanVar2; }
   double getScanVar2Solution(int i = 0);
   inline const std::vector<std::unique_ptr<RooSlimFitResult>>& getSolutions() { return solutions; };
+  inline const int getNSolutions() { return solutions.size(); };
   RooSlimFitResult* getSolution(const int i = 0);
   inline const RooArgSet* getTheory() { return w->set(thName); }
   inline int getTextColor() const { return textColor; };

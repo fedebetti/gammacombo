@@ -6,6 +6,7 @@
 
 #include <exception>
 #include <format>
+#include <iostream>
 #include <string>
 
 /// Constructor
@@ -19,6 +20,7 @@ OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* _arg, TString _name, TString _ti
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetLabelOffset(0.005, "X");
   gStyle->SetLabelOffset(0.010, "Y");
+  canvas = Utils::newNoWarnTCanvas(name + Utils::getUniqueRootName(), title, 800, arg->square ? 800 : 600);
 }
 
 /// Add a new scanner to this plot.
@@ -36,23 +38,24 @@ void OneMinusClPlotAbs::addScanner(MethodAbsScan* s, int CLsType) {
 
 /// Save the plot
 void OneMinusClPlotAbs::save() const {
-  if (!m_mainCanvas) {
+  if (!canvas) {
     std::cout << "OneMinusClPlotAbs::save() : ERROR : Empty canvas. Call Draw() or DrawFull() before saving!"
               << std::endl;
     return;
   }
-  Utils::savePlot(m_mainCanvas.get(), name + arg->plotext);
+  Utils::savePlot(canvas.get(), name + arg->plotext);
 }
 
 /**
  * Draw the group label on plots.
+ *
  * The label can be configured through the --group command line argument.
  * It is possible to configure the position of the label through the --groupPos command line argument.
  * The command line arguments --prelim and --unoff add "Preliminary" and "Unofficial" strings, respectively.
  */
-void OneMinusClPlotAbs::drawGroup(double yPos) const {
+void OneMinusClPlotAbs::drawGroup(double yPos) {
   if (arg->group == TString("off")) return;
-  m_mainCanvas->cd();
+  canvas->cd();
   double xPos = 0.65;
   double xLow, yLow;
   if (arg->plotgroupx == -1)
@@ -63,7 +66,7 @@ void OneMinusClPlotAbs::drawGroup(double yPos) const {
     yLow = yPos;
   else
     yLow = arg->plotgroupy;
-  auto t1 = new TPaveText(xLow, yLow, xLow + 0.225, yLow + 0.08, "BRNDC");
+  auto t1 = makeOwnedTObject<TPaveText>(xLow, yLow, xLow + 0.225, yLow + 0.08, "BRNDC");
   t1->SetBorderSize(0);
   t1->SetFillStyle(0);
   t1->SetTextAlign(32);
@@ -72,7 +75,7 @@ void OneMinusClPlotAbs::drawGroup(double yPos) const {
   t1->AddText(arg->group);
   t1->Draw();
   if (arg->plotprelim || arg->plotunoff) {
-    auto t2 = new TPaveText(xLow, yLow - 0.025, xLow + 0.225, yLow, "BRNDC");
+    auto t2 = makeOwnedTObject<TPaveText>(xLow, yLow - 0.025, xLow + 0.225, yLow, "BRNDC");
     t2->SetBorderSize(0);
     t2->SetFillStyle(0);
     t2->SetTextAlign(32);
@@ -85,7 +88,7 @@ void OneMinusClPlotAbs::drawGroup(double yPos) const {
   if (arg->plotdate != "") {
     double yExt = 0.;
     if (arg->plotprelim || arg->plotunoff) yExt += 0.035;
-    auto t3 = new TPaveText(xLow, yLow - yExt - 0.025, xLow + 0.225, yLow - yExt, "BRNDC");
+    auto t3 = makeOwnedTObject<TPaveText>(xLow, yLow - yExt - 0.025, xLow + 0.225, yLow - yExt, "BRNDC");
     t3->SetBorderSize(0);
     t3->SetFillStyle(0);
     t3->SetTextAlign(32);
