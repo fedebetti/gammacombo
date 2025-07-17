@@ -4,6 +4,9 @@
 #include "OneMinusClPlotAbs.h"
 
 #include <TGraph.h>
+#include <TH1.h>
+
+#include <memory>
 
 /**
  * Class to plot the distribution of 1 - CL for fit variables.
@@ -24,6 +27,7 @@ class OneMinusClPlot : public OneMinusClPlotAbs {
  private:
   void drawCLguideLine(const double pvalue);
   void drawVerticalLine(const double x, const int color, const int style);
+  std::unique_ptr<TH1> getHistogram(MethodAbsScan* s, const int CLsType, const bool removeErrs) const;
   TGraph* scan1dPlot(MethodAbsScan* s, const bool first, const bool last, const bool filled, const int CLsType = 0);
   void scan1dPlotSimple(MethodAbsScan* s, const bool first, const int CLsType = 0);
   void scan1dCLsPlot(MethodAbsScan* s, const bool smooth = true, const bool obsError = true);
