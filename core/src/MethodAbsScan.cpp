@@ -27,10 +27,12 @@ using namespace std;
 using namespace RooFit;
 using namespace Utils;
 
-auto msgBase = [](const std::string& prefix, const std::string& msg) {
-  auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-  std::cout << prefix << msgOut << endl;
-};
+namespace {
+  auto msgBase = [](const std::string& prefix, const std::string& msg) {
+    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
+    std::cout << prefix << msgOut << endl;
+  };
+}
 
 MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
   combiner = c;
@@ -614,24 +616,14 @@ std::optional<std::pair<double, double>> MethodAbsScan::interpolate(TH1* h, cons
   }
 
   int useSol = 0;
-
   if ((sol0 < central && sol1 > central) || (sol1 < central && sol0 > central)) {
     if (upper) {
-      if (sol0 < sol1)
-        useSol = 1;
-      else
-        useSol = 0;
+      useSol = (sol0 < sol1) ? 1 : 0;
     } else {
-      if (sol0 < sol1)
-        useSol = 0;
-      else
-        useSol = 1;
+      useSol = (sol0 < sol1) ? 0 : 1;
     }
   } else {
-    if (fabs(h->GetBinCenter(i) - sol0) < fabs(h->GetBinCenter(i) - sol1))
-      useSol = 0;
-    else
-      useSol = 1;
+    useSol = (std::abs(h->GetBinCenter(i) - sol0) < std::abs(h->GetBinCenter(i) - sol1)) ? 0 : 1;
   }
 
   double val = (useSol == 0) ? sol0 : sol1;
@@ -662,13 +654,14 @@ std::optional<std::pair<double, double>> MethodAbsScan::interpolate(TH1* h, cons
 void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected, const bool quiet) {
 
   // Messaging
+  auto debug = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : DEBUG : ", msg); };
   auto info = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : ", msg); };
   auto warning = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : WARNING : ", msg); };
   auto error = [](const std::string& msg) {
     msgBase("MethodAbsScan::calcCLintervals() : ERROR : ", msg + ". Exit...");
     exit(1);
   };
-  if (arg->debug) info("");
+  if (arg->debug) debug(std::format("Calling arguments: {:d}, {:s}, {:s}", CLsType, calc_expected, quiet));
 
   // TODO
   auto histogramCL = this->getHCL();
@@ -750,6 +743,12 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
 
   // Find and save a confidence interval for each solution within the scan range.
   for (const auto [start, sBin] : starts) {
+    if (arg->debug) {
+      if (sBin == 1)
+        debug("Start scan of low boundary");
+      else if (sBin == n)
+        debug("Start scan of up boundary");
+    }
 
     for (int c = 0; c < ConfidenceLevels.size(); c++) {
       const double y = 1. - ConfidenceLevels[c];
@@ -760,7 +759,8 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
       bool CLminClosed = false;
       bool CLmaxClosed = false;
 
-      // Case that the starting point does not fall into the CL region (e.g. it is a shallow local minimum)
+      // Case that the solution is outside of scan region, or starting point does not fall into the CL region
+      // (e.g. because we are doing a border scan or because the solution is a shallow local minimum)
       if (std::isnan(start) || histogramCL->GetBinContent(sBin) < y) {
         clintervals[c].push_back(nullptr);
         continue;
@@ -786,7 +786,6 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
               linearInterpolation = false;
             }
           }
-
           if (linearInterpolation) {
             if (n > minBinsForInterpolation && (arg->verbose || arg->debug)) info("Reverting to linear interpolation.");
             if (auto val = interpolateLinear(histogramCL, i, y)) {
@@ -819,7 +818,6 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
               linearInterpolation = false;
             }
           }
-
           if (linearInterpolation) {
             if (n > minBinsForInterpolation && (arg->verbose || arg->debug)) info("Reverting to linear interpolation.");
             if (auto val = interpolateLinear(histogramCL, i - 1, y)) {
@@ -835,12 +833,12 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
       // Save the interval
       auto cli = std::make_unique<CLInterval>();
       cli->pvalue = y;
-      cli->central = start;
+      cli->central = (sBin != 1 && sBin != n) ? start : std::numeric_limits<double>::quiet_NaN();
       cli->min = CLmin;
       cli->max = CLmax;
       cli->minclosed = CLminClosed;
       cli->maxclosed = CLmaxClosed;
-      cli->print();
+      if (arg->debug) cli->print();
 
       clintervals[c].push_back(std::move(cli));
     }
