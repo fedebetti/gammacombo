@@ -30,6 +30,7 @@ class MethodAbsScan {
   MethodAbsScan() = default;
   MethodAbsScan(Combiner* c);
   MethodAbsScan(const OptParser* opt);
+  virtual ~MethodAbsScan() = default;
 
   virtual void calcCLintervals(const int CLsType = 0, const bool calc_expected = false, const bool quiet = false);
   void confirmSolutions();
@@ -102,8 +103,8 @@ class MethodAbsScan {
   virtual int scan1d() const;
   virtual int scan2d() const;
   inline void setDrawSolution(int code = 0) { drawSolution = code; };
-  inline void setPValueCorrector(PValueCorrection* pvalCor) {
-    pvalueCorrector = pvalCor;
+  inline void setPValueCorrector(std::unique_ptr<PValueCorrection> pvalCor) {
+    pvalueCorrector = std::move(pvalCor);
     pvalueCorrectorSet = true;
   }
   inline void setScanVar1(TString var) { scanVar1 = var; };
@@ -175,7 +176,9 @@ class MethodAbsScan {
   int nPoints2dx;              ///< number of scan points used by 2d scan, x axis
   int nPoints2dy;              ///< number of scan points used by 2d scan, y axis
 
-  PValueCorrection* pvalueCorrector;  // object which can correct the pvalue for undercoverage if required
+  /// Object that can correct the pvalue for undercoverage if required.
+  std::unique_ptr<PValueCorrection> pvalueCorrector;
+
   bool pvalueCorrectorSet = false;
 
   TRandom3 rndm;
