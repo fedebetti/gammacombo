@@ -21,6 +21,10 @@
 
 class OneMinusClPlotAbs;
 
+/**
+ * Abstract class to perform a likelihood scan over the scan range of one or two floating parameters, and save the
+ * related results.
+ */
 class MethodAbsScan {
  public:
   MethodAbsScan() = default;
@@ -36,8 +40,8 @@ class MethodAbsScan {
   inline double getChi2minGlobal() const { return chi2minGlobal; }
   inline double getChi2minBkg() const { return chi2minBkg; }
   double getCL(double val) const;
-  CLInterval getCLintervalCentral(int sigma = 1, bool quiet = false);
-  CLInterval getCLinterval(int iSol = 0, int sigma = 1, bool quiet = false);
+  const CLInterval* getCLintervalCentral(int sigma = 1, bool quiet = false);
+  const CLInterval* getCLinterval(const int iSol = 0, const int index = 0, const bool quiet = false);
   inline Combiner* getCombiner() const { return combiner; };
   int getDrawSolution() const { return drawSolution; }
   inline bool getFilled() const { return drawFilled; };
@@ -141,12 +145,17 @@ class MethodAbsScan {
   /// If the option --CL is given, the 1-3 sigma correspond to the first, second,... given value of the CL.
   std::vector<std::unique_ptr<RooSlimFitResult>> solutions;
 
-  std::vector<CLInterval> clintervals1sigma;  ///< all 1 sigma intervals that were found by calcCLintervals()
-  std::vector<CLInterval> clintervals2sigma;  ///< all 2 sigma intervals that were found by calcCLintervals()
-  std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
-  std::vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by
-                                              ///< calcCLintervals()
-  std::unique_ptr<RooFitResult> globalMin;    ///< parameter values at a global minimum
+  /**
+   * All CL intervals found by `calcCLintervals`.
+   *
+   * The first index corresponds to the CL values set (1, 2, 3 sigma by default).
+   * The second index corresponds to the solutions from 0 to n (in case they fall in the scan range, otherwise the value
+   * will be nullptr). There may be also two more CL intervals at the end, corresponding e.g. to scans starting from the
+   * minimum and maximum values of the scan range.
+   */
+  std::vector<std::vector<std::unique_ptr<CLInterval>>> clintervals;
+
+  std::unique_ptr<RooFitResult> globalMin;  ///< parameter values at a global minimum
 
  protected:
   void sortSolutions();
@@ -214,7 +223,7 @@ class MethodAbsScan {
   void removeDuplicateSolutions();
   std::optional<std::pair<double, double>> interpolate(TH1* h, const int i, const double y, const double central,
                                                        const bool upper) const;
-  std::optional<double> interpolateSimple(const TH1* h, const int i, const double y) const;
+  std::optional<double> interpolateLinear(const TH1* h, const int i, const double y) const;
 };
 
 #endif

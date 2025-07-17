@@ -209,16 +209,16 @@ int MethodCoverageScan::scan1d(int nRun) {
     //}
     probScanner->confirmSolutions();
     if (arg->verbose) probScanner->printLocalMinima();
-    CLInterval probSig1Int = probScanner->getCLintervalCentral(1, true);
-    CLInterval probSig2Int = probScanner->getCLintervalCentral(2, true);
-    CLInterval probSig3Int = probScanner->getCLintervalCentral(3, true);
-    tSolScan = probSig1Int.central;
-    tSolProbErr1Low = probSig1Int.min;
-    tSolProbErr1Up = probSig1Int.max;
-    tSolProbErr2Low = probSig2Int.min;
-    tSolProbErr2Up = probSig2Int.max;
-    tSolProbErr3Low = probSig3Int.min;
-    tSolProbErr3Up = probSig3Int.max;
+    auto probSig1Int = probScanner->getCLintervalCentral(1, true);
+    auto probSig2Int = probScanner->getCLintervalCentral(2, true);
+    auto probSig3Int = probScanner->getCLintervalCentral(3, true);
+    tSolScan = probSig1Int->central;
+    tSolProbErr1Low = probSig1Int->min;
+    tSolProbErr1Up = probSig1Int->max;
+    tSolProbErr2Low = probSig2Int->min;
+    tSolProbErr2Up = probSig2Int->max;
+    tSolProbErr3Low = probSig3Int->min;
+    tSolProbErr3Up = probSig3Int->max;
 
     // fill tree
     t->Fill();

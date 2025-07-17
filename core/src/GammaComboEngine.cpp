@@ -1723,17 +1723,17 @@ void GammaComboEngine::compareCombinations() {
       int nObs2 = comparisonScanners[j]->getObservables()->getSize();
       int nPar1 = comparisonScanners[i]->getSolution(0)->floatParsFinal().getSize();
       int nPar2 = comparisonScanners[j]->getSolution(0)->floatParsFinal().getSize();
-      CLInterval cl1 = comparisonScanners[i]->getCLinterval(0, 1);
-      CLInterval cl2 = comparisonScanners[j]->getCLinterval(0, 1);
-      double diff = cl1.central - cl2.central;
+      auto cl1 = comparisonScanners[i]->getCLinterval(0, 1);
+      auto cl2 = comparisonScanners[j]->getCLinterval(0, 1);
+      double diff = cl1->central - cl2->central;
       double corr = Utils::getCorrelationFactor(pullVec1, pullVec2);
       double err = 99.;
       if (diff > 0) {  // means value has moved down
-        err = sqrt(sq(cl1.central - cl1.min) + sq(cl2.max - cl2.central) -
-                   2. * corr * (cl1.central - cl1.min) * (cl2.max - cl2.central));
+        err = sqrt(sq(cl1->central - cl1->min) + sq(cl2->max - cl2->central) -
+                   2. * corr * (cl1->central - cl1->min) * (cl2->max - cl2->central));
       } else {
-        err = sqrt(sq(cl1.max - cl1.central) + sq(cl2.central - cl2.min) -
-                   2. * corr * (cl1.max - cl1.central) * (cl2.central - cl2.min));
+        err = sqrt(sq(cl1->max - cl1->central) + sq(cl2->central - cl2->min) -
+                   2. * corr * (cl1->max - cl1->central) * (cl2->central - cl2->min));
       }
       cout << "Comparison   1): " << Form("%-20s", comparisonScanners[i]->getName().Data())
            << " to 2): " << Form("%-20s", comparisonScanners[j]->getName().Data()) << endl;
@@ -1742,10 +1742,10 @@ void GammaComboEngine::compareCombinations() {
       cout << "        nPar:    " << Form("%-20d", nPar1) << "        " << Form("%-20d", nPar2) << endl;
       cout << "        pval:    " << Form("%-20.2f", 100. * TMath::Prob(chi21, nObs1 - nPar1)) << "        "
            << Form("%-20.2f", 100. * TMath::Prob(chi22, nObs2 - nPar2)) << endl;
-      cout << "         val:    " << Form("%-6.3f", cl1.central) << " [" << Form("%6.3f", cl1.min) << ","
-           << Form("%-6.3f", cl1.max) << "]"
-           << "      " << Form("%-6.3f", cl2.central) << "[" << Form("%6.3f", cl2.min) << "," << Form("%-6.3f", cl2.max)
-           << "]" << endl;
+      cout << "         val:    " << Form("%-6.3f", cl1->central) << " [" << Form("%6.3f", cl1->min) << ","
+           << Form("%-6.3f", cl1->max) << "]"
+           << "      " << Form("%-6.3f", cl2->central) << "[" << Form("%6.3f", cl2->min) << ","
+           << Form("%-6.3f", cl2->max) << "]" << endl;
       cout << "        dval:    " << diff << " +/- " << err << " (" << TMath::Abs(diff) / err << " sigma)" << endl;
       cout << "PULL PER OBS:  " << total_pull << endl;
       cout << "CORRELATION:   " << corr << endl;
