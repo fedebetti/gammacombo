@@ -8,8 +8,8 @@ from scipy.stats import chi2
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib import rcParams
 from matplotlib.lines import Line2D
-plt.style.use(os.path.dirname( os.getcwd() ) + '/scripts/gc.mplstyle')
 from tabulate import tabulate
 
 def load_interval(fname):
@@ -73,13 +73,8 @@ def read2dscan(h, bf, minnll):
 
   assert(len(bf)==2)
 
-  xedges = np.array([ h.GetXaxis().GetBinLowEdge(b) for b in range(1,h.GetNbinsX()+2)])
-  yedges = np.array([ h.GetYaxis().GetBinLowEdge(b) for b in range(1,h.GetNbinsX()+2)])
   xcenters = np.array([ h.GetXaxis().GetBinCenter(b) for b in range(1,h.GetNbinsX()+1)])
   ycenters = np.array([ h.GetYaxis().GetBinCenter(b) for b in range(1,h.GetNbinsX()+1)])
-
-  # get global bins
-  gbins = np.array( [ list([xbin,ybin]) for xbin, ybin in itertools.product( range(h.GetNbinsX()), range(h.GetNbinsY()) ) ] )
 
   # get content of each bin
   entries = np.array([ h.GetBinContent(xbin+1, ybin+1) for xbin, ybin in itertools.product( range(h.GetNbinsX()), range(h.GetNbinsY()) ) ])
@@ -402,7 +397,7 @@ def addContoursLine(ax, x=0.01, y=0.01, nlevs=2, etc=False, cl2d=False):
     ax.text(x, y, text, transform=ax.transAxes, ha="left", va="bottom", fontsize=13, fontname='Times New Roman', color='0.5')
 
 
-def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=False, ax=None, save=None, logo=False, prelim=False, legopts={} ):
+def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=False, ax=None, save=None, logo=False, prelim=False, legopts={}, axes_origin=(0.12, 0.16), righttop_padding=(0.04, 0.05) ):
     """ parameters
     scanpoints : 2D array-like
         - expect an array of (x,y) points for each scanner [ (x1,y1), (x2,y2), ... , (xn,yn) ]
@@ -410,6 +405,12 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
         - expect a list of dictionaries giving the line options for each scanner
     fopts : list of dict (default: None)
         - expect a list of dictionaries giving the fill options for each scanner
+    axes_origin : tuple
+        - Origin of the axes, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
+    righttop_padding : tuple
+        - Space to be left between the top and right axes and the margins of the figure, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
     """
     ax = ax or plt.gca()
 
@@ -474,11 +475,19 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
     if logo:
         addLHCbLogo(ax, prelim=prelim)
 
+    if axes_origin and righttop_padding:
+        ax.set_position([
+            axes_origin[0],
+            axes_origin[1],
+            1 - righttop_padding[0] - axes_origin[0],
+            1 - righttop_padding[1] - axes_origin[1],
+        ])
+
     if save:
         fig = plt.gcf()
         fig.savefig(save)
         
-def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=1, legtitles=None, angle=[False,False], ax=None, save=None, bf=None, cl2d=False, logo=False, prelim=False, contourline=False, legopts={} ):
+def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=1, legtitles=None, angle=[False,False], ax=None, save=None, bf=None, cl2d=False, logo=False, prelim=False, contourline=False, legopts={}, axes_origin=(0.14, 0.16), righttop_padding=(0.04, 0.04) ):
     """ parameters
     scanpoints : 2D array-like
         - expect an array of (x,y,z) points for each scanner [ (x1,y1,z1), (x2,y2,z2), ... , (xn,yn,zn) ]
@@ -496,19 +505,24 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
         - if int then will plot this number of sigma contours at -2DLL=1,4,9,..,N**2
         - if list of int will plot this number of sigma contours as above
         - if list of float will plot this number containing the fraction
+    axes_origin : tuple
+        - Origin of the axes, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
+    righttop_padding : tuple
+        - Space to be left between the top and right axes and the margins of the figure, as a fraction of the figure size.
+          Needed to keep the space between the figure margin and the axis constant, for plots that need to appear side-by-side in papers.
     """
     ax = plt.gca()
 
     # figure out the levels
-    if type(levels)==int:
-        levels = [ (lev+1)**2 for lev in range(levels) ]
+    if type(levels) == int:
+        levels = [lev + 1 for lev in range(levels)]
+    if type(levels[0]) == int:
+        levels = [lev**2 for lev in levels]
         if cl2d:
-            levels = [ chi2.ppf( chi2.cdf(lev,1), 2 ) for lev in levels ]
+            levels = [chi2.ppf(chi2.cdf(lev,1), 2) for lev in levels]
     else:
-        if type(levels[0])==int:
-            levels = [ lev**2 for lev in levels ]
-        else:
-            levels = [ chi2.ppf( lev, 2 ) for lev in levels ]
+        levels = [chi2.ppf(lev, 2) for lev in levels]
 
     # figure out frac contained
     fc = [ chi2.cdf(lev, 2) for lev in levels ]
@@ -534,6 +548,11 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
 
     # do the fills first
     for i, (x, y, z) in enumerate(scanpoints):
+
+        # workaround to avoid that contours are drawn for points where the scanner failed to converge
+        if np.any(z < 0):
+            print('WARNING: There are negative values in the likelihood scan. this implies that the scan failed to converge and the results could be unreliable')
+            z[z < 0] = 1e9
 
         # plot the fill
         ax.contourf( x, y, z, levels=[0]+levels, **fopts[i] )
@@ -603,6 +622,14 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
     if contourline:
         addContoursLine(ax, nlevs=len(levels), cl2d=cl2d)
 
+    if axes_origin and righttop_padding:
+        ax.set_position([
+            axes_origin[0],
+            axes_origin[1],
+            1 - righttop_padding[0] - axes_origin[0],
+            1 - righttop_padding[1] - axes_origin[1],
+        ])
+
     if save:
         fig = plt.gcf()
         fig.savefig(save)
@@ -662,9 +689,10 @@ def corr_plot(df, savef=None, names=None):
     
     scale = len(names)/12
     fig, ax = plt.subplots(figsize=(scale*6.4,scale*4.8))
-    im = ax.imshow(corr, cmap='coolwarm', interpolation='none', aspect='auto', vmin=-1, vmax=1)
+    im = ax.imshow(corr, cmap='coolwarm', interpolation='none', aspect='auto', vmin=-1, vmax=1, rasterized=True)
     cb = fig.colorbar(im, ax=ax, format=lambda x, pos: f'${x:+3.1f}$', pad=0.03/scale, aspect=15*scale)
-    cb.set_label('Correlation')
+    font_size = rcParams['font.size'] * scale
+    cb.set_label('Correlation', size=font_size)
 
     for (j,i), value in np.ndenumerate(corr):
         if not np.isnan(value) and abs(value)>=0.01:
@@ -677,12 +705,15 @@ def corr_plot(df, savef=None, names=None):
         ax.set_yticks( np.arange( len(labels) ) )
         ax.set_yticklabels( labels )
         ax.tick_params( axis='x', labelrotation=45 )
+        ax.tick_params( direction='out' )
+        ax.minorticks_off()
 
     
     if savef is not None:
         fig.savefig(savef)
         if '.pdf' in savef:
-            fig.savefig( savef.replace('.pdf','.png') )
+            for ext in ['.png', '.ps']:
+                fig.savefig(savef.replace('.pdf', ext))
 
 class plotter():
     def __init__(self, dim=1, save=None, xtitle=None, ytitle=None, xangle=False, yangle=False, xrange=None, yrange=None, logo='l', legpos=None, legfill=False, cls=None):

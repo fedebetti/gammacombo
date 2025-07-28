@@ -244,39 +244,48 @@ def read_corr_as_df( fname, verbose=True, with_names=True ):
     return df
 
 def df_corr_to_latex( df, savef ):
-  # remove below diagonal
+    """Take the dataframe of correlations and print it out in latex format."""
+    # Remove the elements below the diagonal
     N = len(df.columns)
     for i in range(N):
         for j in range(N):
             if i>j:
                 df.iloc[i,j] = 9.99
-    # suppress values under 0.001
+    # Suppress values under 0.001
     df = df.mask( abs(df)<0.01 )
-    # rename vars to remove _
+    # Rename vars to remove _
     renames = {}
     for col in df.columns:
         renames[col] = col.replace('_','')
     df = df.rename( columns=renames, index=renames )
-    # make latex
+    # Make latex
     df.to_latex(savef, float_format='{: .2f}'.format, na_rep='-')
 
-    ## manipulate the latex
+    # Manipulate the latex
     with open(savef) as f:
         lines = f.readlines()
 
     with open(savef,'w') as f:
         for i, line in enumerate(lines):
             line = line.replace('9.99','    ')
-            if i==2:
+            if i == 2:
+                variables = line.split('&')[1:]
+                max_var_length = max(len(var) for var in variables)
+                format_string_r = f'{{:>{max_var_length}s}}'
+                format_string_l = format_string_r.replace('>', '<')
+                mels = [format_string_r.format('\\' + var.strip()) for var in variables]
+                line = ' & '.join([max_var_length * ' '] + mels) + '\n'
+            elif i > 2 and not line.startswith('\\'):
+                line = '\\' + line.replace('-', '--').replace(' -- ', ' - ')
                 els = line.split('&')
-                mels = [ '{:>6s}'.format('\\'+el.replace(' ','')) for el in els[1:] ]
-                line = '  '+' &'.join(['       '] + mels)
-            if i>2 and not line.startswith('\\'):
-                line = '\\'+line
-
+                for i, el in enumerate(els):
+                    if i == 0:
+                        els[0] = format_string_l.format(el.strip())
+                    else:
+                        els[i] = format_string_r.format(el.strip())
+                line = ' & '.join(els) + '\n'
             if 'rule' in line:
-                line = '\\hline'+'\n'
-
+                line = '\\hline\n'
             f.write(line)
 
     return df
@@ -335,7 +344,7 @@ def input_log_to_latex(fname, outfname):
             print( r'\begin{tabular}{ l r c l c l }', file=outf )
             for line in rel_lines:
                 if '+/-' in line:
-                    obs = line.split()[0].replace('_obs','').replace('_',r'\_').replace("~","\~")
+                    obs = line.split()[0].replace('_obs','').replace('_',r'\_').replace('~',r'\~')
                     val = line.split()[2]
                     stat = line.split()[4]
                     syst = line.split()[6]
