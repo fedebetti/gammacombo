@@ -72,16 +72,14 @@ void Graphviz::printCombiner(Combiner* cmb)
     TString nodeNamei = graphvizString(cmb->getPdfs()[i]->getName());
 
     // loop over parameters of pdf i
-    TIterator* iti = cmb->getPdfs()[i]->getParameters()->createIterator();
-    while ( RooAbsReal* vi = (RooAbsReal*)iti->Next() ){
-
+    for (auto& vi : *cmb->getPdfs()[i]->getParameters()) {
+        
       // check if a parameter is shared with pdf j
       for ( int j=i+1; j<cmb->getPdfs().size(); j++ ){
         TString nodeNamej = graphvizString(cmb->getPdfs()[j]->getName());
 
         // print edges
-        TIterator* itj = cmb->getPdfs()[j]->getParameters()->createIterator();
-        while ( RooAbsReal* vj = (RooAbsReal*)itj->Next() ){
+        for (auto& vj : *cmb->getPdfs()[j]->getParameters()) {
           if ( TString(vi->GetName())==TString(vj->GetName()) ){
             dotfile << nodeNamei << " -- " << nodeNamej << " ";
             dotfile << "[label=\""<< vi->GetName() << "\"";
@@ -91,10 +89,10 @@ void Graphviz::printCombiner(Combiner* cmb)
             dotfile << "];\n";
           }
         }
-        delete itj;
+
       }
+
     }
-    delete iti;
   }
 
   // print footer
@@ -152,8 +150,9 @@ void Graphviz::printCombinerLayer(Combiner* cmb)
     TString nodeNamePdf = graphvizString(cmb->getPdfs()[i]->getName());
 
     // loop over parameters of pdf i
-    TIterator* it = cmb->getPdfs()[i]->getParameters()->createIterator();
-    while ( RooAbsReal* vi = (RooAbsReal*)it->Next() ){
+    // TIterator* it = cmb->getPdfs()[i]->getParameters()->createIterator();
+    // while ( RooAbsReal* vi = (RooAbsReal*)it->Next() ){
+    for (auto& vi : *cmb->getPdfs()[i]->getParameters()) {
       TString nodeNamePar = graphvizString(vi->GetName());
       dotfile << nodeNamePdf << " -- " << nodeNamePar;
       dotfile << "[";
@@ -162,7 +161,7 @@ void Graphviz::printCombinerLayer(Combiner* cmb)
       else dotfile << "color=black";
       dotfile << "];\n";
     }
-    delete it;
+    // delete it;
   }
 
   // print footer

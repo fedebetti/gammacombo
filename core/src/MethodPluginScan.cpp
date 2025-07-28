@@ -191,15 +191,17 @@ RooDataSet* MethodPluginScan::generateToys(int nToys)
         float generatedValues[2];
         for ( int i=0; i<2; i++ ){
             const RooArgSet* toyData = dataset->get(i);
-            TIterator* it = toyData->createIterator();
-            while(RooRealVar* var = (RooRealVar*)it->Next()){
+            // TIterator* it = toyData->createIterator();
+            // while(RooRealVar* var = (RooRealVar*)it->Next()){
+            for (auto& arg : *toyData) {
+                auto* var = dynamic_cast<RooRealVar*>(arg);
                 if ( TString(var->GetName()).Contains(aff_obs) ){
                     hasAffObs = true;
                     generatedValues[i] = var->getVal();
                     continue;
                 }
             }
-            delete it;
+            // delete it;
         }
 
         // check if they are the same, if so, fluctuate and regenerate
@@ -223,14 +225,16 @@ RooDataSet* MethodPluginScan::generateToys(int nToys)
             RooMsgService::instance().setStreamStatus(1,kTRUE);
             for ( int i=0; i<2; i++ ){
                 const RooArgSet* toyData = dataset->get(i);
-                TIterator* it = toyData->createIterator();
-                while(RooRealVar* var = (RooRealVar*)it->Next()){
+                // TIterator* it = toyData->createIterator();
+                // while(RooRealVar* var = (RooRealVar*)it->Next()){
+                for (auto& arg : *toyData) {
+                    auto* var = dynamic_cast<RooRealVar*>(arg);
                     if ( TString(var->GetName()).Contains(aff_obs) ){
                         generatedValues[i] = var->getVal();
                         continue;
                     }
                 }
-                delete it;
+                // delete it;
             }
             cout << aff_obs << " NEW VALUES : toy 0: " << generatedValues[0] << " toy 1: " << generatedValues[1] << endl;
         }
@@ -298,8 +302,10 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
     if ( arg->isAction("uniform") ) {
         // set parameter ranges to their bb range (should be something wide 95, 99% CL)
         const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
-        TIterator* it = pars->createIterator();
-        while(RooRealVar* var = (RooRealVar*)it->Next()){
+        // TIterator* it = pars->createIterator();
+        // while(RooRealVar* var = (RooRealVar*)it->Next()){
+        for (auto& arg : *pars) {
+            auto* var = dynamic_cast<RooRealVar*>(arg);
             setLimit( var, "bboos" );
         }
         if (verbose) {
@@ -700,8 +706,9 @@ void MethodPluginScan::scan2d(int nRun)
                     if ( arg->isAction("uniform") ) {
                         // set parameter ranges to their bb range (should be something wide 95, 99% CL)
                         const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
-                        TIterator* it = pars->createIterator();
-                        while ( RooRealVar* var = (RooRealVar*)it->Next() ) {
+                        // TIterator* it = pars->createIterator();
+                        // while ( RooRealVar* var = (RooRealVar*)it->Next() ) {
+                        for (auto& var : *pars) {
                             setLimit( var, "bboos" );
                         }
                         if (verbose) {

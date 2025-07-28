@@ -1,5 +1,9 @@
 # require a certain cmake version
-CMAKE_MINIMUM_REQUIRED( VERSION 3.4 )
+CMAKE_MINIMUM_REQUIRED( VERSION 3.16 )
+
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+endif()
 
 # declare the project name
 PROJECT(gammacomboCore)
@@ -48,15 +52,14 @@ MESSAGE("ROOT_LIBRARY_DIR: " ${ROOT_LIBRARY_DIR})
 MESSAGE("CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
 
 # find Boost
-SET(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake")
-FIND_PACKAGE(Boost REQUIRED)
+find_package(Boost CONFIG REQUIRED)
 IF (Boost_FOUND)
     MESSAGE(STATUS "Boost is found at: ${Boost_INCLUDE_DIR}")
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 ENDIF()
 
 # find Doxygen
-FIND_PACKAGE(Doxygen)
+find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
     # add combiner modules to Doxygen
