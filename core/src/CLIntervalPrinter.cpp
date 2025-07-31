@@ -50,13 +50,18 @@ void CLIntervalPrinter::print() const {
     }
 
     Rounder rounder(_arg, i.min, i.max, i.central);
-    std::string unit_str = unit.empty() ? "" : std::format(", [{}]", unit);
+    const auto CLlo = rounder.CLlo();
+    const auto CLhi = rounder.CLhi();
+    const auto central = rounder.central();
+    const auto errNeg = rounder.errNeg();
+    const auto errPos = rounder.errPos();
+    const auto cl = 1. - i.pvalue;
+    const std::string unit_str = unit.empty() ? "" : std::format(", [{}]", unit);
     const auto float_format = std::format("{{:-7.{:d}f}}", rounder.getNsubdigits());
     const auto format_str =
         std::format("{{:s}} = [{0}, {0}] ({0} -{0} + {0}) @{{:4.3f}}CL{{:s}}, {{:s}}", float_format);
-    std::cout << std::vformat(format_str, std::make_format_args(_var, rounder.CLlo(), rounder.CLhi(), rounder.central(),
-                                                                rounder.errNeg(), rounder.errPos(), 1. - i.pvalue,
-                                                                unit_str, _method));
+    std::cout << std::vformat(format_str,
+                              std::make_format_args(_var, CLlo, CLhi, central, errNeg, errPos, cl, unit_str, _method));
 
     // TODO remove the following code from quickhack stage once we have switched to the CLIntervalMaker mechanism
     // to get more useful information on the CL intervals
@@ -111,8 +116,13 @@ void CLIntervalPrinter::savePython() const {
         std::format("    {{{{'var': '{{:s}}', 'min': '{0}', 'max': '{0}', 'central': '{0}', "
                     "'neg': '{0}', 'pos': '{0}', 'cl': '{{:.4f}}', 'unit': '{{:s}}', 'method': '{{:s}}'}}}},\n",
                     float_format);
-    outf << std::vformat(format_str, std::make_format_args(_var, rounder.CLlo(), rounder.CLhi(), rounder.central(),
-                                                           rounder.errNeg(), rounder.errPos(), thisCL, unit, _method));
+    const auto CLlo = rounder.CLlo();
+    const auto CLhi = rounder.CLhi();
+    const auto central = rounder.central();
+    const auto errNeg = rounder.errNeg();
+    const auto errPos = rounder.errPos();
+    outf << std::vformat(format_str,
+                         std::make_format_args(_var, CLlo, CLhi, central, errNeg, errPos, thisCL, unit, _method));
     previousCL = thisCL;
   }
   if (previousCL != -1) { outf << "  ]\n"; }
