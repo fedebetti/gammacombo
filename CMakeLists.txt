@@ -34,22 +34,16 @@ endif(CCACHE_FOUND)
 find_package(Freetype REQUIRED)
 message("FREETYPE_LIBRARIES: " ${FREETYPE_LIBRARIES})
 
-find_package(ROOT 6.34 REQUIRED)
+# https://root.cern/manual/integrate_root_into_my_cmake_project/
+# https://cliutils.gitlab.io/modern-cmake/chapters/packages/ROOT.html
+find_package(ROOT 6.34 CONFIG REQUIRED)
+message("ROOT is found at: ${ROOT_INCLUDE_DIRS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O3 ${ROOT_CXX_FLAGS}")
-message("ROOT_INCLUDE_DIR: " ${ROOT_INCLUDE_DIR})
-message("ROOT_LIBRARIES: " ${ROOT_LIBRARIES})
-message("ROOT_GUI_LIBRARIES: " ${ROOT_GUI_LIBRARIES})
-message("ROOT_LIBRARY_DIR: " ${ROOT_LIBRARY_DIR})
 message("CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
 
-set(Boost_NO_BOOST_CMAKE
-    ON
-    CACHE BOOL "Enable fix for FindBoost.cmake")
 find_package(Boost REQUIRED)
-if(Boost_FOUND)
-  message(STATUS "Boost is found at: ${Boost_INCLUDE_DIR}")
-  include_directories(${Boost_INCLUDE_DIR})
-endif()
+message("Boost is found at: ${Boost_INCLUDE_DIRS}")
+include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -78,52 +72,101 @@ endif(DOXYGEN_FOUND)
 # -----------------------------------------------------------------------------
 
 set(CORE_INC_DIR ./core/include/)
-include_directories(BEFORE ${CORE_INC_DIR} ${ROOT_INCLUDE_DIR})
-# Declare the ROOT library path
-link_directories(${ROOT_LIBRARY_DIR} /usr/local/lib)
+include_directories(BEFORE ${CORE_INC_DIR})
 configure_file(${CORE_INC_DIR}/VersionConfig.h.in VersionConfig.h)
 
 # Define the sources of the core library
-aux_source_directory(./core/src CORE_LIB_SOURCES)
+set(CORE_LIB_SOURCES
+    ./core/src/BatchScriptWriter.cpp
+    ./core/src/CLInterval.cpp
+    ./core/src/CLIntervalMaker.cpp
+    ./core/src/CLIntervalPrinter.cpp
+    ./core/src/ColorBuilder.cpp
+    ./core/src/Combiner.cpp
+    ./core/src/ConfidenceContours.cpp
+    ./core/src/Contour.cpp
+    ./core/src/ControlPlots.cpp
+    ./core/src/FileNameBuilder.cpp
+    ./core/src/FitResultCache.cpp
+    ./core/src/Fitter.cpp
+    ./core/src/GammaComboEngine.cpp
+    ./core/src/Graphviz.cpp
+    ./core/src/LatexMaker.cpp
+    ./core/src/MethodAbsScan.cpp
+    ./core/src/MethodBergerBoosScan.cpp
+    ./core/src/MethodCoverageScan.cpp
+    ./core/src/MethodDatasetsPluginScan.cpp
+    ./core/src/MethodDatasetsProbScan.cpp
+    ./core/src/MethodPluginScan.cpp
+    ./core/src/MethodProbScan.cpp
+    ./core/src/OneMinusClPlot2d.cpp
+    ./core/src/OneMinusClPlotAbs.cpp
+    ./core/src/OneMinusClPlot.cpp
+    ./core/src/OptParser.cpp
+    ./core/src/ParameterCache.cpp
+    ./core/src/Parameter.cpp
+    ./core/src/ParameterEvolutionPlotter.cpp
+    ./core/src/ParametersAbs.cpp
+    ./core/src/PDF_Abs.cpp
+    ./core/src/PDF_Datasets.cpp
+    ./core/src/ProgressBar.cpp
+    ./core/src/PullPlotter.cpp
+    ./core/src/PValueCorrection.cpp
+    ./core/src/RooBinned2DBicubicBase.cpp
+    ./core/src/RooCrossCorPdf.cpp
+    ./core/src/RooHistPdfAngleVar.cpp
+    ./core/src/RooHistPdfVar.cpp
+    ./core/src/RooMultiPdf.cpp
+    ./core/src/RooPoly3Var.cpp
+    ./core/src/RooPoly4Var.cpp
+    ./core/src/RooSlimFitResult.cpp
+    ./core/src/Rounder.cpp
+    ./core/src/SharedArray.cpp
+    ./core/src/ToyTree.cpp
+    ./core/src/UtilsConfig.cpp
+    ./core/src/Utils.cpp)
 
 # -----------------------------------------------------------------------------
-# Generate ROOT dictionaries
+# Build core library
 # -----------------------------------------------------------------------------
 
+set(ROOT_REQUIRED_LIBS
+    ROOT::Core
+    ROOT::Core
+    ROOT::Graf
+    ROOT::Gui
+    ROOT::Hist
+    ROOT::RIO
+    ROOT::RooFit
+    ROOT::Tree)
+
+set(CORE_LIB "${PROJECT_NAME}Core")
+add_library(${CORE_LIB} SHARED ${CORE_LIB_SOURCES})
+target_link_libraries(${CORE_LIB} ${FREETYPE_LIBRARIES} ${ROOT_REQUIRED_LIBS})
+# For ConfigVersion.h
+target_include_directories(${CORE_LIB} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# -----------------------------------------------------------------------------
+# Add ROOT dictionaries to the core library
+# -----------------------------------------------------------------------------
+
+# See
+# https://cliutils.gitlab.io/modern-cmake/chapters/packages/ROOT.html#dictionary-generation
+# But now RootNewMacros has been renamed RootMacros and is automatically
+# included with find_package(ROOT)
 set(CORE_DICTIONARY_SOURCES
     RooBinned2DBicubicBase.h
     RooCrossCorPdf.h
-    # RooHistInterpol.h
     RooHistPdfAngleVar.h
     RooHistPdfVar.h
     RooPoly3Var.h
     RooPoly4Var.h
     RooSlimFitResult.h
     RooMultiPdf.h)
-# Add a make rule for the dictionary
-root_generate_dictionary(${PROJECT_NAME}Dict ${CORE_DICTIONARY_SOURCES} LINKDEF
-                         coreLinkDef.h)
-# Add a target calling the make rule for the dictionary
-add_custom_target(${PROJECT_NAME}Dict DEPENDS ${PROJECT_NAME}Dict.cxx
-                                              ${PROJECT_NAME}Dict.h)
-# Add the dictionary to the list of library sources
-set(CORE_LIB_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Dict.cxx
-                     ${CORE_LIB_SOURCES})
+root_generate_dictionary(G__${CORE_LIB} ${CORE_DICTIONARY_SOURCES} MODULE
+                         ${CORE_LIB} LINKDEF core/include/coreLinkDef.h)
 
-# -----------------------------------------------------------------------------
-# Build core library
-# -----------------------------------------------------------------------------
-
-add_shared_library(${PROJECT_NAME}Components ${CORE_LIB_SOURCES})
-# Add the ROOT dictionary to the list of dependencies
-add_dependencies(${PROJECT_NAME}Components ${PROJECT_NAME}Dict)
-# Add ROOT libraries to the linker command
-target_link_libraries(${PROJECT_NAME}Components ${ROOT_LIBRARIES}
-                      ${FREETYPE_LIBRARIES})
-# For ConfigVersion.h
-target_include_directories(${PROJECT_NAME}Components
-                           PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Dict_rdict.pcm
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${CORE_LIB}_rdict.pcm
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 # -----------------------------------------------------------------------------

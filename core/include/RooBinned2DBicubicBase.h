@@ -139,5 +139,3 @@ typedef RooBinned2DBicubicBase<RooAbsReal> RooBinned2DBicubic;
 typedef RooBinned2DBicubicBase<RooAbsPdf> RooBinned2DBicubicPdf;
 
 #endif  // _ROOBINNED2DBICUBICBASE
-
-// vim: ft=cpp:sw=4:tw=78

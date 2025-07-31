@@ -317,6 +317,8 @@ double RooBinned2DBicubicBase<BASE>::evalXY(double x1, double x2, double y1, dou
 #ifndef __GCCXML__
 template class RooBinned2DBicubicBase<RooAbsReal>;
 template class RooBinned2DBicubicBase<RooAbsPdf>;
+// clang-format off
+ClassImp(RooBinned2DBicubicBase<RooAbsReal>)
+ClassImp(RooBinned2DBicubicBase<RooAbsPdf>)
+// clang-format on
 #endif  // __GCCXML__
-
-// vim: ft=cpp:sw=4:tw=78

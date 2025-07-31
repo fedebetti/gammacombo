@@ -234,3 +234,5 @@ void RooSlimFitResult::Print(bool verbose, bool printcor) const {
 bool RooSlimFitResult::isAngle(RooRealVar* v) const {
   return v->getUnit() == TString("Rad") || v->getUnit() == TString("rad");
 }
+
+ClassImp(RooSlimFitResult)
