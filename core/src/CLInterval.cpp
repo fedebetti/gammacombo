@@ -14,7 +14,7 @@ bool double_approx_equal(const double lhs, const double rhs) noexcept {
 }
 
 std::strong_ordering double_approx_three_way(const double lhs, const double rhs) noexcept {
-  if (double_approx_equal(lhs, rhs)) std::strong_ordering::equal;
+  if (double_approx_equal(lhs, rhs)) return std::strong_ordering::equal;
   if (std::isnan(lhs) || lhs < rhs) return std::strong_ordering::less;
   return std::strong_ordering::greater;
 }
