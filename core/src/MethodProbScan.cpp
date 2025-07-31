@@ -669,6 +669,8 @@ int MethodProbScan::scan2d() {
  * solutions vector. It will be sorted for minChi2. Index 0 will correspond to the least chi2.
  */
 void MethodProbScan::saveSolutions() {
+  auto warning = [](const std::string& msg) { msgBase("MethodProbScan::saveSolutions() : WARNING : ", msg); };
+
   if (arg->debug) cout << "MethodProbScan::saveSolutions() : searching for minima in hChi2min ..." << endl;
 
   if (std::ranges::any_of(curveResults, [](const RooSlimFitResult* sfr) { return sfr != nullptr; })) {
@@ -686,7 +688,7 @@ void MethodProbScan::saveSolutions() {
       // loop over fit results to find those that produced it
       for (int j = 0; j < curveResults.size(); j++) {
         if (!curveResults[j]) {
-          if (arg->debug) cout << "MethodProbScan::saveSolutions() : WARNING : empty solution at index " << j << endl;
+          if (arg->debug) warning(std::format("Empty solution at index {:d}", j));
           continue;
         }
 
@@ -701,7 +703,8 @@ void MethodProbScan::saveSolutions() {
     }
   } else {
     // This could be due to the fact that there was only one parameter.
-    cout << "MethodProbScan::saveSolutions() : ERROR : No solutions found." << endl;
+    warning("No solutions found during the scan\n"
+            "This is normal if there are only 1(2) free parameters in the baseline fit and the scan is 1d (2d)");
   }
   sortSolutions();
 
