@@ -53,8 +53,8 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   void makeOneColorPlotStyle(const TString htmlColor, const int ROOTColor = -1);
 
   std::vector<Utils::histogramType> histosType;  ///< defines if histogram is interpreted as p-value or chi2
-  std::vector<ConfidenceContours*> m_contours;   ///< holds the contours for each scanner
-  std::vector<bool> m_contours_computed;  ///< true if the contours were computed for that scanner by computeContours()
+  std::vector<std::unique_ptr<ConfidenceContours>> m_contours;  ///< holds the contours for each scanner
+  std::unique_ptr<ConfidenceContours> m_contourFull;
 };
 
 #endif
