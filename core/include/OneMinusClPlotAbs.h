@@ -6,6 +6,7 @@
 
 #include <concepts>
 #include <memory>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -48,10 +49,12 @@ class OneMinusClPlotAbs {
   template <RootTObject T, typename... Args>
   T* makeOwnedTObject(Args... args) {
     rootObjects.emplace_back(std::unique_ptr<TObject>(std::make_unique<T>(args...)));
-    return dynamic_cast<T*>(rootObjects.back().get());
+    auto ptr = dynamic_cast<T*>(rootObjects.back().get());
+    if constexpr (std::is_base_of_v<TH1, T>) { ptr->SetDirectory(0); }
+    return ptr;
   }
 
-  /// Assign the ownership of a ROOT object to the this isntance of OneMinusClPlotsAbs.
+  /// Assign the ownership of a ROOT object to this instance of OneMinusClPlotsAbs.
   template <RootTObject T>
   T* getTObjectOwnership(std::unique_ptr<T> obj) {
     rootObjects.emplace_back(std::unique_ptr<TObject>(std::move(obj)));

@@ -78,10 +78,10 @@ namespace Utils {
   std::unique_ptr<RooFitResult> fitToMinImprove(RooWorkspace* w, TString name);
   double getChi2(RooAbsPdf* pdf);
 
-  std::unique_ptr<TH1F> histHardCopy(const TH1* h, bool copyContent = true, bool uniqueName = true,
-                                     TString specName = "");
-  std::unique_ptr<TH2F> histHardCopy(const TH2* h, bool copyContent = true, bool uniqueName = true,
-                                     TString specName = "");
+  std::unique_ptr<TH1> histHardCopy(const TH1* h, bool copyContent = true, bool uniqueName = true,
+                                    TString specName = "");
+  std::unique_ptr<TH2> histHardCopy(const TH2* h, bool copyContent = true, bool uniqueName = true,
+                                    TString specName = "");
 
   TTree* convertRooDatasetToTTree(RooDataSet* d);
   std::unique_ptr<TGraph> convertTH1ToTGraph(TH1* h, bool withErrors = false);

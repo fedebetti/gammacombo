@@ -1021,12 +1021,13 @@ TGraph* Utils::smoothHist(TH1* h, int option) {
 /// \param uniqueName - true: append a unique string to the histogram name
 /// \return a new histogram. Caller assumes ownership.
 ///
-std::unique_ptr<TH1F> Utils::histHardCopy(const TH1* h, bool copyContent, bool uniqueName, TString specName) {
+std::unique_ptr<TH1> Utils::histHardCopy(const TH1* h, bool copyContent, bool uniqueName, TString specName) {
   TString name = h->GetTitle();
   if (specName != "") name = specName;
   if (uniqueName) name += getUniqueRootName();
   auto hNew =
       std::make_unique<TH1F>(name, h->GetTitle(), h->GetNbinsX(), h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
+  hNew->SetDirectory(0);
   for (int l = 1; l <= h->GetNbinsX(); l++) {
     if (copyContent)
       hNew->SetBinContent(l, h->GetBinContent(l));
@@ -1040,13 +1041,14 @@ std::unique_ptr<TH1F> Utils::histHardCopy(const TH1* h, bool copyContent, bool u
 /// Creates a fresh, independent copy of the input histogram.
 /// 2d version of TH1F* Utils::histHardCopy().
 ///
-std::unique_ptr<TH2F> Utils::histHardCopy(const TH2* h, bool copyContent, bool uniqueName, TString specName) {
+std::unique_ptr<TH2> Utils::histHardCopy(const TH2* h, bool copyContent, bool uniqueName, TString specName) {
   TString name = h->GetTitle();
   if (specName != "") name = specName;
   if (uniqueName) name += getUniqueRootName();
   auto hNew =
       std::make_unique<TH2F>(name, h->GetTitle(), h->GetNbinsX(), h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax(),
                              h->GetNbinsY(), h->GetYaxis()->GetXmin(), h->GetYaxis()->GetXmax());
+  hNew->SetDirectory(0);
   for (int k = 1; k <= h->GetNbinsX(); k++)
     for (int l = 1; l <= h->GetNbinsY(); l++) {
       if (copyContent)
