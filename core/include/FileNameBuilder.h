@@ -8,8 +8,7 @@
 
 #include "OptParser.h"
 
-// forward declarations - include headers only in
-// cpp file to deal with circular dependencies
+// Forward declarations - include headers only in cpp file to deal with circular dependencies.
 class MethodAbsScan;
 class GammaComboEngine;
 class Combiner;
@@ -41,9 +40,9 @@ class FileNameBuilder {
   TString getCLsNameAddition();
 
  private:
-  const OptParser* m_arg;       ///< command line arguments
-  TString m_basename;           ///< the base name, e.g. "gammacombo"
-  TString m_asimov = "Asimov";  ///< literal naming Asimov combiners
+  const OptParser* m_arg;             ///< command line arguments
+  TString m_basename;                 ///< the base name, e.g. "gammacombo"
+  const TString m_asimov = "Asimov";  ///< literal naming Asimov combiners
 };
 
 #endif
