@@ -91,8 +91,8 @@ class GammaComboEngine {
   void make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId);
   void make1dPluginPlot(MethodPluginScan* sPlugin, MethodProbScan* sProb, int cId);
   void make1dPluginScan(MethodPluginScan* scannerPlugin, int cId);
-  void make1dProbPlot(MethodProbScan* scanner, int cId);
-  void make1dProbScan(MethodProbScan* scanner, int cId);
+  void make1dProbPlot(MethodProbScan* scanner, const int cId);
+  void make1dProbScan(MethodProbScan* scanner, const int cId);
   void make1dCoverageScan(MethodCoverageScan* scanner, int cId);
   void make1dCoveragePlot(MethodCoverageScan* scanner, int cId);
   void make1dBergerBoosScan(MethodBergerBoosScan* scanner, int cId);
@@ -132,7 +132,7 @@ class GammaComboEngine {
   std::vector<int> lineColors;
   std::vector<int> lineStyles;
   std::vector<int> lineWidths;
-  std::vector<MethodProbScan*> comparisonScanners;
+  std::vector<std::unique_ptr<MethodProbScan>> comparisonScanners;
   TString execname;
   std::unique_ptr<FileNameBuilder> m_fnamebuilder;
   std::unique_ptr<BatchScriptWriter> m_batchscriptwriter;
