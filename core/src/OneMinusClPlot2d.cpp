@@ -2,7 +2,10 @@
 #include <OneMinusClPlot2d.h>
 #include <Utils.h>
 
+#include <format>
 #include <iomanip>
+#include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -16,11 +19,13 @@
 #include <TROOT.h>
 
 namespace {
-  auto msgBase = [](const std::string& prefix, const std::string& msg) {
+  auto msgBase = [](const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout) {
     auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-    std::cout << prefix << msgOut << std::endl;
+    stream << prefix << msgOut << std::endl;
   };
-}
+
+  auto errBase = [](const std::string& prefix, const std::string& msg) { msgBase(prefix, msg, std::cerr); };
+}  // namespace
 
 /// Constructor.
 OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
@@ -581,14 +586,20 @@ void OneMinusClPlot2d::addScanner(MethodAbsScan* s, const int CLsType) {
 }
 
 void OneMinusClPlot2d::addFile(const TString fName) {
-  if (arg->debug) std::cout << "OneMinusClPlot2d::addFile() : Opening " << fName << std::endl;
-  auto f = TFile::Open(fName, "ro");
-  TH2F* hCL = (TH2F*)f->Get("hCL");
-  if (!hCL) {
-    std::cout << "OneMinusClPlot2d::addFile() : ERROR : File doesn't contain hCL." << std::endl;
+  auto error = [](const std::string& msg) {
+    errBase("OneMinusClPlot2d::addFile : ERROR : ", msg);
     return;
-  }
-  histos.push_back(hCL);
+  };
+
+  if (arg->debug) std::cout << "OneMinusClPlot2d::addFile() : Opening " << fName << std::endl;
+  TFile f(fName, "READ");
+  if (f.IsZombie()) error(std::format("Could not open file {:s}. Exit...", std::string(fName)));
+  auto hCL = std::unique_ptr<TH2>(static_cast<TH2*>(f.Get("hCL")));
+  if (!hCL) error("File doesn't contain hCL");
+  hCL->SetDirectory(0);
+  f.Close();
+  ownedHistos.push_back(std::move(hCL));
+  histos.push_back(ownedHistos.back().get());
   if (arg->smooth2d)
     for (int i = 0; i < arg->nsmooth; i++) { histos[histos.size() - 1]->Smooth(); }
   histosType.push_back(Utils::kPvalue);

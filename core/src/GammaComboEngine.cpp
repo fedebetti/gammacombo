@@ -1042,21 +1042,21 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
   }
 }
 
-///
-/// Perform the prob scan.
-///
-/// \param scanner - the scanner to run the scan with
-/// \param cId - the id of this combination on the command line
-///
+/**
+ * Perform a Prob scan.
+ *
+ * @param scanner The scanner to run the scan with.
+ * @param cId     The id of this combination.
+ */
 void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, int cId) {
-  // load start parameters
-  auto pCache = new ParameterCache(arg.get());
-  loadStartParameters(scanner, pCache, cId);
+  auto pCache = std::make_unique<ParameterCache>(arg.get());  // TODO
+  loadStartParameters(scanner, pCache.get(), cId);
 
   scanner->initScan();
-  scanStrategy1d(scanner, pCache);
-  cout << "\nResults:" << endl;
-  cout << "========\n" << endl;
+  scanStrategy1d(scanner, pCache.get());
+  cout << "\nResults:\n"
+       << "========\n"
+       << endl;
   scanner->printLocalMinima();
   scanner->saveLocalMinima(m_fnamebuilder->getFileNameSolution(scanner));
   scanner->computeCLvalues();
@@ -1173,26 +1173,28 @@ void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, int cId) 
   }
 }
 
-///
-/// Make a 1D plot of a Prob scanner. The scanner can either be a "fresh"
-/// one, as made in make1dProbScan(), or a loaded one.
-/// \param scanner - the scanner to plot
-/// \param cId - the id of this combination on the command line
-///
-void GammaComboEngine::make1dProbPlot(MethodProbScan* scanner, int cId) {
+/**
+ * Make a 1D plot of a Prob scanner.
+ *
+ * The scanner can either be a "fresh" one, as made in make1dProbScan(), or a loaded one.
+ *
+ * @param scanner The scanner to plot.
+ * @param cId     The id of this combination.
+ */
+void GammaComboEngine::make1dProbPlot(MethodProbScan* scanner, const int cId) {
 
   if (!arg->isAction("pluginbatch") && !arg->plotpluginonly) {
     scanner->setDrawSolution(arg->plotsolutions[cId]);
     if (arg->isAction("plugin") || arg->isAction("plot"))
       scanner->computeCLvalues();  // compute new CL values depending on test stat, even if not a rescan is wished
     if (arg->cls.size() > 0) {
-      if (runOnDataSet) ((MethodDatasetsProbScan*)scanner)->plotFitRes(m_fnamebuilder->getFileNamePlot(cmb) + "_fit");
+      if (runOnDataSet)
+        static_cast<MethodDatasetsProbScan*>(scanner)->plotFitRes(m_fnamebuilder->getFileNamePlot(cmb) + "_fit");
       scanner->plotOn(plot.get(), 1);  // for prob ClsType>1 doesn't exist
     }
     scanner->plotOn(plot.get());
     int colorId = cId;
     if (arg->color.size() > cId) colorId = arg->color[cId];
-    // scanner->setLineColor(colorsLine[colorId]);
     scanner->setTextColor(colorsText[colorId]);
     scanner->setLineColor(lineColors[cId]);
     scanner->setLineStyle(lineStyles[cId]);
@@ -1285,7 +1287,6 @@ void GammaComboEngine::make2dPluginPlot(MethodPluginScan* sPlugin, MethodProbSca
     sPlugin->setTitle(sPlugin->getTitle() + " (Plugin)");
   }
   sProb->setDrawSolution(arg->plotsolutions[cId]);
-  // sProb->setLineColor(colorsLine[cId]);
   sProb->setLineColor(lineColors[cId]);
   sProb->setLineStyle(lineStyles[cId]);
   sProb->setLineWidth(lineWidths[cId]);
@@ -1408,7 +1409,6 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
   }
   // contour plot
   scanner->setDrawSolution(arg->plotsolutions[cId]);
-  // scanner->setLineColor(colorsLine[cId]);
   scanner->setLineColor(lineColors[cId]);
   scanner->setLineStyle(lineStyles[cId]);
   scanner->setLineWidth(lineWidths[cId]);
@@ -1636,6 +1636,7 @@ void GammaComboEngine::makeLatex(Combiner* c) const {
 /// save workspace
 ///
 void GammaComboEngine::saveWorkspace(Combiner* c, int i) {
+  auto error = [](std::string msg) { return errorBase("saveWorkspace", msg); };
   // if --pr then make the ranges
   if (arg->enforcePhysRange) setLimit(c->getParameters(), "phys");
 
@@ -1659,9 +1660,11 @@ void GammaComboEngine::saveWorkspace(Combiner* c, int i) {
   }
   // otherwise add it to the file
   else {
-    TFile* tf = TFile::Open(arg->save, "UPDATE");
+    TFile tf(arg->save, "UPDATE");
+    if (tf.IsZombie()) error(std::format("Could not open file {:s}. Exit...", std::string(arg->save)));
+    tf.cd();
     c->getWorkspace()->Write();
-    tf->Close();
+    tf.Close();
   }
 }
 
@@ -1781,6 +1784,7 @@ void GammaComboEngine::compareCombinations() {
 /// run toys
 ///
 void GammaComboEngine::runToys(Combiner* c) {
+  auto error = [](std::string msg) { return errorBase("runToys", msg); };
   // THIS IS A HACK FOR NOW
   //
   // base scan (overhead here)
@@ -1831,6 +1835,7 @@ void GammaComboEngine::runToys(Combiner* c) {
   }
   system("mkdir -p " + toydirname);
   TFile f(toyfname, "recreate");
+  if (f.IsZombie()) error(std::format("Could not open file {:s}. Exit...", std::string(toyfname)));
   tree->Write();
   f.Close();
 }
@@ -1906,7 +1911,8 @@ void GammaComboEngine::scan() {
     if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
         !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
       auto scannerProb = std::make_unique<MethodProbScan>(c);
-      // pvalue corrector
+
+      // P-value corrector
       if (arg->coverageCorrectionID > 0) {
         auto pvalueCorrector = std::make_unique<PValueCorrection>(arg->coverageCorrectionID, arg->verbose);
         pvalueCorrector->readFiles(m_fnamebuilder->getFileBaseName(c), arg->coverageCorrectionPoint,
@@ -1923,7 +1929,7 @@ void GammaComboEngine::scan() {
           make1dProbScan(scannerProb.get(), i);
         }
         make1dProbPlot(scannerProb.get(), i);
-        if (arg->compare) comparisonScanners.push_back(scannerProb.get());
+        if (arg->compare) comparisonScanners.push_back(std::move(scannerProb));
       }
       // 2D SCANS
       else if (arg->var.size() == 2) {

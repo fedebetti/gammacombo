@@ -7,6 +7,8 @@
 #include <RooFitResult.h>
 #include <RooRealVar.h>
 
+#include <TString.h>
+
 /**
  *  Class that mimics the functionality of RooFitResult, but uses less internal memory by not storing the correlation
  *  matrix, if not specifically requested. It is useful to save memory in 2D scans.
@@ -24,7 +26,7 @@ class RooSlimFitResult : public TObject {
   RooArgList& constPars() const;
   inline TMatrixDSym correlationMatrix() const { return _correlationMatrix; };
   inline Int_t covQual() const { return _covQual; };
-  inline Double_t edm() const { return _edm; };
+  inline double edm() const { return _edm; };
   RooArgList& floatParsFinal() const;
   double getParVal(TString name) const;
   double getParErr(TString name) const;
@@ -36,11 +38,11 @@ class RooSlimFitResult : public TObject {
   bool hasParameter(TString name) const;
   bool isAngle(RooRealVar* v) const;
   inline bool isConfirmed() const { return _isConfirmed; };
-  inline Double_t minNll() const { return _minNLL; };
+  inline double minNll() const { return _minNLL; };
   void Print(bool verbose = false, bool printcor = false) const;
   void SaveLatex(std::ofstream& outfile, bool verbose = false, bool printcor = false);
   inline void setConfirmed(bool c) { _isConfirmed = c; };
-  inline Int_t status() const { return _status; };
+  inline int status() const { return _status; };
 
  private:
   template <class FitResult>

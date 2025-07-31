@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <format>
 #include <limits>
 #include <optional>
@@ -267,12 +268,18 @@ void MethodAbsScan::initScan() {
 /// It contains the 1-CL histograms and the solutions.
 ///
 void MethodAbsScan::saveScanner(TString fName) const {
+  auto error = [](const std::string& msg) {
+    msgBase("MethodAbsScan::saveScanner : ERROR : ", msg + ". Exit...");
+    std::exit(1);
+  };
+
   if (fName == "") {
     FileNameBuilder fb(arg);
     fName = fb.getFileNameScanner(this);
   }
-  if (arg->debug) cout << "MethodAbsScan::saveScanner() : saving scanner: " << fName << endl;
+  if (arg->debug) cout << "MethodAbsScan::saveScanner() : saving scanner to file " << fName << endl;
   TFile f(fName, "recreate");
+  if (f.IsZombie()) error(std::format("Could not open file {:s}", std::string(fName)));
   // save 1-CL histograms
   if (scanVar2 != "") {
     hCL2d->Write("hCL");
@@ -294,6 +301,7 @@ void MethodAbsScan::saveScanner(TString fName) const {
     hChi2min->Write("hChi2min");
   // save solutions
   for (int i = 0; i < solutions.size(); i++) { f.WriteObject(solutions[i].get(), Form("sol%i", i)); }
+  f.Close();
 }
 
 ///
@@ -301,117 +309,122 @@ void MethodAbsScan::saveScanner(TString fName) const {
 /// It contains the 1-CL histograms and the solutions.
 ///
 bool MethodAbsScan::loadScanner(TString fName) {
+  auto error = [](const std::string& msg) {
+    msgBase("MethodAbsScan::loadScanner : ERROR : ", msg + ". Exit...");
+    std::exit(1);
+  };
+
   if (fName == "") {
     FileNameBuilder fb(arg);
     fName = fb.getFileNameScanner(this);
   }
   if (arg->debug) cout << "MethodAbsScan::loadScanner() : ";
   cout << "loading scanner: " << fName << endl;
-  if (!FileExists(fName)) {
-    cout << "MethodAbsScan::loadScanner() : ERROR : file not found: " << fName << endl;
-    cout << "                               Run first without the '-a plot' option to produce the missing file."
-         << endl;
-    exit(1);
-  }
-  auto f = new TFile(fName, "ro");  // don't delete this later else the objects die
+  if (!FileExists(fName))
+    error(std::format("File not found: {:s}\n"
+                      "Run first without the '-a plot' option to produce the missing file.",
+                      std::string(fName)));
+  TFile f(fName, "read");
+  if (f.IsZombie()) error(std::format("File {:s} is corrupted", std::string(fName)));
+  TH1::AddDirectory(false);
   // load 1-CL histograms
-  TObject* obj = f->Get("hCL");
+  TObject* obj = f.Get("hCL");
   if (!obj) {
     cout << "MethodAbsScan::loadScanner() : ERROR : 'hCL' not found in root file " << fName << endl;
     exit(1);
   }
   if (scanVar2 != "") {
-    hCL2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj));
+    hCL2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj->Clone()));
     hCL2d->SetName("hCL2d" + getUniqueRootName());
   } else {
-    hCL = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+    hCL = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
     hCL->SetName("hCL" + getUniqueRootName());
   }
   // load chi2 histograms
-  obj = f->Get("hChi2min");
+  obj = f.Get("hChi2min");
   if (!obj) {
     cout << "MethodAbsScan::loadScanner() : ERROR : 'hChi2min' not found in root file " << fName << endl;
     // exit(1);
     // return false;
   }
   if (scanVar2 != "") {
-    hChi2min2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj));
+    hChi2min2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj->Clone()));
     hChi2min2d->SetName("hChi2min2d" + getUniqueRootName());
   } else {
-    hChi2min = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+    hChi2min = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
     hChi2min->SetName("hChi2min" + getUniqueRootName());
   }
   // load CLs histograms
   if (std::ranges::find(arg->cls, 1) != arg->cls.end()) {
-    obj = f->Get("hCLs");
+    obj = f.Get("hCLs");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLs' not found in root file - you can ignore this if you're "
               "not running in dataset mode "
            << fName << endl;
     }
     if (scanVar2 != "") {
-      hCLs2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj));
+      hCLs2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj->Clone()));
       hCLs2d->SetName("hCLs2d" + getUniqueRootName());
     } else {
-      hCLs = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+      hCLs = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
       hCLs->SetName("hCLs" + getUniqueRootName());
     }
   }
   // load CLs histograms
   bool lookForMixedCLs = std::ranges::find(arg->cls, 2) != arg->cls.end() && !methodName.Contains("Prob");
   if (lookForMixedCLs) {
-    obj = f->Get("hCLsFreq");
+    obj = f.Get("hCLsFreq");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsFreq' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsFreq = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+      hCLsFreq = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
       hCLsFreq->SetName("hCLsFreq" + getUniqueRootName());
     }
-    obj = f->Get("hCLsExp");
+    obj = f.Get("hCLsExp");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsExp' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsExp = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+      hCLsExp = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
       hCLsExp->SetName("hCLsExp" + getUniqueRootName());
     }
-    obj = f->Get("hCLsErr1Up");
+    obj = f.Get("hCLsErr1Up");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Up' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr1Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+      hCLsErr1Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
       hCLsErr1Up->SetName("hCLsErr1Up" + getUniqueRootName());
     }
-    obj = f->Get("hCLsErr1Dn");
+    obj = f.Get("hCLsErr1Dn");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Dn' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr1Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+      hCLsErr1Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
       hCLsErr1Dn->SetName("hCLsErr1Dn" + getUniqueRootName());
     }
-    obj = f->Get("hCLsErr2Up");
+    obj = f.Get("hCLsErr2Up");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Up' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr2Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+      hCLsErr2Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
       hCLsErr2Up->SetName("hCLsErr2Up" + getUniqueRootName());
     }
-    obj = f->Get("hCLsErr2Dn");
+    obj = f.Get("hCLsErr2Dn");
     if (!obj) {
       cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Dn' not found in root file - you can ignore this if "
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr2Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj));
+      hCLsErr2Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
       hCLsErr2Dn->SetName("hCLsErr2Dn" + getUniqueRootName());
     }
   }
@@ -419,11 +432,12 @@ bool MethodAbsScan::loadScanner(TString fName) {
   solutions.clear();
   int nSol = 100;
   for (int i = 0; i < nSol; i++) {
-    if (auto sfr = dynamic_cast<RooSlimFitResult*>(f->Get(Form("sol%i", i)))) solutions.push_back(sfr->Clone());
+    if (auto sfr = dynamic_cast<RooSlimFitResult*>(f.Get(Form("sol%i", i)))) solutions.push_back(sfr->Clone());
   }
-  if (f->Get(Form("sol%i", nSol))) {
+  if (f.Get(Form("sol%i", nSol))) {
     cout << "MethodAbsScan::loadScanner() : WARNING : Only the first 100 solutions read from: " << fName << endl;
   }
+  f.Close();
 
   return true;
 }

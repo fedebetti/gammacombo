@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <memory>
 
 #include <TChain.h>
@@ -116,13 +117,21 @@ void PValueCorrection::printCoverage(double n68, double n95, double n99, double 
 }
 
 void PValueCorrection::write(TString fname) {
-  std::unique_ptr<TFile> f(TFile::Open(fname.Data(), "RECREATE"));
-  write(f.get());
-  f->Close();
+  TFile f(fname.Data(), "RECREATE");
+  if (f.IsZombie()) {
+    std::cerr << "PValueCorrection::write : ERROR : Could not open file " << fname << ". Exit..." << std::endl;
+    std::exit(1);
+  }
+  write(&f);
+  f.Close();
 }
 
-void PValueCorrection::write(TFile* f) {
+void PValueCorrection::write(TFile* const f) {
   f->cd();
+  if (f->IsZombie()) {
+    std::cerr << "PValueCorrection::write : ERROR : File " << f->GetName() << " is a zombie. Exit..." << std::endl;
+    std::exit(1);
+  }
   if (verbose) cout << "PValueCorrection::write() -- writing to file " << f->GetName() << endl;
   fitFunc.SetName(TString(h_pvalue_before->GetName()) + "_fit");
   h_pvalue_before->Write();

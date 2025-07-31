@@ -27,7 +27,7 @@ class PValueCorrection {
   void printCoverage(double, double, double, double, TString name = "");
 
   void write(TString fname);
-  void write(TFile* f);
+  void write(TFile* const f);
 
  private:
   TString transFunc;

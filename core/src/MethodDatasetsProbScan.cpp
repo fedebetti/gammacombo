@@ -221,11 +221,11 @@ void MethodDatasetsProbScan::loadScanFromFile(TString fileNameBaseIn) {
 void MethodDatasetsProbScan::loadFitResults(TString file) {
 
   Utils::assertFileExists(file);
-  std::unique_ptr<TFile> f(TFile::Open(file));
+  TFile f(file);
 
   if (pdf->getBkgPdf()) {
     bkgOnlyFitResult = std::unique_ptr<RooFitResult>(
-        static_cast<RooFitResult*>(f->Get("bkgOnlyFitResult")->Clone("bkgOnlyFitResult" + getUniqueRootName())));
+        static_cast<RooFitResult*>(f.Get("bkgOnlyFitResult")->Clone("bkgOnlyFitResult" + getUniqueRootName())));
 
     if (!bkgOnlyFitResult) {
       cout << "MethodDatasetsProbScan::loadFitResults() : ERROR - bkgOnlyFitResult not found in file " << file << endl;
@@ -234,13 +234,13 @@ void MethodDatasetsProbScan::loadFitResults(TString file) {
   }
 
   globalMin = std::unique_ptr<RooFitResult>(
-      static_cast<RooFitResult*>(f->Get("globalMin")->Clone("globalMin" + getUniqueRootName())));
+      static_cast<RooFitResult*>(f.Get("globalMin")->Clone("globalMin" + getUniqueRootName())));
 
   if (!globalMin) {
     cout << "MethodDatasetsProbScan::loadFitResults() : ERROR - globalMin not found in file " << file << endl;
   }
 
-  f->Close();
+  f.Close();
 }
 
 void MethodDatasetsProbScan::sethCLFromProbScanTree() {

@@ -5,6 +5,7 @@
 #include "OneMinusClPlotAbs.h"
 #include "Utils.h"
 
+#include <memory>
 #include <vector>
 
 #include <TH2.h>
@@ -31,6 +32,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   inline void setYaxisTitle(TString s) { yTitle = s; };
 
  protected:
+  std::vector<std::unique_ptr<TH2>> ownedHistos;
   std::vector<TH2*> histos;
   TString xTitle;
   TString yTitle;
