@@ -124,7 +124,7 @@ class MethodAbsScan {
   void setChi2minGlobal(double x);
   void setSolutions(const std::vector<std::unique_ptr<RooSlimFitResult>>& s);
   inline void setVerbose(bool yesNo = true) { verbose = yesNo; };
-  inline void setHCL(TH1* h) { hCL = std::unique_ptr<TH1>(h); };
+  inline void setHCL(std::unique_ptr<TH1>& h) { hCL = std::move(h); };
   inline void setHchisq(TH1* h) { hChi2min = std::unique_ptr<TH1>(h); };
   void setXscanRange(double min, double max);
   void setYscanRange(double min, double max);

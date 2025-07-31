@@ -1,4 +1,5 @@
 #include <ConfidenceContours.h>
+#include <Utils.h>
 
 #include <TROOT.h>
 
@@ -136,7 +137,7 @@ void ConfidenceContours::addFilledPlotArea(const TH2* hist) {
 /// \param type - the type of the 2D histogram, either chi2 or p-value
 ///
 void ConfidenceContours::computeContours(const TH2* inHist, histogramType type, int id) {
-  auto hist = std::unique_ptr<TH2>(static_cast<TH2*>(inHist->Clone()));
+  auto hist = Utils::clone<TH2>(inHist);
   if (m_arg->debug) {
     cout << "ConfidenceContours::computeContours() : making contours of histogram ";
     cout << hist->GetName();

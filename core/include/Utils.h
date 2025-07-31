@@ -2,10 +2,12 @@
 #define Utils_h
 
 #include <algorithm>
+#include <concepts>
 #include <map>
 #include <memory>
 #include <string>
 #include <sys/stat.h>
+#include <type_traits>
 #include <vector>
 
 #include <TCanvas.h>
@@ -75,6 +77,7 @@ namespace Utils {
                                               bool debug = true);
   std::unique_ptr<RooFitResult> fitToMinImprove(RooWorkspace* w, TString name);
   double getChi2(RooAbsPdf* pdf);
+
   std::unique_ptr<TH1F> histHardCopy(const TH1* h, bool copyContent = true, bool uniqueName = true,
                                      TString specName = "");
   std::unique_ptr<TH2F> histHardCopy(const TH2* h, bool copyContent = true, bool uniqueName = true,
@@ -132,6 +135,24 @@ namespace Utils {
 
   static int uniqueRootNameId = 0;
   inline TString getUniqueRootName() { return (TString)Form("UID%i", ++uniqueRootNameId); }
+
+  /**
+   * Given a TObject, clone it, cast it to typename T, reclaim ownership (if T is derived from TH1) and return a unique
+   * pointer to it.
+   */
+  template <typename T>
+    requires std::derived_from<T, TObject>
+  std::unique_ptr<T> clone(const TObject* h, TString name = "") {
+    if (name == "") name = Utils::getUniqueRootName();
+    auto ptr = std::unique_ptr<T>(dynamic_cast<T*>(h->Clone(name)));
+    if (!ptr)
+      std::cerr << "Utils::clone<T> : ERROR : dynamic cast failed" << std::endl;
+    else {
+      if constexpr (std::is_base_of_v<TH1, T>) ptr->SetDirectory(0);
+    }
+    return ptr;
+  }
+
   void fillArgList(RooArgList* list, RooWorkspace* w, std::vector<TString> names);
   void getParameters(const RooFitResult& result, std::vector<TString>& names);
   std::vector<TString> getParsWithName(const TString& subString, const RooArgSet& set);

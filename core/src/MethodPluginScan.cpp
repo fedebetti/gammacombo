@@ -856,14 +856,14 @@ std::unique_ptr<TH1F> MethodPluginScan::analyseToys(ToyTree* t, int id, bool qui
   if (t->getScanpointN() == 1) halfBinWidth = 1.;
   auto hCL = std::make_unique<TH1F>(getUniqueRootName(), "hCL", t->getScanpointN(), t->getScanpointMin() - halfBinWidth,
                                     t->getScanpointMax() + halfBinWidth);
-  auto h_better = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_better")));
+  auto h_better = Utils::clone<TH1>(hCL.get(), "h_better");
   // histogram to store number of toys which enter CLb p Value calculation
-  auto h_better_clb = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_better_clb")));
-  auto h_all = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_all")));
+  auto h_better_clb = Utils::clone<TH1>(hCL.get(), "h_better_clb");
+  auto h_all = Utils::clone<TH1>(hCL.get(), "h_all");
   // numbers of all bkg toys
-  auto h_all_bkg = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_all_bkg")));
-  auto h_background = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_background")));
-  auto h_gof = std::unique_ptr<TH1>(dynamic_cast<TH1F*>(hCL->Clone("h_gof")));
+  auto h_all_bkg = Utils::clone<TH1>(hCL.get(), "h_all_bkg");
+  auto h_background = Utils::clone<TH1>(hCL.get(), "h_background");
+  auto h_gof = Utils::clone<TH1>(hCL.get(), "h_gof");
 
   // map of vectors for CLb quantiles
   std::map<int, std::vector<double>> sampledSchi2Values;
@@ -1364,8 +1364,8 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
   hCL2d = std::make_unique<TH2F>(getUniqueRootName(), "hCL2d", t.getScanpointN(), t.getScanpointMin() - halfBinWidthx,
                                  t.getScanpointMax() + halfBinWidthx, t.getScanpointyN(),
                                  t.getScanpointyMin() - halfBinWidthx, t.getScanpointyMax() + halfBinWidthx);
-  auto h_better = std::unique_ptr<TH2>(dynamic_cast<TH2F*>(hCL2d->Clone("h_better")));
-  auto h_all = std::unique_ptr<TH2>(dynamic_cast<TH2F*>(hCL2d->Clone("h_all")));
+  auto h_better = Utils::clone<TH2>(hCL2d.get(), "h_better");
+  auto h_all = Utils::clone<TH2>(hCL2d.get(), "h_all");
 
   Long64_t nentries = t.GetEntries();
   Long64_t nfailed = 0;

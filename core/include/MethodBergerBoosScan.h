@@ -10,7 +10,8 @@
 #include "MethodPluginScan.h"
 
 #include <TFile.h>
-#include <TH2F.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <TString.h>
 #include <TTree.h>
 
@@ -20,7 +21,7 @@ class MethodBergerBoosScan : public MethodPluginScan {
  public:
   MethodBergerBoosScan(MethodProbScan* s, TString d = "XX");
   ~MethodBergerBoosScan();
-  std::unique_ptr<TH2> calcPValues(TH2F better, TH2F all, TH2F bg);
+  std::unique_ptr<TH2> calcPValues(const TH2* better, const TH2* all, const TH2* bg);
   void getBestPValue(TH1* hCL, TH2* pValues);
   int getNBergerBoosPointsPerScanpoint() const { return nBBPoints; };  ///< Return number of BB points per scan point
   void readScan1dTrees(int runMin = 1, int runMax = 1);
@@ -33,16 +34,19 @@ class MethodBergerBoosScan : public MethodPluginScan {
                                       ///< BergerBoos ranges defined in the workspace
                                       ///< The parameter of interest (scan parameter) has to be set
                                       ///< constant (and to its scan point value) after the function call.
-  void drawBBPoints(TString varX, TString varY, int runMin = 1, int runMax = 1,
-                    bool save = true) const;  ///< Draws 2D Histogram showing the BB points in varX-varY space
-                                              ///< The boolian 'save' specifies if a copy of the plot will
-                                              ///< be saved in the plots folder.
+
+  /**
+   * Draw a 2D histogram showing the BB points in varX-varY space.
+   *
+   * @param save Boolean flag that specifies if a copy of the plot will be saved in the plots folder.
+   */
+  void drawBBPoints(TString varX, TString varY, int runMin = 1, int runMax = 1, bool save = true) const;
+
+ private:
+  int nBBPoints = 1;  ///< number of sampled Berger Boos points per scan point
   std::unique_ptr<TFile> file;
   TTree* BBtree = nullptr;
   TString dir;
-
- protected:
-  int nBBPoints = 1;  ///< number of sampled Berger Boos points per scan point
 };
 
 #endif

@@ -49,16 +49,16 @@ MethodBergerBoosScan::~MethodBergerBoosScan() { file->Close(); };
 ///
 /// Calculates 2D p-Values in (scanpoint,BergerBoos_id) Histogram
 ///
-std::unique_ptr<TH2> MethodBergerBoosScan::calcPValues(TH2F better, TH2F all, TH2F bg) {
-  std::unique_ptr<TH2> cl(static_cast<TH2*>(better.Clone("cl")));
-  for (int i = 1; i <= better.GetNbinsX(); i++) {
-    for (int j = 1; j <= better.GetNbinsY(); ++j) {
-      double nbetter = better.GetBinContent(i, j);
-      double nall = all.GetBinContent(i, j);
+std::unique_ptr<TH2> MethodBergerBoosScan::calcPValues(const TH2* better, const TH2* all, const TH2* bg) {
+  auto cl = Utils::clone<TH2>(better, "cl");
+  for (int i = 1; i <= better->GetNbinsX(); i++) {
+    for (int j = 1; j <= better->GetNbinsY(); ++j) {
+      double nbetter = better->GetBinContent(i, j);
+      double nall = all->GetBinContent(i, j);
       if (nall == 0.) continue;
 
       // subtract background
-      // auto nbackground = bg.GetBinContent(i, j);
+      // auto nbackground = bg->GetBinContent(i, j);
       // double p = (nbetter-nbackground)/(nall-nbackground);
       // hCL->SetBinContent(i, p);
       // hCL->SetBinError(i, sqrt(p * (1.-p)/(nall-nbackground)));
@@ -218,10 +218,11 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
   // Histograms used for 1-CL calculation
   // For the BergerBoos Method these have to be
   // 2 dimensional in (scanpoint,BergerBoos_id)
-  TH2F* h_better = new TH2F("h_better", "h_better", t.getScanpointN(), t.getScanpointMin(), t.getScanpointMax(),
-                            t.nBergerBoos, 0., t.nBergerBoos);
-  TH2F* h_all = (TH2F*)h_better->Clone("h_all");
-  TH2F* h_background = (TH2F*)h_better->Clone("h_background");
+  auto h_better = std::make_unique<TH2F>("h_better", "h_better", t.getScanpointN(), t.getScanpointMin(),
+                                         t.getScanpointMax(), t.nBergerBoos, 0., t.nBergerBoos);
+  h_better->SetDirectory(0);
+  auto h_all = Utils::clone<TH2>(h_better.get(), "h_all");
+  auto h_background = Utils::clone<TH2>(h_better.get(), "h_background");
 
   Long64_t nentries = t.GetEntries();
   Long64_t nfailed = 0;
@@ -283,7 +284,7 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
   cout << "MethodBergerBoosScan::readScan1dTrees() : fraction of background toys: "
        << h_background->GetEntries() / (double)nentries * 100. << "%." << endl;
 
-  auto hCL2d = calcPValues(*h_better, *h_all, *h_background);
+  auto hCL2d = calcPValues(h_better.get(), h_all.get(), h_background.get());
   getBestPValue(hCL.get(), hCL2d.get());
   TString fName = Form("root/hCL2d_" + name + "_" + scanVar1 + "_run%i_to_%i.root", runMin, runMax);
   if (this->dir == "XX") fName = this->dir + fName;
