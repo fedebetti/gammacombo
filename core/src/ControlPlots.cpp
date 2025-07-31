@@ -72,7 +72,7 @@ void ControlPlots::ctrlPlotPvalue() {
       myCtrlPlotCuts, "colz");
   TH1D* hFailed = ((TH2F*)(gPad->GetPrimitive("htemp")))->ProjectionX("hFailed", 1, 1);
   // construct nominal 1-CL histogram
-  TH1D* hOmcl = (TH1D*)hBetter->Clone("hOmcl");
+  auto hOmcl = Utils::clone<TH1>(hBetter, "hOmcl");
   hOmcl->Divide(hAll);
   // double hOmclScale = hAll->GetBinContent(hOmcl->GetMaximumBin())/hOmcl->GetMaximum(); // scale so the 1-CL curve is
   // in units of toys
@@ -80,7 +80,7 @@ void ControlPlots::ctrlPlotPvalue() {
       hAll->GetMaximum() / hOmcl->GetMaximum();  // arb. units, else the plot looks bad when using --importance sampling
   hOmcl->Scale(hOmclScale);
   // construct background 1-CL histogram
-  TH1D* hOmclBg = (TH1D*)hBg->Clone("hOmclBg");
+  auto hOmclBg = Utils::clone<TH1>(hBg, "hOmclBg");
   hOmclBg->Divide(hAll);
   hOmclBg->Scale(hOmclScale);  //  use same scale as hOmcl
   // plot histos
@@ -102,8 +102,8 @@ void ControlPlots::ctrlPlotPvalue() {
   TLegend leg(0.1599533, 0.803442, 0.9500348, 0.9375);
   leg.AddEntry(hAll, "all toys surviving cuts");
   leg.AddEntry(hFailed, "toys failing cuts");
-  leg.AddEntry(hOmcl, "1-CL of 'sig' toys (arb. units)");
-  leg.AddEntry(hOmclBg, "1-CL of 'bkg' toys (same norm. as 'sig')");
+  leg.AddEntry(hOmcl.get(), "1-CL of 'sig' toys (arb. units)");
+  leg.AddEntry(hOmclBg.get(), "1-CL of 'bkg' toys (same norm. as 'sig')");
   leg.SetFillStyle(0);
   leg.Draw();
   c2->Update();
@@ -215,13 +215,13 @@ void ControlPlots::ctrlPlotChi2() {
   t->Draw("chi2minToy-chi2minGlobalToy",
           ctrlPlotCuts && Form("chi2minToy-chi2minGlobalToy>=0 && chi2minToy<%f && chi2minGlobalToy<%f", maxPlottedChi2,
                                maxPlottedChi2));
-  TH1F* h4sig = (TH1F*)(gPad->GetPrimitive("htemp"))->Clone("h4sig");
+  auto h4sig = Utils::clone<TH1>(gPad->GetPrimitive("htemp"), "h4sig");
   // possibly background
   int nBkg = t->Draw("-(chi2minToy-chi2minGlobalToy)",
                      ctrlPlotCuts && Form("chi2minToy-chi2minGlobalToy<0 && chi2minToy<%f && chi2minGlobalToy<%f",
                                           maxPlottedChi2, maxPlottedChi2));
-  TH1F* h4bkg = (TH1F*)h4sig->Clone("h4bkg");
-  if (nBkg != 0) h4bkg = (TH1F*)(gPad->GetPrimitive("htemp"))->Clone("h4bkg");
+  auto h4bkg = Utils::clone<TH1>(h4sig.get(), "h4bkg");
+  if (nBkg != 0) h4bkg = Utils::clone<TH1>(gPad->GetPrimitive("htemp"), "h4bkg");
   if (nBkg == 0) h4bkg->Scale(0);  // if no bkg events the htemp from the signal Draw gets cloned again!
   h4sig->Draw();
   h4sig->GetXaxis()->SetTitle("#Delta#chi^{2} scan-free");
@@ -239,8 +239,8 @@ void ControlPlots::ctrlPlotChi2() {
   st->SetY2NDC(0.6056235);
 
   TLegend leg5(0.5, 0.8023019, 0.9772986, 0.9370629);
-  leg5.AddEntry(h4sig, "#Delta#chi^{2} of 'signal' toys");
-  leg5.AddEntry(h4bkg, "#Delta#chi^{2} of 'bg' toys");
+  leg5.AddEntry(h4sig.get(), "#Delta#chi^{2} of 'signal' toys");
+  leg5.AddEntry(h4bkg.get(), "#Delta#chi^{2} of 'bg' toys");
   leg5.SetFillStyle(1001);
   leg5.Draw();
   c2->Update();
@@ -252,7 +252,7 @@ void ControlPlots::ctrlPlotChi2() {
   t->Draw(Form("TMath::Prob(chi2minToy-chi2minGlobalToy,%i)", ndof),
           ctrlPlotCuts && Form("chi2minToy-chi2minGlobalToy>=0 && chi2minToy<%f && chi2minGlobalToy<%f", maxPlottedChi2,
                                maxPlottedChi2));
-  TH1F* h5sig = (TH1F*)(gPad->GetPrimitive("htemp"))->Clone("h5sig");
+  auto h5sig = Utils::clone<TH1>(gPad->GetPrimitive("htemp"), "h5sig");
   h5sig->SetMaximum(h5sig->GetMaximum() * 1.3);
   h5sig->Draw();
   h5sig->GetXaxis()->SetTitle("p(#Delta#chi^{2} scan-free)");
@@ -268,7 +268,7 @@ void ControlPlots::ctrlPlotChi2() {
   c2->Update();
 
   TLegend leg6(0.5, 0.8023019, 0.9772986, 0.9370629);
-  leg6.AddEntry(h5sig, Form("Prob(#Delta#chi^{2}, ndof=%i)", ndof));
+  leg6.AddEntry(h5sig.get(), Form("Prob(#Delta#chi^{2}, ndof=%i)", ndof));
   leg6.SetFillStyle(1001);
   leg6.Draw();
 

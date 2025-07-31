@@ -594,9 +594,8 @@ void OneMinusClPlot2d::addFile(const TString fName) {
   if (arg->debug) std::cout << "OneMinusClPlot2d::addFile() : Opening " << fName << std::endl;
   TFile f(fName, "READ");
   if (f.IsZombie()) error(std::format("Could not open file {:s}. Exit...", std::string(fName)));
-  auto hCL = std::unique_ptr<TH2>(static_cast<TH2*>(f.Get("hCL")));
+  auto hCL = Utils::clone<TH2>(f.Get<TH2>("hCL"));
   if (!hCL) error("File doesn't contain hCL");
-  hCL->SetDirectory(0);
   f.Close();
   ownedHistos.push_back(std::move(hCL));
   histos.push_back(ownedHistos.back().get());

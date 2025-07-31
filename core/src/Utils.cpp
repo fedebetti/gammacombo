@@ -975,8 +975,7 @@ TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
   return t;
 }
 
-/// Converts a TH1* to a TGraph*
-/// doesn't take responsibilty for ownership
+/// Convert a TH1 to a TGraph.
 std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(TH1* h, bool withErrors) {
   std::unique_ptr<TGraph> g = nullptr;
   if (withErrors)
@@ -986,7 +985,7 @@ std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(TH1* h, bool withErrors) {
   g->SetName(getUniqueRootName());
   for (int i = 0; i < h->GetNbinsX(); i++) {
     g->SetPoint(i, h->GetBinCenter(i + 1), h->GetBinContent(i + 1));
-    if (withErrors) (static_cast<TGraphErrors*>(g.get()))->SetPointError(i, 0.0, h->GetBinError(i + 1));
+    if (withErrors) (static_cast<TGraphErrors*>(g.get()))->SetPointError(i, 0., h->GetBinError(i + 1));
   }
   return g;
 }

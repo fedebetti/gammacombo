@@ -326,7 +326,6 @@ bool MethodAbsScan::loadScanner(TString fName) {
                       std::string(fName)));
   TFile f(fName, "read");
   if (f.IsZombie()) error(std::format("File {:s} is corrupted", std::string(fName)));
-  TH1::AddDirectory(false);
   // load 1-CL histograms
   TObject* obj = f.Get("hCL");
   if (!obj) {
@@ -334,11 +333,9 @@ bool MethodAbsScan::loadScanner(TString fName) {
     exit(1);
   }
   if (scanVar2 != "") {
-    hCL2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj->Clone()));
-    hCL2d->SetName("hCL2d" + getUniqueRootName());
+    hCL2d = Utils::clone<TH2>(obj, "hCL2d" + getUniqueRootName());
   } else {
-    hCL = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-    hCL->SetName("hCL" + getUniqueRootName());
+    hCL = Utils::clone<TH1>(obj, "hCL" + getUniqueRootName());
   }
   // load chi2 histograms
   obj = f.Get("hChi2min");
@@ -348,11 +345,9 @@ bool MethodAbsScan::loadScanner(TString fName) {
     // return false;
   }
   if (scanVar2 != "") {
-    hChi2min2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj->Clone()));
-    hChi2min2d->SetName("hChi2min2d" + getUniqueRootName());
+    hChi2min2d = Utils::clone<TH2>(obj, "hChi2min2d" + getUniqueRootName());
   } else {
-    hChi2min = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-    hChi2min->SetName("hChi2min" + getUniqueRootName());
+    hChi2min = Utils::clone<TH1>(obj, "hChi2min" + getUniqueRootName());
   }
   // load CLs histograms
   if (std::ranges::find(arg->cls, 1) != arg->cls.end()) {
@@ -363,11 +358,9 @@ bool MethodAbsScan::loadScanner(TString fName) {
            << fName << endl;
     }
     if (scanVar2 != "") {
-      hCLs2d = std::unique_ptr<TH2>(static_cast<TH2*>(obj->Clone()));
-      hCLs2d->SetName("hCLs2d" + getUniqueRootName());
+      hCLs2d = Utils::clone<TH2>(obj, "hCLs2d" + getUniqueRootName());
     } else {
-      hCLs = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-      hCLs->SetName("hCLs" + getUniqueRootName());
+      hCLs = Utils::clone<TH1>(obj, "hCLs" + getUniqueRootName());
     }
   }
   // load CLs histograms
@@ -379,8 +372,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsFreq = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-      hCLsFreq->SetName("hCLsFreq" + getUniqueRootName());
+      hCLsFreq = Utils::clone<TH1>(obj, "hCLsFreq" + getUniqueRootName());
     }
     obj = f.Get("hCLsExp");
     if (!obj) {
@@ -388,8 +380,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsExp = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-      hCLsExp->SetName("hCLsExp" + getUniqueRootName());
+      hCLsExp = Utils::clone<TH1>(obj, "hCLsExp" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr1Up");
     if (!obj) {
@@ -397,8 +388,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr1Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-      hCLsErr1Up->SetName("hCLsErr1Up" + getUniqueRootName());
+      hCLsErr1Up = Utils::clone<TH1>(obj, "hCLsErr1Up" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr1Dn");
     if (!obj) {
@@ -406,8 +396,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr1Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-      hCLsErr1Dn->SetName("hCLsErr1Dn" + getUniqueRootName());
+      hCLsErr1Dn = Utils::clone<TH1>(obj, "hCLsErr1Dn" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr2Up");
     if (!obj) {
@@ -415,8 +404,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr2Up = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-      hCLsErr2Up->SetName("hCLsErr2Up" + getUniqueRootName());
+      hCLsErr2Up = Utils::clone<TH1>(obj, "hCLsErr2Up" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr2Dn");
     if (!obj) {
@@ -424,8 +412,7 @@ bool MethodAbsScan::loadScanner(TString fName) {
               "you're not running in dataset mode "
            << fName << endl;
     } else if (scanVar2 == "") {
-      hCLsErr2Dn = std::unique_ptr<TH1>(static_cast<TH1*>(obj->Clone()));
-      hCLsErr2Dn->SetName("hCLsErr2Dn" + getUniqueRootName());
+      hCLsErr2Dn = Utils::clone<TH1>(obj, "hCLsErr2Dn" + getUniqueRootName());
     }
   }
   // load solutions: try the first one hundred

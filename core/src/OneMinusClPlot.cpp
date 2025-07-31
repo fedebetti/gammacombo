@@ -47,7 +47,7 @@ std::unique_ptr<TH1> OneMinusClPlot::getHistogram(MethodAbsScan* s, const int CL
     std::cerr << "OneMinusClPlot::getHistogram() : ERROR : Could not retrieve the histogram" << std::endl;
     exit(1);
   }
-  auto h = std::unique_ptr<TH1>(dynamic_cast<TH1*>(pH->Clone(Utils::getUniqueRootName())));
+  auto h = Utils::clone<TH1>(pH);
   // TODO this should not be needed
   for (int i = 1; i <= h->GetNbinsX(); ++i) {
     if (std::isnan(h->GetBinContent(i)) || std::isinf(h->GetBinContent(i))) h->SetBinContent(i, 0.);
@@ -419,12 +419,12 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, const bool smooth, const bo
   }
 
   using Utils::getUniqueRootName;
-  auto hObs = dynamic_cast<TH1*>(s->getHCLsFreq()->Clone(getUniqueRootName()));
-  auto hExp = dynamic_cast<TH1*>(s->getHCLsExp()->Clone(getUniqueRootName()));
-  auto hErr1Up = dynamic_cast<TH1*>(s->getHCLsErr1Up()->Clone(getUniqueRootName()));
-  auto hErr1Dn = dynamic_cast<TH1*>(s->getHCLsErr1Dn()->Clone(getUniqueRootName()));
-  auto hErr2Up = dynamic_cast<TH1*>(s->getHCLsErr2Up()->Clone(getUniqueRootName()));
-  auto hErr2Dn = dynamic_cast<TH1*>(s->getHCLsErr2Dn()->Clone(getUniqueRootName()));
+  auto hObs = Utils::clone<TH1>(s->getHCLsFreq());
+  auto hExp = Utils::clone<TH1>(s->getHCLsExp());
+  auto hErr1Up = Utils::clone<TH1>(s->getHCLsErr1Up());
+  auto hErr1Dn = Utils::clone<TH1>(s->getHCLsErr1Dn());
+  auto hErr2Up = Utils::clone<TH1>(s->getHCLsErr2Up());
+  auto hErr2Dn = Utils::clone<TH1>(s->getHCLsErr2Dn());
 
   if (!hObs) info("problem - can't find histogram hObs");
   if (!hExp) info("problem - can't find histogram hExp");
@@ -435,12 +435,12 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, const bool smooth, const bo
 
   // convert obs to graph
   using Utils::convertTH1ToTGraph;
-  auto gObs = convertTH1ToTGraph(hObs, obsError);
-  auto gExpRaw = convertTH1ToTGraph(hExp);
-  auto gErr1UpRaw = convertTH1ToTGraph(hErr1Up);
-  auto gErr1DnRaw = convertTH1ToTGraph(hErr1Dn);
-  auto gErr2UpRaw = convertTH1ToTGraph(hErr2Up);
-  auto gErr2DnRaw = convertTH1ToTGraph(hErr2Dn);
+  auto gObs = convertTH1ToTGraph(hObs.get(), obsError);
+  auto gExpRaw = convertTH1ToTGraph(hExp.get());
+  auto gErr1UpRaw = convertTH1ToTGraph(hErr1Up.get());
+  auto gErr1DnRaw = convertTH1ToTGraph(hErr1Dn.get());
+  auto gErr2UpRaw = convertTH1ToTGraph(hErr2Up.get());
+  auto gErr2DnRaw = convertTH1ToTGraph(hErr2Dn.get());
 
   // smoothing if needed
   std::unique_ptr<TGraph> gExp;
