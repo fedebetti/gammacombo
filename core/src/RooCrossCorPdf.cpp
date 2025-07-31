@@ -42,3 +42,5 @@ Double_t RooCrossCorPdf::evaluate() const {
   }
   return exp(-ret);
 }
+
+ClassImp(RooCrossCorPdf)

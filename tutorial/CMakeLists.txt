@@ -1,4 +1,4 @@
-# The combiner name should the the name of the subdirectory of the combiner.
+# The combiner name should be the name of the subdirectory of the combiner.
 set(COMBINER_NAME tutorial)
 
 # Define all executables of this combiner. They have to be located in the `main`
@@ -28,43 +28,39 @@ set(COMBINER_INCLUDE_DIR ./include)
 set(COMBINER_SOURCE_DIR ./src)
 set(COMBINER_MAIN_DIR ./main)
 
-include_directories(BEFORE ${ROOT_INCLUDE_DIR} ${CORE_INC_DIR}
-                    ${COMBINER_INCLUDE_DIR})
-
-# -----------------------------------------------------------------------------
-# Generate ROOT dictionaries
-# -----------------------------------------------------------------------------
-
-if(HAS_CUSTOMROOTOBJECTS)
-  # Add a make rule for the dictionary
-  root_generate_dictionary(${COMBINER_NAME}Dict ${COMBINER_DICTIONARY_SOURCES}
-                           LINKDEF ${COMBINER_DICTIONARY_LINKDEF})
-  # Add a target calling the make rule for the dictionary
-  add_custom_target(${COMBINER_NAME}Dict DEPENDS ${COMBINER_NAME}Dict.cxx
-                                                 ${COMBINER_NAME}Dict.h)
-endif()
+include_directories(BEFORE ${CORE_INC_DIR} ${COMBINER_INCLUDE_DIR})
 
 # -----------------------------------------------------------------------------
 # Build the library
 # -----------------------------------------------------------------------------
 
-aux_source_directory(${COMBINER_SOURCE_DIR} COMBINER_LIB_SOURCES)
+set(COMBINER_LIB_SOURCES
+    ${COMBINER_SOURCE_DIR}/ParametersCartesian.cpp
+    ${COMBINER_SOURCE_DIR}/ParametersTutorial.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_Cartesian.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_Circle.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_CrossCorAbs.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_CrossCor_GausA_vs_GausB.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_DatasetTutorial.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_Gaus.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_GausB.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_Gaus2d.cpp
+    ${COMBINER_SOURCE_DIR}/PDF_rb.cpp)
+
+set(COMBINER_LIB ${COMBINER_NAME}Components)
+add_library(${COMBINER_LIB} SHARED ${COMBINER_LIB_SOURCES})
+target_link_libraries(${COMBINER_LIB} ${CORE_LIB})
 if(HAS_CUSTOMROOTOBJECTS)
-  set(COMBINER_LIB_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${COMBINER_NAME}Dict.cxx
-                           ${COMBINER_LIB_SOURCES})
+  root_generate_dictionary(
+    G__${COMBINER_LIB} ${COMBINER_DICTIONARY_SOURCES} MODULE ${COMBINER_LIB}
+    LINKDEF ${COMBINER_DICTIONARY_LINKDEF})
 endif()
-add_library(${COMBINER_NAME}Components SHARED ${COMBINER_LIB_SOURCES})
-if(HAS_CUSTOMROOTOBJECTS)
-  add_dependencies(${COMBINER_NAME}Components ${COMBINER_NAME}Dict)
-endif()
-target_link_libraries(${COMBINER_NAME}Components ${ROOT_LIBRARIES}
-                      ${PROJECT_NAME}Components)
 
 # -----------------------------------------------------------------------------
 # Build the executables
 # -----------------------------------------------------------------------------
 
-set(COMBINER_LIBS ${COMBINER_NAME}Components ${PROJECT_NAME}Components)
+set(COMBINER_LIBS ${COMBINER_LIB} ${CORE_LIB})
 foreach(exec ${COMBINER_EXECUTABLES})
   add_executable(${exec} ${COMBINER_MAIN_DIR}/${exec}.cpp)
   target_link_libraries(${exec} ${COMBINER_LIBS})
