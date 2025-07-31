@@ -264,7 +264,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   }
 
   // attempt to correct for undercoverage TODO
-  if (pvalueCorrectorSet) {
+  if (pvalueCorrector) {
     for (int k = 1; k <= hCL->GetNbinsX(); k++) {
       double pvalueProb = hCL->GetBinContent(k);
       pvalueProb = pvalueCorrector->transform(pvalueProb);
