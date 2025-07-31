@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <TString.h>
+
 CLIntervalPrinter::CLIntervalPrinter(const OptParser* arg, const TString name, const TString var, const TString unit,
                                      const TString method, const int CLsType)
     : _arg(arg), _name(name), _var(var), _unit(unit), _method(method), _clstype(CLsType) {
@@ -49,8 +51,7 @@ void CLIntervalPrinter::print() const {
 
     Rounder rounder(_arg, i.min, i.max, i.central);
     std::string unit_str = unit.empty() ? "" : std::format(", [{}]", unit);
-    const int d = rounder.getNsubdigits();
-    const auto float_format = std::format("{{:-7.{:d}f}}", d);
+    const auto float_format = std::format("{{:-7.{:d}f}}", rounder.getNsubdigits());
     const auto format_str =
         std::format("{{:s}} = [{0}, {0}] ({0} -{0} + {0}) @{{:4.3f}}CL{{:s}}, {{:s}}", float_format);
     std::cout << std::vformat(format_str, std::make_format_args(_var, rounder.CLlo(), rounder.CLhi(), rounder.central(),
@@ -98,22 +99,23 @@ void CLIntervalPrinter::savePython() const {
       unit = "Deg";
     }
 
-    Rounder myRounder(_arg, i.min, i.max, i.central);
-    int d = myRounder.getNsubdigits();
-
     double thisCL = 1. - i.pvalue;
     if (previousCL != thisCL) {
-      if (previousCL != -1) outf << "  ]," << std::endl;
-      outf << Form("  '%.2f' : [", thisCL) << std::endl;
+      if (previousCL != -1) outf << "  ],\n";
+      outf << std::format("  '{:.4f}' : [\n", thisCL);
     }
 
-    outf << Form("    {'var':'%s', 'min':'%.*f', 'max':'%.*f', 'central':'%.*f', "
-                 "'neg':'%.*f', 'pos':'%.*f', 'cl':'%.2f', 'unit':'%s', 'method':'%s'},\n",
-                 _var, d, myRounder.CLlo(), d, myRounder.CLhi(), d, myRounder.central(), d, myRounder.errNeg(), d,
-                 myRounder.errPos(), thisCL, unit, _method);
+    Rounder rounder(_arg, i.min, i.max, i.central);
+    const auto float_format = std::format("{{:.{:d}f}}", rounder.getNsubdigits());
+    const auto format_str =
+        std::format("    {{{{'var': '{{:s}}', 'min': '{0}', 'max': '{0}', 'central': '{0}', "
+                    "'neg': '{0}', 'pos': '{0}', 'cl': '{{:.4f}}', 'unit': '{{:s}}', 'method': '{{:s}}'}}}},\n",
+                    float_format);
+    outf << std::vformat(format_str, std::make_format_args(_var, rounder.CLlo(), rounder.CLhi(), rounder.central(),
+                                                           rounder.errNeg(), rounder.errPos(), thisCL, unit, _method));
     previousCL = thisCL;
   }
-  if (previousCL != -1) { outf << "  ]" << std::endl; }
+  if (previousCL != -1) { outf << "  ]\n"; }
   outf << "}" << std::endl;
   outf.close();
 }

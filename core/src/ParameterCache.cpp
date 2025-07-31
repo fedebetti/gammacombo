@@ -34,22 +34,30 @@ ParameterCache::ParameterCache(OptParser* arg) {
   m_arg = arg;
 }
 
+/**
+ * Print the results of a fit to a ofstream.
+ */
 void ParameterCache::printFitResultToOutStream(ofstream& out, RooSlimFitResult* slimFitRes) const {
-
-  out << "### FCN: " << slimFitRes->minNll() << ", EDM: " << slimFitRes->edm() << endl;
-  out << "### COV quality: " << slimFitRes->covQual() << ", status: " << slimFitRes->status()
-      << ", confirmed: " << (slimFitRes->isConfirmed() ? "yes" : "no") << endl;
+  const std::string isConfirmed = slimFitRes->isConfirmed() ? "yes" : "no";
+  out << std::format("### FCN: {:f}, EDM: {:f}\n"
+                     "### COV quality: {:d}, status: {:d}, confirmed: {:s}",
+                     slimFitRes->minNll(), slimFitRes->edm(), slimFitRes->covQual(), slimFitRes->status(), isConfirmed)
+      << std::endl;
   RooArgList argList = slimFitRes->floatParsFinal();
   argList.add(slimFitRes->constPars());
   argList.sort();
   for (const auto argAbs : argList) {
     const auto arg = static_cast<RooRealVar*>(argAbs);
     if (TString(arg->GetName()).Contains("obs")) continue;
-    out << Form("%-25s", arg->GetName()) << " " << Form("%12.6f", arg->getVal()) << " "
-        << Form("%12.6f", arg->getErrorLo()) << " " << Form("%12.6f", arg->getErrorHi()) << endl;
+    out << std::format("{:25s} {:12.6f} {:12.6f} {:12.6f}", std::string(arg->GetName()), arg->getVal(),
+                       arg->getErrorLo(), arg->getErrorHi())
+        << endl;
   }
 }
 
+/**
+ * Dump the information regarding all the solutions stored in a scanner to an output text file.
+ */
 void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
 
   auto info = [](const std::string& msg) { msgBase("ParameterCache::cacheParameters() : ", msg); };
