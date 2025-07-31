@@ -13,6 +13,8 @@
 #include <TGraphErrors.h>
 #include <TGraphSmooth.h>
 #include <TGraphTools.h>
+#include <TH1.h>
+#include <TH1F.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TPaveText.h>
@@ -608,6 +610,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, const bool smooth, const bo
   double min = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmin() : arg->scanrangeMin;
   double max = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmax() : arg->scanrangeMax;
   auto haxes = std::make_unique<TH1F>("haxes" + getUniqueRootName(), "", 100, min, max);
+  haxes->SetDirectory(0);
   haxes->SetStats(0);
   if (arg->xtitle == "")
     haxes->GetXaxis()->SetTitle(s->getScanVar1()->GetTitle());
