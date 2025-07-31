@@ -1021,7 +1021,7 @@ std::unique_ptr<TH1F> MethodPluginScan::analyseToys(ToyTree* t, int id, bool qui
     double p = nbetter / nall;
     double p_clb = nbetter_clb / nall_bkg;
     // attempt to correct for undercoverage
-    if (pvalueCorrectorSet) { p = pvalueCorrector->transform(p); }
+    if (pvalueCorrector) { p = pvalueCorrector->transform(p); }
     hCL->SetBinContent(i, p);
     hCL->SetBinError(i, sqrt(p * (1. - p) / nall));
     double p_bkg = TMath::Min(p / hCL->GetBinContent(1), 1.);

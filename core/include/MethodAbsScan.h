@@ -103,10 +103,7 @@ class MethodAbsScan {
   virtual int scan1d() const;
   virtual int scan2d() const;
   inline void setDrawSolution(int code = 0) { drawSolution = code; };
-  inline void setPValueCorrector(std::unique_ptr<PValueCorrection> pvalCor) {
-    pvalueCorrector = std::move(pvalCor);
-    pvalueCorrectorSet = true;
-  }
+  inline void setPValueCorrector(std::unique_ptr<PValueCorrection> pvalCor) { pvalueCorrector = std::move(pvalCor); }
   inline void setScanVar1(TString var) { scanVar1 = var; };
   inline void setScanVar2(TString var) { scanVar2 = var; };
   inline void setNPoints1d(int n) { nPoints1d = n; };
@@ -178,8 +175,6 @@ class MethodAbsScan {
 
   /// Object that can correct the pvalue for undercoverage if required.
   std::unique_ptr<PValueCorrection> pvalueCorrector;
-
-  bool pvalueCorrectorSet = false;
 
   TRandom3 rndm;
   RooWorkspace* w = nullptr;
