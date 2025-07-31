@@ -13,12 +13,6 @@ Contour::Contour(const OptParser* arg, TList* listOfGraphs) {
   assert(arg);
   m_arg = arg;
   for (auto g : *listOfGraphs) { m_contours.push_back(static_cast<TGraph*>(g->Clone())); }
-  m_linecolor = 2;
-  m_linestyle = kSolid;
-  m_fillcolor = 2;
-  m_fillstyle = 1001;
-  m_linewidth = 1;
-  m_alpha = 1.;
 
   // compute holes in the contours
   m_contoursHoles = makeHoles(m_contours);
@@ -33,7 +27,6 @@ Contour::~Contour() {
 /// Draw the contours into the currently active Canvas.
 ///
 void Contour::Draw() const {
-  // cout << "Contour::Draw() : drawing contour (sigma=" << m_sigma << ") ..." << endl;
   DrawFilled();
   DrawLine();
 }
@@ -59,8 +52,7 @@ void Contour::DrawFilled() const {
 }
 
 ///
-/// Draw line contours into the currently active Canvas.
-/// This plots the contours in m_contours.
+/// Draw line contours into the currently active Canvas. This plots the contours in m_contours.
 ///
 void Contour::DrawLine() const {
   for (auto ch : m_contours) {
@@ -76,7 +68,8 @@ void Contour::DrawLine() const {
 ///
 /// Set the contour style.
 ///
-void Contour::setStyle(int linecolor, int linestyle, int linewidth, int fillcolor, int fillstyle) {
+void Contour::setStyle(const int linecolor, const int linestyle, const int linewidth, const int fillcolor,
+                       const int fillstyle) {
   m_linecolor = linecolor;
   m_linestyle = linestyle;
   m_fillcolor = fillcolor;
@@ -218,36 +211,23 @@ void Contour::findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2) {
   }
   g1->GetPoint(i1, x1, y1);
   g2->GetPoint(i2, x2, y2);
-  // printf("Contour::findClosestPoints(): point 1 = [%f,%f] (id %2i), point 2 = [%f,%f] (id %2i)\n",
-  //   x1, y1, i1, x2, y2, i2);
 }
 
-// double Contour::getXBoundary(double p1x, double p1y, double p2x, double p2y, double ymax)
-//{
-// return p1x + (ymax-p1y)/(p2y-p1y)*(p2x-p1x);
-//}
-
-// double Contour::getYBoundary(double p1x, double p1y, double p2x, double p2y, double xmax)
-//{
-// return p1y + (xmax-p1x)/(p2x-p1x)*(p2y-p1y);
-//}
-
-///
-/// Magnetic boundaries. If a contour is closer than half a binwidth
-/// to a boundary, adjust it to be actually the boundary.
-///
-/// \param contour - input contours
-/// \param hCL - a histogram defining the boundaries
-///
+/**
+ * Magnetic boundaries. If a contour is closer than half a bin width to a boundary, adjust it to be the boundary.
+ *
+ * @param contour Input contours.
+ * @param hCL     Histogram defining the boundaries.
+ */
 void Contour::magneticBoundaries(vector<TGraph*>& contours, const TH2* hCL) {
-  double magneticRange = 0.75;
-  double xmin = hCL->GetXaxis()->GetXmin();
-  double xmax = hCL->GetXaxis()->GetXmax();
-  double ymin = hCL->GetYaxis()->GetXmin();
-  double ymax = hCL->GetYaxis()->GetXmax();
-  double xbinwidth = hCL->GetXaxis()->GetBinWidth(1);
-  double ybinwidth = hCL->GetYaxis()->GetBinWidth(1);
-  Double_t pointx, pointy;
+  const double magneticRange = 0.75;
+  const double xmin = hCL->GetXaxis()->GetXmin();
+  const double xmax = hCL->GetXaxis()->GetXmax();
+  const double ymin = hCL->GetYaxis()->GetXmin();
+  const double ymax = hCL->GetYaxis()->GetXmax();
+  const double xbinwidth = hCL->GetXaxis()->GetBinWidth(1);
+  const double ybinwidth = hCL->GetYaxis()->GetBinWidth(1);
+  double pointx, pointy;
   for (auto contour : contours) {
     auto g = dynamic_cast<TGraph*>(contour);
     for (int i = 0; i < g->GetN(); i++) {
@@ -268,12 +248,12 @@ void Contour::magneticBoundaries(const TH2* hCL) {
   magneticBoundaries(m_contoursHoles, hCL);
 }
 
-///
-/// Set transparency.
-///
-/// \param percent - 0% means intransparent
-///
-void Contour::setTransparency(double percent) {
+/**
+ * Set the transparency of the contour.
+ *
+ * \param percent 100% means fully transparent, 0% means intransparent.
+ */
+void Contour::setTransparency(const double percent) {
   if (!(0. <= percent && percent <= 1.)) {
     cout << "Contour::setTransparency() : ERROR : percent not in [0,1]. Skipping." << endl;
     return;
