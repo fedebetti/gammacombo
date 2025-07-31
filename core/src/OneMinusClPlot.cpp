@@ -899,7 +899,7 @@ void OneMinusClPlot::Draw(const bool beautify) {
 
   // Plot the CLs
   for (int i = 0; i < scanners.size(); i++)
-    if (do_CLs[i] == 2) scan1dCLsPlot(scanners[i], arg->nsmooth);
+    if (do_CLs[i] == 2) scan1dCLsPlot(scanners[i].get(), arg->nsmooth);
   canvas->Update();
   canvas->Show();
 
@@ -960,11 +960,11 @@ void OneMinusClPlot::Draw(const bool beautify) {
     legTitles.push_back(legTitle);
 
     if (!beautify) {
-      scan1dPlotSimple(scanners[i], i == 0, do_CLs[i]);
+      scan1dPlotSimple(scanners[i].get(), i == 0, do_CLs[i]);
       leg->AddEntry(scanners[i]->getHCL(), legTitle, legDrawOption);
     } else {
       if (scanners[i]->getFillStyle() != 0 || scanners[i]->getFillColor() != 0) {
-        const auto g = scan1dPlot(scanners[i], i == 0, false, scanners[i]->getFilled(), do_CLs[i]);
+        const auto g = scan1dPlot(scanners[i].get(), i == 0, false, scanners[i]->getFilled(), do_CLs[i]);
         if (legTitles[i] != "noleg") leg->AddEntry(g, legTitle, legDrawOption);
       }
     }
@@ -974,7 +974,7 @@ void OneMinusClPlot::Draw(const bool beautify) {
   if (beautify) {
     for (int i = 0; i < scanners.size(); i++) {
       bool last = i == scanners.size() - 1;
-      const auto g = scan1dPlot(scanners[i], false, last, false, do_CLs[i]);
+      const auto g = scan1dPlot(scanners[i].get(), false, last, false, do_CLs[i]);
       if (scanners[i]->getFillStyle() == 0 && scanners[i]->getFillColor() == 0 && legTitles[i] != "noleg")
         leg->AddEntry(g, legTitles[i], "L");
     }

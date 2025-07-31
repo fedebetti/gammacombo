@@ -19,7 +19,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   OneMinusClPlot2d(OptParser* arg, TString name = "c1", TString title = "c1");
 
   void addFile(const TString fName);
-  void addScanner(MethodAbsScan* s, const int CLsType = 0) override;
+  void addScanner(std::shared_ptr<MethodAbsScan> s, const int CLsType = 0) override;
   void Draw(const bool beautify) override;
   void DrawFull();
   void drawCLcontent(const bool isFull = false);
