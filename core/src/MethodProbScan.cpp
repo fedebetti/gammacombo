@@ -287,8 +287,9 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
 /// \return status 0 ->potentially can encode debug information here
 ///
 int MethodProbScan::computeCLvalues() {
-  std::cout << "Computing CL values based on test statistic decision" << std::endl;
-  std::cout << "Using " << arg->teststatistic << "-sided test statistic" << std::endl;
+  auto info = [](const std::string& msg) { msgBase("MethodProbScan::computeCLvalues() : INFO : ", msg); };
+  info("Computing CL values based on test statistic decision\n" +
+       std::format("using {:d}-sided test statistic", arg->teststatistic));
 
   if (!globalMin && !this->getSolution()) {
     std::cout << "Could not find a solution so can't redefine the test statistics appropriately" << std::endl;

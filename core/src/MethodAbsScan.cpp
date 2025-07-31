@@ -29,11 +29,16 @@ using namespace RooFit;
 using namespace Utils;
 
 namespace {
-  auto msgBase = [](const std::string& prefix, const std::string& msg) {
+  auto msgBase = [](const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout) {
     auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-    std::cout << prefix << msgOut << endl;
+    stream << prefix << msgOut << std::endl;
   };
-}
+
+  auto errBase = [](const std::string& prefix, const std::string& msg) {
+    msgBase(prefix, msg + ". Exit...", std::cerr);
+    exit(1);
+  };
+}  // namespace
 
 MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
   combiner = c;
@@ -268,10 +273,7 @@ void MethodAbsScan::initScan() {
 /// It contains the 1-CL histograms and the solutions.
 ///
 void MethodAbsScan::saveScanner(TString fName) const {
-  auto error = [](const std::string& msg) {
-    msgBase("MethodAbsScan::saveScanner : ERROR : ", msg + ". Exit...");
-    std::exit(1);
-  };
+  auto error = [](const std::string& msg) { errBase("MethodAbsScan::saveScanner : ERROR : ", msg); };
 
   if (fName == "") {
     FileNameBuilder fb(arg);
@@ -309,10 +311,7 @@ void MethodAbsScan::saveScanner(TString fName) const {
 /// It contains the 1-CL histograms and the solutions.
 ///
 bool MethodAbsScan::loadScanner(TString fName) {
-  auto error = [](const std::string& msg) {
-    msgBase("MethodAbsScan::loadScanner : ERROR : ", msg + ". Exit...");
-    std::exit(1);
-  };
+  auto error = [](const std::string& msg) { errBase("MethodAbsScan::loadScanner : ERROR : ", msg); };
 
   if (fName == "") {
     FileNameBuilder fb(arg);
@@ -415,7 +414,8 @@ bool MethodAbsScan::loadScanner(TString fName) {
       hCLsErr2Dn = Utils::clone<TH1>(obj, "hCLsErr2Dn" + getUniqueRootName());
     }
   }
-  // load solutions: try the first one hundred
+
+  // load solutions
   solutions.clear();
   int nSol = 100;
   for (int i = 0; i < nSol; i++) {
@@ -658,10 +658,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
   auto debug = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : DEBUG : ", msg); };
   auto info = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : ", msg); };
   auto warning = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : WARNING : ", msg); };
-  auto error = [](const std::string& msg) {
-    msgBase("MethodAbsScan::calcCLintervals() : ERROR : ", msg + ". Exit...");
-    exit(1);
-  };
+  auto error = [](const std::string& msg) { errBase("MethodAbsScan::calcCLintervals() : ERROR : ", msg); };
   if (arg->debug) debug(std::format("Calling arguments: {:d}, {:s}, {:s}", CLsType, calc_expected, quiet));
 
   // TODO
@@ -945,10 +942,7 @@ const CLInterval* MethodAbsScan::getCLintervalCentral(int sigma, bool quiet) { r
  * @return      A copy of the desired CLInterval.
  */
 const CLInterval* MethodAbsScan::getCLinterval(const int iSol, const int index, const bool quiet) {
-  auto error = [](const std::string& msg) {
-    msgBase("MethodAbsScan::getCLinterval : ERROR : ", msg + ". Exit...");
-    exit(1);
-  };
+  auto error = [](const std::string& msg) { errBase("MethodAbsScan::getCLinterval : ERROR : ", msg); };
 
   if (clintervals.empty()) calcCLintervals(0, false, quiet);
   if (clintervals.empty()) error("This should never happen");
