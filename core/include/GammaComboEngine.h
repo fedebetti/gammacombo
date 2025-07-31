@@ -88,18 +88,18 @@ class GammaComboEngine {
   TString getStartParFileName(int cId) const;
   bool isScanVarObservable(Combiner* c, TString scanVar) const;
   void loadStartParameters(MethodProbScan* s, ParameterCache* pCache, int cId);
-  void make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId);
-  void make1dPluginPlot(MethodPluginScan* sPlugin, MethodProbScan* sProb, int cId);
+  void make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId);
+  void make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb, int cId);
   void make1dPluginScan(MethodPluginScan* scannerPlugin, int cId);
-  void make1dProbPlot(MethodProbScan* scanner, const int cId);
+  void make1dProbPlot(std::shared_ptr<MethodProbScan> scanner, const int cId);
   void make1dProbScan(MethodProbScan* scanner, const int cId);
   void make1dCoverageScan(MethodCoverageScan* scanner, int cId);
   void make1dCoveragePlot(MethodCoverageScan* scanner, int cId);
   void make1dBergerBoosScan(MethodBergerBoosScan* scanner, int cId);
-  void make2dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId);
-  void make2dPluginPlot(MethodPluginScan* sPlugin, MethodProbScan* sProb, int cId);
-  void make2dPluginScan(MethodPluginScan* scannerPlugin, int cId);
-  void make2dProbPlot(MethodProbScan* scanner, int cId);
+  void make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId);
+  void make2dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb, int cId);
+  void make2dPluginScan(std::shared_ptr<MethodPluginScan> scannerPlugin, int cId);
+  void make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, int cId);
   void make2dProbScan(MethodProbScan* scanner, int cId);
 
   void printCombinerStructure(Combiner* c) const;
