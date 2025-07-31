@@ -559,7 +559,7 @@ void OneMinusClPlot2d::makeOneColorPlotStyle(const TString htmlColor, const int 
 ///
 /// Add a scanner to the list of things to be plotted.
 ///
-void OneMinusClPlot2d::addScanner(MethodAbsScan* s, const int CLsType) {
+void OneMinusClPlot2d::addScanner(std::shared_ptr<MethodAbsScan> s, const int CLsType) {
   if (arg->debug) std::cout << "OneMinusClPlot2d::addScanner() : adding " << s->getName() << std::endl;
   if ((CLsType == 1 || CLsType == 2) && !s->getHCLs2d()) {
     std::cout << "OneMinusClPlot2d::addScanner() : ERROR : No hCLs available. Will not plot." << std::endl;

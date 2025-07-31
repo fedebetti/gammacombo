@@ -28,7 +28,7 @@ class OneMinusClPlotAbs {
   OneMinusClPlotAbs(OptParser* arg, TString name = "c1", TString title = "c1");
   virtual ~OneMinusClPlotAbs() = default;
 
-  virtual void addScanner(MethodAbsScan* s, const int CLsType = 0);
+  virtual void addScanner(std::shared_ptr<MethodAbsScan> s, const int CLsType = 0);
   inline void disableLegend(bool yesNo = false) { plotLegend = yesNo; };
   virtual void Draw(const bool beautify = true) = 0;
   void drawGroup(const double yPos = 0.6);
@@ -67,7 +67,7 @@ class OneMinusClPlotAbs {
   int titlesize = 45;   ///< text size of axis titles, group label, "Prliminary" is x0.75 (in pixels)
   int legendsize = 29;  ///< text size of legend entries in 1d and 2d plots (in pixels)
 
-  std::vector<MethodAbsScan*> scanners;
+  std::vector<std::shared_ptr<MethodAbsScan>> scanners;
   std::vector<int> do_CLs;   ///< vector, which stores the cls method type to be plotted
   OptParser* arg = nullptr;  ///< command line options
   std::unique_ptr<TCanvas> canvas;

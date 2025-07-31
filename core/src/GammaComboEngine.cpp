@@ -34,10 +34,17 @@
 using namespace std;
 using namespace Utils;
 
-auto errorBase = [](const std::string& caller, const std::string& msg) {
-  std::cerr << "GammaComboEngine::" << caller << " : ERROR : " << msg << ". Exit" << endl;
-  exit(1);
-};
+namespace {
+  auto msgBase = [](const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout) {
+    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
+    stream << prefix << msgOut << std::endl;
+  };
+
+  auto errorBase = [](const std::string& caller, const std::string& msg) {
+    std::cerr << "GammaComboEngine::" << caller << " : ERROR : " << msg << ". Exit" << endl;
+    exit(1);
+  };
+}  // namespace
 
 GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
   auto error = [](std::string msg) { return errorBase("GammaComboEngine()", msg); };
@@ -678,12 +685,12 @@ void GammaComboEngine::checkAsimovArg() const {
   }
 }
 
-///
-/// Check color argument and exit if a non-existing color was requested through
-/// the --color argument. Colors for one-dimensional plots are defined in
-/// GammaComboEngine::defineColors(). Colors for two-dimensional pltos are
-/// defined in OneMinusClPlot2d::OneMinusClPlot2d().
-///
+/**
+ * Check color argument and exit if a non-existing color was requested through the --color argument.
+ *
+ * Colors for one-dimensional plots are defined in GammaComboEngine::defineColors().
+ * Colors for two-dimensional pltos are defined in OneMinusClPlot2d::OneMinusClPlot2d().
+ */
 void GammaComboEngine::checkColorArg() const {
   for (int i = 0; i < arg->color.size(); i++) {
     // colors for one-dimensional plots
@@ -708,21 +715,18 @@ void GammaComboEngine::checkColorArg() const {
 }
 
 ///
-/// Implement the logic needed to create new combinations on the fly
-/// using the -c 26:+12 syntax
+/// Implement the logic needed to create new combinations on the fly using the -c 26:+12 syntax
 ///
 void GammaComboEngine::makeAddDelCombinations() {
   if (runOnDataSet) return;
 
-  // sanity check: the combid and combmodifications vectors should
-  // be the same size
   if (arg->combmodifications.size() != arg->combid.size()) {
     cout << "GammaComboEngine::makeAddDelCombinations() : ERROR : internal inconsistency. \n"
             "combid and combmodifications vectors not of same size."
          << endl;
     assert(0);
   }
-  // loop over list of modifications
+
   for (int i = 0; i < arg->combmodifications.size(); i++) {
     // get combiner that is to be modified
     Combiner* cOld = cmb[arg->combid[i]].get();
@@ -816,8 +820,7 @@ void GammaComboEngine::savePlot() const {
 
 ///
 /// Define the colors of curves and numbers in the 1D plots.
-/// It is important to call this only after new combinations were
-/// made using the makeAddDelCombinations() mechanism.
+/// It is important to call this only after new combinations were made using the makeAddDelCombinations() mechanism.
 ///
 void GammaComboEngine::defineColors() {
   // no --color option was given on the command line
@@ -1049,6 +1052,9 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
  * @param cId     The id of this combination.
  */
 void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, int cId) {
+  auto debug = [](const std::string& msg) { msgBase("GammaComboEngine::make1dProbScan : DEBUG : ", msg); };
+
+  if (arg->debug) debug("Start execution");
   auto pCache = std::make_unique<ParameterCache>(arg.get());  // TODO
   loadStartParameters(scanner, pCache.get(), cId);
 
@@ -1077,6 +1083,7 @@ void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, int cId) {
       pCache->cacheParameters(scanner, m_fnamebuilder->getFileNamePar(scanner));
     }
   }
+  if (arg->debug) debug("End execution");
 }
 
 ///
@@ -1182,7 +1189,9 @@ void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, int cId) 
  * @param cId     The id of this combination.
  */
 void GammaComboEngine::make1dProbPlot(MethodProbScan* scanner, const int cId) {
+  auto debug = [](const std::string& msg) { msgBase("GammaComboEngine::make1dProbPlot : DEBUG : ", msg); };
 
+  if (arg->debug) debug("Start execution");
   if (!arg->isAction("pluginbatch") && !arg->plotpluginonly) {
     scanner->setDrawSolution(arg->plotsolutions[cId]);
     if (arg->isAction("plugin") || arg->isAction("plot"))
@@ -1204,6 +1213,7 @@ void GammaComboEngine::make1dProbPlot(MethodProbScan* scanner, const int cId) {
     scanner->setFillTransparency(fillTransparencies[cId]);
     plot->Draw();
   }
+  if (arg->debug) debug("End execution");
 }
 
 ///
@@ -1850,6 +1860,7 @@ void GammaComboEngine::scan() {
     return;
   }
 
+  std::vector<std::shared_ptr<MethodProbScan>> probScanners;
   for (int i = 0; i < arg->combid.size(); i++) {
     int combinerId = arg->combid[i];
     Combiner* c = cmb[combinerId].get();
@@ -1859,6 +1870,7 @@ void GammaComboEngine::scan() {
 
     // work with a clone - this way we can easily make plots with the
     // same combination in twice (once with asimov, for example)
+    // TODO
     cmb[combinerId] = c->Clone(c->getName(), c->getTitle());
     c = cmb[combinerId].get();
 
@@ -1910,7 +1922,8 @@ void GammaComboEngine::scan() {
 
     if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
         !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
-      auto scannerProb = std::make_unique<MethodProbScan>(c);
+      auto scannerProb = std::make_shared<MethodProbScan>(c);
+      probScanners.push_back(scannerProb);
 
       // P-value corrector
       if (arg->coverageCorrectionID > 0) {
@@ -1929,7 +1942,7 @@ void GammaComboEngine::scan() {
           make1dProbScan(scannerProb.get(), i);
         }
         make1dProbPlot(scannerProb.get(), i);
-        if (arg->compare) comparisonScanners.push_back(std::move(scannerProb));
+        if (arg->compare) comparisonScanners.push_back(scannerProb);
       }
       // 2D SCANS
       else if (arg->var.size() == 2) {
@@ -1952,7 +1965,8 @@ void GammaComboEngine::scan() {
       // 1D SCANS
       if (arg->var.size() == 1) {
         if (arg->isAction("pluginbatch")) {
-          auto scannerProb = std::make_unique<MethodProbScan>(c);
+          auto scannerProb = std::make_shared<MethodProbScan>(c);
+          probScanners.push_back(scannerProb);
           make1dProbScan(scannerProb.get(), i);
           auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
           make1dPluginScan(scannerPlugin.get(), i);
@@ -1971,9 +1985,9 @@ void GammaComboEngine::scan() {
         // }
         else if (arg->isAction("plugin")) {
           // Create the Prob scanner: load from disc if it exists, else redo the scan.
-          // We don't need the prob scanner for the plugin only plot, if we either just
-          // want to replot it.
-          auto scannerProb = std::make_unique<MethodProbScan>(c);
+          // We don't need the prob scanner for the plugin only plot, if we either just want to replot it.
+          auto scannerProb = std::make_shared<MethodProbScan>(c);
+          probScanners.push_back(scannerProb);
           if (!arg->plotpluginonly || (arg->plotpluginonly && !arg->isAction("plot"))) {
             if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb.get()))) {
               scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
@@ -2011,12 +2025,14 @@ void GammaComboEngine::scan() {
       // 2D SCANS
       else if (arg->var.size() == 2) {
         if (arg->isAction("pluginbatch")) {
-          auto scannerProb = std::make_unique<MethodProbScan>(c);
+          auto scannerProb = std::make_shared<MethodProbScan>(c);
+          probScanners.push_back(scannerProb);
           make2dProbScan(scannerProb.get(), i);
           auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
           make2dPluginScan(scannerPlugin.get(), i);
         } else if (arg->isAction("plugin")) {
-          auto scannerProb = std::make_unique<MethodProbScan>(c);
+          auto scannerProb = std::make_shared<MethodProbScan>(c);
+          probScanners.push_back(scannerProb);
           if (!(arg->isAction("plot") && arg->plotpluginonly)) {
             // we don't need the prob scanner if we just want to replot the plugin only
             scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
@@ -2073,8 +2089,9 @@ void GammaComboEngine::scan() {
     if (arg->save != "" && arg->saveAtMin) saveWorkspace(c, i);
 
     if (i < arg->combid.size() - 1) {
-      cout << "\n-- now starting -c " << arg->combid[i + 1]
-           << " ------------------------------------------------------------------\n"
+      cout << std::format(
+                  "\n-- now starting -c {:d} ------------------------------------------------------------------\n",
+                  arg->combid[i + 1])
            << endl;
     }
   }

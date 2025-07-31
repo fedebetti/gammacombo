@@ -24,7 +24,7 @@ OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* _arg, TString _name, TString _ti
 }
 
 /// Add a new scanner to this plot.
-void OneMinusClPlotAbs::addScanner(MethodAbsScan* s, int CLsType) {
+void OneMinusClPlotAbs::addScanner(std::shared_ptr<MethodAbsScan> s, int CLsType) {
   if (arg->debug) std::cout << "OneMinusClPlotAbs::addScanner() : adding " << s->getName() << std::endl;
   if (CLsType == 0 || (CLsType == 1 && s->getHCLs()) || (CLsType == 2 && s->getHCLsFreq())) {
     scanners.push_back(s);

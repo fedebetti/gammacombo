@@ -132,7 +132,7 @@ class GammaComboEngine {
   std::vector<int> lineColors;
   std::vector<int> lineStyles;
   std::vector<int> lineWidths;
-  std::vector<std::unique_ptr<MethodProbScan>> comparisonScanners;
+  std::vector<std::shared_ptr<MethodProbScan>> comparisonScanners;
   TString execname;
   std::unique_ptr<FileNameBuilder> m_fnamebuilder;
   std::unique_ptr<BatchScriptWriter> m_batchscriptwriter;
