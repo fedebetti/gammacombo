@@ -1115,18 +1115,18 @@ void GammaComboEngine::make1dPluginScan(MethodPluginScan* scannerPlugin, int cId
 /// \param scannerPlugin - the scanner to run the scan with
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make2dPluginScan(MethodPluginScan* scannerPlugin, int cId) {
+void GammaComboEngine::make2dPluginScan(std::shared_ptr<MethodPluginScan> scannerPlugin, int cId) {
   scannerPlugin->initScan();
   if (arg->isAction("pluginbatch")) {
     scannerPlugin->scan2d(arg->nrun);
   } else {
     scannerPlugin->readScan2dTrees(arg->jmin[cId], arg->jmax[cId]);
-    scannerPlugin->saveScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin));
+    scannerPlugin->saveScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
     // plot chi2
     cout << "making full chi2 plot ..." << endl;
     auto plotf = std::make_unique<OneMinusClPlot2d>(arg.get(), plot->getName() + "_plugin_full",
                                                     "p-value histogram: " + scannerPlugin->getTitle());
-    scannerPlugin->plotOn(plotf.get());
+    plotf->addScanner(scannerPlugin);
     plotf->DrawFull();
     plotf->save();
   }
@@ -1188,7 +1188,7 @@ void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, int cId) 
  * @param scanner The scanner to plot.
  * @param cId     The id of this combination.
  */
-void GammaComboEngine::make1dProbPlot(MethodProbScan* scanner, const int cId) {
+void GammaComboEngine::make1dProbPlot(std::shared_ptr<MethodProbScan> scanner, const int cId) {
   auto debug = [](const std::string& msg) { msgBase("GammaComboEngine::make1dProbPlot : DEBUG : ", msg); };
 
   if (arg->debug) debug("Start execution");
@@ -1198,10 +1198,10 @@ void GammaComboEngine::make1dProbPlot(MethodProbScan* scanner, const int cId) {
       scanner->computeCLvalues();  // compute new CL values depending on test stat, even if not a rescan is wished
     if (arg->cls.size() > 0) {
       if (runOnDataSet)
-        static_cast<MethodDatasetsProbScan*>(scanner)->plotFitRes(m_fnamebuilder->getFileNamePlot(cmb) + "_fit");
-      scanner->plotOn(plot.get(), 1);  // for prob ClsType>1 doesn't exist
+        static_cast<MethodDatasetsProbScan*>(scanner.get())->plotFitRes(m_fnamebuilder->getFileNamePlot(cmb) + "_fit");
+      plot->addScanner(scanner, 1);  // for prob ClsType>1 doesn't exist
     }
-    scanner->plotOn(plot.get());
+    plot->addScanner(scanner);
     int colorId = cId;
     if (arg->color.size() > cId) colorId = arg->color[cId];
     scanner->setTextColor(colorsText[colorId]);
@@ -1261,20 +1261,21 @@ void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* p
 /// \param sProb - the prob scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dPluginPlot(MethodPluginScan* sPlugin, MethodProbScan* sProb, int cId) {
+void GammaComboEngine::make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin,
+                                        std::shared_ptr<MethodProbScan> sProb, int cId) {
   if (arg->isQuickhack(17)) {
     make1dPluginOnlyPlot(sPlugin, cId);
     sProb->setLineColor(kBlack);
     sProb->setDrawSolution(arg->plotsolutions[cId]);
-    if (arg->cls.size() > 0) sProb->plotOn(plot.get(), 1);
-    sProb->plotOn(plot.get());
+    if (arg->cls.size() > 0) plot->addScanner(sProb, 1);
+    plot->addScanner(sProb);
   } else {
     make1dProbPlot(sProb, cId);
     sPlugin->setLineColor(kBlack);
     sPlugin->setDrawSolution(arg->plotsolutions[cId]);
-    if (std::count(arg->cls.begin(), arg->cls.end(), 1)) sPlugin->plotOn(plot.get(), 1);
-    if (std::count(arg->cls.begin(), arg->cls.end(), 2)) sPlugin->plotOn(plot.get(), 2);
-    sPlugin->plotOn(plot.get());
+    if (std::count(arg->cls.begin(), arg->cls.end(), 1)) plot->addScanner(sPlugin, 1);
+    if (std::count(arg->cls.begin(), arg->cls.end(), 2)) plot->addScanner(sPlugin, 2);
+    plot->addScanner(sPlugin);
   }
   plot->Draw();
 }
@@ -1288,7 +1289,8 @@ void GammaComboEngine::make1dPluginPlot(MethodPluginScan* sPlugin, MethodProbSca
 /// \param sProb - the prob scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make2dPluginPlot(MethodPluginScan* sPlugin, MethodProbScan* sProb, int cId) {
+void GammaComboEngine::make2dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin,
+                                        std::shared_ptr<MethodProbScan> sProb, int cId) {
   if (arg->isQuickhack(18)) {
     sProb->setTitle(sProb->getTitle() + "PROB");
     sPlugin->setTitle(sPlugin->getTitle() + "PLUGIN");
@@ -1305,11 +1307,11 @@ void GammaComboEngine::make2dPluginPlot(MethodPluginScan* sPlugin, MethodProbSca
   sProb->setFillTransparency(fillTransparencies[cId]);
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
   if (arg->isQuickhack(17)) {
-    sPlugin->plotOn(plot.get());
-    sProb->plotOn(plot.get());
+    plot->addScanner(sPlugin);
+    plot->addScanner(sProb);
   } else {
-    sProb->plotOn(plot.get());
-    sPlugin->plotOn(plot.get());
+    plot->addScanner(sProb);
+    plot->addScanner(sPlugin);
   }
   plot->Draw();
 }
@@ -1321,7 +1323,7 @@ void GammaComboEngine::make2dPluginPlot(MethodPluginScan* sPlugin, MethodProbSca
 /// \param sPlugin - the plugin scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) {
+void GammaComboEngine::make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId) {
   static_cast<OneMinusClPlot*>(plot.get())->setPluginMarkers(false);
   int colorId = cId;
   if (arg->color.size() > cId) colorId = arg->color[cId];
@@ -1333,8 +1335,8 @@ void GammaComboEngine::make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) 
   sPlugin->setFillStyle(fillStyles[cId]);
   sPlugin->setFillTransparency(fillTransparencies[cId]);
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
-  for (const auto cl : arg->cls) sPlugin->plotOn(plot.get(), cl);
-  sPlugin->plotOn(plot.get());
+  for (const auto cl : arg->cls) plot->addScanner(sPlugin, cl);
+  plot->addScanner(sPlugin);
   plot->Draw();
 }
 
@@ -1344,9 +1346,9 @@ void GammaComboEngine::make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) 
 /// \param sPlugin - the plugin scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make2dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId) {
+void GammaComboEngine::make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId) {
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
-  sPlugin->plotOn(plot.get());
+  plot->addScanner(sPlugin);
   plot->Draw();
 }
 
@@ -1384,7 +1386,7 @@ void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, int cId) {
 ///
 /// Make the 2D plot for a prob scanner.
 ///
-void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
+void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, int cId) {
   // plot full
   std::unique_ptr<OneMinusClPlot2d> plotf;
   if (scanner->getMethodName() == "Prob")
@@ -1396,7 +1398,7 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
                                                                                               // datasets plot possible
   else
     cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
-  scanner->plotOn(plotf.get(), 0);
+  plotf->addScanner(scanner);
   plotf->DrawFull();
   plotf->save();
   // plot full CLs
@@ -1413,7 +1415,7 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
                                                                                             // datasets plot possible
     else
       cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
-    scanner->plotOn(plotfcls.get(), 1);
+    plotfcls->addScanner(scanner, 1);
     plotfcls->DrawFull();
     plotfcls->save();
   }
@@ -1425,8 +1427,8 @@ void GammaComboEngine::make2dProbPlot(MethodProbScan* scanner, int cId) {
   scanner->setFillColor(fillColors[cId]);
   scanner->setFillStyle(fillStyles[cId]);
   scanner->setFillTransparency(fillTransparencies[cId]);
-  if (arg->cls.size() > 0) scanner->plotOn(plot.get(), 1);
-  scanner->plotOn(plot.get(), 0);
+  if (arg->cls.size() > 0) plot->addScanner(scanner, 1);
+  plot->addScanner(scanner);
   // only draw the plot once when multiple scanners are plotted,
   // else we end up with too many graphs, and the transparency setting
   // gets screwed up
@@ -1860,7 +1862,6 @@ void GammaComboEngine::scan() {
     return;
   }
 
-  std::vector<std::shared_ptr<MethodProbScan>> probScanners;
   for (int i = 0; i < arg->combid.size(); i++) {
     int combinerId = arg->combid[i];
     Combiner* c = cmb[combinerId].get();
@@ -1923,7 +1924,6 @@ void GammaComboEngine::scan() {
     if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
         !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
       auto scannerProb = std::make_shared<MethodProbScan>(c);
-      probScanners.push_back(scannerProb);
 
       // P-value corrector
       if (arg->coverageCorrectionID > 0) {
@@ -1941,7 +1941,7 @@ void GammaComboEngine::scan() {
         } else {
           make1dProbScan(scannerProb.get(), i);
         }
-        make1dProbPlot(scannerProb.get(), i);
+        make1dProbPlot(scannerProb, i);
         if (arg->compare) comparisonScanners.push_back(scannerProb);
       }
       // 2D SCANS
@@ -1951,7 +1951,7 @@ void GammaComboEngine::scan() {
         } else {
           make2dProbScan(scannerProb.get(), i);
         }
-        make2dProbPlot(scannerProb.get(), i);
+        make2dProbPlot(scannerProb, i);
       }
     }
 
@@ -1966,9 +1966,8 @@ void GammaComboEngine::scan() {
       if (arg->var.size() == 1) {
         if (arg->isAction("pluginbatch")) {
           auto scannerProb = std::make_shared<MethodProbScan>(c);
-          probScanners.push_back(scannerProb);
           make1dProbScan(scannerProb.get(), i);
-          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
+          auto scannerPlugin = std::make_shared<MethodPluginScan>(scannerProb.get());
           make1dPluginScan(scannerPlugin.get(), i);
         }
         // if ( arg->isAction("pluginhybridbatch") ){
@@ -1987,7 +1986,6 @@ void GammaComboEngine::scan() {
           // Create the Prob scanner: load from disc if it exists, else redo the scan.
           // We don't need the prob scanner for the plugin only plot, if we either just want to replot it.
           auto scannerProb = std::make_shared<MethodProbScan>(c);
-          probScanners.push_back(scannerProb);
           if (!arg->plotpluginonly || (arg->plotpluginonly && !arg->isAction("plot"))) {
             if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb.get()))) {
               scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
@@ -2001,7 +1999,7 @@ void GammaComboEngine::scan() {
             }
           }
           // create Plugin scanner
-          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
+          auto scannerPlugin = std::make_shared<MethodPluginScan>(scannerProb.get());
           if (arg->isAction("plot")) {
             scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
           } else {
@@ -2015,9 +2013,9 @@ void GammaComboEngine::scan() {
             make1dPluginScan(scannerPlugin.get(), i);
           }
           if (arg->plotpluginonly) {
-            make1dPluginOnlyPlot(scannerPlugin.get(), i);
+            make1dPluginOnlyPlot(scannerPlugin, i);
           } else {
-            make1dPluginPlot(scannerPlugin.get(), scannerProb.get(), i);
+            make1dPluginPlot(scannerPlugin, scannerProb, i);
           }
         }
 
@@ -2026,27 +2024,25 @@ void GammaComboEngine::scan() {
       else if (arg->var.size() == 2) {
         if (arg->isAction("pluginbatch")) {
           auto scannerProb = std::make_shared<MethodProbScan>(c);
-          probScanners.push_back(scannerProb);
           make2dProbScan(scannerProb.get(), i);
-          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
-          make2dPluginScan(scannerPlugin.get(), i);
+          auto scannerPlugin = std::make_shared<MethodPluginScan>(scannerProb.get());
+          make2dPluginScan(scannerPlugin, i);
         } else if (arg->isAction("plugin")) {
           auto scannerProb = std::make_shared<MethodProbScan>(c);
-          probScanners.push_back(scannerProb);
           if (!(arg->isAction("plot") && arg->plotpluginonly)) {
             // we don't need the prob scanner if we just want to replot the plugin only
             scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
           }
-          auto scannerPlugin = std::make_unique<MethodPluginScan>(scannerProb.get());
+          auto scannerPlugin = std::make_shared<MethodPluginScan>(scannerProb.get());
           if (arg->isAction("plot")) {
             scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
           } else {
-            make2dPluginScan(scannerPlugin.get(), i);
+            make2dPluginScan(scannerPlugin, i);
           }
           if (arg->plotpluginonly) {
-            make2dPluginOnlyPlot(scannerPlugin.get(), i);
+            make2dPluginOnlyPlot(scannerPlugin, i);
           } else {
-            make2dPluginPlot(scannerPlugin.get(), scannerProb.get(), i);
+            make2dPluginPlot(scannerPlugin, scannerProb, i);
           }
         }
       }
@@ -2111,7 +2107,7 @@ void GammaComboEngine::scanDataSet() {
 
   if (!arg->isAction("plugin") && !arg->isAction("pluginbatch") && !arg->isAction("coverage") &&
       !arg->isAction("coveragebatch") && !arg->isAction("bb") && !arg->isAction("bbbatch")) {
-    auto probScanner = std::make_unique<MethodDatasetsProbScan>((PDF_Datasets*)pdf[0], arg.get());
+    auto probScanner = std::make_shared<MethodDatasetsProbScan>((PDF_Datasets*)pdf[0], arg.get());
 
     // 1D SCANS
     if (arg->var.size() == 1) {
@@ -2120,7 +2116,7 @@ void GammaComboEngine::scanDataSet() {
       } else {
         make1dProbScan(probScanner.get(), 0);
       }
-      make1dProbPlot(probScanner.get(), 0);
+      make1dProbPlot(probScanner, 0);
     }
     // 2D SCANS
     else if (arg->var.size() == 2) {
@@ -2129,7 +2125,7 @@ void GammaComboEngine::scanDataSet() {
       } else {
         make2dProbScan(probScanner.get(), 0);
       }
-      make2dProbPlot(probScanner.get(), 0);
+      make2dProbPlot(probScanner, 0);
     }
   }
 
@@ -2159,7 +2155,7 @@ void GammaComboEngine::scanDataSet() {
             std::make_unique<MethodDatasetsPluginScan>(scannerProb.get(), (PDF_Datasets*)pdf[0], arg.get());
         make1dPluginScan(scannerPlugin.get(), 0);
       } else if (arg->isAction("plugin")) {
-        auto scannerProb = std::make_unique<MethodDatasetsProbScan>((PDF_Datasets*)pdf[0], arg.get());
+        auto scannerProb = std::make_shared<MethodDatasetsProbScan>((PDF_Datasets*)pdf[0], arg.get());
         if (!arg->plotpluginonly || (arg->plotpluginonly && !arg->isAction("plot"))) {
           if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb.get()))) {
             scannerProb->initScan();
@@ -2175,16 +2171,16 @@ void GammaComboEngine::scanDataSet() {
         }
         // create Plugin scanner
         auto scannerPlugin =
-            std::make_unique<MethodDatasetsPluginScan>(scannerProb.get(), (PDF_Datasets*)pdf[0], arg.get());
+            std::make_shared<MethodDatasetsPluginScan>(scannerProb.get(), (PDF_Datasets*)pdf[0], arg.get());
         if (arg->isAction("plot")) {
           scannerPlugin->loadScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
         } else {
           make1dPluginScan(scannerPlugin.get(), 0);
         }
         if (arg->plotpluginonly) {
-          make1dPluginOnlyPlot(scannerPlugin.get(), 0);
+          make1dPluginOnlyPlot(scannerPlugin, 0);
         } else {
-          make1dPluginPlot(scannerPlugin.get(), scannerProb.get(), 0);
+          make1dPluginPlot(scannerPlugin, scannerProb, 0);
         }
       }
     } else if (arg->var.size() == 2) {

@@ -971,13 +971,6 @@ const CLInterval* MethodAbsScan::getCLinterval(const int iSol, const int index, 
 
 double MethodAbsScan::getCL(double val) const { return 1. - hCL->Interpolate(val); }
 
-/**
- * @param[in] \CLsType: 0 (off), 1 (naive CLs t_s+b - t_b), 2 (freq CLs)
- */
-void MethodAbsScan::plotOn(OneMinusClPlotAbs* plot, int CLsType) {
-  plot->addScanner(std::shared_ptr<MethodAbsScan>(this), CLsType);
-}
-
 RooRealVar* MethodAbsScan::getScanVar1() { return w->var(scanVar1); }
 
 RooRealVar* MethodAbsScan::getScanVar2() { return w->var(scanVar2); }
