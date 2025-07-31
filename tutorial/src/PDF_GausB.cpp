@@ -22,7 +22,6 @@ PDF_GausB::PDF_GausB(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
 void PDF_GausB::initParameters() {
   ParametersTutorial p;
   parameters = new RooArgList("parameters");
-  parameters->add(*(p.get("a_gaus")));
   parameters->add(*(p.get("b_gaus")));
 }
 
@@ -56,12 +55,12 @@ void PDF_GausB::setObservables(TString c) {
 void PDF_GausB::setUncertainties(TString c) {
   if (c.EqualTo("year2013")) {
     obsErrSource = c;
-    StatErr[0] = 0.25;  // a_gaus
-    SystErr[0] = 0;     // a_gaus
+    StatErr[0] = 0.25;  // b_gaus
+    SystErr[0] = 0;     // b_gaus
   } else if (c.EqualTo("year2014")) {
     obsErrSource = c;
-    StatErr[0] = 0.5;   // a_gaus
-    SystErr[0] = 0.15;  // a_gaus
+    StatErr[0] = 0.5;   // b_gaus
+    SystErr[0] = 0.15;  // b_gaus
   } else {
     cout << "PDF_GausB::setUncertainties() : ERROR : config " + c + " not found." << endl;
     exit(1);
