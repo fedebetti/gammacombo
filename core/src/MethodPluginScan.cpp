@@ -499,7 +499,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
 ///
 /// \param nRun Part of the root tree file name to facilitate parallel production.
 ///
-int MethodPluginScan::scan1d(int nRun) {
+int MethodPluginScan::scan1d(const int nRun) {
   auto myFit = std::make_unique<Fitter>(arg, w, combiner->getPdfName());
   RooRandom::randomGenerator()->SetSeed(0);
 
@@ -582,7 +582,7 @@ int MethodPluginScan::scan1d(int nRun) {
 /// Saves chi2 values in a root tree, together with the full fit result for each toy.
 /// \param nRun Part of the root tree file name to facilitate parallel production.
 ///
-void MethodPluginScan::scan2d(int nRun) {
+void MethodPluginScan::scan2d(const int nRun) {
   RooRandom::randomGenerator()->SetSeed(0);
 
   // Set limit to all parameters.

@@ -162,12 +162,11 @@ void MethodBergerBoosScan::getBestPValue(TH1* h, TH2* pValues) {
 };
 
 ///
-/// Reads in Scan1DTree result from scan1D()
-/// This is a slightly modified version of
-/// MethodPluginScan::readScan1dTrees()'s function
-/// to account for BergerBoos specifications
+/// Reads in Scan1DTree result from scan1D().
 ///
-void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
+/// This is a slightly modified version of MethodPluginScan::readScan1dTrees() to account for BergerBoos specifications.
+///
+void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax, [[maybe_unused]] TString fname) {
   auto c = new TChain("plugin");
   int nFilesMissing = 0;
   int nFilesRead = 0;
@@ -301,7 +300,7 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
 /// will be used to generate the toys.
 /// \param nRun Part of the root tree file name to facilitate parallel production.
 ///
-int MethodBergerBoosScan::scan1d(int nRun) {
+int MethodBergerBoosScan::scan1d(const int nRun) {
   TString fName = "";
   if (this->dir == "XX") {
     // fName = Form("root/scan1dPlugin_"+name+"_"+scanVar1+"_run%i.root", nRun);
@@ -456,7 +455,7 @@ int MethodBergerBoosScan::scan1d(int nRun) {
   myFit->print();
   t.writeToFile();
   f2.Close();
-  readScan1dTrees(nRun, nRun);
+  readScan1dTrees(nRun, nRun, "");
   return nBBPoints;
 }
 

@@ -1147,7 +1147,7 @@ void GammaComboEngine::make1dBergerBoosScan(MethodBergerBoosScan* scannerBergerB
   if (arg->isAction("bbbatch")) {
     scannerBergerBoos->scan1d(arg->nrun);
   } else {
-    scannerBergerBoos->readScan1dTrees(arg->jmin[cId], arg->jmax[cId]);
+    scannerBergerBoos->readScan1dTrees(arg->jmin[cId], arg->jmax[cId], "");
     scannerBergerBoos->calcCLintervals();
   }
   if (!arg->isAction("bbbatch")) {
@@ -1239,7 +1239,7 @@ void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* p
         cout << std::format("Scan from solution {:d}:", i) << endl;
         // scanner->loadSolution(i);
         scanner->loadParameters(firstScanSolutions[i].get());
-        scanner->scan1d(true);
+        scanner->scan1d(true, false, false);
       }
     }
   }

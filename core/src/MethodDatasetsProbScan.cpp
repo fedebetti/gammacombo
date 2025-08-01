@@ -344,7 +344,7 @@ void MethodDatasetsProbScan::loadParameterLimits() {
 ///
 /// Print settings member of MethodDatasetsProbScan
 ///
-void MethodDatasetsProbScan::print() {
+void MethodDatasetsProbScan::print() const {
   cout << "########################## Print MethodDatasetsProbScan Class ##########################" << endl;
   cout << "\t --- "
        << "Method Name: \t\t\t" << methodName << endl;
@@ -384,7 +384,7 @@ void MethodDatasetsProbScan::print() {
 /// MethodDatasetsProbScan
 /// \param nRun Part of the root tree file name to facilitate parallel production.
 ///
-int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
+int MethodDatasetsProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
   if (fast) return 0;  // tmp
 
   if (arg->debug) cout << "MethodDatasetsProbScan::scan1d() : starting ... " << endl;
@@ -539,7 +539,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   return 0;
 }
 
-int MethodDatasetsProbScan::computeCLvalues() const {
+int MethodDatasetsProbScan::computeCLvalues() {
   std::cout << "Computing CL values based on test statistic decision" << std::endl;
   std::cout << "Using " << arg->teststatistic << "-sided test statistic" << std::endl;
   double bestfitpoint = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getVal();

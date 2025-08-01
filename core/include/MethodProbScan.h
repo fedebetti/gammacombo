@@ -1,10 +1,3 @@
-/*
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- */
-
 #ifndef MethodProb_h
 #define MethodProb_h
 
@@ -23,7 +16,8 @@ class MethodProbScan : public MethodAbsScan {
   inline TH1* getHChi2min() const { return hChi2min.get(); };
   void saveSolutions();
   void saveSolutions2d();
-  virtual int scan1d(bool fast = false, bool reverse = false, bool quiet = false);
+  int scan1d() { return scan1d(false, false, false); }
+  virtual int scan1d(bool fast, bool const reverse, const bool quiet);
   virtual int scan2d();
   inline void setScanDisableDragMode(bool f = true) { scanDisableDragMode = f; };
 
@@ -32,8 +26,11 @@ class MethodProbScan : public MethodAbsScan {
                               int nTurn) const;
   bool deleteIfNotInCurveResults2d(const RooSlimFitResult* r);
   void sanityChecks() const;
-  bool scanDisableDragMode = false;
+
   int nScansDone = 0;  // count the number of times a scan was done
+
+ private:
+  bool scanDisableDragMode = false;
 };
 
 #endif

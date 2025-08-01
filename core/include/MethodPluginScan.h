@@ -21,11 +21,12 @@ class MethodPluginScan : public MethodAbsScan {
   MethodPluginScan(MethodProbScan* s);
   MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, const OptParser* opt);
   MethodPluginScan(Combiner* comb);
+  virtual ~MethodPluginScan() = default;
 
   inline void setNtoysPerPoint(int n) { nToys = n; };
   void setParevolPLH(MethodProbScan* s);
-  virtual int scan1d(int nRun = 1);
-  virtual void scan2d(int nRun = 1);
+  virtual int scan1d(const int nRun);
+  void scan2d(const int nRun);
   virtual void readScan1dTrees(int runMin = 1, int runMax = 1, TString fName = "default");
   void readScan2dTrees(int runMin = 1, int runMax = 1);
   int getNtoys() const { return nToys; };

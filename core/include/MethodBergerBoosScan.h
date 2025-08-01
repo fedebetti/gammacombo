@@ -24,8 +24,8 @@ class MethodBergerBoosScan : public MethodPluginScan {
   std::unique_ptr<TH2> calcPValues(const TH2* better, const TH2* all, const TH2* bg);
   void getBestPValue(TH1* hCL, TH2* pValues);
   int getNBergerBoosPointsPerScanpoint() const { return nBBPoints; };  ///< Return number of BB points per scan point
-  void readScan1dTrees(int runMin = 1, int runMax = 1);
-  int scan1d(int nRun = 1);
+  void readScan1dTrees(int runMin, int runMax, TString fname) override;
+  int scan1d(const int nRun) override;
   inline void setNBergerBoosPointsPerScanpoint(int n) { nBBPoints = n; };  ///< Set number of BB points per scan point
   ///< Set number of Berger Boos points drawn from
   ///< the BergerBoos CL intervals defined in the workspace

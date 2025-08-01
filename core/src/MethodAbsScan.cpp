@@ -461,16 +461,6 @@ bool MethodAbsScan::loadScanner(TString fName) {
   return true;
 }
 
-int MethodAbsScan::scan1d() const {
-  cout << "MethodAbsScan::scan1d() : not implemented." << endl;
-  return 0;
-}
-
-int MethodAbsScan::scan2d() const {
-  cout << "MethodAbsScan::scan2d() : not implemented." << endl;
-  return 0;
-}
-
 /**
  * Find the value of x for which a function takes on the value y, given a histogram that approximates the function.
  *
@@ -1005,7 +995,11 @@ double MethodAbsScan::getCL(double val) const { return 1. - hCL->Interpolate(val
 
 RooRealVar* MethodAbsScan::getScanVar1() { return w->var(scanVar1); }
 
+const RooRealVar* MethodAbsScan::getScanVar1() const { return w->var(scanVar1); }
+
 RooRealVar* MethodAbsScan::getScanVar2() { return w->var(scanVar2); }
+
+const RooRealVar* MethodAbsScan::getScanVar2() const { return w->var(scanVar2); }
 
 void MethodAbsScan::print() const {
   cout << "MethodAbsScan::print() : Method: " << methodName;

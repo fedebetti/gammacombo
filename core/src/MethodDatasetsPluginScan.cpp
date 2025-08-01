@@ -12,7 +12,6 @@
  * parameter of interest is fixed to a certain value (scanpoint)
  */
 
-// #include <ControlPlots.h>
 #include <MethodDatasetsPluginScan.h>
 #include <ProgressBar.h>
 #include <RooSlimFitResult.h>
@@ -331,7 +330,7 @@ void MethodDatasetsPluginScan::loadParameterLimits() {
 ///
 /// Print settings member of MethodDatasetsPluginScan
 ///
-void MethodDatasetsPluginScan::print() {
+void MethodDatasetsPluginScan::print() const {
   cout << "########################## Print MethodDatasetsPluginScan Class ##########################" << endl;
   cout << "\t --- "
        << "Method Name: \t\t\t" << methodName << endl;
@@ -1188,7 +1187,7 @@ double MethodDatasetsPluginScan::getPValueTTestStatistic(double test_statistic_v
 /// Perform the 1d Plugin scan.
 /// \param nRun Part of the root tree file name to facilitate parallel production.
 ///
-int MethodDatasetsPluginScan::scan1d(int nRun) {
+int MethodDatasetsPluginScan::scan1d(const int nRun) {
 
   // //current working directory
   // boost::filesystem::path full_path( boost::filesystem::initial_path<boost::filesystem::path>() );
