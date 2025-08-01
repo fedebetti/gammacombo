@@ -979,7 +979,7 @@ void GammaComboEngine::defineColors() {
 /// Define scan strategy for a 2D scan.
 ///
 void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* pCache) {
-  int nStartingPoints = pCache->getNPoints();
+  const int nStartingPoints = pCache->getNPoints();
   // if no starting values loaded do the default thing
   if (nStartingPoints == 0) {
     cout << "\nPerforming default 2D scan:\n"
@@ -1159,7 +1159,7 @@ void GammaComboEngine::make1dBergerBoosScan(MethodBergerBoosScan* scannerBergerB
 /// \param cId - the id of this combination on the command line
 void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, const int cId) {
   // load coverage point parameters (this can be done automatically)
-  auto pCache = new ParameterCache(arg.get());
+  auto pCache = std::make_unique<ParameterCache>(arg.get());
   if (arg->loadParamsFile.size() != arg->combid.size()) {
     cout << "\nERROR : For a Coverage scan you must pass a parameter file (--parfile) to throw the toys from. You need "
             "one parfile per combiner"
@@ -1170,7 +1170,7 @@ void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, const int
 
   // do scan
   scanner->initScan();
-  scanner->setParameterCache(pCache);  // this can be passed directly to scan
+  scanner->setParameterCache(std::move(pCache));
   if (arg->isAction("coveragebatch")) {
     scanner->scan1d(arg->nrun);
   } else {
@@ -1225,7 +1225,7 @@ void GammaComboEngine::make1dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
 void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* pCache) {
   cout << "Scan strategy:" << endl;
   cout << "==============\n" << endl;
-  int nStartingPoints = pCache->getNPoints();
+  const int nStartingPoints = pCache->getNPoints();
   if (nStartingPoints == 0) {
     cout << "1. perform an initial scan" << endl;
     cout << "2. perform an additional scan starting from each solution found\n" << endl;
@@ -1372,12 +1372,11 @@ void GammaComboEngine::make1dCoveragePlot(const MethodCoverageScan* scanner, [[m
 /// \param cId - the id of this combination on the command line
 ///
 void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, const int cId) {
-  // load start parameters
-  auto pCache = new ParameterCache(arg.get());
-  loadStartParameters(scanner, pCache, cId);
+  auto pCache = std::make_unique<ParameterCache>(arg.get());
+  loadStartParameters(scanner, pCache.get(), cId);
   // scan
   scanner->initScan();
-  scanStrategy2d(scanner, pCache);
+  scanStrategy2d(scanner, pCache.get());
   cout << endl;
   scanner->printLocalMinima();
   // save
@@ -1974,18 +1973,21 @@ void GammaComboEngine::scan() {
           auto scannerPlugin = std::make_shared<MethodPluginScan>(scannerProb.get());
           make1dPluginScan(scannerPlugin.get(), i);
         }
-        // if ( arg->isAction("pluginhybridbatch") ){
-        //// Hybrid Plugin: compute a second profile likelihood to define the parameter evolution
-        // cout << "HYBRID PLUGIN: preparing profile likelihood to be used for parameter evolution:" << endl;
-        // ParameterCache *pCache = new ParameterCache(arg.get(), m_fnamebuilder->getFileBaseName(cmb[arg->pevid[0]]));
-        // pCache->loadPoints();
-        // auto scanner3 = new MethodProbScan(cmb[arg->pevid[0]]);
-        // scanner3->initScan();
-        // scanStrategy1d(scanner3,pCache);
-        // scanner3->confirmSolutions();
-        // scanner3->printLocalMinima();
-        // scanner2->setParevolPLH(scanner3);
-        // }
+        /*
+        if (arg->isAction("pluginhybridbatch")) {
+          // Hybrid Plugin: compute a second profile likelihood to define the parameter evolution
+          cout << "HYBRID PLUGIN: preparing profile likelihood to be used for parameter evolution:" << endl;
+          auto pCache =
+              std::make_unique<ParameterCache>(arg.get(), m_fnamebuilder->getFileBaseName(cmb[arg->pevid[0]]));
+          pCache->loadPoints();
+          auto scanner3 = new MethodProbScan(cmb[arg->pevid[0]]);
+          scanner3->initScan();
+          scanStrategy1d(scanner3, pCache);
+          scanner3->confirmSolutions();
+          scanner3->printLocalMinima();
+          scanner2->setParevolPLH(scanner3);
+        }
+        */
         else if (arg->isAction("plugin")) {
           // Create the Prob scanner: load from disc if it exists, else redo the scan.
           // We don't need the prob scanner for the plugin only plot, if we either just want to replot it.

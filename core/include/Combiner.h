@@ -6,6 +6,7 @@
 #include "Utils.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 class Combiner {
@@ -41,10 +42,10 @@ class Combiner {
 
   inline const OptParser* getArg() { return arg; };
   const RooArgSet* getParameters() const;
-  std::vector<std::string>& getParameterNames() const;
+  std::vector<std::string> getParameterNames() const;
   PDF_Abs* getPdfProvidingObservable(const TString obsname);
   const RooArgSet* getObservables() const;
-  std::vector<std::string>& getObservableNames() const;
+  std::vector<std::string> getObservableNames() const;
   inline TString getTitle() const { return title; };
   inline TString getName() const { return name; };
   /// Returns name of combined pdf. Call combine() first.

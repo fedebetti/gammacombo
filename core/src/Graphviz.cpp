@@ -129,7 +129,7 @@ void Graphviz::printCombinerLayer(Combiner* cmb) const {
   dotfile << "node [style=filled,color=white];\n";
   dotfile << "style=filled;\n";
   dotfile << "color=lightgrey;\n";
-  vector<string>& pars = cmb->getParameterNames();
+  const auto pars = cmb->getParameterNames();
   for (auto par : pars) { dotfile << graphvizString(par) << ";\n"; }
   dotfile << "label=\"parameters\";\n";
   dotfile << "}\n";

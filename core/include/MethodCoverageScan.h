@@ -15,12 +15,16 @@
 #include "MethodAbsScan.h"
 #include "ParameterCache.h"
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 class MethodCoverageScan : public MethodAbsScan {
  public:
   MethodCoverageScan(Combiner* comb);
   MethodCoverageScan() = delete;
 
-  void setParameterCache(ParameterCache* _pCache) { pCache = _pCache; }
+  void setParameterCache(std::unique_ptr<ParameterCache> _pCache) { pCache = std::move(_pCache); }
   virtual int scan1d(int nRun = 1);
   virtual void readScan1dTrees(int runMin, int runMax);
   virtual void plot() const;
@@ -29,7 +33,7 @@ class MethodCoverageScan : public MethodAbsScan {
   bool loadScanner(TString fName = "");
 
  protected:
-  ParameterCache* pCache = nullptr;
+  std::unique_ptr<ParameterCache> pCache;
   int nToys;  ///< number of toys to be generated at each scan point
 
   // functions
