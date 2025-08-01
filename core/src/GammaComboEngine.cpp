@@ -201,7 +201,9 @@ void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const vector<int
   addPdf(id, pdf, title);
 }
 
-void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, TString title) { addSubsetPdf(id, pdf, {i1}, title); }
+void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, TString title) {
+  addSubsetPdf(id, pdf, std::vector<int>{i1}, title);
+}
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, TString title) {
   addSubsetPdf(id, pdf, {i1, i2}, title);
