@@ -74,7 +74,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
 
   // implement physical range a la Feldman Cousins
   bool refit_necessary = false;
-  if (arg->physRanges.size() > 0) {
+  if (!arg->physRanges.empty()) {
     for (const auto& pr : arg->physRanges[0]) {
       if (w->var(pr.name)) {
         if (w->var(pr.name)->getVal() < pr.min) {
@@ -111,7 +111,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
   }
 
   // reset parameters free from the Feldman Cousins behaviour
-  if (arg->physRanges.size() > 0) {
+  if (!arg->physRanges.empty()) {
     for (const auto& pr : arg->physRanges[0]) {
       if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a constant
                                                                           // parameter make sure the parameter
@@ -1288,7 +1288,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       setParameters(w, rb.get());
       // implement physical range a la Feldman Cousins
       bool refit_necessary = false;
-      if (arg->physRanges.size() > 0) {
+      if (!arg->physRanges.empty()) {
         for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name)) {
             if (w->var(pr.name)->getVal() < pr.min) {
@@ -1355,7 +1355,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       StatusFreeBkgToysStore.push_back(pdf->getFitStatus());
 
       // reset parameters free from the Feldman Cousins behaviour
-      if (arg->physRanges.size() > 0) {
+      if (!arg->physRanges.empty()) {
         for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a
                                                                               // constant parameter make sure the
@@ -1719,7 +1719,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       // implement physical range a la Feldman Cousins
       bool refit_necessary = false;
       std::map<TString, double> boundary_vals;
-      if (arg->physRanges.size() > 0) {
+      if (!arg->physRanges.empty()) {
         for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name)) {
             if (w->var(pr.name)->getVal() < pr.min) {
@@ -1843,7 +1843,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       }
 
       // reset parameters free from the Feldman Cousins behaviour
-      if (arg->physRanges.size() > 0) {
+      if (!arg->physRanges.empty()) {
         for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a
                                                                               // constant parameter make sure the

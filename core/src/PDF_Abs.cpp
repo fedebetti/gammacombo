@@ -675,7 +675,7 @@ double PDF_Abs::getObservableValue(TString obsname) const {
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
 void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, const vector<int>& indices) {
-  if (indices.size() == 0) {
+  if (indices.empty()) {
     cout << "PDF_Abs::getSubMatrix() : vector 'indices' can't be empty" << endl;
     exit(1);
   }

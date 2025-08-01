@@ -472,7 +472,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
     cp.ctrlPlotChi2();
   }
   // if no solutions then use the plhScan passed
-  if (solutions.size() == 0) {
+  if (solutions.empty()) {
     if (arg->verbose || arg->debug)
       std::cout << "MethodPluginScan::getPvalue1d() : WARNING: setting solutions from PL scan" << std::endl;
     std::vector<std::unique_ptr<RooSlimFitResult>> plhSolutions;
@@ -1215,7 +1215,7 @@ std::unique_ptr<TH1F> MethodPluginScan::analyseToys(ToyTree* t, int id, bool qui
     // hCLsExp->SetBinError(i , (cls_vals[cls_vals.size()/2+k-1] - cls_vals[cls_vals.size()/2-k-1])/2.);
   }
 
-  if (arg->controlplot && arg->cls.size() > 0) makeControlPlotsCLs(sampledBValues, sampledSchi2Values);
+  if (arg->controlplot && !arg->cls.empty()) makeControlPlotsCLs(sampledBValues, sampledSchi2Values);
 
   // goodness-of-fit
   if (id == -1) {

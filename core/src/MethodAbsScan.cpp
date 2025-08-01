@@ -76,12 +76,12 @@ MethodAbsScan::MethodAbsScan(const OptParser* opt)
     : scanVar1(opt->var[0]), nPoints1d(opt->npoints1d), nPoints2dx(opt->npoints2dx), nPoints2dy(opt->npoints2dy),
       arg(opt), verbose(opt->verbose) {
   if (opt->var.size() > 1) scanVar2 = opt->var[1];
-  if (opt->CL.size() > 0) {
-    for (auto level : opt->CL) { ConfidenceLevels.push_back(level / 100.); }
-  } else {
+  if (opt->CL.empty()) {
     ConfidenceLevels.push_back(0.6827);  // 1sigma
     ConfidenceLevels.push_back(0.9545);  // 2sigma
     ConfidenceLevels.push_back(0.9973);  // 3sigma
+  } else {
+    for (auto level : opt->CL) { ConfidenceLevels.push_back(level / 100.); }
   }
 }
 

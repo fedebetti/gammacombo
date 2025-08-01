@@ -1185,7 +1185,7 @@ void Utils::setParsConstToBound(RooWorkspace* w, std::vector<TString> namesLow, 
 };
 
 void Utils::setParsConstToBound(RooWorkspace* w, std::vector<TString> names, bool low) {
-  if (names.size() == 0) return;
+  if (names.empty()) return;
   for (auto& n : names) {
     double_t valueToSet = (low) ? w->var(n)->getMin("phys") : w->var(n)->getMax("phys");
     w->var(n)->setVal(valueToSet);
@@ -1200,7 +1200,7 @@ void Utils::setParametersFloating(RooWorkspace* w, const std::vector<TString>& n
 };
 
 void Utils::setParametersFloating(RooWorkspace* w, const std::vector<TString>& names) {
-  if (names.size() == 0) return;
+  if (names.empty()) return;
   for (auto& n : names) { w->var(n)->setConstant(kFALSE); }
 };
 

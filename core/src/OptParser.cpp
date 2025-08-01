@@ -1076,7 +1076,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --var
   tmp = varArg.getValue();
-  if (tmp.size() == 0)
+  if (tmp.empty())
     var.push_back("g");
   else if (tmp.size() > 2) {
     cout << "Argument error --var: please give two instances at maximum." << endl;
@@ -1087,7 +1087,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --relation
   tmp = relationArg.getValue();
   for (auto val : tmp) relation.push_back(val);
-  if (tmp.size() == 0) relation.push_back("NoDefaultEquation");
+  if (tmp.empty()) relation.push_back("NoDefaultEquation");
 
   // --readfromfile
   tmp = readfromfileArg.getValue();
@@ -1112,7 +1112,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --title
   tmp = titleArg.getValue();
   for (auto val : tmp) title.push_back(val);
-  if (tmp.size() == 0) title.push_back("default");
+  if (tmp.empty()) title.push_back("default");
 
   // --parfile
   tmp = loadParamsFileArg.getValue();
@@ -1153,7 +1153,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
     cout << "Argument error: Please give as many job ranges (-j) as combinations (-c)." << endl;
     exit(1);
   }
-  if (jobsArg.getValue().size() == 0) {
+  if (jobsArg.getValue().empty()) {
     // default: job 1
     jmin.push_back(1);
     jmax.push_back(1);
@@ -1415,13 +1415,12 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --2dcl
   plot2dcl = plot2dclArg.getValue();
   // If --2dcl is not given, apply 0 to all
-  if (plot2dcl.size() == 0) {
+  if (plot2dcl.empty()) {
     for (int i = 0; i < 10; i++) { plot2dcl.push_back(0); }
   }
   // combiners
-  // If --2dcl is only given once, apply the given setting to all
-  // combiners
-  if (plot2dcl.size() == 1 && combid.size() > 0) {
+  // If --2dcl is only given once, apply the given setting to all combiners
+  if (plot2dcl.size() == 1) {
     for (int i = 0; i < combid.size(); i++) { plot2dcl.push_back(plot2dcl[0]); }
   }
   // If --2dcl is given more than once, but not for every combiner,
@@ -1461,7 +1460,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   }
 
   // check --CL argument
-  if (var.size() > 1 && CL.size() > 0) {
+  if (var.size() > 1 && !CL.empty()) {
     std::cout << "ERROR: User specific confidence levels are only available for 1D option." << std::endl;
     exit(1);
   }

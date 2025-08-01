@@ -86,7 +86,7 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
   // cache also any specifically requested points
   //
   // 1D
-  if (m_arg->savenuisances1d.size() > 0) {
+  if (!m_arg->savenuisances1d.empty()) {
     vector<double>& points = m_arg->savenuisances1d;
     for (auto const& point : points) {
 
@@ -105,7 +105,7 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
     if (m_arg->debug) info(std::format("Cached {:d} further points", totalCachedPoints - solutions.size()));
   }
   // 2D
-  if (m_arg->savenuisances2dx.size() > 0) {
+  if (!m_arg->savenuisances2dx.empty()) {
     vector<double>& pointsx = m_arg->savenuisances2dx;
     vector<double>& pointsy = m_arg->savenuisances2dy;
 

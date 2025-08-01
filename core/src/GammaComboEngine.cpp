@@ -655,9 +655,9 @@ void GammaComboEngine::print() const {
 ///
 void GammaComboEngine::checkCombinationArg() const {
   auto error = [](std::string msg) { return errorBase("checkCombinationArg()", msg); };
-  if (runOnDataSet && arg->combid.size() > 0)
+  if (runOnDataSet && !arg->combid.empty())
     error("When running on a dataset do not pass a combination argument (it makes no sense for this use case)");
-  if (arg->combid.size() == 0 && !runOnDataSet) {
+  if (arg->combid.empty() && !runOnDataSet) {
     printCombinations();
     error("Please chose a combination ID (-c) among those above");
   }
@@ -732,7 +732,7 @@ void GammaComboEngine::makeAddDelCombinations() {
     // get combiner that is to be modified
     Combiner* cOld = cmb[arg->combid[i]].get();
     // see if anything is to be added or subtracted
-    if (arg->combmodifications[i].size() == 0) continue;
+    if (arg->combmodifications[i].empty()) continue;
     // there are modifications to be done!
     cout << "-c : Making a new combination based on combination " << arg->combid[i] << endl;
     // compute name and title of new combiner
@@ -931,41 +931,41 @@ void GammaComboEngine::defineColors() {
       lineColors.push_back(colorsLine[i]);
   }
   // catch for datasets
-  if (arg->combid.size() == 0) {
+  if (arg->combid.empty()) {
     // sort out fill style
-    if (arg->fillstyle.size() > 0)
+    if (!arg->fillstyle.empty())
       fillStyles.push_back(arg->fillstyle[0]);
     else
       fillStyles.push_back(1001);
     // sort out fill color
-    if (arg->fillcolor.size() > 0)
+    if (!arg->fillcolor.empty())
       fillColors.push_back(arg->fillcolor[0]);
     else
       fillColors.push_back(colorsLine[0]);
     // sort out line width
-    if (arg->linewidth.size() > 0)
+    if (!arg->linewidth.empty())
       lineWidths.push_back(arg->linewidth[0]);
     else
       lineWidths.push_back(2);
     // sort out line style
-    if (arg->linestyle.size() > 0)
+    if (!arg->linestyle.empty())
       lineStyles.push_back(arg->linestyle[0]);
     else
       lineStyles.push_back(1);
     // sort out line color
-    if (arg->linecolor.size() > 0)
+    if (!arg->linecolor.empty())
       lineColors.push_back(arg->linecolor[0]);
     else
       lineColors.push_back(colorsLine[0]);
     // sort out fill transparency
-    if (arg->filltransparency.size() > 0)
+    if (!arg->filltransparency.empty())
       fillTransparencies.push_back(arg->filltransparency[0]);
     else
       fillTransparencies.push_back(.0);
     // sort out total color if not line and fill color defined before
-    if (arg->color.size() > 0 && arg->color[0] < colorsLine.size() && arg->linecolor.size() == 0)
+    if (!arg->color.empty() && arg->color[0] < colorsLine.size() && arg->linecolor.empty())
       lineColors[0] = colorsLine[arg->color[0]];
-    if (arg->color.size() > 0 && arg->color[0] < colorsLine.size() && arg->fillcolor.size() == 0)
+    if (!arg->color.empty() && arg->color[0] < colorsLine.size() && arg->fillcolor.empty())
       fillColors[0] = colorsLine[arg->color[0]];
   }
 }
@@ -1062,7 +1062,7 @@ void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, const int cId) {
   scanner->saveLocalMinima(m_fnamebuilder->getFileNameSolution(scanner));
   scanner->computeCLvalues();
   if (!arg->confirmsols) scanner->calcCLintervals();
-  if (arg->cls.size() > 0) scanner->calcCLintervals(1);  // for prob method CLsType>1 doesn't exist
+  if (!arg->cls.empty()) scanner->calcCLintervals(1);  // for prob method CLsType>1 doesn't exist
   if (!arg->isAction("pluginbatch") && !arg->plotpluginonly) {
     if (arg->plotpulls) scanner->plotPulls();
     if (arg->parevol) {
@@ -1191,7 +1191,7 @@ void GammaComboEngine::make1dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
     scanner->setDrawSolution(arg->plotsolutions[cId]);
     if (arg->isAction("plugin") || arg->isAction("plot"))
       scanner->computeCLvalues();  // compute new CL values depending on test stat, even if not a rescan is wished
-    if (arg->cls.size() > 0) {
+    if (!arg->cls.empty()) {
       if (runOnDataSet)
         static_cast<MethodDatasetsProbScan*>(scanner.get())->plotFitRes(m_fnamebuilder->getFileNamePlot(cmb) + "_fit");
       plot->addScanner(scanner, 1);  // for prob ClsType>1 doesn't exist
@@ -1262,7 +1262,7 @@ void GammaComboEngine::make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugi
     make1dPluginOnlyPlot(sPlugin, cId);
     sProb->setLineColor(kBlack);
     sProb->setDrawSolution(arg->plotsolutions[cId]);
-    if (arg->cls.size() > 0) plot->addScanner(sProb, 1);
+    if (!arg->cls.empty()) plot->addScanner(sProb, 1);
     plot->addScanner(sProb);
   } else {
     make1dProbPlot(sProb, cId);
@@ -1398,7 +1398,7 @@ void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
   plotf->DrawFull();
   plotf->save();
   // plot full CLs
-  if (arg->cls.size() > 0) {
+  if (!arg->cls.empty()) {
     std::unique_ptr<OneMinusClPlot2d> plotfcls;
     if (scanner->getMethodName() == "Prob")
       plotfcls =
@@ -1423,7 +1423,7 @@ void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
   scanner->setFillColor(fillColors[cId]);
   scanner->setFillStyle(fillStyles[cId]);
   scanner->setFillTransparency(fillTransparencies[cId]);
-  if (arg->cls.size() > 0) plot->addScanner(scanner, 1);
+  if (!arg->cls.empty()) plot->addScanner(scanner, 1);
   plot->addScanner(scanner);
   // only draw the plot once when multiple scanners are plotted,
   // else we end up with too many graphs, and the transparency setting
@@ -1539,7 +1539,7 @@ void GammaComboEngine::tightenChi2Constraint(Combiner* c, const TString scanVar)
 void GammaComboEngine::setObservablesFromFile(Combiner* c, const int cId) {
 
   if (cId >= arg->readfromfile.size()) return;
-  if (arg->readfromfile[cId].size() == 0) return;
+  if (arg->readfromfile[cId].empty()) return;
   if (arg->readfromfile[cId].size() == 1 && arg->readfromfile[cId][0] == TString("default")) return;
   if (arg->readfromfile[cId].size() == 1 && arg->readfromfile[cId][0] == TString("")) return;
 
@@ -1828,7 +1828,7 @@ void GammaComboEngine::runToys(Combiner* c) {
     c->setObservablesToToyValues();
     auto toyscan = std::make_unique<MethodProbScan>(c);
     make1dProbScan(toyscan.get(), 0);
-    if (toyscan->solutions.size() == 0) continue;
+    if (toyscan->solutions.empty()) continue;
     toyscan->solutions[0]->Print();
     // cout << "My stuff I want to save" << endl;
     // cout << "chi2: " << toyscan->solutions[0]->minNll() << endl;

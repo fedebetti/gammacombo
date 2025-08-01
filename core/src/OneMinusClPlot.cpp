@@ -624,14 +624,14 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, const bool smooth, const bo
     gObs->Draw("LPsame");
   leg->Draw("same");
 
-  if (arg->CL.size() == 0) {
+  if (arg->CL.empty()) {
     drawCLguideLine(0.1);
   } else {
     drawCLguideLines();
   }
 
   // draw the solution
-  if (arg->plotsolutions.size() > 0 && arg->plotsolutions[0] != 0) drawVerticalLine(xCentral, kBlack, kDashed);
+  if (!arg->plotsolutions.empty() && arg->plotsolutions[0] != 0) drawVerticalLine(xCentral, kBlack, kDashed);
 
   double yGroup = 0.83;
   if (arg->plotprelim || arg->plotunoff) yGroup = 0.8;
@@ -808,7 +808,7 @@ void OneMinusClPlot::drawCLguideLine(const double pvalue) {
 /// Draw 1, 2, and 3 sigma lines.
 ///
 void OneMinusClPlot::drawCLguideLines() {
-  if (arg->CL.size() == 0) {
+  if (arg->CL.empty()) {
     drawCLguideLine(0.31731);
     drawCLguideLine(4.550026e-2);
     if (arg->plotlog) {
@@ -816,14 +816,12 @@ void OneMinusClPlot::drawCLguideLines() {
       if (arg->plotymin < 6.3e-5) { drawCLguideLine(6.3e-5); }
     }
   }
-  if (arg->CL.size() > 0) {
-    for (auto level : arg->CL) {
-      if (level < 99) {
-        drawCLguideLine(1. - level / 100.);
-      } else if (arg->plotlog) {
-        if (arg->plotymin > 6.3e-5 && level < 99.9937) { continue; }
-        drawCLguideLine(1. - level / 100.);
-      }
+  for (auto level : arg->CL) {
+    if (level < 99) {
+      drawCLguideLine(1. - level / 100.);
+    } else if (arg->plotlog) {
+      if (arg->plotymin > 6.3e-5 && level < 99.9937) { continue; }
+      drawCLguideLine(1. - level / 100.);
     }
   }
 }

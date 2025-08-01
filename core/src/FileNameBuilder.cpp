@@ -178,7 +178,7 @@ TString FileNameBuilder::getFileNamePlot(const vector<std::unique_ptr<Combiner>>
     name += "_" + getPluginOnlyNameAddition();
   else if (m_arg->isAction("plugin"))
     name += "_" + getPluginNameAddition();
-  if (m_arg->cls.size() > 0) name += "_" + getCLsNameAddition();
+  if (!m_arg->cls.empty()) name += "_" + getCLsNameAddition();
   if (m_arg->plotprelim) name += "_" + getPreliminaryNameAddition();
   return name;
 }
