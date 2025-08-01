@@ -439,7 +439,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
 /// \param cId - combiner id
 /// \param pCache - parameter cache
 ///
-void GammaComboEngine::loadStartParameters(MethodProbScan* s, ParameterCache* pCache, const int cId) {
+void GammaComboEngine::loadStartParameters(const MethodProbScan* s, ParameterCache* pCache, const int cId) {
   auto error = [](std::string msg) { return errorBase("loadStartParameters()", msg); };
   cout << "Start parameter configuration:\n" << endl;
   TString startparfile;
