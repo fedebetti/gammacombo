@@ -137,23 +137,24 @@ void ConfidenceContours::addFilledPlotArea(const TH2* hist) {
 /// \param type - the type of the 2D histogram, either chi2 or p-value
 ///
 void ConfidenceContours::computeContours(const TH2* inHist, const Utils::histogramType type, const int id) {
+  using Utils::histogramType;
   auto hist = Utils::clone<TH2>(inHist);
   if (m_arg->debug)
     std::cout << "ConfidenceContours::computeContours() : making contours of histogram " << hist->GetName() << ", type "
-              << (type == Utils::kChi2 ? "chi2" : "p-value") << std::endl;
+              << (type == histogramType::kChi2 ? "chi2" : "p-value") << std::endl;
   // clean up contours from a previous call
   m_contours.clear();
 
   // transform chi2 from valley to hill
   const double offset = 100.;
-  if (type == Utils::kChi2) hist = transformChi2valleyToHill(hist.get(), offset);
+  if (type == histogramType::kChi2) hist = transformChi2valleyToHill(hist.get(), offset);
 
   // add boundaries
   auto histb = addBoundaryBins(hist.get());
 
   // make contours
   histb->SetContour(m_nMaxContours);
-  if (type == Utils::kChi2) {
+  if (type == histogramType::kChi2) {
     // chi2 units
     if (m_arg->plot2dcl[id] > 0) {
       for (int i = 0; i < m_nMaxContours; i++) {

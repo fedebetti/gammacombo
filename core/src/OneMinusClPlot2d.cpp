@@ -397,10 +397,10 @@ void OneMinusClPlot2d::addScanner(std::shared_ptr<MethodAbsScan> s, const int CL
   }
   scanners.push_back(s);
   if ((s->getMethodName().EqualTo("Prob") || s->getMethodName().EqualTo("DatasetsProb")) && CLsType == 0) {
-    histosType.push_back(Utils::kChi2);
+    histosType.push_back(Utils::histogramType::kChi2);
     histos.push_back(s->getHchisq2d());
   } else {
-    histosType.push_back(Utils::kPvalue);
+    histosType.push_back(Utils::histogramType::kPvalue);
     if (CLsType == 1 || CLsType == 2)
       histos.push_back(s->getHCLs2d());
     else
@@ -430,7 +430,7 @@ void OneMinusClPlot2d::addFile(const TString fName) {
   histos.push_back(ownedHistos.back().get());
   if (arg->smooth2d)
     for (int i = 0; i < arg->nsmooth; i++) { histos[histos.size() - 1]->Smooth(); }
-  histosType.push_back(Utils::kPvalue);
+  histosType.push_back(Utils::histogramType::kPvalue);
   m_contours.push_back(nullptr);
 }
 
@@ -465,7 +465,7 @@ void OneMinusClPlot2d::drawCLcontent(const bool isFull) {
   t1->SetTextSize(labelsize * 0.6);
   t1->SetTextColor(isFull ? kRed : kGray + 1);
   TString text = "contours hold ";
-  if (arg->plot2dcl[0] > 0 || (histos.size() == 1 && hasHistoType(Utils::kPvalue))) {
+  if (arg->plot2dcl[0] > 0 || (histos.size() == 1 && hasHistoType(Utils::histogramType::kPvalue))) {
     if (arg->plotnsigmacont > 0) text += "68%";
     if (arg->plotnsigmacont > 1) text += ", 95%";
   } else {
@@ -500,9 +500,9 @@ void OneMinusClPlot2d::DrawFull() {
   hChi2->GetXaxis()->SetTitle(xTitle != "" ? xTitle : static_cast<TString>(scanners[0]->getScanVar1()->GetTitle()));
   hChi2->GetYaxis()->SetTitle(yTitle != "" ? yTitle : static_cast<TString>(scanners[0]->getScanVar2()->GetTitle()));
   const double zMin = hChi2->GetMinimum();
-  const double zMax = (histosType[0] == Utils::kChi2) ? std::min(zMin + 81., hChi2->GetMaximum()) : 1.;
+  const double zMax = (histosType[0] == Utils::histogramType::kChi2) ? std::min(zMin + 81., hChi2->GetMaximum()) : 1.;
   hChi2->GetZaxis()->SetRangeUser(zMin, zMax);
-  hChi2->GetZaxis()->SetTitle(histosType[0] == Utils::kChi2 ? "#Delta#chi^{2}" : "p-value");
+  hChi2->GetZaxis()->SetTitle(histosType[0] == Utils::histogramType::kChi2 ? "#Delta#chi^{2}" : "p-value");
   hChi2->Draw("colz");
 
   // Draw the contours
@@ -521,8 +521,8 @@ void OneMinusClPlot2d::DrawFull() {
   if (!arg->isQuickhack(15)) drawCLcontent(true);
 
   auto title = makeOwnedTObject<TPaveText>(.10, .92, .90, .99, "BRNDC");
-  title->AddText(
-      Form("%s for %s", histosType[0] == Utils::kChi2 ? "#Delta#chi^{2}" : "p-value", scanners[0]->getTitle().Data()));
+  title->AddText(Form("%s for %s", histosType[0] == Utils::histogramType::kChi2 ? "#Delta#chi^{2}" : "p-value",
+                      scanners[0]->getTitle().Data()));
   title->SetBorderSize(0);
   title->SetFillStyle(0);
   title->SetTextFont(133);
