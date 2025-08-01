@@ -14,13 +14,11 @@ using namespace std;
 using namespace Utils;
 
 ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
-  // copy over the command line arguments
   arg = scanner->getArg();
 
   // clone the workspace so we don't mess with the original one
   w = std::unique_ptr<RooWorkspace>(static_cast<RooWorkspace*>(scanner->getWorkspace()->Clone()));
 
-  // copy over names
   title = scanner->getTitle();
   name = scanner->getName();
   parsName = scanner->getParsName();
@@ -37,16 +35,13 @@ ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
 
   // get the chi2 values at the local minima
   getLocalMinPositions();
-
-  // canvas handling
-  m_padId = 0;
 }
 
-///
-/// Compute the positions of the local minima, in terms of scan steps, store it in
-/// m_localMinPositions. This will then be used to plot a red line
-/// at the position of the local minima.
-///
+/**
+ * Compute the positions of the local minima, in terms of scan steps, store it in m_localMinPositions.
+ *
+ * This will then be used to plot a red line at the position of the local minima.
+ */
 void ParameterEvolutionPlotter::getLocalMinPositions() {
   m_localMinPositions.clear();
   for (int i = 1; i < curveResults.size() - 1; i++) {
@@ -65,11 +60,11 @@ void ParameterEvolutionPlotter::drawLinesAtMinima(TVirtualPad* pad) {
 ///
 /// Draw a vertical red line into the current pad at position i.
 ///
-void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, double xpos) {
+void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, const double xpos) {
   pad->cd();
   pad->Update();
-  double ymin = pad->GetUymin();
-  double ymax = pad->GetUymax();
+  const double ymin = pad->GetUymin();
+  const double ymax = pad->GetUymax();
   auto l1 = new TLine(xpos, ymin, xpos, ymax);
   l1->SetLineWidth(1);
   l1->SetLineColor(kRed);
@@ -80,7 +75,8 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, double xpo
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlimFitResult*> results, TString parName) {
+TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlimFitResult*> results,
+                                                                  const TString parName) {
   auto g = new TGraphErrors(results.size());
   int iGraph = 0;
   for (auto result : results) {
@@ -96,7 +92,7 @@ TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlim
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> results, TString parName) {
+TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> results, const TString parName) {
   auto g = new TGraph(results.size());
   int iGraph = 0;
   for (auto result : results) {
@@ -263,22 +259,22 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
 ///
 /// Create a new canvas and add it to the list of canvases.
 ///
-/// \return pointer to the new canvas. Caller assumes ownership
+/// @return Non-owning pointer to the new canvas.
 ///
 TCanvas* ParameterEvolutionPlotter::selectNewCanvas(TString title) {
   m_padId = 0;
   title.ReplaceAll(name + " ", "");
-  auto c1 = newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900);
-  c1->Divide(3, 2);
-  m_canvases.push_back(std::move(c1));
-  return m_canvases.back().get();
+  m_canvases.push_back(newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900));
+  auto canvas = m_canvases.back().get();
+  canvas->Divide(3, 2);
+  return canvas;
 }
 
 TVirtualPad* ParameterEvolutionPlotter::selectNewPad() {
   auto c1 = m_canvases[m_canvases.size() - 1].get();
   if (m_padId >= 6) {
-    // Create a new canvas that has the old title "foo 3" but with
-    // incremented number: "foo 4". Only one-digit numbers are supported.
+    // Create a new canvas that has the old title "foo 3" but with incremented number: "foo 4".
+    // Only one-digit numbers are supported. TODO
     TString title = c1->GetTitle();
     int oldNumber = TString(title[title.Sizeof() - 2]).Atoi();      // get last character and turn into integer
     title.Replace(title.Sizeof() - 2, 1, Form("%i", ++oldNumber));  // replace last character with incremented integer
@@ -291,7 +287,4 @@ TVirtualPad* ParameterEvolutionPlotter::selectNewPad() {
 ///
 /// Update the current control plot canvas.
 ///
-void ParameterEvolutionPlotter::updateCurrentCanvas() {
-  auto c1 = m_canvases[m_canvases.size() - 1].get();
-  c1->Update();
-}
+void ParameterEvolutionPlotter::updateCurrentCanvas() { m_canvases[m_canvases.size() - 1]->Update(); }

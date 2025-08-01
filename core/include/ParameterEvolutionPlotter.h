@@ -1,13 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: Nov 2014
- *
- * Class that plots the parameter evolution of the nuisance parameters
- * from a prob scan.
- *
- **/
-
 #ifndef ParameterEvolutionPlotter_h
 #define ParameterEvolutionPlotter_h
 
@@ -23,6 +13,9 @@
 
 #include "MethodProbScan.h"
 
+/**
+ * Class that plots the parameter evolution of the nuisance parameters from a prob scan.
+ **/
 class ParameterEvolutionPlotter {
  public:
   ParameterEvolutionPlotter(MethodProbScan* scanner);
@@ -33,10 +26,10 @@ class ParameterEvolutionPlotter {
  private:
   void getLocalMinPositions();
   void drawLinesAtMinima(TVirtualPad* pad);
-  void drawVerticalRedLine(TVirtualPad* pad, double xpos);
+  void drawVerticalRedLine(TVirtualPad* pad, const double xpos);
   TGraph* makeChi2Graph(std::vector<RooSlimFitResult*> results);
-  TGraph* makeEvolutionGraph(std::vector<RooSlimFitResult*> results, TString parName);
-  TGraphErrors* makeEvolutionGraphErrors(std::vector<RooSlimFitResult*> results, TString parName);
+  TGraph* makeEvolutionGraph(std::vector<RooSlimFitResult*> results, const TString parName);
+  TGraphErrors* makeEvolutionGraphErrors(std::vector<RooSlimFitResult*> results, const TString parName);
   void saveEvolutionPlots();
   TCanvas* selectNewCanvas(TString title);
   TVirtualPad* selectNewPad();
@@ -54,7 +47,7 @@ class ParameterEvolutionPlotter {
   TString scanVar1;                                  ///< name of the can variable
   std::vector<double> m_localMinPositions;           ///< positions of the local minima in scan steps
   std::vector<std::unique_ptr<TCanvas>> m_canvases;  ///< Pointers to the canvases of the plots, see selectNewCanvas().
-  int m_padId;                                       ///< ID of currently selected pad, see selectNewPad().
+  int m_padId = 0;                                   ///< ID of currently selected pad, see selectNewPad().
 };
 
 #endif

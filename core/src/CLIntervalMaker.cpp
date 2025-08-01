@@ -16,16 +16,15 @@ CLIntervalMaker::CLIntervalMaker(const OptParser* arg, const TH1* pvalues) : _pv
   //  cout << i << " " << pvalues.GetBinCenter(i) << " " << pvalues.GetBinContent(i) << endl;
 }
 
-///
-/// Add a maximum (e.g. found by the Prob method) to calculate the
-/// confidence intervals around it.
-///
-/// \param value - parameter value at the maximum
-/// \param method - details on how this maximum was found
-///
-void CLIntervalMaker::provideMorePreciseMaximum(double value, TString method) {
+/**
+ * Add a maximum (e.g. found by the Prob method) to calculate the confidence intervals around it.
+ *
+ * @param value  Parameter value at the maximum.
+ * @param method Details on how this maximum was found.
+ */
+void CLIntervalMaker::provideMorePreciseMaximum(const double value, const TString method) {
   // cout << "CLIntervalMaker::provideMorePreciseMaximum() : " << value << endl;
-  double level = 1.;  // accept this many bin sizes deviation
+  const double level = 1.;  // accept this many bin sizes deviation
   for (auto cli : _clintervals1sigma) {
     if (fabs(cli.central - value) < level * _pvalues->GetBinWidth(1)) {
       cli.central = value;
@@ -42,16 +41,14 @@ void CLIntervalMaker::provideMorePreciseMaximum(double value, TString method) {
   }
 }
 
-///
-/// Finds the maxima of the _pvalue histogram and fills
-/// _clintervals1sigma and _clintervals2sigma. Only accepts
-/// maxima that are not similar to existing ones, that were, e.g.,
-/// set by addMaximum().
-///
-/// \param pValueThreshold - ignore maxima under this pvalue threshold
-///                 to reject low statistics plugin crap
-///
-void CLIntervalMaker::findMaxima(double pValueThreshold) {
+/**
+ * Finds the maxima of the _pvalue histogram and fills _clintervals1sigma and _clintervals2sigma.
+ *
+ * Only accepts maxima that are not similar to existing ones, that were, e.g., set by addMaximum().
+ *
+ * @param pValueThreshold Ignore maxima under this pvalue threshold to reject low statistics plugin crap.
+ */
+void CLIntervalMaker::findMaxima(const double pValueThreshold) {
   for (int i = 2; i < _pvalues->GetNbinsX() - 1; i++) {
     if (_pvalues->GetBinContent(i - 1) < _pvalues->GetBinContent(i) &&
         _pvalues->GetBinContent(i) > _pvalues->GetBinContent(i + 1)) {
@@ -96,7 +93,9 @@ void CLIntervalMaker::findMaxima(double pValueThreshold) {
 /// \param pvalue - the p value threshold
 /// \return - true, if bin is in interval
 ///
-bool CLIntervalMaker::isInInterval(int binid, double pvalue) const { return _pvalues->GetBinContent(binid) > pvalue; }
+bool CLIntervalMaker::isInInterval(const int binid, const double pvalue) const {
+  return _pvalues->GetBinContent(binid) > pvalue;
+}
 
 ///
 /// Stores a confidence interval found by findRawIntervalsForCentralValues().
@@ -106,7 +105,8 @@ bool CLIntervalMaker::isInInterval(int binid, double pvalue) const { return _pva
 /// \param pvalue - p-value threshold, accept points into interval if their p-value is above
 /// \param clis - vector of confidence intervals, usually _clintervals1sigma or _clintervals2sigma
 ///
-void CLIntervalMaker::storeRawInterval(int binidLo, int binidHi, double pvalue, vector<CLInterval>& clis) {
+void CLIntervalMaker::storeRawInterval(const int binidLo, const int binidHi, const double pvalue,
+                                       vector<CLInterval>& clis) {
   CLInterval c;
   c.pvalue = pvalue;
   // use the histogram border for non-closed intervals,
@@ -144,7 +144,7 @@ void CLIntervalMaker::storeRawInterval(int binidLo, int binidHi, double pvalue, 
 /// \param clis - saves intervals into this vector of confidence intervals, usually _clintervals1sigma or
 /// _clintervals2sigma
 ///
-void CLIntervalMaker::findRawIntervals(double pvalue, vector<CLInterval>& clis) {
+void CLIntervalMaker::findRawIntervals(const double pvalue, vector<CLInterval>& clis) {
   bool intervalIsOpened = false;
   int intervalBinLo = 1;
 
@@ -175,7 +175,7 @@ void CLIntervalMaker::findRawIntervals(double pvalue, vector<CLInterval>& clis) 
 /// \param pvalue - pvalue of the intervals to find
 /// \param clis - list of confidence intervals holding the central value
 ///
-void CLIntervalMaker::findRawIntervalsForCentralValues(double pvalue, vector<CLInterval>& clis) {
+void CLIntervalMaker::findRawIntervalsForCentralValues(const double pvalue, vector<CLInterval>& clis) {
   for (auto cli : clis) {
     if (cli.pvalueAtCentral < pvalue)
       continue;  // skip central values that will not going to be included in an interval at this pvalue
@@ -234,7 +234,7 @@ void CLIntervalMaker::removeBadIntervals() {
 /// \param y - y value
 /// \return - true if i and i+1 are on the same side
 ///
-bool CLIntervalMaker::binsOnSameSide(int i, double y) const {
+bool CLIntervalMaker::binsOnSameSide(const int i, const double y) const {
   return ((_pvalues->GetBinContent(i) > y && _pvalues->GetBinContent(i + 1) > y) ||
           (_pvalues->GetBinContent(i) < y && _pvalues->GetBinContent(i + 1) < y));
 }
@@ -249,7 +249,7 @@ bool CLIntervalMaker::binsOnSameSide(int i, double y) const {
 /// \param y - y value
 /// \return - bin ID of _pvalues histogram
 ///
-int CLIntervalMaker::checkNeighboringBins(int i, double y) const {
+int CLIntervalMaker::checkNeighboringBins(const int i, const double y) const {
   if (!binsOnSameSide(i, y)) return i;
   if (1 < i + 1 && i + 1 <= _pvalues->GetNbinsX() - 1 && !binsOnSameSide(i + 1, y)) return i + 1;
   if (1 < i - 1 && i - 1 <= _pvalues->GetNbinsX() - 1 && !binsOnSameSide(i - 1, y)) return i - 1;
@@ -270,7 +270,7 @@ int CLIntervalMaker::checkNeighboringBins(int i, double y) const {
 /// \param val - Return value: interpolated x position
 /// \return true if successful
 ///
-bool CLIntervalMaker::interpolateLine(const TH1* h, int i, double y, double& val) const {
+bool CLIntervalMaker::interpolateLine(const TH1* h, const int i, const double y, double& val) const {
   // cout << "CLIntervalMaker::interpolateLine(): i=" << i << " y=" << y << endl;
   if (!(1 <= i && i <= h->GetNbinsX() - 1)) return false;
   if (binsOnSameSide(i, y)) {
@@ -351,7 +351,8 @@ void CLIntervalMaker::improveIntervalsPol2fit(vector<CLInterval>& clis) const {
 /// Solve a quadratic equation by means of a modified pq formula:
 /// @f[x^2 + \frac{p_1}{p_2} x + \frac{p_0-y}{p2} = 0@f]
 ///
-double CLIntervalMaker::pq(double p0, double p1, double p2, double y, int whichSol) const {
+double CLIntervalMaker::pq(const double p0, const double p1, const double p2, const double y,
+                           const int whichSol) const {
   if (whichSol == 0)
     return -p1 / 2. / p2 + sqrt(Utils::sq(p1 / 2. / p2) - (p0 - y) / p2);
   else
@@ -374,8 +375,8 @@ double CLIntervalMaker::pq(double p0, double p1, double p2, double y, int whichS
 /// \param err - Return value: estimated interpolation error
 /// \return true, if inpterpolation was performed, false, if conditions were not met
 ///
-bool CLIntervalMaker::interpolatePol2fit(const TH1* h, int i, double y, double central, bool upper, double& val,
-                                         double& err) const {
+bool CLIntervalMaker::interpolatePol2fit(const TH1* h, const int i, const double y, const double central,
+                                         const bool upper, double& val, double& err) const {
   // cout << "CLIntervalMaker::interpolatePol2fit(): i=" << i << " y=" << y << " central=" << central << endl;
   // check if too close to border so we don't have enough bins to fit
   if (!(2 <= i && i <= h->GetNbinsX() - 1)) return false;
@@ -482,9 +483,9 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1* h, int i, double y, double c
   return true;
 }
 
-int CLIntervalMaker::valueToBin(double val) const { return _pvalues->GetXaxis()->FindBin(val); }
+int CLIntervalMaker::valueToBin(const double val) const { return _pvalues->GetXaxis()->FindBin(val); }
 
-double CLIntervalMaker::binToValue(int bin) const { return _pvalues->GetBinCenter(bin); }
+double CLIntervalMaker::binToValue(const int bin) const { return _pvalues->GetBinCenter(bin); }
 
 void CLIntervalMaker::print() {
   CLIntervalPrinter clp(_arg, "test", "var", "", "CLMaker's print()");
