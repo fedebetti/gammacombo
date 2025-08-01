@@ -694,7 +694,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
     }
     clm.calcCLintervals();
     // print
-    TString unit = w->var(scanVar1)->getUnit();
+    const TString unit = w->var(scanVar1)->getUnit();
     CLIntervalPrinter clp(arg, name, scanVar1, unit,
                           std::string(methodName) + (calc_expected ? "_expected_standardCLs" : ""));
     clp.setDegrees(isAngle(w->var(scanVar1)));
@@ -896,7 +896,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
  * Print the CL intervals.
  */
 void MethodAbsScan::printCLintervals(const int CLsType, const bool calc_expected) {
-  const auto unit = w->var(scanVar1)->getUnit();
+  const TString unit = w->var(scanVar1)->getUnit();
   CLIntervalPrinter clp(arg, name, scanVar1, unit, methodName, CLsType);
   if (calc_expected) {
     clp = CLIntervalPrinter(arg, name, scanVar1, unit, methodName + TString("_expected_standardCLs"));
