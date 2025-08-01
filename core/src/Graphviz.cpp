@@ -1,51 +1,48 @@
 #include "Graphviz.h"
 
+#include <fstream>
 #include <iostream>
+#include <utility>
 
-using namespace std;
+namespace {
+  /// Convert a string so that it compatible with the graphviz syntax for element names such as nodes or edges.
+  TString graphvizString(TString s) {
+    s.ReplaceAll("-", "_");
+    return s;
+  }
 
+  bool isDmixingParameter(const TString s) {
+    if (s == TString("xD") || s == TString("yD")) return true;
+    return false;
+  }
+
+  /// Open a file, return the ofstream object.
+  std::ofstream openFile(const TString name) {
+    std::ofstream dotfile;
+    dotfile.open(name);
+    if (!dotfile.is_open()) {
+      std::cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << std::endl;
+      std::exit(1);
+    }
+    return std::move(dotfile);
+  }
+
+}  // namespace
+
+/// Constructor.
 Graphviz::Graphviz(const OptParser* arg) {
   assert(arg);
   this->arg = arg;
 }
 
-///
-/// Convert a string so that it compatible with the graphviz
-/// syntax for element names such as nodes or edges.
-///
-TString Graphviz::graphvizString(TString s) const {
-  s.ReplaceAll("-", "_");
-  return s;
-}
-
-bool Graphviz::isDmixingParameter(TString s) const {
-  if (s == TString("xD") || s == TString("yD")) return true;
-  return false;
-}
-
-///
-/// Open a file, return the file handle.
-///
-ofstream& Graphviz::openFile(TString name) const {
-  auto dotfile = new ofstream();
-  dotfile->open(name);
-  if (!dotfile->is_open()) {
-    cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << endl;
-    exit(1);
-  }
-  return *dotfile;
-}
-
-///
-/// Print the parameter/measurement structure of a Combiner
-/// into a *.dot file. The file is saved into the plots/dot
-/// directory. To create a graph from it, run
-///
-/// dot -Tpdf plots/dot/dkdpiRunning.dot -o dkdpiRunning.pdf
-///
+/**
+ * Print the parameter/measurement structure of a Combiner into a *.dot file.
+ *
+ * The file is saved into the plots/dot directory. To create a graph from it, run:
+ * dot -Tpdf plots/dot/dkdpiRunning.dot -o dkdpiRunning.pdf
+ */
 void Graphviz::printCombiner(Combiner* cmb) const {
-  // open the dot file
-  ofstream& dotfile = openFile("plots/dot/circle_" + cmb->getName() + ".dot");
+  auto dotfile = openFile("plots/dot/circle_" + cmb->getName() + ".dot");
 
   // print header
   dotfile << "graph combiner {\n";
@@ -55,15 +52,15 @@ void Graphviz::printCombiner(Combiner* cmb) const {
   // dotfile << "K=3;\n";
 
   // print measurements (=nodes)
-  for (auto pdf : cmb->getPdfs()) {
-    TString nodeName = graphvizString(pdf->getName());
-    TString nodeTitle = graphvizString(pdf->getTitle());
+  for (const auto pdf : cmb->getPdfs()) {
+    const auto nodeName = graphvizString(pdf->getName());
+    const auto nodeTitle = graphvizString(pdf->getTitle());
     dotfile << nodeName << " [label=\"" << nodeTitle << "\"];\n";
   }
 
   // print shared parameters (=edges)
   for (int i = 0; i < cmb->getPdfs().size(); i++) {
-    TString nodeNamei = graphvizString(cmb->getPdfs()[i]->getName());
+    const auto nodeName = graphvizString(cmb->getPdfs()[i]->getName());
 
     // loop over parameters of pdf i
     for (const auto vi : *(cmb->getPdfs()[i]->getParameters())) {
@@ -75,7 +72,7 @@ void Graphviz::printCombiner(Combiner* cmb) const {
         // print edges
         for (const auto vj : *(cmb->getPdfs()[j]->getParameters())) {
           if (TString(vi->GetName()) == TString(vj->GetName())) {
-            dotfile << nodeNamei << " -- " << nodeNamej << " ";
+            dotfile << nodeName << " -- " << nodeNamej << " ";
             dotfile << "[label=\"" << vi->GetName() << "\"";
             // define edge colors
             if (TString(vi->GetName()) == TString("g")) dotfile << ",color=red";
@@ -86,22 +83,19 @@ void Graphviz::printCombiner(Combiner* cmb) const {
       }
     }
   }
-
-  // print footer
   dotfile << "}\n";
   dotfile.close();
 }
 
-///
-/// Print the parameter/measurement structure of a Combiner
-/// into a *.dot file. The file is saved into the plots/dot
-/// directory. To create a graph from it, run
-///
-/// dot -Tpdf plots/dot/dkdpiRunning.dot -o dkdpiRunning.pdf
-///
+/**
+ * Print the parameter/measurement structure of a Combiner into a *.dot file.
+ *
+ * The file is saved into the plots/dot directory. To create a graph from it, run:
+ *
+ *    dot -Tpdf plots/dot/dkdpiRunning.dot -o dkdpiRunning.pdf
+ */
 void Graphviz::printCombinerLayer(Combiner* cmb) const {
-  // open the dot file
-  ofstream& dotfile = openFile("plots/dot/layer_" + cmb->getName() + ".dot");
+  auto dotfile = openFile("plots/dot/layer_" + cmb->getName() + ".dot");
 
   // print header
   dotfile << "graph combiner {\n";
@@ -116,9 +110,9 @@ void Graphviz::printCombinerLayer(Combiner* cmb) const {
   dotfile << "node [style=filled,color=white];\n";
   dotfile << "style=filled;\n";
   dotfile << "color=lightgrey;\n";
-  for (auto pdf : cmb->getPdfs()) {
-    TString nodeName = graphvizString(pdf->getName());
-    TString nodeTitle = graphvizString(pdf->getTitle());
+  for (const auto pdf : cmb->getPdfs()) {
+    const auto nodeName = graphvizString(pdf->getName());
+    const auto nodeTitle = graphvizString(pdf->getTitle());
     dotfile << nodeName << " [label=\"" << nodeTitle << "\"];\n";
   }
   dotfile << "label=\"measurements\";\n";
@@ -135,12 +129,12 @@ void Graphviz::printCombinerLayer(Combiner* cmb) const {
   dotfile << "}\n";
 
   // print edges
-  for (auto pdf : cmb->getPdfs()) {
-    TString nodeNamePdf = graphvizString(pdf->getName());
+  for (const auto pdf : cmb->getPdfs()) {
+    const auto nodeNamePdf = graphvizString(pdf->getName());
 
     // loop over parameters of pdf i
     for (const auto vi : *(pdf->getParameters())) {
-      TString nodeNamePar = graphvizString(vi->GetName());
+      const auto nodeNamePar = graphvizString(vi->GetName());
       dotfile << nodeNamePdf << " -- " << nodeNamePar;
       dotfile << "[";
       // define edge colors
@@ -152,7 +146,6 @@ void Graphviz::printCombinerLayer(Combiner* cmb) const {
     }
   }
 
-  // print footer
   dotfile << "}\n";
   dotfile.close();
 }
