@@ -1,9 +1,12 @@
 #ifndef Contour_h
 #define Contour_h
 
+#include <memory>
+#include <utility>
 #include <vector>
 
 #include <TH2.h>
+#include <TList.h>
 
 #include "OptParser.h"
 
@@ -12,10 +15,9 @@
  */
 class Contour {
  public:
-  Contour(const OptParser* arg, TList* listOfGraphs);
-  ~Contour();
-  void Draw() const;
-  void DrawFilled() const;
+  Contour(const OptParser* arg, const TList* listOfGraphs);
+  void Draw();
+  void DrawFilled();
   void DrawLine() const;
   inline int getSigma() const { return m_sigma; };
   void magneticBoundaries(const TH2* hCL);
@@ -25,17 +27,19 @@ class Contour {
   void setTransparency(const double percent);
 
  private:
-  TGraph* changePointOrder(TGraph* g, int pointId);
-  void findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2);
-  TGraph* joinIfInside(TGraph* g1, TGraph* g2);
-  std::vector<TGraph*> makeHoles(std::vector<TGraph*>& contours);
-  void magneticBoundaries(std::vector<TGraph*>& contours, const TH2* hCL);
+  std::vector<std::unique_ptr<TGraph>> makeHoles(const std::vector<std::unique_ptr<TGraph>>& contours);
+  void magneticBoundaries(const std::vector<std::unique_ptr<TGraph>>& contours, const TH2* hCL);
 
-  const OptParser* m_arg;           ///< Command line arguments
-  std::vector<TGraph*> m_contours;  ///< Container for the several disjoint subcontours. Used by DrawLine().
+  const OptParser* m_arg;  ///< Command line arguments
 
-  /// Container for contours with holes (filled by makeHoles(), used by DrawFilled()).
-  std::vector<TGraph*> m_contoursHoles;
+  /// Vector of disjoint subcontours.
+  std::vector<std::unique_ptr<TGraph>> m_contours;
+
+  /// Vector of contours with holes.
+  std::vector<std::unique_ptr<TGraph>> m_contoursHoles;
+
+  std::vector<std::unique_ptr<TGraph>> m_tmpGraphs;
+
   int m_sigma = -1;
   int m_linecolor = 2;
   int m_linestyle = kSolid;

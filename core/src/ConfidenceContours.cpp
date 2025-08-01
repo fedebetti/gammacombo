@@ -3,6 +3,9 @@
 
 #include <TROOT.h>
 
+#include <memory>
+#include <vector>
+
 using namespace std;
 using namespace Utils;
 
@@ -19,7 +22,7 @@ ConfidenceContours::ConfidenceContours(const OptParser* arg) {
 /// \param hist - the 2D histogram
 /// \return new 2D histogram. Caller assumes ownership.
 ///
-std::unique_ptr<TH2F> ConfidenceContours::addBoundaryBins(const TH2* hist) {
+std::unique_ptr<TH2> ConfidenceContours::addBoundaryBins(const TH2* hist) {
   const double boundary = hist->GetMinimum();
   auto hBoundaries =
       std::make_unique<TH2F>(getUniqueRootName(), getUniqueRootName(), hist->GetNbinsX() + 2,
@@ -116,8 +119,7 @@ void ConfidenceContours::addFilledPlotArea(const TH2* hist) {
   // make a new Contour object from it
   auto l = new TList();
   l->Add(g);
-  auto c = new Contour(m_arg, l);
-  m_contours.push_back(c);
+  m_contours.push_back(std::make_unique<Contour>(m_arg, l));
 }
 
 ///
@@ -203,9 +205,8 @@ void ConfidenceContours::computeContours(const TH2* inHist, const histogramType 
   }
   for (int ic = m_nMaxContours - 1; ic >= 0; ic--) {
     if (!(((TList*)contours->At(ic))->IsEmpty())) {
-      auto cont = new Contour(m_arg, (TList*)contours->At(ic));
-      cont->setSigma(5 - nEmptyContours - ic);
-      m_contours.push_back(cont);
+      m_contours.push_back(std::make_unique<Contour>(m_arg, static_cast<TList*>(contours->At(ic))));
+      m_contours.back()->setSigma(5 - nEmptyContours - ic);
     }
   }
 

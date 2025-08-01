@@ -5,6 +5,9 @@
 #include "OptParser.h"
 #include "Utils.h"
 
+#include <memory>
+#include <vector>
+
 /**
  * Class holding the confidence contours from 1 to N sigmas.
  **/
@@ -20,12 +23,12 @@ class ConfidenceContours {
   inline void setContoursToPlot(const std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
 
  private:
-  std::unique_ptr<TH2F> addBoundaryBins(const TH2* hist);
+  std::unique_ptr<TH2> addBoundaryBins(const TH2* hist);
   void addFilledPlotArea(const TH2* hist);
   std::unique_ptr<TH2> transformChi2valleyToHill(const TH2* hist, const double offset);
-  const OptParser* m_arg;            ///< command line arguments
-  std::vector<Contour*> m_contours;  ///< container for the 1,...,N sigma contours
-  std::vector<int> m_linecolor;      ///< style for the 1,...,N sigma contours
+  const OptParser* m_arg;                            ///< command line arguments
+  std::vector<std::unique_ptr<Contour>> m_contours;  ///< container for the 1,...,N sigma contours
+  std::vector<int> m_linecolor;                      ///< style for the 1,...,N sigma contours
   std::vector<int> m_linestyle;
   std::vector<int> m_fillcolor;
   std::vector<int> m_fillstyle;
