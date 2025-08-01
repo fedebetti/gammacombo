@@ -11,6 +11,7 @@
 #include <array>
 #include <cstdlib>
 #include <format>
+#include <fstream>
 #include <limits>
 #include <memory>
 #include <optional>
@@ -169,6 +170,36 @@ void MethodAbsScan::doInitialFit(bool force) {
 
   if (arg->debug) cout << "============================================================\n" << endl;
   RooMsgService::instance().setGlobalKillBelow(INFO);
+}
+
+void MethodAbsScan::dumpResult(const std::string ofname) const {
+
+  system("mkdir -p plots/par");
+  const auto ofpath = std::format("plots/par/{:s}.dat", ofname);
+  cout << "MethodAbsScan::dumpResult() : saving " << ofpath << endl;
+
+  const bool angle = Utils::isAngle(this->getWorkspace()->var(this->getScanVar1Name()));
+
+  std::ofstream outf;
+  outf.open(ofpath);
+  outf << std::format("# Fit Result Summary\n"
+                      "nSolutions={:d}\n"
+                      "# pvalue central min max\n",
+                      this->getNSolutions());
+  for (int cl = 0; cl < 2; ++cl) {
+    for (const auto& ci : this->clintervals[cl]) {
+      auto central = ci->central;
+      auto min = ci->min;
+      auto max = ci->max;
+      if (angle) {
+        central = RadToDeg(central);
+        min = RadToDeg(min);
+        max = RadToDeg(max);
+      }
+      outf << std::format("{:f} {:f} {:f} {:f}\n", ci->pvalue, central, min, max);
+    }
+  }
+  outf.close();
 }
 
 ///

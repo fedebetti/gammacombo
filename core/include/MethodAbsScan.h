@@ -34,6 +34,7 @@ class MethodAbsScan {
 
   virtual void calcCLintervals(const int CLsType = 0, const bool calc_expected = false, const bool quiet = false);
   void confirmSolutions();
+  void dumpResult(const std::string ofname) const;
   void doInitialFit(bool force = false);
   inline const OptParser* getArg() const { return arg; };
   inline const std::vector<std::unique_ptr<RooSlimFitResult>>& getAllResults() const { return allResults; };
@@ -81,12 +82,13 @@ class MethodAbsScan {
   TString getScanVar2Name() const { return scanVar2; }
   double getScanVar2Solution(int i = 0);
   inline const std::vector<std::unique_ptr<RooSlimFitResult>>& getSolutions() { return solutions; };
-  inline const int getNSolutions() { return solutions.size(); };
+  inline int getNSolutions() const { return solutions.size(); };
   RooSlimFitResult* getSolution(const int i = 0);
   inline const RooArgSet* getTheory() { return w->set(thName); }
   inline int getTextColor() const { return textColor; };
   inline TString getTitle() const { return title; };
   inline RooWorkspace* getWorkspace() { return w; };
+  inline const RooWorkspace* getWorkspace() const { return w; };
   virtual void initScan();
   void loadParameters(const RooSlimFitResult* r);
   bool loadSolution(const int i = 0);
