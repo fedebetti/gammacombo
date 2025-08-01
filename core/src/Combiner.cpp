@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <RooProdPdf.h>
 #include <RooRandom.h>
@@ -216,51 +218,41 @@ RooAbsPdf* Combiner::getPdf() {
   return w->pdf("pdf_" + pdfName);
 }
 
-///
-/// Return a vector of all parameter names present
-/// in this combination. This works already before
-/// combine() was called (unline Combiner::getParameters()).
-///
-vector<string>& Combiner::getParameterNames() const {
-  auto vars = new vector<string>();
-  if (pdfs.size() == 0) return *vars;
+/**
+ * Return a vector of all parameter names present in this combination.
+ *
+ * This works already before combine() was called (unlike Combiner::getParameters()).
+ */
+std::vector<std::string> Combiner::getParameterNames() const {
+  std::vector<std::string> names;
+  if (pdfs.empty()) return names;
 
-  // 1. make a list of all parameters from the pdfs
-  vector<string> varsAll;
+  // Make a list of all parameters from the pdfs
   for (auto pdf : pdfs) {
-    for (const auto v : *pdf->getParameters()) { varsAll.push_back(v->GetName()); }
+    for (const auto v : *pdf->getParameters()) { names.push_back(v->GetName()); }
   }
-  // 2. remove duplicates
-  std::ranges::sort(varsAll);
-  vars->push_back(varsAll[0]);
-  string previous = varsAll[0];
-  for (int i = 1; i < varsAll.size(); i++) {
-    if (previous == varsAll[i]) continue;
-    vars->push_back(varsAll[i]);
-    previous = varsAll[i];
-  }
-  return *vars;
+  // Remove duplicates
+  std::ranges::sort(names);
+  const auto [first, last] = std::ranges::unique(names.begin(), names.end());
+  names.erase(first, last);
+  return names;
 }
 
-///
-/// Return a vector of all observables names present
-/// in this combination.
-/// If being called before combine() was called, a list of
-/// observables contained in all PDFs is returned, without
-/// unification strings. There might be duplicates in that
-/// list, if more than one PDFs contain observables of the
-/// same name.
-/// If it is being called after combine() was called, the
-/// the unification strings are included.
-///
-/// \return a vector of observable names
-///
-vector<string>& Combiner::getObservableNames() const {
-  auto vars = new vector<string>();
+/**
+ * Return a vector of all observables names present in this combination.
+ *
+ * If called before combine() was called, a list of observables contained in all PDFs is returned, without unification
+ * strings. There might be duplicates in that list, if more than one PDFs contain observables of the same name.
+ * If called after combine() was called, the the unification strings are included.
+ *
+ * @return Vector of observable names
+ */
+std::vector<std::string> Combiner::getObservableNames() const {
+  std::vector<std::string> vars;
   if (!_isCombined) {
     // collect observables from all PDFs
     for (auto pdf : pdfs) {
-      for (const auto p : *pdf->getObservables()) vars->push_back(p->GetName());
+      for (const auto p : *pdf->getObservables()) vars.push_back(p->GetName());
     }
   } else {
     // get observables from the combined workspace
@@ -270,9 +262,9 @@ vector<string>& Combiner::getObservableNames() const {
            << "obs_" + pdfName << endl;
       assert(0);
     }
-    for (const auto p : *obs) vars->push_back(p->GetName());
+    for (const auto p : *obs) vars.push_back(p->GetName());
   }
-  return *vars;
+  return vars;
 }
 
 ///
@@ -313,7 +305,7 @@ void Combiner::print() const {
   // if ( arg->verbose ) {
   cout << "=======================" << endl;
   // print observables of the combination
-  vector<string>& olist = getObservableNames();
+  const auto olist = getObservableNames();
   TString obslist = "";
   obslist += Form("%4d input observables: (", int(olist.size()));
   int indent_length = obslist.Length();
@@ -331,7 +323,7 @@ void Combiner::print() const {
   cout << obslist << endl;
 
   // print free parameters of the combination
-  vector<string>& plist = getParameterNames();
+  const auto plist = getParameterNames();
   TString parlist = "";
   parlist += Form("%4d free parameters:   (", int(plist.size()));
   indent_length = parlist.Length();
