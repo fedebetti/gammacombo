@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <format>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -1487,8 +1488,8 @@ const std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, c
                                                           bool qubic) const {
 
   const double p_val = 1 - confidence_level;
-  TSpline* splines = nullptr;
-  if (qubic) splines = new TSpline3();
+  std::unique_ptr<TSpline> spline;
+  if (qubic) spline = std::make_unique<TSpline3>();
 
   double min_edge = graph.GetX()[0];
   // will never return smaller edge than min_edge
@@ -1500,13 +1501,13 @@ const std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, c
 
   for (double point = min_edge; point < max_edge; point += (max_edge - min_edge) / scan_steps) {
 
-    if (graph.Eval(point, splines) > p_val) {
+    if (graph.Eval(point, spline.get()) > p_val) {
       lower_edge = point;
       break;
     }
   }
   for (double point = max_edge; point > min_edge; point -= (max_edge - min_edge) / scan_steps) {
-    if (graph.Eval(point, splines) > p_val) {
+    if (graph.Eval(point, spline.get()) > p_val) {
       upper_edge = point;
       break;
     }
@@ -1525,8 +1526,8 @@ const std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& grap
                                                               bool qubic) const {
 
   const double p_val = 1 - confidence_level;
-  TSpline* splines = nullptr;
-  if (qubic) splines = new TSpline3();
+  std::unique_ptr<TSpline> spline;
+  if (qubic) spline = std::make_unique<TSpline3>();
 
   double min_edge = graph.GetX()[0];
   // will never return smaller edge than min_edge
@@ -1539,7 +1540,7 @@ const std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& grap
   for (double point = min_edge; point < max_edge; point += (max_edge - min_edge) / scan_steps) {
 
     // for CL_s normalize pVal to the pVal at 0 (which has to be the background model)
-    if (graph.Eval(point, splines) / graph.Eval(min_edge, splines) > p_val) {
+    if (graph.Eval(point, spline.get()) / graph.Eval(min_edge, spline.get()) > p_val) {
       lower_edge = point;
       break;
     }
@@ -1547,7 +1548,7 @@ const std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& grap
   for (double point = max_edge; point > min_edge; point -= (max_edge - min_edge) / scan_steps) {
 
     // for CL_s normalize pVal to the pVal at 0 (which has to be the background model)
-    if (graph.Eval(point, splines) / graph.Eval(min_edge, splines) > p_val) {
+    if (graph.Eval(point, spline.get()) / graph.Eval(min_edge, spline.get()) > p_val) {
       upper_edge = point;
       break;
     }

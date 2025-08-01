@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "Combiner.h"
 #include "MethodProbScan.h"
 #include "PDF_Datasets.h"
 #include "RooSlimFitResult.h"
@@ -45,7 +46,6 @@ class MethodDatasetsProbScan : public MethodProbScan {
   std::unique_ptr<RooFitResult> bkgOnlyFitResult = nullptr;
   ToyTree* probScanTree = nullptr;
 
- protected:
  private:
   TChain* readFiles(TString fileNameBaseIn = "default");
   void readScan1dTrees(TString fileNameBaseIn = "default");
@@ -55,6 +55,8 @@ class MethodDatasetsProbScan : public MethodProbScan {
   void setAndPrintFitStatusConstrainedToys(const ToyTree& toyTree);
   void setAndPrintFitStatusFreeToys(const ToyTree& toyTree);
   void sethCLFromProbScanTree();
+
+  std::unique_ptr<Combiner> m_combiner;
 };
 
 #endif

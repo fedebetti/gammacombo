@@ -16,17 +16,11 @@
 #include <RooRealVar.h>
 #include <RooWorkspace.h>
 
-#include <TCanvas.h>
-#include <TGaxis.h>
-#include <TH2F.h>
-#include <TLegend.h>
 #include <TMarker.h>
 #include <TMath.h>
-#include <TRandom3.h>
 #include <TStopwatch.h>
 #include <TStyle.h>
 #include <TSystem.h>
-#include <TTree.h>
 
 #include <format>
 #include <iostream>
@@ -491,7 +485,7 @@ int MethodProbScan::scan2d() {
   iStart = max(iStart, 1);
   jStart = max(jStart, 1);
   hDbgStart->SetBinContent(iStart, jStart, 500.);
-  auto startpointmark = new TMarker(par1->getVal(), par2->getVal(), 3);
+  TMarker startpointmark(par1->getVal(), par2->getVal(), 3);
 
   // timer
   TStopwatch tFit;
@@ -619,7 +613,7 @@ int MethodProbScan::scan2d() {
         if ((arg->interactive && ((int)nSteps % arg->updateFreq == 0)) || nSteps == nTotalSteps) {
           hDbgChi2min2d->Draw("colz");
           hDbgStart->Draw("boxsame");
-          startpointmark->Draw();
+          startpointmark.Draw();
           cDbg->Update();
           cDbg->Modified();
           gSystem->ProcessEvents();
@@ -784,9 +778,9 @@ void MethodProbScan::saveSolutions2d() {
 }
 
 ///
-/// Get the chi2 value of the profile likelihood at a given
-/// scan point. Requires that the scan was performed before
-/// by scan1d().
+/// Get the chi2 value of the profile likelihood at a given scan point.
+///
+/// Requires that the scan was performed before by scan1d().
 ///
 double MethodProbScan::getChi2min(double scanpoint) const {
   assert(hChi2min);
