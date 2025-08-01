@@ -58,7 +58,9 @@ class OneMinusClPlotAbs {
   template <RootTObject T>
   T* getTObjectOwnership(std::unique_ptr<T> obj) {
     rootObjects.emplace_back(std::unique_ptr<TObject>(std::move(obj)));
-    return dynamic_cast<T*>(rootObjects.back().get());
+    auto ptr = dynamic_cast<T*>(rootObjects.back().get());
+    if constexpr (std::is_base_of_v<TH1, T>) { ptr->SetDirectory(0); }
+    return ptr;
   }
 
  protected:

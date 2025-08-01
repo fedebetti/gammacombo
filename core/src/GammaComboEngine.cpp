@@ -1358,7 +1358,7 @@ void GammaComboEngine::make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sP
 /// \param scanner - the coverage scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan* scanner, [[maybe_unused]] const int cId) {
+void GammaComboEngine::make1dCoveragePlot(const MethodCoverageScan* scanner, [[maybe_unused]] const int cId) {
   scanner->plot();
 }
 
@@ -1686,6 +1686,7 @@ void GammaComboEngine::saveWorkspace(Combiner* c, const int i) {
 /// compare combinations
 ///
 void GammaComboEngine::compareCombinations() {
+  // TODO object ownership to be fixed
   for (int i = 0; i < comparisonScanners.size(); i++) {
     for (int j = i + 1; j < comparisonScanners.size(); j++) {
       auto pull_corr =
