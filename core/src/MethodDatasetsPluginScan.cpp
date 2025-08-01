@@ -75,7 +75,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
   // implement physical range a la Feldman Cousins
   bool refit_necessary = false;
   if (arg->physRanges.size() > 0) {
-    for (const auto pr : arg->physRanges[0]) {
+    for (const auto& pr : arg->physRanges[0]) {
       if (w->var(pr.name)) {
         if (w->var(pr.name)->getVal() < pr.min) {
           if (arg->debug)
@@ -112,7 +112,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
 
   // reset parameters free from the Feldman Cousins behaviour
   if (arg->physRanges.size() > 0) {
-    for (const auto pr : arg->physRanges[0]) {
+    for (const auto& pr : arg->physRanges[0]) {
       if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a constant
                                                                           // parameter make sure the parameter
                                                                           // doesn't accidentally become
@@ -526,7 +526,6 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   Long64_t n0all = 0;
   Long64_t n0tot = 0;
   Long64_t n0failed = 0;
-  Long64_t totFailed = 0;
 
   double printFreq = nentries > 101 ? 100 : nentries;  ///< for the status bar
   t.activateAllBranches();
@@ -1290,7 +1289,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       // implement physical range a la Feldman Cousins
       bool refit_necessary = false;
       if (arg->physRanges.size() > 0) {
-        for (const auto pr : arg->physRanges[0]) {
+        for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name)) {
             if (w->var(pr.name)->getVal() < pr.min) {
               if (arg->debug)
@@ -1357,7 +1356,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
 
       // reset parameters free from the Feldman Cousins behaviour
       if (arg->physRanges.size() > 0) {
-        for (const auto pr : arg->physRanges[0]) {
+        for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a
                                                                               // constant parameter make sure the
                                                                               // parameter doesn't accidentally
@@ -1721,7 +1720,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       bool refit_necessary = false;
       std::map<TString, double> boundary_vals;
       if (arg->physRanges.size() > 0) {
-        for (const auto pr : arg->physRanges[0]) {
+        for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name)) {
             if (w->var(pr.name)->getVal() < pr.min) {
               if (arg->debug)
@@ -1845,7 +1844,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
 
       // reset parameters free from the Feldman Cousins behaviour
       if (arg->physRanges.size() > 0) {
-        for (const auto pr : arg->physRanges[0]) {
+        for (const auto& pr : arg->physRanges[0]) {
           if (w->var(pr.name) && w->set(pdf->getParName())->find(pr.name)) {  // if somebody wants to modify a
                                                                               // constant parameter make sure the
                                                                               // parameter doesn't accidentally

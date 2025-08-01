@@ -1,27 +1,18 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2012
- *
- **/
-
 #ifndef OptParser_h
 #define OptParser_h
 
-#include <iostream>
-#include <stdlib.h>
+#include <map>
+#include <string>
+#include <vector>
 
 #include <TRegexp.h>
 
 #include "Utils.h"
 #include "tclap/CmdLine.h"
 
-using namespace TCLAP;
-
 class OptParser {
  public:
   OptParser();
-  ~OptParser(){};
 
   void bookOption(TString opt);
   void bookAllOptions();
@@ -175,7 +166,7 @@ class OptParser {
   std::vector<TString> var;
   bool verbose = false;
 
-  CmdLine cmd;
+  TCLAP::CmdLine cmd{"", ' ', ""};
 
  private:
   int convertToDigitWithCheck(TString parseMe, TString usage) const;

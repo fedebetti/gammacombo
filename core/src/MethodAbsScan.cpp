@@ -36,9 +36,9 @@ namespace {
     stream << prefix << msgOut << std::endl;
   };
 
-  auto errBase = [](const std::string& prefix, const std::string& msg) {
+  auto errBase = [](const std::string& prefix, const std::string& msg, bool exit = true) {
     msgBase(prefix, msg + ". Exit...", std::cerr);
-    exit(1);
+    if (exit) { std::exit(1); }
   };
 }  // namespace
 
@@ -73,8 +73,8 @@ MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
 
 /// Constructor without combiner. This is still needed for the datasets stuff
 MethodAbsScan::MethodAbsScan(const OptParser* opt)
-    : arg(opt), scanVar1(opt->var[0]), verbose(opt->verbose), nPoints1d(opt->npoints1d), nPoints2dx(opt->npoints2dx),
-      nPoints2dy(opt->npoints2dy) {
+    : scanVar1(opt->var[0]), nPoints1d(opt->npoints1d), nPoints2dx(opt->npoints2dx), nPoints2dy(opt->npoints2dy),
+      arg(opt), verbose(opt->verbose) {
   if (opt->var.size() > 1) scanVar2 = opt->var[1];
   if (opt->CL.size() > 0) {
     for (auto level : opt->CL) { ConfidenceLevels.push_back(level / 100.); }
@@ -227,7 +227,7 @@ void MethodAbsScan::initScan() {
     cout << "        Choose an existing one using: --var par" << endl << endl;
     cout << "  Available parameters:" << endl;
     cout << "  ---------------------" << endl << endl;
-    for (const auto name : combiner->getParameterNames()) { cout << "    " << name << endl; }
+    for (const auto& name : combiner->getParameterNames()) { cout << "    " << name << endl; }
     cout << endl;
     exit(1);
   }
@@ -261,7 +261,7 @@ void MethodAbsScan::initScan() {
       cout << "        Choose an existing one using: --var par" << endl << endl;
       cout << "  Available parameters:" << endl;
       cout << "  ---------------------" << endl << endl;
-      for (const auto name : combiner->getParameterNames()) { cout << "    " << name << endl; }
+      for (const auto& name : combiner->getParameterNames()) { cout << "    " << name << endl; }
       cout << endl;
       exit(1);
     }
@@ -680,7 +680,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
   auto debug = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : DEBUG : ", msg); };
   auto info = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : ", msg); };
   auto warning = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : WARNING : ", msg); };
-  auto error = [](const std::string& msg) { errBase("MethodAbsScan::calcCLintervals() : ERROR : ", msg); };
+  auto error = [](const std::string& msg) { errBase("MethodAbsScan::calcCLintervals() : ERROR : ", msg, false); };
   if (arg->debug) debug(std::format("Calling arguments: {:d}, {:s}, {:s}", CLsType, calc_expected, quiet));
 
   // TODO
@@ -696,7 +696,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
     std::cout << "Determine expected upper limit:" << std::endl;
   }
   if (!histogramCL) {
-    std::cerr << "ERROR : Could not retrieve the histogram. Will not calculate the CLs" << endl;
+    error("Could not retrieve the histogram. Will not calculate the CLs");
     return;
   }
 
@@ -899,7 +899,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
   const auto nPar = combiner->getParameters()->getSize();
   if (nObs == nPar) {
     if (std::abs(chi2) > 1e-3)
-      cerr << "ERROR : Chi2 is not zero ({:.4f}), even if the number of degrees of freedom is zero\n" << endl;
+      error(std::format("Chi2 is not zero ({:.4f}), even if the number of degrees of freedom is zero\n", chi2));
     else
       cout << std::format(
                   "Fit quality is meaningless for zero degrees of freedom (chi2 = 0): (nObs, nPar) = ({:d}, {:d})\n",
@@ -1137,10 +1137,10 @@ void MethodAbsScan::saveLocalMinima(TString fName) const {
   outfile.open(fName.Data());
 
   for (int i = 0; i < solutions.size(); i++) {
-    outfile << "\%SOLUTION " << i << ":\n" << endl;
-    outfile << "\%  combination: " << name << endl;
-    outfile << "\%  title:       " << title << endl;
-    outfile << "\%  date:        " << date.AsString() << endl;
+    outfile << "%SOLUTION " << i << ":\n" << endl;
+    outfile << "%  combination: " << name << endl;
+    outfile << "%  title:       " << title << endl;
+    outfile << "%  date:        " << date.AsString() << endl;
     solutions[i]->SaveLatex(outfile, arg->verbose, arg->printcor);
   }
   outfile.close();

@@ -10,9 +10,6 @@ class PDF_DatasetTutorial : public PDF_Datasets {
   PDF_DatasetTutorial(RooWorkspace* w);
   RooFitResult* fit(RooDataSet* dataToFit);
   void generateToys(int SeedShift = 0) override;
-
- private:
-  bool drawFitsDebug;  ///< for visualizing toys and fit results, only changeable in the code
 };
 
 #endif

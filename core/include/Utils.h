@@ -128,7 +128,7 @@ namespace Utils {
   RooFormulaVar* makeTheoryVar(TString name, TString title, TString formula, RooArgList* pars);
 
   void savePlot(const TCanvas* c1, const TString name,
-                const std::vector<std::string> ext = {"pdf", "png", "eps", "root", "C"});
+                const std::vector<std::string>& ext = {"pdf", "png", "eps", "root", "C"});
   bool FileExists(const TString strFilename);
   void assertFileExists(const TString strFilename);
 

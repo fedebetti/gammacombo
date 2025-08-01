@@ -208,7 +208,6 @@ class MethodAbsScan {
   int drawSolution = 0;    ///< Configure how to draw solutions on the plots.
   ///< 0=don't plot, 1=plot at central value (1d) or markers (2d)
   ///< Default is taken from arg, unless disabled by setDrawSolution().
-  bool verbose;
   int nWarnings = 0;                     ///< number of warnings printed in getScanVarSolution()
   const OptParser* arg;                  ///< command line options
   Combiner* combiner = nullptr;          ///< the combination
@@ -216,6 +215,7 @@ class MethodAbsScan {
   bool m_yrangeset = false;              ///< true if the y range was set manually (setYscanRange())
   bool m_initialized = false;            ///< true if initScan() was called
   std::vector<double> ConfidenceLevels;  ///< container of the confidence levels to be computed
+  bool verbose = false;
 
  private:
   bool compareSolutions(const RooSlimFitResult* r1, const RooSlimFitResult* r2) const;

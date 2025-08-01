@@ -520,8 +520,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // chi2 so we can compare
   if (arg->debug)
     cout << "ControlPlots::ctrlPlotMore() : creating a new TTree that also contains the pll chi2 ..." << endl;
-  auto fDummy =
-      new TFile("/tmp/" + getUniqueRootName(), "recreate");  //  dummy file so the new tree is not memory resident
+  new TFile("/tmp/" + getUniqueRootName(), "recreate");  //  dummy file so the new tree is not memory resident
   auto tNew = std::make_unique<TTree>("tNew", "tNew");
   double tNew_scanpoint = 0.;
   double tNew_chi2min = 0.;

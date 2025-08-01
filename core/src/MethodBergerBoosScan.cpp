@@ -9,6 +9,8 @@
 #include <Fitter.h>
 #include <MethodBergerBoosScan.h>
 
+#include <format>
+#include <iostream>
 #include <memory>
 
 #include <RooRandom.h>
@@ -230,8 +232,8 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax, [[maybe_unuse
   std::cout << "MethodBergerBoosScan::readScan1dTrees() : starting to read toys..." << std::endl;
   for (Long64_t i = 0; i < nentries; i++) {
     if ((i + 1) % (int)(nentries / 10) == 0) {
-      std::cout << "MethodBergerBoosScan::readScan1dTrees() : " << Form("%2.0f", ((double)i / (double)nentries) * 100)
-                << "\% of toys read." << std::endl;
+      std::cout << std::format("MethodBergerBoosScan::readScan1dTrees() : {:2.0f}% of toys read", 100. * i / nentries)
+                << std::endl;
     }
     t.GetEntry(i);
     // apply global cuts

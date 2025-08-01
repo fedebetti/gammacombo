@@ -23,7 +23,6 @@ ClassImp(RooMultiPdf)
       c("_pdfs", "The list of pdfs", this), x("_index", "the pdf index", this, _x) {
   int count = 0;
 
-  RooAbsPdf* fPdf;
   for (const auto fPdf : _c) {
     c.add(*fPdf);
     // This is done by the user BUT is there a way to do it at construction?

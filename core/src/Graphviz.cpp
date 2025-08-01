@@ -24,7 +24,7 @@ namespace {
       std::cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << std::endl;
       std::exit(1);
     }
-    return std::move(dotfile);
+    return dotfile;
   }
 
 }  // namespace
