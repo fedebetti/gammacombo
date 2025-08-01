@@ -23,7 +23,7 @@ class CLIntervalPrinter {
   void addIntervals(const std::vector<std::vector<std::unique_ptr<CLInterval>>>& intervals);
   void print() const;
   void savePython() const;
-  inline void setDegrees(bool yesno = true) { _convertToDeg = yesno; };
+  inline void setDegrees(const bool yesno = true) { _convertToDeg = yesno; };
 
  private:
   const OptParser* _arg;            ///< Command line arguments

@@ -19,8 +19,7 @@ void CLIntervalPrinter::addIntervals(const std::vector<CLInterval>& intervals) {
   for (const auto& i : intervals) _intervals.emplace(i);
 }
 ///
-/// Set the intervals. If more vectors of intervals are added, each of them will
-/// be printed in order.
+/// Set the intervals. If more vectors of intervals are added, each of them will be printed in order.
 ///
 /// \param intervals - vector of confidence intervals, each one corresponding to one solution
 ///

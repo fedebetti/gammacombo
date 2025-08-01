@@ -27,8 +27,8 @@ class GammaComboEngine {
   GammaComboEngine(TString name, int argc, char* argv[]);
   GammaComboEngine(TString name, int argc, char* argv[], bool _runOnDataSet);
 
-  void adjustRanges(Combiner* c, int cId);
-  void setupToyVariationSets(Combiner* c, int cId);
+  void adjustRanges(Combiner* c, const int cId);
+  void setupToyVariationSets(Combiner* c, const int cId);
   void addPdf(int id, PDF_Abs* pdf, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, const std::vector<int>& indices, TString title = "");
 
@@ -78,33 +78,35 @@ class GammaComboEngine {
   void checkAsimovArg() const;
   void checkColorArg() const;
   void checkCombinationArg() const;
-  void configureAsimovCombinerNames(Combiner* c, int i);
-  bool combinerExists(int id) const;
+  void configureAsimovCombinerNames(Combiner* c, const int i);
+  bool combinerExists(const int id) const;
   void compareCombinations();
   void customizeCombinerTitles();
   void defineColors();
   void disableSystematics();
-  void fixParameters(Combiner* c, int cId);
-  TString getStartParFileName(int cId) const;
-  bool isScanVarObservable(Combiner* c, TString scanVar) const;
-  void loadStartParameters(MethodProbScan* s, ParameterCache* pCache, int cId);
-  void make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId);
-  void make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb, int cId);
-  void make1dPluginScan(MethodPluginScan* scannerPlugin, int cId);
+  void fixParameters(Combiner* c, const int cId);
+  TString getStartParFileName(const int cId) const;
+  bool isScanVarObservable(Combiner* c, const TString scanVar) const;
+  void loadStartParameters(MethodProbScan* s, ParameterCache* pCache, const int cId);
+  void make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, const int cId);
+  void make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb,
+                        const int cId);
+  void make1dPluginScan(MethodPluginScan* scannerPlugin, const int cId);
   void make1dProbPlot(std::shared_ptr<MethodProbScan> scanner, const int cId);
   void make1dProbScan(MethodProbScan* scanner, const int cId);
-  void make1dCoverageScan(MethodCoverageScan* scanner, int cId);
-  void make1dCoveragePlot(MethodCoverageScan* scanner, int cId);
-  void make1dBergerBoosScan(MethodBergerBoosScan* scanner, int cId);
-  void make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId);
-  void make2dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb, int cId);
-  void make2dPluginScan(std::shared_ptr<MethodPluginScan> scannerPlugin, int cId);
-  void make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, int cId);
-  void make2dProbScan(MethodProbScan* scanner, int cId);
+  void make1dCoverageScan(MethodCoverageScan* scanner, const int cId);
+  void make1dCoveragePlot(MethodCoverageScan* scanner, const int cId);
+  void make1dBergerBoosScan(MethodBergerBoosScan* scanner, const int cId);
+  void make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, const int cId);
+  void make2dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb,
+                        const int cId);
+  void make2dPluginScan(std::shared_ptr<MethodPluginScan> scannerPlugin, const int cId);
+  void make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, const int cId);
+  void make2dProbScan(MethodProbScan* scanner, const int cId);
 
   void printCombinerStructure(Combiner* c) const;
   void printBanner() const;
-  bool pdfExists(int id) const;
+  bool pdfExists(const int id) const;
   void savePlot() const;
   void scaleStatErrors();
   void scaleStatAndSystErrors();
@@ -112,14 +114,14 @@ class GammaComboEngine {
   void scan();
   void scanDataSet();
   void setAsimovObservables(Combiner* c);
-  void setObservablesFromFile(Combiner* c, int cId);
-  void loadAsimovPoint(Combiner* c, int cId);
+  void setObservablesFromFile(Combiner* c, const int cId);
+  void loadAsimovPoint(Combiner* c, const int cId);
   void setUpPlot();
-  void tightenChi2Constraint(Combiner* c, TString scanVar);
+  void tightenChi2Constraint(Combiner* c, const TString scanVar);
   void usage() const;
   void writebatchscripts();
   void makeLatex(Combiner* c) const;
-  void saveWorkspace(Combiner* c, int i);
+  void saveWorkspace(Combiner* c, const int i);
   void runToys(Combiner* c);
 
   std::unique_ptr<OptParser> arg;

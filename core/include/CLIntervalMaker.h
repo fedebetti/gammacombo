@@ -1,10 +1,3 @@
-/**
- * Gamma Combination
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: August 2014
- *
- **/
-
 #ifndef CLIntervalMaker_h
 #define CLIntervalMaker_h
 
@@ -18,28 +11,29 @@ class CLIntervalMaker {
  public:
   CLIntervalMaker(const OptParser* arg, const TH1* pvalues);
   void calcCLintervals();
-  void findMaxima(double pValueThreshold);
+  void findMaxima(const double pValueThreshold);
   inline std::vector<CLInterval>& getClintervals1sigma() { return _clintervals1sigma; };
   inline std::vector<CLInterval>& getClintervals2sigma() { return _clintervals2sigma; };
   void print();
-  void provideMorePreciseMaximum(double value, TString method);
+  void provideMorePreciseMaximum(const double value, const TString method);
 
  private:
-  int checkNeighboringBins(int i, double y) const;
-  bool binsOnSameSide(int i, double y) const;
-  double binToValue(int bin) const;
-  void findRawIntervals(double pvalue, std::vector<CLInterval>& clis);
-  void findRawIntervalsForCentralValues(double pvalue, std::vector<CLInterval>& clis);
-  bool interpolateLine(const TH1* h, int i, double y, double& val) const;
-  bool interpolatePol2fit(const TH1* h, int i, double y, double central, bool upper, double& val, double& err) const;
-  bool isInInterval(int binid, double pvalue) const;
+  int checkNeighboringBins(const int i, const double y) const;
+  bool binsOnSameSide(const int i, const double y) const;
+  double binToValue(const int bin) const;
+  void findRawIntervals(const double pvalue, std::vector<CLInterval>& clis);
+  void findRawIntervalsForCentralValues(const double pvalue, std::vector<CLInterval>& clis);
+  bool interpolateLine(const TH1* h, const int i, const double y, double& val) const;
+  bool interpolatePol2fit(const TH1* h, const int i, const double y, const double central, const bool upper,
+                          double& val, double& err) const;
+  bool isInInterval(const int binid, const double pvalue) const;
   void improveIntervalsLine(std::vector<CLInterval>& clis) const;
   void improveIntervalsPol2fit(std::vector<CLInterval>& clis) const;
-  double pq(double p0, double p1, double p2, double y, int whichSol) const;
+  double pq(const double p0, const double p1, const double p2, const double y, const int whichSol) const;
   void removeBadIntervals();
-  bool similarMaximumExists(double value) const;
-  void storeRawInterval(int binidLo, int binidHi, double pvalue, std::vector<CLInterval>& clis);
-  int valueToBin(double val) const;
+  bool similarMaximumExists(const double value) const;
+  void storeRawInterval(const int binidLo, const int binidHi, const double pvalue, std::vector<CLInterval>& clis);
+  int valueToBin(const double val) const;
 
   const OptParser* _arg;                       ///< command line arguments
   const TH1* _pvalues;                         ///< the pvalue histogram

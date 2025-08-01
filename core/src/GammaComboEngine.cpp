@@ -87,12 +87,12 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[], bool _r
 ///
 /// Check if a PDF with a certain ID exits.
 ///
-bool GammaComboEngine::pdfExists(int id) const { return id >= 0 && id < this->pdf.size() && this->pdf[id]; }
+bool GammaComboEngine::pdfExists(const int id) const { return id >= 0 && id < this->pdf.size() && this->pdf[id]; }
 
 ///
 /// Check if a Combiner with a certain ID exits.
 ///
-bool GammaComboEngine::combinerExists(int id) const { return id >= 0 && id < this->cmb.size() && this->cmb[id]; }
+bool GammaComboEngine::combinerExists(const int id) const { return id >= 0 && id < this->cmb.size() && this->cmb[id]; }
 
 ///
 /// Set the PDF (for datasets method) for the GammaComboEngine
@@ -439,7 +439,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
 /// \param cId - combiner id
 /// \param pCache - parameter cache
 ///
-void GammaComboEngine::loadStartParameters(MethodProbScan* s, ParameterCache* pCache, int cId) {
+void GammaComboEngine::loadStartParameters(MethodProbScan* s, ParameterCache* pCache, const int cId) {
   auto error = [](std::string msg) { return errorBase("loadStartParameters()", msg); };
   cout << "Start parameter configuration:\n" << endl;
   TString startparfile;
@@ -494,7 +494,7 @@ void GammaComboEngine::loadStartParameters(MethodProbScan* s, ParameterCache* pC
 /// where 3 means the 3rd Asimov point from the configured
 /// Asimov parameter file (typically *_genpoints.dat).
 ///
-void GammaComboEngine::configureAsimovCombinerNames(Combiner* c, int i) {
+void GammaComboEngine::configureAsimovCombinerNames(Combiner* c, const int i) {
   if (arg->asimov[i] == 0) {
     cout << "\n--asimov 0 : ignoring generator point ID 0" << endl;
     return;
@@ -509,7 +509,7 @@ void GammaComboEngine::configureAsimovCombinerNames(Combiner* c, int i) {
 /// Make an Asimov toy: set all observables set to truth values.
 /// The truth values are loaded from a parameter file.
 ///
-void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId) {
+void GammaComboEngine::loadAsimovPoint(Combiner* c, const int cId) {
   if (arg->asimov[cId] == 0) return;
   cout << "\nAsimov point configuration:\n" << endl;
   auto pCache = std::make_unique<ParameterCache>(arg.get());
@@ -1051,7 +1051,7 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
  * @param scanner The scanner to run the scan with.
  * @param cId     The id of this combination.
  */
-void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, int cId) {
+void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, const int cId) {
   auto debug = [](const std::string& msg) { msgBase("GammaComboEngine::make1dProbScan : DEBUG : ", msg); };
 
   if (arg->debug) debug("Start execution");
@@ -1093,7 +1093,7 @@ void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, int cId) {
 /// \param scannerPlugin - the scanner to run the scan with
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dPluginScan(MethodPluginScan* scannerPlugin, int cId) {
+void GammaComboEngine::make1dPluginScan(MethodPluginScan* scannerPlugin, const int cId) {
   scannerPlugin->initScan();
   if (arg->isAction("pluginbatch")) {
     scannerPlugin->scan1d(arg->nrun);
@@ -1115,7 +1115,7 @@ void GammaComboEngine::make1dPluginScan(MethodPluginScan* scannerPlugin, int cId
 /// \param scannerPlugin - the scanner to run the scan with
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make2dPluginScan(std::shared_ptr<MethodPluginScan> scannerPlugin, int cId) {
+void GammaComboEngine::make2dPluginScan(std::shared_ptr<MethodPluginScan> scannerPlugin, const int cId) {
   scannerPlugin->initScan();
   if (arg->isAction("pluginbatch")) {
     scannerPlugin->scan2d(arg->nrun);
@@ -1139,7 +1139,7 @@ void GammaComboEngine::make2dPluginScan(std::shared_ptr<MethodPluginScan> scanne
 /// \param scannerPlugin - the scanner to run the scan with
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dBergerBoosScan(MethodBergerBoosScan* scannerBergerBoos, int cId) {
+void GammaComboEngine::make1dBergerBoosScan(MethodBergerBoosScan* scannerBergerBoos, const int cId) {
   scannerBergerBoos->initScan();
   scannerBergerBoos->setNBergerBoosPointsPerScanpoint(arg->nBBpoints);
   if (arg->isAction("bbbatch")) {
@@ -1157,7 +1157,7 @@ void GammaComboEngine::make1dBergerBoosScan(MethodBergerBoosScan* scannerBergerB
 ///
 /// \param scanner - the scanner to run the scan with
 /// \param cId - the id of this combination on the command line
-void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, int cId) {
+void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, const int cId) {
   // load coverage point parameters (this can be done automatically)
   auto pCache = new ParameterCache(arg.get());
   if (arg->loadParamsFile.size() != arg->combid.size()) {
@@ -1262,7 +1262,7 @@ void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* p
 /// \param cId - the id of this combination on the command line
 ///
 void GammaComboEngine::make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin,
-                                        std::shared_ptr<MethodProbScan> sProb, int cId) {
+                                        std::shared_ptr<MethodProbScan> sProb, const int cId) {
   if (arg->isQuickhack(17)) {
     make1dPluginOnlyPlot(sPlugin, cId);
     sProb->setLineColor(kBlack);
@@ -1290,7 +1290,7 @@ void GammaComboEngine::make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugi
 /// \param cId - the id of this combination on the command line
 ///
 void GammaComboEngine::make2dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin,
-                                        std::shared_ptr<MethodProbScan> sProb, int cId) {
+                                        std::shared_ptr<MethodProbScan> sProb, const int cId) {
   if (arg->isQuickhack(18)) {
     sProb->setTitle(sProb->getTitle() + "PROB");
     sPlugin->setTitle(sPlugin->getTitle() + "PLUGIN");
@@ -1323,7 +1323,7 @@ void GammaComboEngine::make2dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugi
 /// \param sPlugin - the plugin scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId) {
+void GammaComboEngine::make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, const int cId) {
   static_cast<OneMinusClPlot*>(plot.get())->setPluginMarkers(false);
   int colorId = cId;
   if (arg->color.size() > cId) colorId = arg->color[cId];
@@ -1346,7 +1346,7 @@ void GammaComboEngine::make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sP
 /// \param sPlugin - the plugin scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, int cId) {
+void GammaComboEngine::make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, const int cId) {
   sPlugin->setDrawSolution(arg->plotsolutions[cId]);
   plot->addScanner(sPlugin);
   plot->Draw();
@@ -1358,7 +1358,9 @@ void GammaComboEngine::make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sP
 /// \param scanner - the coverage scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan* scanner, [[maybe_unused]] int cId) { scanner->plot(); }
+void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan* scanner, [[maybe_unused]] const int cId) {
+  scanner->plot();
+}
 
 ///
 /// Make a 2D prob scan.
@@ -1369,7 +1371,7 @@ void GammaComboEngine::make1dCoveragePlot(MethodCoverageScan* scanner, [[maybe_u
 /// \param scanner - the scanner
 /// \param cId - the id of this combination on the command line
 ///
-void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, int cId) {
+void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, const int cId) {
   // load start parameters
   auto pCache = new ParameterCache(arg.get());
   loadStartParameters(scanner, pCache, cId);
@@ -1386,7 +1388,7 @@ void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, int cId) {
 ///
 /// Make the 2D plot for a prob scanner.
 ///
-void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, int cId) {
+void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, const int cId) {
   // plot full
   std::unique_ptr<OneMinusClPlot2d> plotf;
   if (scanner->getMethodName() == "Prob")
@@ -1443,7 +1445,7 @@ void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, i
 /// Helper function for scan(). Fixes parameters, if requested
 /// (only possible before combining).
 ///
-void GammaComboEngine::fixParameters(Combiner* c, int cId) {
+void GammaComboEngine::fixParameters(Combiner* c, const int cId) {
   if (cId < arg->fixParameters.size()) {
     for (const auto fp : arg->fixParameters[cId]) { c->fixParameter(fp.name, fp.value); }
   }
@@ -1453,7 +1455,7 @@ void GammaComboEngine::fixParameters(Combiner* c, int cId) {
 /// Helper function for scan(). Adjusts ranges, if requested
 /// (only possible before combining).
 ///
-void GammaComboEngine::adjustRanges(Combiner* c, int cId) {
+void GammaComboEngine::adjustRanges(Combiner* c, const int cId) {
   if (cId < arg->physRanges.size()) {
     for (const auto pr : arg->physRanges[cId]) { c->adjustPhysRange(pr.name, pr.min, pr.max); }
   }
@@ -1472,7 +1474,7 @@ void GammaComboEngine::adjustRanges(Combiner* c, int cId) {
 ///
 /// Helper function for scan(): Makes named sets for any toy variations that were requested
 ///
-void GammaComboEngine::setupToyVariationSets(Combiner* c, int cId) {
+void GammaComboEngine::setupToyVariationSets(Combiner* c, const int cId) {
   if (cId < arg->randomizeToyVars.size()) {
     TString toyVarList = "";
     for (int j = 0; j < arg->randomizeToyVars[cId].size(); j++) {
@@ -1489,7 +1491,7 @@ void GammaComboEngine::setupToyVariationSets(Combiner* c, int cId) {
 /// configured (-l) argument. If so, it is returned, else the default
 /// name is returned.
 ///
-TString GammaComboEngine::getStartParFileName(int cId) const {
+TString GammaComboEngine::getStartParFileName(const int cId) const {
   if (arg->loadParamsFile.size() <= cId) return m_fnamebuilder->getFileNameStartPar(cmb[cId].get());
   if (arg->loadParamsFile[cId].EqualTo("default")) return m_fnamebuilder->getFileNameStartPar(cmb[cId].get());
   return arg->loadParamsFile[cId];
@@ -1504,7 +1506,7 @@ TString GammaComboEngine::getStartParFileName(int cId) const {
 /// \param scanVar  - the scan variable name
 /// \return true if included, else false
 ///
-bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) const {
+bool GammaComboEngine::isScanVarObservable(Combiner* c, const TString scanVar) const {
   for (const auto obs : c->getObservableNames()) {
     if (scanVar.Contains(obs)) return true;
   }
@@ -1518,7 +1520,7 @@ bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) const {
 /// \param c        - the combiner
 /// \param scanVar  - the scan variable name (must be an observable)
 ///
-void GammaComboEngine::tightenChi2Constraint(Combiner* c, TString scanVar) {
+void GammaComboEngine::tightenChi2Constraint(Combiner* c, const TString scanVar) {
   cout << "\n--var " << scanVar << ": Setting up a scan for an observable ..." << endl;
   PDF_Abs* pdf = c->getPdfProvidingObservable(scanVar);
   if (!pdf) {
@@ -1539,7 +1541,7 @@ void GammaComboEngine::tightenChi2Constraint(Combiner* c, TString scanVar) {
 /// Helper function for scan(). Set observables to values from file
 /// (only possible before combining).
 ///
-void GammaComboEngine::setObservablesFromFile(Combiner* c, int cId) {
+void GammaComboEngine::setObservablesFromFile(Combiner* c, const int cId) {
 
   if (cId >= arg->readfromfile.size()) return;
   if (arg->readfromfile[cId].size() == 0) return;
@@ -1647,7 +1649,7 @@ void GammaComboEngine::makeLatex(Combiner* c) const {
 ///
 /// save workspace
 ///
-void GammaComboEngine::saveWorkspace(Combiner* c, int i) {
+void GammaComboEngine::saveWorkspace(Combiner* c, const int i) {
   auto error = [](std::string msg) { return errorBase("saveWorkspace", msg); };
   // if --pr then make the ranges
   if (arg->enforcePhysRange) setLimit(c->getParameters(), "phys");
