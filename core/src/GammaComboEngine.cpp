@@ -1497,16 +1497,17 @@ TString GammaComboEngine::getStartParFileName(const int cId) const {
   return arg->loadParamsFile[cId];
 }
 
-///
-/// Checks if a given variable name is in the list of observables
-/// of a combiner. The check is slightly sloppy as it ignores the
-/// unique ID.
-///
-/// \param c        - the combiner
-/// \param scanVar  - the scan variable name
-/// \return true if included, else false
-///
-bool GammaComboEngine::isScanVarObservable(Combiner* c, const TString scanVar) const {
+/**
+ * Checks if a given variable name is in the list of observables of a combiner.
+ *
+ * The check is slightly sloppy as it ignores the unique ID.
+ *
+ * @param c       Combiner.
+ * @param scanVar Scan variable name
+ *
+ * @return        True if included, else false
+ */
+bool GammaComboEngine::isScanVarObservable(const Combiner* c, const TString scanVar) const {
   for (const auto obs : c->getObservableNames()) {
     if (scanVar.Contains(obs)) return true;
   }

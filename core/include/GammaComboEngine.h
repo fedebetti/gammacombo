@@ -86,7 +86,7 @@ class GammaComboEngine {
   void disableSystematics();
   void fixParameters(Combiner* c, const int cId);
   TString getStartParFileName(const int cId) const;
-  bool isScanVarObservable(Combiner* c, const TString scanVar) const;
+  bool isScanVarObservable(const Combiner* c, const TString scanVar) const;
   void loadStartParameters(const MethodProbScan* s, ParameterCache* pCache, const int cId);
   void make1dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, const int cId);
   void make1dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb,
