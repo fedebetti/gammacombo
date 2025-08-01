@@ -59,7 +59,7 @@ namespace Utils {
   // drawing HFAG label
   void HFAGLabel(const TString& label = "please set label", Double_t xpos = 0, Double_t ypos = 0, Double_t scale = 1);
 
-  enum histogramType { kChi2, kPvalue };
+  enum class histogramType { kChi2, kPvalue };
   inline double sq(const double x) { return x * x; }
   inline double RadToDeg(const double rad) { return rad / TMath::Pi() * 180.; }
   inline double DegToRad(const double deg) { return deg / 180. * TMath::Pi(); }
