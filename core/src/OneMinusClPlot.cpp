@@ -12,7 +12,6 @@
 #include <TGraphAsymmErrors.h>
 #include <TGraphErrors.h>
 #include <TGraphSmooth.h>
-#include <TGraphTools.h>
 #include <TH1.h>
 #include <TH1F.h>
 #include <TLegend.h>
@@ -115,8 +114,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
   // mu > muhat
   if (arg->teststatistic != 1) {
     if (!s->getSolutions().empty()) {
-      TGraphTools t;
-      g = t.addPointToGraphAtFirstMatchingX(g.get(), s->getScanVar1Solution(0), 1.);
+      g = Utils::addPointToGraphAtFirstMatchingX(g.get(), s->getScanVar1Solution(0), 1.);
     }
   }
 

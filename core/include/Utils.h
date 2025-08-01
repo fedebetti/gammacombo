@@ -78,6 +78,7 @@ namespace Utils {
   std::unique_ptr<RooFitResult> fitToMinImprove(RooWorkspace* w, TString name);
   double getChi2(RooAbsPdf* pdf);
 
+  std::unique_ptr<TGraph> addPointToGraphAtFirstMatchingX(const TGraph* g, const double xNew, const double yNew);
   std::unique_ptr<TH1> histHardCopy(const TH1* h, bool copyContent = true, bool uniqueName = true,
                                     TString specName = "");
   std::unique_ptr<TH2> histHardCopy(const TH2* h, bool copyContent = true, bool uniqueName = true,
