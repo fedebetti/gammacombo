@@ -5,6 +5,13 @@
 using namespace std;
 using namespace Utils;
 
+namespace {
+  template <class T>
+  inline bool isIn(std::vector<T> vec, T var) {
+    return (find(vec.begin(), vec.end(), var) != vec.end());
+  };
+}  // namespace
+
 ///
 /// Organize command line options.
 /// The strategy is to have one object of this class present in the

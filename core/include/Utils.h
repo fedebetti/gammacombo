@@ -131,10 +131,6 @@ namespace Utils {
                 const std::vector<std::string> ext = {"pdf", "png", "eps", "root", "C"});
   bool FileExists(const TString strFilename);
   void assertFileExists(const TString strFilename);
-  template <class T>
-  inline bool isIn(std::vector<T> vec, T var) {
-    return (find(vec.begin(), vec.end(), var) != vec.end());
-  };
 
   static int uniqueRootNameId = 0;
   inline TString getUniqueRootName() { return (TString)Form("UID%i", ++uniqueRootNameId); }
