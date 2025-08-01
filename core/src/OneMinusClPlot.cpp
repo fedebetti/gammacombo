@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <memory>
 
 #include <TColor.h>
@@ -110,26 +111,25 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
     if (plotPoints) dynamic_cast<TGraphErrors*>(g.get())->SetPointError(i, 0., hCL->GetBinError(i + 1));
   }
 
-  // add solution -- this does not make sense for the one-sided test statistic, which only gives non-default values for
-  // mu > muhat
-  if (arg->teststatistic != 1) {
-    if (!s->getSolutions().empty()) {
-      g = Utils::addPointToGraphAtFirstMatchingX(g.get(), s->getScanVar1Solution(0), 1.);
-    }
+  // Add solution to the graph
+  // This does not make sense for the one-sided test statistic, which only gives non-default values for mu > muhat
+  if (arg->teststatistic != 1 && !s->getSolutions().empty()) {
+    g = Utils::addPointToGraphAtFirstMatchingX(g.get(), s->getScanVar1Solution(0), 1.);
   }
 
-  // // set last point to the same p-value as first point by hand
-  // // some angle plots sometimes don't manage to do it by themselves...
-  // if ( arg->isQuickhack(XX) )
-  // {
-  //   double pointx0, pointy0, err0;
-  //   double pointx1, pointy1, err1;
-  //   g->GetPoint(0, pointx0, pointy0);
-  //   g->GetPoint(g->GetN()-1, pointx1, pointy1);
-  //   g->SetPoint(g->GetN()-1, pointx1, pointy0);
-  //   if ( plotPoints ) err0 = ((TGraphErrors*)g)->GetErrorY(0);
-  //   if ( plotPoints ) ((TGraphErrors*)g)->SetPointError(g->GetN()-1, 0.0, err0);
-  // }
+  /*
+  // Set last point to the same p-value as first point by hand
+  // Some angle plots sometimes don't manage to do it by themselves...
+  if (arg->isQuickhack(XX)) {
+    double pointx0, pointy0, err0;
+    double pointx1, pointy1, err1;
+    g->GetPoint(0, pointx0, pointy0);
+    g->GetPoint(g->GetN() - 1, pointx1, pointy1);
+    g->SetPoint(g->GetN() - 1, pointx1, pointy0);
+    if (plotPoints) err0 = ((TGraphErrors*)g)->GetErrorY(0);
+    if (plotPoints) ((TGraphErrors*)g)->SetPointError(g->GetN() - 1, 0.0, err0);
+  }
+  */
 
   // add end points of scan range
   if (!plotPoints) {
@@ -142,7 +142,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
     }
 
     // add origin
-    gNew->SetPoint(0, hCL->GetXaxis()->GetXmin(), 0);
+    gNew->SetPoint(0, hCL->GetXaxis()->GetXmin(), 0.);
 
     // add a point at first y height but at x=origin.
     g->GetPoint(0, pointx0, pointy0);
@@ -153,59 +153,48 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
     gNew->SetPoint(gNew->GetN() - 2, hCL->GetXaxis()->GetXmax(), pointy0);
 
     // add a point at xmax, 0
-    gNew->SetPoint(gNew->GetN() - 1, hCL->GetXaxis()->GetXmax(), 0);
+    gNew->SetPoint(gNew->GetN() - 1, hCL->GetXaxis()->GetXmax(), 0.);
     g = std::move(gNew);
   }
 
   int color = s->getLineColor();
-  if (CLsType > 0 && s->getMethodName().Contains("Plugin") && !arg->plotpluginonly) {
-    if (CLsType == 1)
-      color = kBlue - 8;
-    else if (CLsType == 2)
-      color = kBlue - 2;
-  } else if (CLsType > 0) {
-    if (CLsType == 1) color = s->getLineColor() + 1;
-    if (CLsType == 2) color = s->getLineColor() + 1;
+  if (CLsType > 0) {
+    if (s->getMethodName().Contains("Plugin") && !arg->plotpluginonly) {
+      if (CLsType == 1)
+        color = kBlue - 8;
+      else if (CLsType == 2)
+        color = kBlue - 2;
+    } else {
+      if (CLsType == 1) color = s->getLineColor() + 1;
+      if (CLsType == 2) color = s->getLineColor() + 1;
+    }
   }
   g->SetLineColor(color);
-
+  g->SetLineWidth(s->getLineWidth());
+  g->SetLineStyle(s->getLineStyle());
+  g->SetFillStyle(s->getFillStyle());
   if (filled) {
-    double alpha = arg->isQuickhack(12) ? 0.4 : 1.;
-    if (arg->isQuickhack(24)) alpha = 0.;
+    const double alpha = arg->isQuickhack(24) ? 0. : (arg->isQuickhack(12) ? 0.4 : 1.);
     if (s->getFillColor() > 0 && CLsType == 0)
       g->SetFillColorAlpha(s->getFillColor(), alpha);
     else
       g->SetFillColorAlpha(color, alpha);
-    g->SetFillStyle(s->getFillStyle());
-    g->SetLineWidth(s->getLineWidth());
-    g->SetLineStyle(s->getLineStyle());
-    g->SetLineColor(s->getLineColor());
   } else {
-    g->SetLineWidth(s->getLineWidth());
-    g->SetLineStyle(s->getLineStyle());
-    g->SetLineColor(s->getLineColor());
-    g->SetFillStyle(s->getFillStyle());
     if (last && arg->isQuickhack(25)) g->SetLineWidth(3);
   }
 
-  if (CLsType > 0) g->SetLineColor(color);
-
   if (plotPoints) {
+    const int markerStyle = (CLsType == 1) ? 33 : (CLsType == 2 ? 25 : 8);
     g->SetLineWidth(1);
     g->SetLineColor(color);
     g->SetMarkerColor(color);
-    g->SetMarkerStyle(8);
-    g->SetMarkerSize(0.6);
-    if (CLsType == 1) {
-      g->SetMarkerStyle(33);
-      g->SetMarkerSize(1);
-    }
-    if (CLsType == 2) { g->SetMarkerStyle(25); }
+    g->SetMarkerStyle(markerStyle);
+    g->SetMarkerSize(CLsType == 1 ? 1. : 0.6);
   }
 
-  // build a histogram which holds the axes
-  auto min = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
-  auto max = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
+  // Build a histogram which holds the axes
+  const auto min = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
+  const auto max = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
   auto haxes = makeOwnedTObject<TH1F>("haxes" + Utils::getUniqueRootName(), "", 100, min, max);
   haxes->SetStats(0);
   if (arg->xtitle == "")
@@ -223,32 +212,15 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
   haxes->GetYaxis()->SetLabelSize(labelsize);
   haxes->GetXaxis()->SetTitleSize(titlesize);
   haxes->GetYaxis()->SetTitleSize(titlesize);
-  int xndiv = arg->ndiv == -1 ? 407 : abs(arg->ndiv);
-  bool optimizeNdiv = arg->ndiv < 0 ? true : false;
+  const int xndiv = arg->ndiv == -1 ? 407 : abs(arg->ndiv);
+  const bool optimizeNdiv = arg->ndiv < 0;
   haxes->GetXaxis()->SetNdivisions(xndiv, optimizeNdiv);
   haxes->GetYaxis()->SetNdivisions(407, true);
 
-  // plot y range
-  double plotYMax;
-  double plotYMin;
-  if (plotLegend && !arg->isQuickhack(22)) {
-    if (arg->plotlog) {
-      plotYMin = 1.e-3;
-      plotYMax = 10.;
-    } else {
-      plotYMin = 0.0;
-      plotYMax = 1.3;
-    }
-  } else {
-    if (arg->plotlog) {
-      plotYMin = 1.e-3;
-      plotYMax = 1.0;
-    } else {
-      plotYMin = 0.0;
-      plotYMax = 1.0;
-    }
-  }
-  // change if passed as option
+  // Plot y range
+  double plotYMax = (plotLegend && !arg->isQuickhack(22)) ? (arg->plotlog ? 10. : 1.3) : 1.;
+  double plotYMin = arg->plotlog ? 1e-3 : 0.;
+  // Change if passed as option
   plotYMin = arg->plotymin > 0. ? arg->plotymin : plotYMin;
   plotYMax = arg->plotymax > 0. ? arg->plotymax : plotYMax;
 
@@ -264,8 +236,8 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
   else
     drawOption += " L";
   if (first) drawOption += " A";
-  auto pG = getTObjectOwnership<gType>(std::move(g));
-  pG->Draw(drawOption);
+  auto gPtr = getTObjectOwnership<gType>(std::move(g));
+  gPtr->Draw(drawOption);
   // if ( drawOption.Contains("F") ) ((TGraph*)g->Clone())->Draw("L");
 
   gPad->Update();
@@ -299,14 +271,13 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
       using Utils::RadToDeg;
 
       // new bottom axis
-      double axisbMin = RadToDeg(xmin);
-      double axisbMax = RadToDeg(xmax);
-      if (arg->isQuickhack(3)) {  ///< see documentation of --qh option in OptParser.cpp
+      auto axisbMin = RadToDeg(xmin);
+      auto axisbMax = RadToDeg(xmax);
+      if (arg->isQuickhack(3)) {
         axisbMin += 180.;
         axisbMax += 180.;
       }
-      TString chopt = "";               // - = downward ticks, U = unlabeled
-      if (!optimizeNdiv) chopt += "N";  // n = no bin optimization
+      const TString chopt = optimizeNdiv ? "" : "N";  // N = no bin optimization
       auto axisb = makeOwnedTObject<TGaxis>(xmin, ymin, xmax, ymin, axisbMin, axisbMax, xndiv, chopt);
       axisb->SetName("axisb");
       axisb->SetLabelFont(font);
@@ -326,8 +297,8 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
     // add right axis
     TGaxis* axisr;
     if (arg->plotlog) {
-      double f3min = 1e-3;
-      double f3max = (plotLegend && !arg->isQuickhack(22)) ? 10. : 1.;
+      const double f3min = 1e-3;
+      const double f3max = (plotLegend && !arg->isQuickhack(22)) ? 10. : 1.;
       auto f3 = makeOwnedTObject<TF1>("f3", "log10(x)", f3min, f3max);
       axisr = makeOwnedTObject<TGaxis>(xmax, f3min, xmax, f3max, "f3", 510, "G+");
     } else {
@@ -345,7 +316,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
     haxes->Draw("axissame");
   }
 
-  return pG;
+  return gPtr;
 }
 
 /**
@@ -356,16 +327,15 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
  * @param CLsType Steers what histogram to plot (Prob, Plugin, etc.)
  */
 void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, const bool first, const int CLsType) {
-  if (arg->debug) {
-    std::cout << "OneMinusClPlot::scan1dPlotSimple() : plotting ";
-    std::cout << s->getName() << " (" << s->getMethodName() << ")" << std::endl;
-  }
+  if (arg->debug)
+    std::cout << std::format("OneMinusClPlot::scan1dPlotSimple() : plotting {:s} ({:s})", std::string(s->getName()),
+                             std::string(s->getMethodName()))
+              << std::endl;
   canvas->cd();
 
   auto hCL = getTObjectOwnership<TH1>(getHistogram(s, CLsType, false));
 
-  int color = s->getLineColor();
-  if (CLsType == 1) color = color + 2;
+  const int color = s->getLineColor() + (CLsType == 1 ? 2 : 0);
   hCL->SetStats(0);
   hCL->SetLineColor(color);
   hCL->SetMarkerColor(color);
@@ -375,10 +345,7 @@ void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, const bool first, const 
   hCL->SetMarkerStyle(8);
   hCL->SetMarkerSize(0.6);
   hCL->GetYaxis()->SetNdivisions(407, true);
-  if (arg->xtitle == "")
-    hCL->GetXaxis()->SetTitle(s->getScanVar1()->GetTitle());
-  else
-    hCL->GetXaxis()->SetTitle(arg->xtitle);
+  hCL->GetXaxis()->SetTitle(arg->xtitle == "" ? TString(s->getScanVar1()->GetTitle()) : arg->xtitle);
   hCL->GetYaxis()->SetTitle("1#minusCL");
   hCL->GetXaxis()->SetLabelFont(font);
   hCL->GetYaxis()->SetLabelFont(font);
@@ -390,17 +357,9 @@ void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, const bool first, const 
   hCL->GetYaxis()->SetLabelSize(labelsize);
   hCL->GetXaxis()->SetTitleSize(titlesize);
   hCL->GetYaxis()->SetTitleSize(titlesize);
-  if (plotLegend && !arg->isQuickhack(22)) {
-    if (arg->plotlog)
-      hCL->GetYaxis()->SetRangeUser(1e-3, 10);
-    else
-      hCL->GetYaxis()->SetRangeUser(0.0, 1.3);
-  } else {
-    if (arg->plotlog)
-      hCL->GetYaxis()->SetRangeUser(1e-3, 1);
-    else
-      hCL->GetYaxis()->SetRangeUser(0.0, 1.0);
-  }
+  const double ymin = arg->plotlog ? 1e-3 : 0.;
+  const double ymax = plotLegend && !arg->isQuickhack(22) ? (arg->plotlog ? 10. : 1.3) : 1.;
+  hCL->GetYaxis()->SetRangeUser(ymin, ymax);
   hCL->Draw(first ? "" : "same");
 }
 
@@ -422,7 +381,6 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, const bool smooth, const bo
     return;
   }
 
-  using Utils::getUniqueRootName;
   auto hObs = Utils::clone<TH1>(s->getHCLsFreq());
   auto hExp = Utils::clone<TH1>(s->getHCLsExp());
   auto hErr1Up = Utils::clone<TH1>(s->getHCLsErr1Up());
@@ -611,7 +569,7 @@ void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, const bool smooth, const bo
 
   double min = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmin() : arg->scanrangeMin;
   double max = arg->scanrangeMin == arg->scanrangeMax ? hObs->GetXaxis()->GetXmax() : arg->scanrangeMax;
-  auto haxes = std::make_unique<TH1F>("haxes" + getUniqueRootName(), "", 100, min, max);
+  auto haxes = std::make_unique<TH1F>("haxes" + Utils::getUniqueRootName(), "", 100, min, max);
   haxes->SetDirectory(0);
   haxes->SetStats(0);
   if (arg->xtitle == "")
@@ -705,18 +663,18 @@ void OneMinusClPlot::drawVerticalLine(const double x, const int color, const int
 void OneMinusClPlot::drawSolutions() {
   canvas->cd();
   canvas->Update();
-  double xmin = gPad->GetUxmin();
-  double xmax = gPad->GetUxmax();
+  const double xmin = gPad->GetUxmin();
+  const double xmax = gPad->GetUxmax();
   int iDrawn = 0;
 
   for (int i = 0; i < scanners.size(); i++) {
     if (scanners[i]->getDrawSolution() == 0) continue;
     if (arg->debug)
       std::cout << "OneMinusClPlot::drawSolutions() : adding solution for scanner " << i << " ..." << std::endl;
-    double xCentral = scanners[i]->getScanVar1Solution(arg->plotsoln[i]);
-    double xCLmin = scanners[i]->getCLinterval(arg->plotsoln[i])->min;
-    double xCLmax = scanners[i]->getCLinterval(arg->plotsoln[i])->max;
-    int color = scanners[i]->getTextColor();
+    auto xCentral = scanners[i]->getScanVar1Solution(arg->plotsoln[i]);
+    auto xCLmin = scanners[i]->getCLinterval(arg->plotsoln[i])->min;
+    auto xCLmax = scanners[i]->getCLinterval(arg->plotsoln[i])->max;
+    const int color = scanners[i]->getTextColor();
 
     // draw vertical lines at central value and upper/lower errors
     if (!arg->isQuickhack(19)) {
@@ -729,42 +687,41 @@ void OneMinusClPlot::drawSolutions() {
 
     // Draw text box with numerical values after the lines, so that it doesn't get covered -----------------------------
 
-    // compute y position of the printed central value
+    // Compute y position of the printed central value
     double yNumberMin = 0.6 - 0.13 * iDrawn;
     double yNumberMax = yNumberMin + 0.1;
     if (arg->plotlog) {
-      double yNumberMinFirst = 0.1;
-      if (arg->isQuickhack(1)) yNumberMinFirst = 0.175;
-      yNumberMin = yNumberMinFirst / pow(3.0, iDrawn);  // move down by a constant shift on log scale
+      const double yNumberMinFirst = (arg->isQuickhack(1)) ? 0.175 : 0.1;
+      yNumberMin = yNumberMinFirst / std::pow(3., iDrawn);  // move down by a constant shift on log scale
       yNumberMax = yNumberMin * 2.;
     }
-    // if printsoly option then move a bit
     if (arg->printSolY > 0.) {
       yNumberMin += arg->printSolY;
       yNumberMax += arg->printSolY;
     }
 
-    // compute x position of the printed central value
+    // Compute x position of the printed central value
     double xNumberMin, xNumberMax;
     if (scanners[i]->getDrawSolution() == 1) {
       xNumberMin = xCentral + (xmax - xmin) * 0.20;  // draw at central value
-      xNumberMax = xCentral + (xmax - xmin) * 0.0;
+      xNumberMax = xCentral;
     } else if (scanners[i]->getDrawSolution() == 2) {
-      xNumberMin = xCLmin + (xmax - xmin) * 0.0;  // draw at left CL boundary
+      xNumberMin = xCLmin;  // draw at left CL boundary
       xNumberMax = xCLmin + (xmax - xmin) * 0.25;
     } else if (scanners[i]->getDrawSolution() == 3) {
-      xNumberMin = xCLmax + (xmax - xmin) * 0.0;  // draw at right CL boundary
+      xNumberMin = xCLmax;  // draw at right CL boundary
       xNumberMax = xCLmax + (xmax - xmin) * 0.25;
     } else if (scanners[i]->getDrawSolution() == 4) {
-      xNumberMin = xCLmin + (xmax - xmin) * -0.20;  // draw a little left of the left CL boundary
-      xNumberMax = xCLmin + (xmax - xmin) * 0.0;
+      xNumberMin = xCLmin - (xmax - xmin) * 0.20;  // draw a little left of the left CL boundary
+      xNumberMax = xCLmin;
     } else {
-      std::cout << "OneMinusClPlot::drawSolutions() : ERROR : --ps code ";
-      std::cout << scanners[i]->getDrawSolution() << " not found! Use [0,1,2,3]." << std::endl;
+      std::cout << std::format("OneMinusClPlot::drawSolutions() : ERROR : --ps code {:d} not found! Use [0,1,2,3]",
+                               scanners[i]->getDrawSolution())
+                << std::endl;
       continue;
     }
 
-    // move number a bit to the left so it doesn't cover the right plot border anymore
+    // Move number a bit to the left so it doesn't cover the right plot border anymore
     if (arg->isQuickhack(4)) {
       xNumberMin -= (xmax - xmin) * 0.225;
       xNumberMax -= (xmax - xmin) * 0.225;
@@ -772,7 +729,7 @@ void OneMinusClPlot::drawSolutions() {
 
     // If print solution argument is given then overwrite
     if (arg->printSolX > 0.) {
-      double diff = xNumberMax - xNumberMin;
+      const auto diff = xNumberMax - xNumberMin;
       xNumberMin = arg->printSolX;
       xNumberMax = arg->printSolX + diff;
     }
@@ -783,8 +740,7 @@ void OneMinusClPlot::drawSolutions() {
     t1->SetTextAlign(13);
     t1->SetTextFont(font);
     t1->SetTextColor(color);
-    t1->SetTextSize(labelsize);
-    if (arg->isQuickhack(32)) t1->SetTextSize(1.5 * labelsize);
+    t1->SetTextSize(labelsize * (arg->isQuickhack(32) ? 1.5 : 1.));
     if (Utils::isAngle(scanners[i]->getScanVar1())) {
       using Utils::RadToDeg;
       xCentral = RadToDeg(xCentral);
@@ -792,7 +748,7 @@ void OneMinusClPlot::drawSolutions() {
       xCLmax = RadToDeg(xCLmax);
     }
     Rounder myRounder(arg, xCLmin, xCLmax, xCentral);
-    int d = myRounder.getNsubdigits();
+    const int d = myRounder.getNsubdigits();
     double xCentralRd = myRounder.central();
     if (arg->isQuickhack(3)) xCentralRd += 180.;  ///< see documentation of --qh option in OptParser.cpp
     t1->AddText(Form("%.*f^{+%.*f}_{#font[122]{-}%.*f}", d, xCentralRd, d, myRounder.errPos(), d, myRounder.errNeg()));
@@ -808,36 +764,29 @@ void OneMinusClPlot::drawSolutions() {
 void OneMinusClPlot::drawCLguideLine(const double pvalue) {
   canvas->cd();
   canvas->Update();
-  double xmin = gPad->GetUxmin();
-  double xmax = gPad->GetUxmax();
+  const double xmin = gPad->GetUxmin();
+  const double xmax = gPad->GetUxmax();
 
-  double labelPos = xmin + (xmax - xmin) * 0.10;
-  if (arg->isQuickhack(2)) labelPos = xmin + (xmax - xmin) * 0.55;
-  if (arg->isQuickhack(23)) labelPos = xmin + (xmax - xmin) * 0.8;
-  if (arg->isQuickhack(31)) labelPos = xmin + (xmax - xmin) * 0.01;
+  double xfrac = 0.1;
+  if (arg->isQuickhack(2)) xfrac = 0.55;
+  if (arg->isQuickhack(23)) xfrac = 0.8;
+  if (arg->isQuickhack(31)) xfrac = 0.01;
+  double labelPos = xmin + (xmax - xmin) * xfrac;
 
   if (arg->CL.size() > 1) {
     std::ranges::sort(arg->CL);
     for (int i = 0; i < arg->CL.size(); i++) {
-      if (abs((1 - pvalue) - arg->CL[i] / 100.) < 0.0001 && abs(arg->CL[i] - arg->CL[i - 1]) < 8) {
+      if (std::abs((1. - pvalue) - arg->CL[i] / 100.) < 1e-4 && abs(arg->CL[i] - arg->CL[i - 1]) < 8) {
         if (!arg->isQuickhack(23))
-          labelPos = labelPos + (xmax - xmin) * 0.15;
+          labelPos += (xmax - xmin) * 0.15;
         else
-          labelPos = labelPos - (xmax - xmin) * 0.15;
+          labelPos -= (xmax - xmin) * 0.15;
       }
     }
   }
 
-  double labelPosYmin = 0;
-  double labelPosYmax = 0;
-
-  if (arg->plotlog) {
-    labelPosYmin = pvalue;
-    labelPosYmax = labelPosYmin * 2.;
-  } else {
-    labelPosYmin = pvalue + 0.02;
-    labelPosYmax = labelPosYmin + 0.05;
-  }
+  const double labelPosYmin = pvalue + (arg->plotlog ? 0. : 0.02);
+  const double labelPosYmax = (arg->plotlog) ? labelPosYmin * 2. : labelPosYmin + 0.05;
 
   auto t = makeOwnedTObject<TPaveText>(labelPos, labelPosYmin, labelPos + (xmax - xmin) * 0.5, labelPosYmax, "BR");
   t->SetBorderSize(0);
@@ -887,7 +836,7 @@ void OneMinusClPlot::drawCLguideLines() {
  */
 void OneMinusClPlot::Draw(const bool beautify) {
 
-  // put this in for exponent xaxes
+  // Put this in for exponent xaxes
   if (!arg->isQuickhack(30)) canvas->SetRightMargin(0.1);
   if (arg->plotlog) {
     canvas->SetLogy();
