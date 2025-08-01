@@ -1980,7 +1980,7 @@ void GammaComboEngine::scan() {
           auto pCache =
               std::make_unique<ParameterCache>(arg.get(), m_fnamebuilder->getFileBaseName(cmb[arg->pevid[0]]));
           pCache->loadPoints();
-          auto scanner3 = new MethodProbScan(cmb[arg->pevid[0]]);
+          auto scanner3 = std::make_unique<MethodProbScan>(cmb[arg->pevid[0]]);
           scanner3->initScan();
           scanStrategy1d(scanner3, pCache);
           scanner3->confirmSolutions();

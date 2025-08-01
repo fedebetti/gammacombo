@@ -6,8 +6,10 @@
  *
  */
 
+#include <Combiner.h>
 #include <MethodDatasetsProbScan.h>
 #include <ProgressBar.h>
+#include <Utils.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -59,7 +61,8 @@ MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt
   }
 
   // setup a dummy empty combiner to help with file naming and global option later
-  combiner = new Combiner(opt, name, title);
+  m_combiner = std::make_unique<Combiner>(opt, name, title);
+  combiner = m_combiner.get();
 }
 
 void MethodDatasetsProbScan::initScan() {
@@ -407,7 +410,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   system("mkdir -p root");
   TString probResName =
       Form("root/scan1dDatasetsProb_" + this->pdf->getName() + "_%ip" + "_" + scanVar1 + ".root", arg->npoints1d);
-  auto outputFile = new TFile(probResName, "RECREATE");
+  TFile outputFile(probResName, "RECREATE");
 
   // Set up toy root tree
   this->probScanTree = new ToyTree(this->pdf, arg);
@@ -524,7 +527,7 @@ int MethodDatasetsProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   probScanTree->writeToFile();
   if (bkgOnlyFitResult) bkgOnlyFitResult->Write();
   if (globalMin) globalMin->Write();
-  outputFile->Close();
+  outputFile.Close();
   std::cout << "Wrote ToyTree to file" << std::endl;
   delete parsFunctionCall;
 
@@ -653,7 +656,7 @@ int MethodDatasetsProbScan::scan2d() {
   iStart = max(iStart, 1);
   jStart = max(jStart, 1);
   hDbgStart->SetBinContent(iStart, jStart, 500.);
-  auto startpointmark = new TMarker(par1->getVal(), par2->getVal(), 3);
+  TMarker startpointmark(par1->getVal(), par2->getVal(), 3);
 
   // timer
   TStopwatch tFit;
@@ -784,7 +787,7 @@ int MethodDatasetsProbScan::scan2d() {
         if ((arg->interactive && ((int)nSteps % arg->updateFreq == 0)) || nSteps == nTotalSteps) {
           hDbgChi2min2d->Draw("colz");
           hDbgStart->Draw("boxsame");
-          startpointmark->Draw();
+          startpointmark.Draw();
           cDbg->Update();
         }
         tScan.Stop();

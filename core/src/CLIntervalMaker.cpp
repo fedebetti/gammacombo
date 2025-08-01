@@ -422,7 +422,7 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1* h, const int i, const double
   //   // TString debugTitle = methodName + Form(" y=%.2f ",y);
   //   // debugTitle += upper?Form("%f upper",central):Form("%f lower",central);
   //      TString debugTitle = "honk";
-  //   TCanvas *c = newNoWarnTCanvas(getUniqueRootName(), debugTitle);
+  //   auto c = newNoWarnTCanvas(getUniqueRootName(), debugTitle);
   //   g->SetMarkerStyle(3);
   //   g->SetHistogram(const_cast<TH1*>(h));
   //   const_cast<TH1*>(h)->Draw();
