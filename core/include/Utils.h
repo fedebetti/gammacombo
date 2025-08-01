@@ -5,6 +5,7 @@
 #include <concepts>
 #include <map>
 #include <memory>
+#include <numeric>
 #include <string>
 #include <sys/stat.h>
 #include <type_traits>
@@ -13,7 +14,7 @@
 #include <TCanvas.h>
 #include <TGraph.h>
 #include <TH1.h>
-#include <TH2F.h>
+#include <TH2.h>
 #include <TMath.h>
 #include <TMatrixDSym.h>
 #include <TString.h>
@@ -59,33 +60,32 @@ namespace Utils {
   void HFAGLabel(const TString& label = "please set label", Double_t xpos = 0, Double_t ypos = 0, Double_t scale = 1);
 
   enum histogramType { kChi2, kPvalue };
-  inline double sq(double x) { return x * x; }
-  inline double RadToDeg(double rad) { return rad / TMath::Pi() * 180.; }
-  inline double DegToRad(double deg) { return deg / 180. * TMath::Pi(); }
-  inline double Max(double v1, double v2) { return v1 > v2 ? v1 : v2; }
-  int calcNsubdigits(double value, int sigdigits = 2);
-  double Round(double value, int digits);
-  double bringBackAngle(double angle);
-  double angularDifference(double angle1, double angle2);
-  bool isPosDef(TMatrixDSym* c);
-  bool isAngle(RooRealVar* v);
-  int makeNewColor(std::string hex);
+  inline double sq(const double x) { return x * x; }
+  inline double RadToDeg(const double rad) { return rad / TMath::Pi() * 180.; }
+  inline double DegToRad(const double deg) { return deg / 180. * TMath::Pi(); }
+  int calcNsubdigits(double value, const int sigdigits = 2);
+  double Round(const double value, const int digits);
+  double bringBackAngle(const double angle);
+  double angularDifference(const double angle1, const double angle2);
+  bool isPosDef(const TMatrixDSym* c);
+  bool isAngle(const RooRealVar* v);
+  int makeNewColor(const std::string hex);
 
-  std::unique_ptr<RooFitResult> fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel);
-  std::unique_ptr<RooFitResult> fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel);
-  std::unique_ptr<RooFitResult> fitToMinForce(RooWorkspace* w, TString name, TString forceVariables = "",
-                                              bool debug = true);
-  std::unique_ptr<RooFitResult> fitToMinImprove(RooWorkspace* w, TString name);
-  double getChi2(RooAbsPdf* pdf);
+  std::unique_ptr<RooFitResult> fitToMin(RooAbsPdf* pdf, const bool thorough, const int printLevel);
+  std::unique_ptr<RooFitResult> fitToMinBringBackAngles(RooAbsPdf* pdf, const bool thorough, const int printLevel);
+  std::unique_ptr<RooFitResult> fitToMinForce(RooWorkspace* w, const TString name, const TString forceVariables = "",
+                                              const bool debug = true);
+  std::unique_ptr<RooFitResult> fitToMinImprove(RooWorkspace* w, const TString name);
+  double getChi2(const RooAbsPdf* pdf);
 
   std::unique_ptr<TGraph> addPointToGraphAtFirstMatchingX(const TGraph* g, const double xNew, const double yNew);
-  std::unique_ptr<TH1> histHardCopy(const TH1* h, bool copyContent = true, bool uniqueName = true,
-                                    TString specName = "");
-  std::unique_ptr<TH2> histHardCopy(const TH2* h, bool copyContent = true, bool uniqueName = true,
-                                    TString specName = "");
+  std::unique_ptr<TH1> histHardCopy(const TH1* h, const bool copyContent = true, const bool uniqueName = true,
+                                    const TString specName = "");
+  std::unique_ptr<TH2> histHardCopy(const TH2* h, const bool copyContent = true, const bool uniqueName = true,
+                                    const TString specName = "");
 
   TTree* convertRooDatasetToTTree(RooDataSet* d);
-  std::unique_ptr<TGraph> convertTH1ToTGraph(TH1* h, bool withErrors = false);
+  std::unique_ptr<TGraph> convertTH1ToTGraph(TH1* h, const bool withErrors = false);
   TGraph* smoothGraph(TGraph* g, int option = 0);
   TGraph* smoothHist(TH1* h, int option = 0);
 
@@ -108,13 +108,15 @@ namespace Utils {
   void setParametersFloating(RooWorkspace* w, TString parname, const RooAbsCollection* set);
   void setParametersFloating(RooWorkspace* w, TString parname, const RooFitResult* r);
   void setParametersFloating(RooWorkspace* w, TString parname, const RooDataSet* d);
+  void setParametersFloating(RooWorkspace* w, const std::vector<TString>& names);
+  void setParametersFloating(RooWorkspace* w, const std::vector<TString>& names, const std::vector<TString>& names2);
   void fixParameters(const RooAbsCollection* set);
-  void fixParameters(RooWorkspace* w, TString parname);
+  void fixParameters(RooWorkspace* w, const TString parname);
   void floatParameters(const RooAbsCollection* set);
-  void floatParameters(RooWorkspace* w, TString parname);
-  void setLimit(RooRealVar* v, TString limitname);
-  void setLimit(RooWorkspace* w, TString parname, TString limitname);
-  void setLimit(const RooAbsCollection* set, TString limitname);
+  void floatParameters(RooWorkspace* w, const TString parname);
+  void setLimit(RooRealVar* v, const TString limitname);
+  void setLimit(RooWorkspace* w, const TString parname, const TString limitname);
+  void setLimit(const RooAbsCollection* set, const TString limitname);
   double getCorrelationFactor(const std::vector<double>& a, const std::vector<double>& b);
 
   template <typename T>
@@ -127,8 +129,8 @@ namespace Utils {
 
   void savePlot(const TCanvas* c1, const TString name,
                 const std::vector<std::string> ext = {"pdf", "png", "eps", "root", "C"});
-  bool FileExists(TString strFilename);
-  void assertFileExists(TString strFilename);
+  bool FileExists(const TString strFilename);
+  void assertFileExists(const TString strFilename);
   template <class T>
   inline bool isIn(std::vector<T> vec, T var) {
     return (find(vec.begin(), vec.end(), var) != vec.end());
@@ -160,30 +162,44 @@ namespace Utils {
   bool checkBoundary(const RooSlimFitResult& r, std::vector<TString> lowProb, std::vector<TString> highProb);
   void setParsConstToBound(RooWorkspace* w, std::vector<TString> names, bool low);
   void setParsConstToBound(RooWorkspace* w, std::vector<TString> namesLow, std::vector<TString> namesHigh);
-  void setParametersFloating(RooWorkspace* w, const std::vector<TString>& names);
-  void setParametersFloating(RooWorkspace* w, const std::vector<TString>& names, const std::vector<TString>& names2);
   std::vector<double> computeNormalQuantiles(std::vector<double>& values, int nsigma);
 
   template <typename T>
   static inline double Lerp(T v0, T v1, T t);
   template <typename T>
   static inline std::vector<T> Quantile(const std::vector<T>& inData, const std::vector<T>& probs);
+
   template <typename T>
-  static inline double getVectorFracAboveValue(const std::vector<T>& vec, T val);
+  static inline double getVectorFracAboveValue(const std::vector<T>& vec, T val) {
+    const int nabove = std::ranges::count_if(vec, [&val](T x) { return x >= val; });
+    return static_cast<double>(nabove) / vec.size();
+  }
+
   template <typename T>
   static inline void print(const std::vector<T>& vec);
-  template <typename T>
-  static inline void print(T val);
-  template <typename T>
-  static inline T sum(const std::vector<T>& vec);
-  template <typename T>
-  static inline T sqsum(const std::vector<T>& vec);
-  template <typename T>
-  static inline double mean(const std::vector<T>& vec);
-  template <typename T>
-  static inline double stddev(const std::vector<T>& vec);
 
-  static inline double normal_cdf(double x);
+  template <typename T>
+  static inline T sum(const std::vector<T>& vec) {
+    return std::reduce(vec.begin(), vec.end());
+  }
+
+  template <typename T>
+  static inline T sqsum(const std::vector<T>& vec) {
+    return std::inner_product(vec.begin(), vec.end(), vec.begin(), static_cast<T>(0));
+  }
+
+  template <typename T>
+  static inline double mean(const std::vector<T>& vec) {
+    return static_cast<double>(sum(vec)) / vec.size();
+  }
+
+  template <typename T>
+  static inline double stddev(const std::vector<T>& vec) {
+    const auto N = static_cast<double>(vec.size());
+    return std::sqrt(sqsum(vec) / N - std::pow(mean(vec), 2));
+  }
+
+  static inline double normal_cdf(const double x) { return 0.5 * (1. + TMath::Erf(x / TMath::Sqrt(2))); }
 
   void dump_vector(const std::vector<int>& l);
   void dump_vector(const std::vector<double>& l);
@@ -272,8 +288,8 @@ std::vector<T> Utils::Quantile(const std::vector<T>& inData, const std::vector<T
 
   if (1 == inData.size()) { return std::vector<T>(1, inData[0]); }
 
-  std::vector<T> data = inData;
-  std::sort(data.begin(), data.end());
+  auto data = inData;
+  std::ranges::sort(data);
   std::vector<T> quantiles;
 
   for (size_t i = 0; i < probs.size(); ++i) {
@@ -293,17 +309,6 @@ std::vector<T> Utils::Quantile(const std::vector<T>& inData, const std::vector<T
 }
 
 template <typename T>
-double Utils::getVectorFracAboveValue(const std::vector<T>& vec, T val) {
-
-  int nabove = 0;
-  for (int i = 0; i < vec.size(); i++) {
-    if (vec[i] >= val) nabove++;
-    // if ( vec[i] > val ) nabove++;
-  }
-  return double(nabove) / vec.size();
-}
-
-template <typename T>
 void Utils::print(const std::vector<T>& vec) {
   std::cout << "[ (size=" << vec.size() << ") ";
   for (int i = 0; i < vec.size(); i++) {
@@ -312,37 +317,5 @@ void Utils::print(const std::vector<T>& vec) {
   }
   std::cout << " ]";
 }
-
-template <typename T>
-void Utils::print(T val) {
-  std::cout << val;
-}
-
-template <typename T>
-T Utils::sum(const std::vector<T>& vec) {
-  T s = 0;
-  for (int i = 0; i < vec.size(); i++) { s += vec[i]; }
-  return s;
-}
-
-template <typename T>
-T Utils::sqsum(const std::vector<T>& vec) {
-  T s = 0;
-  for (int i = 0; i < vec.size(); i++) { s += vec[i] * vec[i]; }
-  return s;
-}
-
-template <typename T>
-double Utils::mean(const std::vector<T>& vec) {
-  return double(sum(vec)) / vec.size();
-}
-
-template <typename T>
-double Utils::stddev(const std::vector<T>& vec) {
-  double N = vec.size();
-  return pow(sqsum(vec) / N - pow(sum(vec) / N, 2), 0.5);
-}
-
-double Utils::normal_cdf(double x) { return 0.5 * (1. + TMath::Erf(x / TMath::Sqrt(2))); }
 
 #endif

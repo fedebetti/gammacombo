@@ -35,7 +35,7 @@ int Utils::countAllFitBringBackAngle;  ///< counts how many times fitBringBackAn
 /// \param thorough Activate Hesse and Minos
 /// \param printLevel -1 = no output, 1 verbose output
 ///
-std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
+std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, const bool thorough, const int printLevel) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
 
   // pdf->Print("v");
@@ -92,29 +92,29 @@ std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int
 }
 
 ///
-/// Return an equivalent angle between 0 and 2pi.
-/// \param angle Angle that is possibly smaller than 0 or larger than 2pi.
+/// Return an equivalent angle in [0, 2pi].
 ///
-double Utils::bringBackAngle(double angle) {
-  double val = fmod(angle, 2. * TMath::Pi());
-  if (val < 0.0) val = val + 2. * TMath::Pi();
+/// @param angle Angle in radians.
+///
+double Utils::bringBackAngle(const double angle) {
+  double val = std::fmod(angle, TMath::TwoPi());
+  if (val < 0.) val = val + TMath::TwoPi();
   return val;
 }
 
 ///
-/// Compute the difference between 2 angles. This will never be
-/// larger than pi because they wrap around!
+/// Compute the absolute value of the difference between 2 angles.
 ///
-/// \param angle1 - first angle
-/// \param angle2 - second angle
-/// \return difference
+/// @param angle1 First angle, in radians.
+/// @param angle2 Second angle, in radians.
 ///
-double Utils::angularDifference(double angle1, double angle2) {
-  double angleSmaller = max(bringBackAngle(angle1), bringBackAngle(angle2));
-  double angleLarger = min(bringBackAngle(angle1), bringBackAngle(angle2));
-  double diff1 = angleLarger - angleSmaller;
-  double diff2 = (2. * TMath::Pi() - angleLarger) + angleSmaller;
-  return min(diff1, diff2);
+/// @return       Difference in [0, pi].
+///
+double Utils::angularDifference(const double angle1, const double angle2) {
+  const auto maxAngle = std::max(bringBackAngle(angle1), bringBackAngle(angle2));
+  const auto minAngle = std::min(bringBackAngle(angle1), bringBackAngle(angle2));
+  const auto diff = std::abs(maxAngle - minAngle);
+  return std::min(diff, TMath::TwoPi() - diff);
 }
 
 ///
@@ -123,7 +123,8 @@ double Utils::angularDifference(double angle1, double angle2) {
 /// interval, add multiples of 2pi to bring it back. Then, refit.
 /// All variables that have unit 'rad' are taken to be angles.
 ///
-std::unique_ptr<RooFitResult> Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel) {
+std::unique_ptr<RooFitResult> Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, const bool thorough,
+                                                             const int printLevel) {
   countAllFitBringBackAngle++;
   auto r = fitToMin(pdf, thorough, printLevel);
   bool refit = false;
@@ -159,7 +160,8 @@ std::unique_ptr<RooFitResult> Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, boo
 /// "var1,var2,var3," (list must end with comma). Default is to apply for all angles,
 /// all ratios except rD_k3pi and rD_kpi, and the k3pi coherence factor.
 ///
-std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceVariables, bool debug) {
+std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, const TString name, const TString forceVariables,
+                                                   const bool debug) {
   TString parsName = "par_" + name;
   TString obsName = "obs_" + name;
   TString pdfName = "pdf_" + name;
@@ -269,7 +271,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, TString name
 /// So far it is only available for the Prob method, via the probimprove
 /// command line flag.
 ///
-std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, TString name) {
+std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, const TString name) {
   TString parsName = "par_" + name;
   TString obsName = "obs_" + name;
   TString pdfName = "pdf_" + name;
@@ -395,7 +397,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, TString na
   return r;
 }
 
-double Utils::getChi2(RooAbsPdf* pdf) {
+double Utils::getChi2(const RooAbsPdf* pdf) {
   RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*pdf));
   return ll.getVal();
 }
@@ -539,9 +541,8 @@ void Utils::setParameters(RooWorkspace* w, TString parname, const RooAbsCollecti
 }
 
 ///
-/// Set each floating parameter in the named set parname inside workspace w
-/// to the value found in set. Do nothing if a parameter is present
-/// in the parname set, but not found in set.
+/// Set each floating parameter in the named set parname inside workspace w to the value found in set.
+/// Do nothing if a parameter is present in the parname set, but not found in set.
 ///
 /// \param w workspace containing a parameter set of name parname
 /// \param parname Name of the parameter set containing the "destination" parameters.
@@ -610,7 +611,7 @@ void Utils::setParametersFloating(RooWorkspace* w, TString parname, const RooDat
 ///
 /// Fix each parameter in the named set "parname" inside workspace "w".
 ///
-void Utils::fixParameters(RooWorkspace* w, TString parname) {
+void Utils::fixParameters(RooWorkspace* w, const TString parname) {
   if (w->set(parname)) fixParameters(w->set(parname));
 }
 
@@ -644,7 +645,7 @@ void Utils::floatParameters(const RooAbsCollection* set) {
 /// \param v - The parameter which will get the limit set.
 /// \param limitname - Name of the limit to set.
 ///
-void Utils::setLimit(RooRealVar* v, TString limitname) {
+void Utils::setLimit(RooRealVar* v, const TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
   v->setRange(v->getMin(limitname), v->getMax(limitname));
   RooMsgService::instance().setGlobalKillBelow(INFO);
@@ -658,7 +659,7 @@ void Utils::setLimit(RooRealVar* v, TString limitname) {
 /// \param parname - The name of the parameter.
 /// \param limitname - Name of the limit to set.
 ///
-void Utils::setLimit(RooWorkspace* w, TString parname, TString limitname) {
+void Utils::setLimit(RooWorkspace* w, const TString parname, const TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
   w->var(parname)->setRange(w->var(parname)->getMin(limitname), w->var(parname)->getMax(limitname));
   RooMsgService::instance().setGlobalKillBelow(INFO);
@@ -670,7 +671,7 @@ void Utils::setLimit(RooWorkspace* w, TString parname, TString limitname) {
 /// \param set - The list holding the parameters.
 /// \param limitname - Name of the limit to set.
 ///
-void Utils::setLimit(const RooAbsCollection* set, TString limitname) {
+void Utils::setLimit(const RooAbsCollection* set, const TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
   for (const auto pAbs : *set) {
     const auto p = static_cast<RooRealVar*>(pAbs);
@@ -879,30 +880,17 @@ void Utils::mergeNamedSets(RooWorkspace* w, TString mergedSet, TString set1, TSt
   w->defineSet(mergedSet, varsCommaList);
 }
 
-/*
- * doesn't work with 3GB files.
- *
+/**
+ * TODO Doesn't work with 3GB files.
  */
-bool Utils::FileExists(TString strFilename) {
+bool Utils::FileExists(const TString strFilename) {
   struct stat stFileInfo;
-  bool blnReturn;
-  int intStat;
-  // Attempt to get the file attributes
-  intStat = stat(strFilename, &stFileInfo);
-  if (intStat == 0) {
-    // We were able to get the file attributes
-    // so the file obviously exists.
-    blnReturn = true;
-  } else {
-    // We were not able to get the file attributes.
-    // This may mean that we don't have permission to
-    // access the folder which contains this file. If you
-    // need to do that level of checking, lookup the
-    // return values of stat which will give you
-    // more details on why stat failed.
-    blnReturn = false;
-  }
-  return (blnReturn);
+  int intStat = stat(strFilename, &stFileInfo);
+  // If we were able to get the file attributes, then the file obviously exists.
+  // Otherwise, this may mean that we don't have permission to access the folder which contains this file.
+  // If you need to do that level of checking, look up the return values of stat which will give you more details on why
+  // stat failed.
+  return intStat == 0;
 }
 
 void Utils::savePlot(const TCanvas* c1, const TString name, const std::vector<std::string> extensions) {
@@ -913,35 +901,34 @@ void Utils::savePlot(const TCanvas* c1, const TString name, const std::vector<st
 }
 
 ///
-/// Round a number to a certain number of
-/// decimal points.
+/// Round a number to a certain number of decimal points.
 ///
-double Utils::Round(double value, int digits) { return TString(Form("%.*f", digits, value)).Atof(); }
+double Utils::Round(const double value, const int digits) {
+  return TString(Form("%.*f", digits, value)).Atof();
+}  // TODO
 
 ///
-/// Compute number of digits needed behind the decimal
-/// point to achieve a certain number of significant digits.
+/// Compute number of digits needed behind the decimal point to achieve a certain number of significant digits.
 /// The result can be used in the printf() function.
+///
 /// Examples:
 ///   23.243: returns 0 with sigdigits=2
 ///   2.2634: returns 1 with sigdigits=2
 ///
-int Utils::calcNsubdigits(double value, int sigdigits) {
-  if (value == 0) return 1;
-  double myvalue = value;
+int Utils::calcNsubdigits(double value, const int sigdigits) {
+  if (value == 0.) return 1;
+  const auto myvalue = value;
   int count = 0;
-  for (; fabs(value) < pow(10., sigdigits - 1); value *= 10) {
+  for (; std::abs(value) < std::pow(10., sigdigits - 1); value *= 10.) {
     if (count == 10) break;
     count++;
   }
 
-  // do it again to catch a rounding issue: 9.97 at 2 digit
-  // precision gives count=1 above, but we want count=0 to
-  // get "10" instead of "10.0"
+  // Do it again to catch a rounding issue: 9.97 at 2 digit precision gives count=1 above, but we want count=0 to get
+  // "10" instead of "10.0"
   value = TString(Form("%.*f", count, myvalue)).Atof();
-  if (value == 0) return 1;
-  count = 0;
-  for (; fabs(value) < pow(10., sigdigits - 1); value *= 10) {
+  if (value == 0.) return 1;
+  for (count = 0; std::abs(value) < std::pow(10., sigdigits - 1); value *= 10.) {
     if (count == 10) break;
     count++;
   }
@@ -977,7 +964,7 @@ TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
 }
 
 /// Convert a TH1 to a TGraph.
-std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(TH1* h, bool withErrors) {
+std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(TH1* h, const bool withErrors) {
   std::unique_ptr<TGraph> g = nullptr;
   if (withErrors)
     g = std::make_unique<TGraphErrors>(h->GetNbinsX());
@@ -1052,15 +1039,15 @@ std::unique_ptr<TGraph> Utils::addPointToGraphAtFirstMatchingX(const TGraph* g, 
 }
 ///
 /// Creates a fresh, independent copy of the input histogram.
-/// We cannot use Root's Clone() or the like, because that
-/// crap always copies Draw options and whatnot.
+/// We cannot use Root's Clone() or the like, because that crap always copies Draw options and whatnot.
 ///
 /// \param h - the input histogram
 /// \param copyContent - true: also copy content. false: initialize with zeroes
 /// \param uniqueName - true: append a unique string to the histogram name
 /// \return a new histogram. Caller assumes ownership.
 ///
-std::unique_ptr<TH1> Utils::histHardCopy(const TH1* h, bool copyContent, bool uniqueName, TString specName) {
+std::unique_ptr<TH1> Utils::histHardCopy(const TH1* h, const bool copyContent, const bool uniqueName,
+                                         const TString specName) {
   TString name = h->GetTitle();
   if (specName != "") name = specName;
   if (uniqueName) name += getUniqueRootName();
@@ -1080,7 +1067,8 @@ std::unique_ptr<TH1> Utils::histHardCopy(const TH1* h, bool copyContent, bool un
 /// Creates a fresh, independent copy of the input histogram.
 /// 2d version of TH1F* Utils::histHardCopy().
 ///
-std::unique_ptr<TH2> Utils::histHardCopy(const TH2* h, bool copyContent, bool uniqueName, TString specName) {
+std::unique_ptr<TH2> Utils::histHardCopy(const TH2* h, const bool copyContent, const bool uniqueName,
+                                         const TString specName) {
   TString name = h->GetTitle();
   if (specName != "") name = specName;
   if (uniqueName) name += getUniqueRootName();
@@ -1101,13 +1089,12 @@ std::unique_ptr<TH2> Utils::histHardCopy(const TH2* h, bool copyContent, bool un
 ///
 /// Check if a matrix is positive definite.
 ///
-bool Utils::isPosDef(TMatrixDSym* c) {
+bool Utils::isPosDef(const TMatrixDSym* c) {
   TMatrixDSymEigen eigen(*c);
   TVectorD eigenvalues = eigen.GetEigenValues();
-  Double_t minEigenVal = eigenvalues[0];
-  for (int k = 0; k < c->GetNcols(); k++) minEigenVal = TMath::Min(minEigenVal, eigenvalues[k]);
+  auto minEigenVal = eigenvalues.Min();
   if (minEigenVal < 0) {
-    cout << "isPosDef() : ERROR : Matrix not pos. def." << endl;
+    cout << "Utils::isPosDef() : ERROR : Matrix not pos. def." << endl;
     return false;
   }
   return true;
@@ -1116,17 +1103,17 @@ bool Utils::isPosDef(TMatrixDSym* c) {
 ///
 /// Check if a RooRealVar is an angle.
 ///
-bool Utils::isAngle(RooRealVar* v) { return v->getUnit() == TString("Rad") || v->getUnit() == TString("rad"); }
+bool Utils::isAngle(const RooRealVar* v) { return v->getUnit() == TString("Rad") || v->getUnit() == TString("rad"); }
 
-int Utils::makeNewColor(string hex) {
+int Utils::makeNewColor(const std::string hex) {
   int ci = TColor::GetFreeColorIndex();
   int ri, gi, bi;
   sscanf(hex.c_str(), "#%02x%02x%02x", &ri, &gi, &bi);
-  double r = double(ri) / 255.;
-  double g = double(gi) / 255.;
-  double b = double(bi) / 255.;
+  const double r = ri / 255.;
+  const double g = gi / 255.;
+  const double b = bi / 255.;
   TColor col(ci, r, g, b);
-  cout << ci << " " << hex << " " << r << " " << g << " " << b << endl;
+  std::cout << std::format("{:d} {:s} {:f} {:f} {:f}", ci, hex, r, g, b) << std::endl;
   return col.GetNumber();
 }
 
@@ -1343,7 +1330,7 @@ void Utils::HFAGLabel(const TString& label, Double_t xpos, Double_t ypos, Double
   return;
 }
 
-void Utils::assertFileExists(TString strFilename) {
+void Utils::assertFileExists(const TString strFilename) {
   if (!FileExists(strFilename)) {
     cout << "ERROR : File not found: " + strFilename << endl;
     exit(EXIT_FAILURE);
