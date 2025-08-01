@@ -51,20 +51,19 @@ if(ROOT_CONFIG_EXECUTABLE)
 
   # add libraries that are not spat out by rootconfig:
   find_library(ROOFITMORE RooFitMore)
+  set(ROOT_LIBRARIES
+      ${ROOT_LIBRARIES}
+      -lRooFit
+      -lRooFitCore
+      -lRooFitMore
+      -lMinuit
+      -lRooStats
+      -lGui
+      -lGenVector)
   if(ROOFITMORE)
     message("RooFitMore found. You have the standard ROOT implementations of "
             "classes like RooHypatia2 and RooLegendre at your disposal.")
-    set(ROOT_LIBRARIES
-        ${ROOT_LIBRARIES}
-        -lRooFit
-        -lRooFitCore
-        -lRooFitMore
-        -lMinuit
-        -lThread
-        -lRooStats
-        -lGui
-        -lTreePlayer
-        -lGenVector)
+    set(ROOT_LIBRARIES ${ROOT_LIBRARIES} -lRooFitMore)
   else()
     message(
       WARNING
@@ -72,16 +71,6 @@ if(ROOT_CONFIG_EXECUTABLE)
         "ROOT implementations of classes like RooHypatia2 and RooLegendre. "
         "If you still need them, consider upgrading your ROOT version or "
         "use custom implementations.")
-    set(ROOT_LIBRARIES
-        ${ROOT_LIBRARIES}
-        -lRooFit
-        -lRooFitCore
-        -lMinuit
-        -lThread
-        -lRooStats
-        -lGui
-        -lTreePlayer
-        -lGenVector)
   endif()
   set(ROOT_LIBRARY_DIR ${ROOTSYS}/lib)
 else()
