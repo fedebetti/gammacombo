@@ -230,16 +230,16 @@ void ConfidenceContours::computeContours(const TH2* inHist, const Utils::histogr
 ///
 void ConfidenceContours::Draw() {
   if (m_arg->debug) std::cout << "ConfidenceContours::Draw() : Start execution..." << std::endl;
-  if (m_contstoplots.size() > 0) {
-    for (int ind = m_contstoplots.size() - 1; ind >= 0; ind--) {
-      int i = m_contstoplots[ind] - 1;
+  if (m_contstoplots.empty()) {
+    for (int i = m_arg->plotnsigmacont - 1; i >= 0; i--) {
       if (i >= m_contours.size()) continue;
       m_contours[i]->setStyle(m_linecolor[i], m_linestyle[i], m_linewidth[i], m_fillcolor[i], m_fillstyle[i]);
       m_contours[i]->setTransparency(m_transparency);
       m_contours[i]->Draw();
     }
   } else {
-    for (int i = m_arg->plotnsigmacont - 1; i >= 0; i--) {
+    for (int ind = m_contstoplots.size() - 1; ind >= 0; ind--) {
+      int i = m_contstoplots[ind] - 1;
       if (i >= m_contours.size()) continue;
       m_contours[i]->setStyle(m_linecolor[i], m_linestyle[i], m_linewidth[i], m_fillcolor[i], m_fillstyle[i]);
       m_contours[i]->setTransparency(m_transparency);
@@ -253,19 +253,19 @@ void ConfidenceContours::Draw() {
 ///
 void ConfidenceContours::DrawDashedLine() {
   // std::cout << "ConfidenceContours::DrawDashedLine() : drawing ..." << std::endl;
-  if (m_contstoplots.size() > 0) {
+  if (m_contstoplots.empty()) {
+    for (int i = m_arg->plotnsigmacont - 1; i >= 0; i--) {
+      if (i >= m_contours.size()) continue;
+      m_contours[i]->setStyle(m_linecolor[i], kDashed, m_linewidth[i], 0, 0);
+      m_contours[i]->DrawLine();
+    }
+  } else {
     for (int ind = m_contstoplots.size() - 1; ind >= 0; ind--) {
       int i = m_contstoplots[ind] - 1;
       if (i >= m_contours.size()) continue;
       m_contours[i]->setStyle(m_linecolor[i], m_linestyle[i], m_linewidth[i], m_fillcolor[i], m_fillstyle[i]);
       m_contours[i]->setTransparency(m_transparency);
       m_contours[i]->Draw();
-    }
-  } else {
-    for (int i = m_arg->plotnsigmacont - 1; i >= 0; i--) {
-      if (i >= m_contours.size()) continue;
-      m_contours[i]->setStyle(m_linecolor[i], kDashed, m_linewidth[i], 0, 0);
-      m_contours[i]->DrawLine();
     }
   }
 }

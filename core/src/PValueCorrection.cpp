@@ -57,7 +57,7 @@ void PValueCorrection::checkValid() {
 }
 
 void PValueCorrection::checkParams() {
-  if (transFunc == "none") assert(fitParams.size() == 0);
+  if (transFunc == "none") assert(fitParams.empty());
   if (transFunc == "p1") assert(fitParams.size() == 2);
   if (transFunc == "p1+exp") assert(fitParams.size() == 4);
   if (transFunc == "p1+1/x") assert(fitParams.size() == 4);

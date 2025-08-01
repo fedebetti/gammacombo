@@ -69,7 +69,7 @@ void Combiner::combine() {
     return;
   }
   if (arg->debug) cout << "Combiner::combine() : combining name=" << name << " title=" << title << endl;
-  if (pdfs.size() == 0) {
+  if (pdfs.empty()) {
     cout << "Combiner::combine() : ERROR : Combination is empty." << endl;
     return;
   }
@@ -293,7 +293,7 @@ const RooArgSet* Combiner::getObservables() const {
 /// Print the combination setup.
 ///
 void Combiner::print() const {
-  if (pdfs.size() == 0) return;
+  if (pdfs.empty()) return;
   cout << "\nCombiner Configuration: " << title << endl;
   cout << "=======================" << endl;
   // consice summary
