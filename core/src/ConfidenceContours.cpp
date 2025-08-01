@@ -227,7 +227,7 @@ void ConfidenceContours::computeContours(const TH2* inHist, const histogramType 
 /// Draw the contours into the currently active Canvas.
 ///
 void ConfidenceContours::Draw() {
-  // cout << "ConfidenceContours::Draw() : drawing ..." << endl;
+  if (m_arg->debug) std::cout << "ConfidenceContours::Draw() : Start execution..." << std::endl;
   if (m_contstoplots.size() > 0) {
     for (int ind = m_contstoplots.size() - 1; ind >= 0; ind--) {
       int i = m_contstoplots[ind] - 1;
