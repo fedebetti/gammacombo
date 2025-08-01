@@ -5,6 +5,8 @@
 #include "OptParser.h"
 #include "Utils.h"
 
+#include <TH2.h>
+
 #include <memory>
 #include <vector>
 
@@ -17,15 +19,14 @@ class ConfidenceContours {
   void computeContours(const TH2* hist, const Utils::histogramType type, const int id = 0);
   void Draw();
   void DrawDashedLine();
+  inline void setContoursToPlot(const std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
   void setStyle(const std::vector<int>& linecolor, const std::vector<int>& linestyle, const std::vector<int>& linewidth,
                 const std::vector<int>& fillcolor, const std::vector<int>& fillstyle);
   inline void setTransparency(double percent) { m_transparency = percent; };
-  inline void setContoursToPlot(const std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
 
  private:
-  std::unique_ptr<TH2> addBoundaryBins(const TH2* hist);
   void addFilledPlotArea(const TH2* hist);
-  std::unique_ptr<TH2> transformChi2valleyToHill(const TH2* hist, const double offset);
+
   const OptParser* m_arg;                            ///< command line arguments
   std::vector<std::unique_ptr<Contour>> m_contours;  ///< container for the 1,...,N sigma contours
   std::vector<int> m_linecolor;                      ///< style for the 1,...,N sigma contours
