@@ -132,8 +132,8 @@ bool RooSlimFitResult::hasParameter(TString name) const {
 }
 
 void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor) {
-  outfile << "\%  FCN: " << minNll() << ", EDM: " << edm() << endl;
-  outfile << "\%  COV quality: " << covQual() << ", status: " << status()
+  outfile << "%  FCN: " << minNll() << ", EDM: " << edm() << endl;
+  outfile << "%  COV quality: " << covQual() << ", status: " << status()
           << ", confirmed: " << (_isConfirmed ? "yes" : "no") << endl;
   outfile << endl;
   outfile << "\\begin{tabular}{ l | l l l }" << endl;
@@ -166,7 +166,7 @@ void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor)
   outfile << "\\end{tabular}" << endl;
 
   // print correlations
-  outfile << "\n\%Correlation matrix" << endl;
+  outfile << "\n%Correlation matrix" << endl;
   outfile << "\\begin{tabular}{ l |";
   for (int i = 0; i < _correlationMatrix.GetNcols(); i++) outfile << " l";
   outfile << " }" << endl;

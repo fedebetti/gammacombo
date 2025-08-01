@@ -7,6 +7,7 @@
 #include <RooFitResult.h>
 #include <RooRealVar.h>
 
+#include <TObject.h>
 #include <TString.h>
 
 /**
@@ -39,12 +40,15 @@ class RooSlimFitResult : public TObject {
   bool isAngle(RooRealVar* v) const;
   inline bool isConfirmed() const { return _isConfirmed; };
   inline double minNll() const { return _minNLL; };
-  void Print(bool verbose = false, bool printcor = false) const;
+  void Print(bool verbose, bool printcor) const;
+  void Print([[maybe_unused]] Option_t* option = "") const override { Print(false, false); }
   void SaveLatex(std::ofstream& outfile, bool verbose = false, bool printcor = false);
   inline void setConfirmed(bool c) { _isConfirmed = c; };
   inline int status() const { return _status; };
 
  private:
+  using TObject::Clone;  // RooSlimFitResult::Clone will always be used from a RooSlimFitResult factory.
+
   template <class FitResult>
   void init(const FitResult* r, bool storeCorrelation = false);
 
@@ -68,7 +72,7 @@ class RooSlimFitResult : public TObject {
   bool _isConfirmed = false;
 
  public:
-  ClassDef(RooSlimFitResult, 1)  // defines version number, ClassDef is a macro
+  ClassDefOverride(RooSlimFitResult, 1)  // defines version number, ClassDefOverride is a macro
 };
 
 //

@@ -1,6 +1,13 @@
-#include "OptParser.h"
+#include <OptParser.h>
+#include <tclap/MultiArg.h>
+#include <tclap/ValuesConstraint.h>
 
 #include <TObjString.h>
+#include <TRegexp.h>
+
+#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 using namespace Utils;
@@ -27,7 +34,7 @@ namespace {
 /// - add its name to defineOptions()
 /// - add its definition and parsing to parseArguments()
 ///
-OptParser::OptParser() : cmd("", ' ', "") {
+OptParser::OptParser() {
   defineOptions();
 
   // always book these options
@@ -290,8 +297,6 @@ bool OptParser::isQuickhack(int id) const { return isIn<int>(qh, id); }
 /// it will assume the default value given here.
 ///
 void OptParser::parseArguments(int argc, char* argv[]) {
-  // CmdLine cmd("", ' ', "");
-  // cmd = CmdLine("", ' ', "");
 
   // --------------- arguments that take a value
   TCLAP::ValueArg<string> dateArg("", "date", "Plot the date.", false, "", "string");
@@ -552,7 +557,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   vAction.push_back("test");
   vAction.push_back("uniform");
   vAction.push_back("gaus");
-  ValuesConstraint<string> cAction(vAction);
+  TCLAP::ValuesConstraint<string> cAction(vAction);
   TCLAP::MultiArg<string> actionArg("a", "action", "Perform action", false, &cAction);
   TCLAP::MultiArg<string> varArg("", "var",
                                  "Scan variable (default: g). Can be given twice, in which case "

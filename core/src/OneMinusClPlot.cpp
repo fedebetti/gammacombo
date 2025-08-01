@@ -299,7 +299,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const boo
     if (arg->plotlog) {
       const double f3min = 1e-3;
       const double f3max = (plotLegend && !arg->isQuickhack(22)) ? 10. : 1.;
-      auto f3 = makeOwnedTObject<TF1>("f3", "log10(x)", f3min, f3max);
+      makeOwnedTObject<TF1>("f3", "log10(x)", f3min, f3max);
       axisr = makeOwnedTObject<TGaxis>(xmax, f3min, xmax, f3max, "f3", 510, "G+");
     } else {
       axisr = makeOwnedTObject<TGaxis>(xmax, ymin, xmax, ymax, 0, (plotLegend && !arg->isQuickhack(22)) ? 1.3 : 1.0,

@@ -91,7 +91,7 @@ void CLIntervalPrinter::savePython() const {
   // TODO
   double previousCL = -1.;
 
-  for (const auto interval : _intervals) {
+  for (const auto& interval : _intervals) {
     CLInterval i = interval;
 
     std::string unit{_unit};

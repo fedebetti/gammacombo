@@ -1,4 +1,3 @@
-#include <ColorBuilder.h>
 #include <GammaComboEngine.h>
 #include <Graphviz.h>
 #include <LatexMaker.h>
@@ -866,13 +865,7 @@ void GammaComboEngine::defineColors() {
   //   nature of data:         qualitative
   //   second colour scheme
 
-  ColorBuilder cb;
-
-  for (int i = 4; i < colorsLine.size(); i++) {
-    // colorsText.push_back(cb.darklightcolor(colorsLine[i], 0.5));
-    colorsText.push_back(colorsLine[i]);
-  }
-  //}
+  for (int i = 4; i < colorsLine.size(); i++) { colorsText.push_back(colorsLine[i]); }
 
   // default for any additional scanner
   for (int i = colorsLine.size(); i < arg->combid.size(); i++) {
@@ -1448,7 +1441,7 @@ void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
 ///
 void GammaComboEngine::fixParameters(Combiner* c, const int cId) {
   if (cId < arg->fixParameters.size()) {
-    for (const auto fp : arg->fixParameters[cId]) { c->fixParameter(fp.name, fp.value); }
+    for (const auto& fp : arg->fixParameters[cId]) { c->fixParameter(fp.name, fp.value); }
   }
 }
 
@@ -1458,10 +1451,10 @@ void GammaComboEngine::fixParameters(Combiner* c, const int cId) {
 ///
 void GammaComboEngine::adjustRanges(Combiner* c, const int cId) {
   if (cId < arg->physRanges.size()) {
-    for (const auto pr : arg->physRanges[cId]) { c->adjustPhysRange(pr.name, pr.min, pr.max); }
+    for (const auto& pr : arg->physRanges[cId]) { c->adjustPhysRange(pr.name, pr.min, pr.max); }
   }
   if (cId < arg->removeRanges.size()) {
-    for (const auto rr : arg->removeRanges[cId]) {
+    for (const auto& rr : arg->removeRanges[cId]) {
       if (rr == "all") {
         const RooArgSet* pars = (RooArgSet*)c->getParameters();
         for (const auto par : *pars) static_cast<RooRealVar*>(par)->removeRange();
@@ -1509,7 +1502,7 @@ TString GammaComboEngine::getStartParFileName(const int cId) const {
  * @return        True if included, else false
  */
 bool GammaComboEngine::isScanVarObservable(const Combiner* c, const TString scanVar) const {
-  for (const auto obs : c->getObservableNames()) {
+  for (const auto& obs : c->getObservableNames()) {
     if (scanVar.Contains(obs)) return true;
   }
   return false;

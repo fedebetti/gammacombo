@@ -893,10 +893,10 @@ bool Utils::FileExists(const TString strFilename) {
   return intStat == 0;
 }
 
-void Utils::savePlot(const TCanvas* c1, const TString name, const std::vector<std::string> extensions) {
+void Utils::savePlot(const TCanvas* c1, const TString name, const std::vector<std::string>& extensions) {
   cout << "saving plot (pdf and other formats) to: plots/pdf/" + name + ".pdf" << endl;
   gErrorIgnoreLevel = kWarning;
-  for (const auto ext : extensions) c1->Print("plots/" + ext + "/" + name + "." + ext);
+  for (auto ext : extensions) c1->Print("plots/" + ext + "/" + name + "." + ext);
   gErrorIgnoreLevel = kInfo;
 }
 
@@ -996,7 +996,7 @@ TGraph* Utils::smoothGraph(TGraph* g, int option) {
 // Smooths a histogram
 TGraph* Utils::smoothHist(TH1* h, int option) {
   auto g = convertTH1ToTGraph(h);
-  return smoothGraph(g.get());
+  return smoothGraph(g.get(), option);
 }
 
 /**

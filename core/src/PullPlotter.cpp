@@ -218,7 +218,6 @@ void PullPlotter::savePulls() const {
   Combiner* combiner = cmb->getCombiner();
   vector<PDF_Abs*>& pdfs = combiner->getPdfs();
   for (const auto& pdf : pdfs) {
-    double pdf_chi2 = 0;
     // cout << pdf->getName() << endl;
     outfile << "pulls: " << pdf->getName() << endl;
     const RooArgList* obs = pdf->getObservables();

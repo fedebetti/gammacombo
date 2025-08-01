@@ -245,8 +245,8 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   g->GetYaxis()->SetLabelSize(0.04);
   g->GetYaxis()->SetTitleOffset(1.5);
   g->GetYaxis()->SetTitle(scanVar1);
-  Int_t ci = 927;
-  auto col = new TColor(ci, 0, 0, 1, " ", 0.5);
+  auto ci = TColor::GetFreeColorIndex();
+  new TColor(ci, 0, 0, 1, "", 0.5);
   g->SetFillColor(ci);
   g->SetFillStyle(1001);
   g->Draw("a3");
