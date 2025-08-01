@@ -32,7 +32,7 @@ class MethodAbsScan {
   MethodAbsScan(const OptParser* opt);
   virtual ~MethodAbsScan() = default;
 
-  virtual void calcCLintervals(const int CLsType = 0, const bool calc_expected = false, const bool quiet = false);
+  void calcCLintervals(const int CLsType = 0, const bool calc_expected = false, const bool quiet = false);
   void confirmSolutions();
   void dumpResult(const std::string ofname) const;
   void doInitialFit(bool force = false);
@@ -76,9 +76,11 @@ class MethodAbsScan {
   inline TString getParsName() const { return parsName; };
   double getScanVarSolution(const int iVar, const int iSol);
   RooRealVar* getScanVar1();
+  const RooRealVar* getScanVar1() const;
   TString getScanVar1Name() const { return scanVar1; }
   double getScanVar1Solution(int i = 0);
   RooRealVar* getScanVar2();
+  const RooRealVar* getScanVar2() const;
   TString getScanVar2Name() const { return scanVar2; }
   double getScanVar2Solution(int i = 0);
   inline const std::vector<std::unique_ptr<RooSlimFitResult>>& getSolutions() { return solutions; };
@@ -101,8 +103,6 @@ class MethodAbsScan {
   void printLocalMinima() const;
   void saveLocalMinima(TString fName = "") const;
   void saveScanner(TString fName = "") const;
-  virtual int scan1d() const;
-  virtual int scan2d() const;
   inline void setDrawSolution(int code = 0) { drawSolution = code; };
   inline void setPValueCorrector(std::unique_ptr<PValueCorrection> pvalCor) { pvalueCorrector = std::move(pvalCor); }
   inline void setScanVar1(TString var) { scanVar1 = var; };
@@ -131,7 +131,7 @@ class MethodAbsScan {
                                              bool qubic = false) const;
   const std::pair<double, double> getBorders_CLs(const TGraph& graph, const double confidence_level,
                                                  bool qubic = false) const;
-  virtual bool checkCLs() const;
+  bool checkCLs() const;
 
   /// All fit results we encounter along the scan.
   std::vector<std::unique_ptr<RooSlimFitResult>> allResults;

@@ -20,21 +20,21 @@ class MethodDatasetsProbScan : public MethodProbScan {
  public:
   MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt);
 
-  virtual void initScan();
+  void initScan() override;
   void loadScanFromFile(TString fileNameBaseIn = "default");
   void loadFitResults(TString file);
   void loadParameterLimits();
-  virtual void print();
-  virtual int scan1d(bool fast = false, bool reverse = false, bool quiet = false);
-  virtual int scan2d();
-  virtual bool loadScanner(TString fName);
+  void print() const override;
+  int scan1d(bool fast, const bool reverse, const bool quiet) override;
+  int scan2d() override;
+  bool loadScanner(TString fName) override;
   inline void setInputFile(TString name) {
     inputFiles.push_back(name);
     explicitInputFile = true;
   };
   inline void addFile(TString name) { inputFiles.push_back(name); };
   void plotFitRes(TString fName);
-  int computeCLvalues() const;
+  int computeCLvalues() override;
 
   PDF_Datasets* pdf = nullptr;
   TH1F* probPValues = nullptr;

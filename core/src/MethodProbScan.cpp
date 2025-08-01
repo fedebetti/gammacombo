@@ -58,7 +58,7 @@ MethodProbScan::MethodProbScan() { methodName = "Prob"; }
  * \param reverse This will scan in reverse direction. When using the drag mode, this can sometimes make a difference.
  * \return The scan status (2 = new global minimum found, 1 = error, 0 = success)
  */
-int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
+int MethodProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
   auto debug = [](const std::string& msg) { msgBase("MethodProbScan::scan1d() : DEBUG : ", msg); };
   auto warning = [](const std::string& msg) { msgBase("MethodProbScan::scan1d() : WARNING : ", msg); };
   auto error = [](const std::string& msg) {

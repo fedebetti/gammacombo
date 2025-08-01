@@ -28,14 +28,14 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
   void drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn = "default");
   double getParValAtIndex(int index, TString parName);
   MethodDatasetsProbScan* getProfileLH() { return dynamic_cast<MethodDatasetsProbScan*>(this->profileLH); };
-  virtual void initScan();
+  void initScan() override;
   void loadParameterLimits();
   void performBootstrapTest(int nSamples = 1000, const TString& ext = "");
-  virtual void print();
+  void print() const override;
   void printDebug(const RooFitResult& r);
   TChain* readFiles(int runMin, int runMax, int& nFilesRead, int& nFilesMissing, TString fileNameBaseIn = "default");
-  virtual void readScan1dTrees(int runMin, int runMax, TString fileNameBaseIn = "default");
-  virtual int scan1d(int nRun = 1);
+  void readScan1dTrees(int runMin, int runMax, TString fileNameBaseIn) override;
+  int scan1d(const int nRun) override;
   inline void setInputFile(TString name) {
     inputFiles.push_back(name);
     explicitInputFile = true;

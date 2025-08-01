@@ -25,12 +25,12 @@ class MethodCoverageScan : public MethodAbsScan {
   MethodCoverageScan() = delete;
 
   void setParameterCache(std::unique_ptr<ParameterCache> _pCache) { pCache = std::move(_pCache); }
-  virtual int scan1d(int nRun = 1);
-  virtual void readScan1dTrees(int runMin, int runMax);
-  virtual void plot() const;
+  int scan1d(const int nRun);
+  void readScan1dTrees(int runMin, int runMax);
+  void plot() const;
   int getNtoys() const { return nToys; };
   void saveScanner(TString fName = "");
-  bool loadScanner(TString fName = "");
+  bool loadScanner(TString fName) override;
 
  protected:
   std::unique_ptr<ParameterCache> pCache;

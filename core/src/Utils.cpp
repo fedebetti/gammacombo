@@ -170,7 +170,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, const TStrin
 
   // save start parameters
   if (!w->set(parsName)) {
-    cout << "MethodProbScan::scan2d() : ERROR : parsName not found: " << parsName << endl;
+    cout << "Utils::fitToMinForce() : ERROR : parsName not found: " << parsName << endl;
     exit(1);
   }
   RooDataSet startPars("startParsForce", "startParsForce", *w->set(parsName));
