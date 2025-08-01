@@ -95,7 +95,7 @@ class GammaComboEngine {
   void make1dProbPlot(std::shared_ptr<MethodProbScan> scanner, const int cId);
   void make1dProbScan(MethodProbScan* scanner, const int cId);
   void make1dCoverageScan(MethodCoverageScan* scanner, const int cId);
-  void make1dCoveragePlot(MethodCoverageScan* scanner, const int cId);
+  void make1dCoveragePlot(const MethodCoverageScan* scanner, const int cId);
   void make1dBergerBoosScan(MethodBergerBoosScan* scanner, const int cId);
   void make2dPluginOnlyPlot(std::shared_ptr<MethodPluginScan> sPlugin, const int cId);
   void make2dPluginPlot(std::shared_ptr<MethodPluginScan> sPlugin, std::shared_ptr<MethodProbScan> sProb,
