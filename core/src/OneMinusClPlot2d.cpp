@@ -622,7 +622,6 @@ void OneMinusClPlot2d::Draw(const bool beautify) {
     canvas->SetRightMargin(0.1);
     canvas->SetTopMargin(0.07);
   }
-  if (!arg->isQuickhack(30)) canvas->SetTopMargin(0.07);
   if (arg->square) canvas->SetBottomMargin(0.14);
   if (arg->isQuickhack(14)) { canvas->GetPad(0)->SetLeftMargin(0.16); }
   if (arg->debug)
@@ -630,6 +629,7 @@ void OneMinusClPlot2d::Draw(const bool beautify) {
                       canvas->GetBottomMargin()));
 
   if (arg->grid) canvas->SetGrid();
+  canvas->cd();
 
   auto hCL = histos[0];
   const double min1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
