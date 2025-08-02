@@ -5,9 +5,9 @@
  *
  */
 
-#include "MethodPluginScan.h"
-#include "TArrow.h"
-#include "TLatex.h"
+#include <MethodPluginScan.h>
+#include <TArrow.h>
+#include <TLatex.h>
 
 
 ///

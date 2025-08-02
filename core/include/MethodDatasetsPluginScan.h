@@ -14,8 +14,8 @@
 #include "ProgressBar.h"
 #include "PDF_Datasets.h"
 #include "RooSlimFitResult.h"
-#include "TLeaf.h"
-#include "TBranch.h"
+#include <TLeaf.h>
+#include <TBranch.h>
 
 class MethodDatasetsPluginScan : public MethodPluginScan
 {

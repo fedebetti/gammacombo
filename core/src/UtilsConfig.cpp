@@ -5,7 +5,7 @@
  *
  **/
 
-#include "UtilsConfig.h"
+#include <UtilsConfig.h>
 
 TString Utils::ConfigToTString(config s)
 {

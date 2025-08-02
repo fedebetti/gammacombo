@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 #include <cassert>
 
-#include "TString.h"
+#include <TString.h>
 
 using namespace std;
 

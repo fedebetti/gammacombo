@@ -5,7 +5,7 @@
  *
  */
 
-#include "MethodAbsScan.h"
+#include <MethodAbsScan.h>
 
 MethodAbsScan::MethodAbsScan()
     : rndm()

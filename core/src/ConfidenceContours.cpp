@@ -1,4 +1,4 @@
-#include "ConfidenceContours.h"
+#include <ConfidenceContours.h>
 
 ConfidenceContours::ConfidenceContours(OptParser *arg)
 {

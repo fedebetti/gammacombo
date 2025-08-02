@@ -1,4 +1,4 @@
-#include "Combiner.h"
+#include <Combiner.h>
 
 Combiner::Combiner(OptParser *arg, TString title)
     : title(title)

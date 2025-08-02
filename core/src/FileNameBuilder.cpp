@@ -1,8 +1,8 @@
-#include "FileNameBuilder.h"
+#include <FileNameBuilder.h>
 
-#include "MethodAbsScan.h"
-#include "GammaComboEngine.h"
-#include "Combiner.h"
+#include <MethodAbsScan.h>
+#include <GammaComboEngine.h>
+#include <Combiner.h>
 
 ///
 /// Constructor.

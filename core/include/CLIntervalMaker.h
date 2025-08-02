@@ -8,7 +8,7 @@
 #ifndef CLIntervalMaker_h
 #define CLIntervalMaker_h
 
-#include "TF1.h"
+#include <TF1.h>
 #include "OptParser.h"
 #include "Utils.h"
 #include "CLInterval.h"

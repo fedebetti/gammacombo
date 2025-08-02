@@ -1,4 +1,4 @@
-#include "CLIntervalPrinter.h"
+#include <CLIntervalPrinter.h>
 
 CLIntervalPrinter::CLIntervalPrinter(OptParser *arg, TString name, TString var, TString unit, TString method, int CLsType)
 {

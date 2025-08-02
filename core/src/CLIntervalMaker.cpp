@@ -1,4 +1,4 @@
-#include "CLIntervalMaker.h"
+#include <CLIntervalMaker.h>
 
 CLIntervalMaker::CLIntervalMaker(OptParser *arg, const TH1F &pvalues)
     : _pvalues(pvalues)

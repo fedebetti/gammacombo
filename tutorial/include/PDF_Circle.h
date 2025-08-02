@@ -8,7 +8,7 @@
 #ifndef PDF_Circle_h
 #define PDF_Circle_h
 
-#include "PDF_Abs.h"
+#include <PDF_Abs.h>
 #include "ParametersTutorial.h"
 
 using namespace RooFit;

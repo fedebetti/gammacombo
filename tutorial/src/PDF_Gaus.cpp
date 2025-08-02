@@ -5,7 +5,7 @@
  *
  **/
 
-#include "PDF_Gaus.h"
+#include <PDF_Gaus.h>
 
 PDF_Gaus::PDF_Gaus(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(1)

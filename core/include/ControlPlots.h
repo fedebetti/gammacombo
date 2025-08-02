@@ -8,15 +8,15 @@
 #ifndef ControlPlots_h
 #define ControlPlots_h
 
-#include "TEnv.h"
-#include "TFile.h"
-#include "TF1.h"
-#include "TChain.h"
-#include "TCut.h"
-#include "TPaveText.h"
+#include <TEnv.h>
+#include <TFile.h>
+#include <TF1.h>
+#include <TChain.h>
+#include <TCut.h>
+#include <TPaveText.h>
 #include "OptParser.h"
 #include "Utils.h"
-#include "TPaveStats.h"
+#include <TPaveStats.h>
 
 #include "MethodProbScan.h"
 #include "ToyTree.h"

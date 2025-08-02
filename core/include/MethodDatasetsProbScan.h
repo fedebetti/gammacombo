@@ -12,8 +12,8 @@
 #include "ProgressBar.h"
 #include "PDF_Datasets.h"
 #include "RooSlimFitResult.h"
-#include "TLeaf.h"
-#include "TBranch.h"
+#include <TLeaf.h>
+#include <TBranch.h>
 #include "ToyTree.h"
 
 class MethodDatasetsProbScan : public MethodProbScan

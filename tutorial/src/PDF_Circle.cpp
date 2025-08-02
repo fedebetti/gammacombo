@@ -5,7 +5,7 @@
  *
  **/
 
-#include "PDF_Circle.h"
+#include <PDF_Circle.h>
 
 PDF_Circle::PDF_Circle(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(1)

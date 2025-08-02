@@ -1,4 +1,4 @@
-#include "ToyTree.h"
+#include <ToyTree.h>
 
 ToyTree::ToyTree(Combiner *c, TChain* t, bool _quiet):
     quiet(_quiet)

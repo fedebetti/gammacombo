@@ -8,7 +8,7 @@
 #include <TH2.h>
 #include <RooArgSet.h>
 
-#include "RooBinned2DBicubicBase.h"
+#include <RooBinned2DBicubicBase.h>
 
 template<class BASE>
 RooBinned2DBicubicBase<BASE>::BinSizeException::~BinSizeException() throw ()

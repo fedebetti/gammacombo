@@ -4,7 +4,7 @@
  * Date: January 2013
  */
 
-#include "MethodBergerBoosScan.h"
+#include <MethodBergerBoosScan.h>
 
 ///
 /// Initialize from a previous Prob scan, setting the profile

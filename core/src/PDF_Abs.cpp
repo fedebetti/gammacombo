@@ -5,7 +5,7 @@
  *
  **/
 
-#include "PDF_Abs.h"
+#include <PDF_Abs.h>
 
 PDF_Abs::PDF_Abs(int nObs):
     covMatrix(nObs),

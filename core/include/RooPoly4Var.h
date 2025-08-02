@@ -7,11 +7,11 @@
 #ifndef ROOPOLY4VAR
 #define ROOPOLY4VAR
 
-#include "RooAbsReal.h"
-#include "RooRealProxy.h"
-#include "RooCategoryProxy.h"
-#include "RooAbsReal.h"
-#include "RooAbsCategory.h"
+#include <RooAbsReal.h>
+#include <RooRealProxy.h>
+#include <RooCategoryProxy.h>
+#include <RooAbsReal.h>
+#include <RooAbsCategory.h>
  
 class RooPoly4Var : public RooAbsReal {
 public:

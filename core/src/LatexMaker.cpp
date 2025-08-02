@@ -1,4 +1,4 @@
-#include "LatexMaker.h"
+#include <LatexMaker.h>
 
 using namespace std;
 

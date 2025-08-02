@@ -4,15 +4,15 @@
 // END_HTML
 //
 
-#include "RooFit.h"
+#include <RooFit.h>
 
-#include "Riostream.h"
-#include "Riostream.h"
+#include <Riostream.h>
+#include <Riostream.h>
 #include <math.h>
 
-#include "RooMultiPdf.h"
-#include "RooRealVar.h"
-#include "RooAddPdf.h"
+#include <RooMultiPdf.h>
+#include <RooRealVar.h>
+#include <RooAddPdf.h>
 #include <stdexcept>
 
 ClassImp(RooMultiPdf)

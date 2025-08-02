@@ -1,4 +1,4 @@
-#include "Contour.h"
+#include <Contour.h>
 
 ///
 /// Constructor. The class stores copies of the TGraphs provided in listOfGraphs.

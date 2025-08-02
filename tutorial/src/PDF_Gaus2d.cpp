@@ -5,7 +5,7 @@
  *
  **/
 
-#include "PDF_Gaus2d.h"
+#include <PDF_Gaus2d.h>
 
 PDF_Gaus2d::PDF_Gaus2d(TString cObs, TString cErr, TString cCor)
 : PDF_Abs(2)

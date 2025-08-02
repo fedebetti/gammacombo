@@ -1,6 +1,6 @@
 #include <ctime>
 
-#include "BatchScriptWriter.h"
+#include <BatchScriptWriter.h>
 
 BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]):
   exec("")

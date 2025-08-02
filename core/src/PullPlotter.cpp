@@ -1,6 +1,6 @@
-#include "PullPlotter.h"
-#include "TLatex.h"
-#include "TFitResult.h"
+#include <PullPlotter.h>
+#include <TLatex.h>
+#include <TFitResult.h>
 
 PullPlotter::PullPlotter(MethodAbsScan *cmb)
 {

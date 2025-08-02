@@ -1,4 +1,4 @@
-#include "ControlPlots.h"
+#include <ControlPlots.h>
 
 ControlPlots::ControlPlots(ToyTree *tt)
 {

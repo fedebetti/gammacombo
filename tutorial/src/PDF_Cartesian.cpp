@@ -5,7 +5,7 @@
  *
  **/
 
-#include "PDF_Cartesian.h"
+#include <PDF_Cartesian.h>
 
 PDF_Cartesian::PDF_Cartesian(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(4) // <-- configure the number of observables

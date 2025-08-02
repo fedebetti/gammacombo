@@ -1,6 +1,6 @@
-#include "TString.h"
-#include "TPad.h"
-#include "TPaveText.h"
+#include <TString.h>
+#include <TPad.h>
+#include <TPaveText.h>
 
 void HFAGLabel(const TString& label="please set label",
                // Double_t xpos=0.6, Double_t ypos=0.2,

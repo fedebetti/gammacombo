@@ -6,8 +6,8 @@
  *
  **/
 
-#include "PDF_Datasets.h"
-#include "TIterator.h"
+#include <PDF_Datasets.h>
+#include <TIterator.h>
 
 PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt)
     : PDF_Abs(nObs) {

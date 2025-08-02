@@ -1,4 +1,4 @@
-#include "Fitter.h"
+#include <Fitter.h>
 
 Fitter::Fitter(OptParser *arg, RooWorkspace *w, TString name)
 {

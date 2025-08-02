@@ -7,8 +7,8 @@
 
 #include <string>
 
-#include "Utils.h"
-#include "RooProdPdf.h"
+#include <Utils.h>
+#include <RooProdPdf.h>
 
 int Utils::countFitBringBackAngle;      ///< counts how many times an angle needed to be brought back
 int Utils::countAllFitBringBackAngle;   ///< counts how many times fitBringBackAngle() was called

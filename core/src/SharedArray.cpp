@@ -2,7 +2,7 @@
  * @author Manuel Tobias Schiller <manuel.schiller@nikhef.nl>
  * @date 2012-08-29
  */
-#include "SharedArray.h"
+#include <SharedArray.h>
 
 template <class TYPE>
 SharedArray<TYPE>::~SharedArray()
