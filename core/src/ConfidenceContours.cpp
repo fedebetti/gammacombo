@@ -252,7 +252,7 @@ void ConfidenceContours::Draw() {
 /// Draw the contours into the currently active Canvas.
 ///
 void ConfidenceContours::DrawDashedLine() {
-  // std::cout << "ConfidenceContours::DrawDashedLine() : drawing ..." << std::endl;
+  if (m_arg->debug) std::cout << "ConfidenceContours::DrawDashedLine() : Start execution..." << std::endl;
   if (m_contstoplots.empty()) {
     for (int i = m_arg->plotnsigmacont - 1; i >= 0; i--) {
       if (i >= m_contours.size()) continue;

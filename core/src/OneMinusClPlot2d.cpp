@@ -18,15 +18,6 @@
 #include <TPaveText.h>
 #include <TROOT.h>
 
-namespace {
-  auto msgBase = [](const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout) {
-    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-    stream << prefix << msgOut << std::endl;
-  };
-
-  auto errBase = [](const std::string& prefix, const std::string& msg) { msgBase(prefix, msg, std::cerr); };
-}  // namespace
-
 /// Constructor.
 OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
   xTitle = arg->xtitle;
@@ -416,7 +407,7 @@ void OneMinusClPlot2d::addScanner(std::shared_ptr<MethodAbsScan> s, const int CL
 
 void OneMinusClPlot2d::addFile(const TString fName) {
   auto error = [](const std::string& msg) {
-    errBase("OneMinusClPlot2d::addFile : ERROR : ", msg);
+    Utils::errBase("OneMinusClPlot2d::addFile : ERROR : ", msg, false);
     return;
   };
 
@@ -482,8 +473,8 @@ void OneMinusClPlot2d::drawCLcontent(const bool isFull) {
 /// Draw the full DeltaChi2 histogram of the first scanner.
 ///
 void OneMinusClPlot2d::DrawFull() {
-  auto info = [](const std::string& msg) { msgBase("OneMinusClPlot2d::DrawFull : ", msg); };
-  auto warning = [](const std::string& msg) { msgBase("OneMinusClPlot2d::DrawFull : WARNING : ", msg); };
+  auto info = [](const std::string& msg) { Utils::msgBase("OneMinusClPlot2d::DrawFull : ", msg); };
+  auto warning = [](const std::string& msg) { Utils::msgBase("OneMinusClPlot2d::DrawFull : WARNING : ", msg); };
 
   if (arg->debug) info("Start...");
   if (histos.size() > 1) warning("Can only draw the full histogram of the first scanner");
@@ -608,8 +599,8 @@ void OneMinusClPlot2d::drawLegend() {
 
 // TODO warning for passing parameter
 void OneMinusClPlot2d::Draw(const bool beautify) {
-  auto debug = [](const std::string& msg) { msgBase("OneMinusClPlot2d::Draw() : DEBUG : ", msg); };
-  auto warning = [](const std::string& msg) { msgBase("OneMinusClPlot2d::Draw() : WARNING : ", msg); };
+  auto debug = [](const std::string& msg) { Utils::msgBase("OneMinusClPlot2d::Draw() : DEBUG : ", msg); };
+  auto warning = [](const std::string& msg) { Utils::msgBase("OneMinusClPlot2d::Draw() : WARNING : ", msg); };
 
   if (arg->debug) { debug("Start execution"); }
   if (scanners.empty()) {

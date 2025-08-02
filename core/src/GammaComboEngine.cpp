@@ -33,20 +33,8 @@
 using namespace std;
 using namespace Utils;
 
-namespace {
-  auto msgBase = [](const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout) {
-    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-    stream << prefix << msgOut << std::endl;
-  };
-
-  auto errorBase = [](const std::string& caller, const std::string& msg) {
-    std::cerr << "GammaComboEngine::" << caller << " : ERROR : " << msg << ". Exit" << endl;
-    exit(1);
-  };
-}  // namespace
-
 GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
-  auto error = [](std::string msg) { return errorBase("GammaComboEngine()", msg); };
+  auto error = [](std::string msg) { return errBase("GammaComboEngine()", msg); };
   if (argc < 2) error("You should supply at least one argument to the executable (see -u for usage or -h for help)");
   // time the program
   t.Start();
@@ -103,7 +91,7 @@ void GammaComboEngine::setPdf(PDF_Abs* pdf) {
          << endl;
     runOnDataSet = true;
   }
-  auto error = [](std::string msg) { return errorBase("setPdf()", msg); };
+  auto error = [](std::string msg) { return errBase("setPdf()", msg); };
   if (!dynamic_cast<PDF_Datasets*>(pdf))
     error("The pdf you are trying to set " + std::string(pdf->getName()) + " cannot be cast to a PDF_Datasets object");
   if (!pdf) error("Trying to add zero pointer as the PDF");
@@ -115,7 +103,7 @@ void GammaComboEngine::setPdf(PDF_Abs* pdf) {
 /// Add a PDF to the GammaComboEngine object.
 ///
 void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
-  auto error = [](std::string msg) { return errorBase("addPdf()", msg); };
+  auto error = [](std::string msg) { return errBase("addPdf()", msg); };
 
   if (arg->debug) cout << "GammaComboEngine::addPdf() : INFO  : Adding pdf " << id << " = " << title << endl;
   if (!pdf) error("Trying to add nullptr as the PDF");
@@ -133,7 +121,7 @@ void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
 /// Add a pdf with a subset of the observables to the GammaComboEngine
 ///
 void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const vector<int>& indices, const TString title) {
-  auto error = [](std::string msg) { return errorBase("addSubsetPdf()", msg); };
+  auto error = [](std::string msg) { return errBase("addSubsetPdf()", msg); };
   if (indices.size() > pdf->getObservables()->getSize()) {
     error(std::format("The subset size {:d} is bigger than the observables size {:d}", indices.size(),
                       pdf->getObservables()->getSize()));
@@ -239,7 +227,7 @@ void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3
 /// Add a Combiner to the GammaComboEngine object.
 ///
 void GammaComboEngine::addCombiner(int id, std::unique_ptr<Combiner> cmb) {
-  auto error = [](std::string msg) { return errorBase("addCombiner()", msg); };
+  auto error = [](std::string msg) { return errBase("addCombiner()", msg); };
   if (runOnDataSet) {
     error("You're trying to make a combiner but the runOnDataSet flag is true. You cannot make a combination with this "
           "option");
@@ -257,7 +245,7 @@ void GammaComboEngine::addCombiner(int id, std::unique_ptr<Combiner> cmb) {
 /// using, e.g., getCombiner(newId)->addPdf(...)
 ///
 void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString title) {
-  auto error = [](std::string msg) { return errorBase("cloneCombiner()", msg); };
+  auto error = [](std::string msg) { return errBase("cloneCombiner()", msg); };
   if (runOnDataSet)
     error("You're trying to clone a combiner but the runOnDataSet flag is true. You can't have combiners when using "
           "the dataset option");
@@ -273,7 +261,7 @@ void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString
 /// \param id - combiner ID, set when defining the combiner using addCombiner(), cloneCombiner(), or newCombiner()
 ///
 Combiner* GammaComboEngine::getCombiner(const int id) const {
-  auto error = [](std::string msg) { return errorBase("getCombiner()", msg); };
+  auto error = [](std::string msg) { return errBase("getCombiner()", msg); };
   if (!combinerExists(id)) error(std::format("Requested Combiner id {:d} doesn't exist in GammaComboEngine", id));
   return cmb[id].get();
 }
@@ -294,7 +282,7 @@ vector<int> GammaComboEngine::getCombinersIds() const {
 /// \param id - PDF ID, set when adding the PDF using addPdf()
 ///
 PDF_Abs* GammaComboEngine::getPdf(int id) const {
-  auto error = [](std::string msg) { return errorBase("getPdf()", msg); };
+  auto error = [](std::string msg) { return errBase("getPdf()", msg); };
   if (!pdfExists(id)) error("Requested PDF id doesn't exist in GammaComboEngine");
   return pdf[id];
 }
@@ -308,7 +296,7 @@ PDF_Abs* GammaComboEngine::operator[](int idx) { return getPdf(idx); }
 /// An empty combiner is possible, too, so that it can be filled later.
 ///
 void GammaComboEngine::newCombiner(const int id, const TString name, const TString title, const vector<int>& pdfs) {
-  auto error = [](std::string msg) { return errorBase("newCombiner()", msg); };
+  auto error = [](std::string msg) { return errBase("newCombiner()", msg); };
   if (combinerExists(id)) error(std::format("Requested new Combiner id {:d} exists already in GammaComboEngine", id));
   auto c = std::make_unique<Combiner>(arg.get(), name, title);
   for (auto pdf : pdfs) { c->addPdf(getPdf(pdf)); }
@@ -405,7 +393,7 @@ void GammaComboEngine::disableSystematics() {
 /// \param c - combiner which should be set to an asimov toy
 ///
 void GammaComboEngine::setAsimovObservables(Combiner* c) {
-  auto error = [](std::string msg) { return errorBase("setAsimovObservables()", msg); };
+  auto error = [](std::string msg) { return errBase("setAsimovObservables()", msg); };
   if (!c->isCombined()) error("Can't set an Asimov toy before the combiner is combined. Call combine() first");
 
   // set observables to asimov values in workspace
@@ -441,7 +429,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
 /// \param pCache - parameter cache
 ///
 void GammaComboEngine::loadStartParameters(const MethodProbScan* s, ParameterCache* pCache, const int cId) {
-  auto error = [](std::string msg) { return errorBase("loadStartParameters()", msg); };
+  auto error = [](std::string msg) { return errBase("loadStartParameters()", msg); };
   cout << "Start parameter configuration:\n" << endl;
   TString startparfile;
   TString startparfile2 = m_fnamebuilder->getFileNameStartPar(s);
@@ -654,7 +642,7 @@ void GammaComboEngine::print() const {
 /// Check the combination argument (-c), exit if it is bad.
 ///
 void GammaComboEngine::checkCombinationArg() const {
-  auto error = [](std::string msg) { return errorBase("checkCombinationArg()", msg); };
+  auto error = [](std::string msg) { return errBase("checkCombinationArg()", msg); };
   if (runOnDataSet && !arg->combid.empty())
     error("When running on a dataset do not pass a combination argument (it makes no sense for this use case)");
   if (arg->combid.empty() && !runOnDataSet) {
@@ -1645,7 +1633,7 @@ void GammaComboEngine::makeLatex(Combiner* c) const {
 /// save workspace
 ///
 void GammaComboEngine::saveWorkspace(Combiner* c, const int i) {
-  auto error = [](std::string msg) { return errorBase("saveWorkspace", msg); };
+  auto error = [](std::string msg) { return errBase("saveWorkspace", msg); };
   // if --pr then make the ranges
   if (arg->enforcePhysRange) setLimit(c->getParameters(), "phys");
 
@@ -1794,7 +1782,7 @@ void GammaComboEngine::compareCombinations() {
 /// run toys
 ///
 void GammaComboEngine::runToys(Combiner* c) {
-  auto error = [](std::string msg) { return errorBase("runToys", msg); };
+  auto error = [](std::string msg) { return errBase("runToys", msg); };
   // THIS IS A HACK FOR NOW
   //
   // base scan (overhead here)

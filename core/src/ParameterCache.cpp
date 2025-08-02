@@ -17,13 +17,6 @@
 using namespace std;
 using namespace Utils;
 
-namespace {
-  auto msgBase = [](const std::string& prefix, const std::string& msg) {
-    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-    std::cout << prefix << msgOut << endl;
-  };
-}
-
 ///
 /// Constructor.
 ///
