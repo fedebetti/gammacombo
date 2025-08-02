@@ -30,7 +30,6 @@
 #include <RooWorkspace.h>
 
 #include "UtilsConfig.h"
-#include "rdtsc.h"
 
 namespace Utils {
   extern int countFitBringBackAngle;     ///< counts how many times an angle needed to be brought back
@@ -76,8 +75,9 @@ namespace Utils {
   bool isAngle(const RooRealVar* v);
   int makeNewColor(const std::string hex);
 
-  std::unique_ptr<RooFitResult> fitToMin(RooAbsPdf* pdf, const bool thorough, const int printLevel);
-  std::unique_ptr<RooFitResult> fitToMinBringBackAngles(RooAbsPdf* pdf, const bool thorough, const int printLevel);
+  std::unique_ptr<RooFitResult> fitToMin(RooAbsPdf* pdf, const bool thorough, const bool quiet);
+  std::unique_ptr<RooFitResult> fitToMinBringBackAngles(RooAbsPdf* pdf, const bool thorough, const int printLevel,
+                                                        const int nMaxRefits = 1);
   std::unique_ptr<RooFitResult> fitToMinForce(RooWorkspace* w, const TString name, const TString forceVariables = "",
                                               const bool debug = true);
   std::unique_ptr<RooFitResult> fitToMinImprove(RooWorkspace* w, const TString name);

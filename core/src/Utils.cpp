@@ -23,6 +23,7 @@
 #include <RooWorkspace.h>
 
 #include <Utils.h>
+#include <rdtsc.h>
 
 using namespace std;
 using namespace RooFit;
@@ -48,40 +49,17 @@ void Utils::msgBase(const std::string& prefix, const std::string& msg, std::ostr
 /// \param thorough Activate Hesse and Minos
 /// \param printLevel -1 = no output, 1 verbose output
 ///
-std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, const bool thorough, const int printLevel) {
+std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, const bool thorough, const bool quiet) {
   RooMsgService::instance().setGlobalKillBelow(ERROR);
 
-  // pdf->Print("v");
-  // const RooProdPdf *prod = (RooProdPdf*)pdf;
-  // const RooArgList& pdflist = prod->pdfList();
-  // double chi2=0;
-  // for (int i=0; i<pdflist.getSize(); i++){
-  // const RooAbsPdf *ipdf = (RooAbsPdf*)pdflist.at(i);
-  // chi2 += -2*TMath::Log(ipdf->getVal());
-  // cout << ipdf->GetName() << " " << -2*TMath::Log(ipdf->getVal()) << " " << chi2 << endl;
-  //////ipdf->Print("v");
-  //}
-  // cout << chi2 << endl;
-
   RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*pdf));
-  // cout << ll.getVal() << endl;
-  // string a;
-  // cin >> a;
-  bool quiet = printLevel < 0;
   RooMinimizer m(ll);
-  if (quiet) {
-    m.setPrintLevel(-2);
-  } else
-    m.setPrintLevel(1);
-  // if (quiet) m.setLogFile();
-  m.setErrorLevel(1.0);
+  m.setPrintLevel(quiet ? -2 : 1);
+  m.setErrorLevel(1.);
   m.setStrategy(2);
-  m.setProfile(0);  // 1 enables migrad timer
-  unsigned long long start = rdtsc();
+  m.setProfile(false);  // true enables profile timer
+  auto start = rdtsc();
   int status = m.migrad();
-  // m.simplex();
-  // m.migrad();
-  // m.simplex();
   if (thorough) {
     m.hesse();
     // MINOS seems to fail in more complicated scenarios
@@ -93,11 +71,9 @@ std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, const bool thoroug
     //   if ( !p->isConstant() ) floatingPars.add(*p);
     // }
     // m.minos(floatingPars);
-    // IMPROVE doesn't really improve much
-    // //m.improve();
   }
-  unsigned long long stop = rdtsc();
-  if (!quiet) std::printf("Fit took %llu clock cycles.\n", stop - start);
+  auto stop = rdtsc();
+  if (!quiet) std::cout << std::format("Fit took {:d} clock cycles", stop - start) << std::endl;
   std::unique_ptr<RooFitResult> r(m.save());
   // if (!quiet) r->Print("v");
   RooMsgService::instance().setGlobalKillBelow(INFO);
@@ -130,31 +106,35 @@ double Utils::angularDifference(const double angle1, const double angle2) {
   return std::min(diff, TMath::TwoPi() - diff);
 }
 
-///
-/// Fit a pdf to the minimum, but keep angular parameters in a range of
-/// [0,2pi]. If after an initial fit, a parameter has walked outside this
-/// interval, add multiples of 2pi to bring it back. Then, refit.
-/// All variables that have unit 'rad' are taken to be angles.
-///
-std::unique_ptr<RooFitResult> Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, const bool thorough,
-                                                             const int printLevel) {
-  countAllFitBringBackAngle++;
-  auto r = fitToMin(pdf, thorough, printLevel);
+/**
+ * Fit a pdf to the minimum, but keep angular parameters (the ones with unit 'rad') in a range [0, 2pi].
+ *
+ * If after the initial fit a parameter has walked outside this interval, add multiples of 2pi to bring it back and
+ * refit.
+ *
+ * @param nMaxRefit Maximum number of refits to be done.
+ */
+std::unique_ptr<RooFitResult> Utils::fitToMinBringBackAngles(RooAbsPdf* pdf, const bool thorough, const int printLevel,
+                                                             const int nMaxRefits) {
+  int nFit = 0;
   bool refit = false;
-  for (const auto pAbs : r->floatParsFinal()) {
-    const auto p = static_cast<RooRealVar*>(pAbs);
-    if (!isAngle(p)) continue;
-    if (p->getVal() < 0.0 || p->getVal() > 2. * TMath::Pi()) {
-      std::unique_ptr<RooArgSet> pdfPars(pdf->getParameters(RooArgSet()));
-      auto pdfPar = static_cast<RooRealVar*>(pdfPars->find(p->GetName()));
-      pdfPar->setVal(bringBackAngle(p->getVal()));
-      refit = true;
+  std::unique_ptr<RooFitResult> r;
+  do {
+    ++countAllFitBringBackAngle;
+    ++nFit;
+    r = fitToMin(pdf, thorough, printLevel < 0);
+    refit = false;
+    for (const auto pAbs : r->floatParsFinal()) {
+      const auto p = static_cast<RooRealVar*>(pAbs);
+      if (!isAngle(p)) continue;
+      if (p->getVal() < 0. || p->getVal() > TMath::TwoPi()) {
+        std::unique_ptr<RooArgSet> pdfPars(pdf->getParameters(RooArgSet()));
+        auto pdfPar = static_cast<RooRealVar*>(pdfPars->find(p->GetName()));
+        pdfPar->setVal(bringBackAngle(p->getVal()));
+        refit = true;
+      }
     }
-  }
-  if (refit) {
-    countFitBringBackAngle++;
-    r = fitToMin(pdf, thorough, printLevel);
-  }
+  } while (refit && nFit <= nMaxRefits);
   return r;
 }
 
@@ -295,7 +275,6 @@ std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, const TStr
   std::unique_ptr<RooFitResult> r1 = nullptr;
   {
     RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*w->pdf(pdfName)));
-    // auto r1 = fitToMin(&ll, printlevel);
     RooMinimizer m(ll);
     m.setPrintLevel(-2);
     m.setErrorLevel(4.0);  ///< define 2 sigma errors. This will make the hesse PDF 2 sigma wide!
@@ -341,7 +320,6 @@ std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, const TStr
     RooAbsPdf* fullPdf = wImprove->pdf(pdfName);
 
     RooFormulaVar ll("ll", "ll", "-2*log(@0) +16*@1", RooArgSet(*fullPdf, *hessePdf));
-    // auto r2 = fitToMin(&ll, printlevel);
     RooMinimizer m(ll);
     m.setPrintLevel(-2);
     m.setErrorLevel(1.0);
