@@ -1,16 +1,11 @@
-/**
- * Author: Till Moritz Karbach, moritz.karbach@cern.ch
- * Date: April 2013
- *
- * Class representing a (nuisance) parameter.
- *
- **/
-
 #ifndef Parameter_h
 #define Parameter_h
 
 #include <TString.h>
 
+/**
+ * Class representing a (nuisance) parameter, and the ranges where it is allowed to vary.
+ */
 class Parameter {
  public:
   inline void setVal(double v) { startvalue = v; };
@@ -33,7 +28,7 @@ class Parameter {
   Range scan = default_range;
   Range force = default_range;
   Range bboos = default_range;
-  Range free = default_range;
+  [[deprecated]] Range free = default_range;
 };
 
 #endif

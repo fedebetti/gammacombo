@@ -54,7 +54,6 @@ RooFit::OwningPtr<RooRealVar> ParametersAbs::get(const TString name) {
     if (par->name == name) {
       auto r = new RooRealVar(par->name, par->title, par->startvalue, par->unit);
       RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);  // else we get messages for range creation
-      r->setRange("free", par->free.min, par->free.max);
       r->setRange("phys", par->phys.min, par->phys.max);
       r->setRange("scan", par->scan.min, par->scan.max);
       r->setRange("force", par->force.min, par->force.max);
