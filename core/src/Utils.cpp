@@ -632,7 +632,10 @@ void Utils::floatParameters(const RooAbsCollection* set) {
 
 namespace {
   inline void setLimitHelper(RooRealVar* v, const TString limitname) {
-    v->setRange(v->getMin(limitname), v->getMax(limitname));
+    if (limitname == "free")
+      v->removeRange();
+    else
+      v->setRange(v->getMin(limitname), v->getMax(limitname));
   }
 }  // namespace
 

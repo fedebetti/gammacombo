@@ -13,6 +13,5 @@ void Parameter::Print() const {
             << std::format(" phys       = {:f} ... {:f}\n", phys.min, phys.max)
             << std::format(" scan       = {:f} ... {:f}\n", scan.min, scan.max)
             << std::format(" force      = {:f} ... {:f}\n", force.min, force.max)
-            << std::format(" bboos      = {:f} ... {:f}\n", bboos.min, bboos.max)
-            << std::format(" free       = {:f} ... {:f}", free.min, free.max) << std::endl;
+            << std::format(" bboos      = {:f} ... {:f}", bboos.min, bboos.max) << std::endl;
 }
