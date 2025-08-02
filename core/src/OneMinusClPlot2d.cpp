@@ -683,7 +683,6 @@ void OneMinusClPlot2d::Draw(const bool beautify) {
     if (i < arg->filltransparency.size()) cont->setTransparency(arg->filltransparency[i]);
     cont->setContoursToPlot(arg->contourlabels[i]);
   }
-  canvas->cd();  // ConfidenceContours::computeContours() creates a temporary canvas
 
   // overwrite transparency if requested
   if (arg->isQuickhack(12)) {

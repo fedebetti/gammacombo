@@ -192,6 +192,7 @@ void ConfidenceContours::computeContours(const TH2* inHist, const Utils::histogr
 
   // create and access the contours
   if (m_arg->interactive) gROOT->SetBatch(true);  // don't display the temporary canvas
+  const auto previousGPad = gPad;
   auto ctmp = Utils::newNoWarnTCanvas(Utils::getUniqueRootName(), "ctmp");
   histb->Draw("contlist");
   gPad->Update();  // needed to be able to access the contours as TGraphs
@@ -212,6 +213,8 @@ void ConfidenceContours::computeContours(const TH2* inHist, const Utils::histogr
       m_contours.back()->setSigma(5 - nEmptyContours - ic);
     }
   }
+  // Move gPad to location previous to creation of ctmp to avoid that the caller needs to reset it
+  previousGPad->cd();
 
   // Add the entire plotted area, if one requested contour is empty, i.e. it contains the entire plot range
   if (nEmptyContours > 0) { addFilledPlotArea(hist.get()); }
