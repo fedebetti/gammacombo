@@ -85,9 +85,10 @@ namespace Utils {
                                     const TString specName = "");
 
   TTree* convertRooDatasetToTTree(RooDataSet* d);
-  std::unique_ptr<TGraph> convertTH1ToTGraph(TH1* h, const bool withErrors = false);
-  TGraph* smoothGraph(TGraph* g, int option = 0);
-  TGraph* smoothHist(TH1* h, int option = 0);
+  std::unique_ptr<TGraph> convertTH1ToTGraph(const TH1* h, const bool withErrors = false);
+  std::unique_ptr<TGraph> smoothGraph(TGraph* g, int option = 0);
+  std::unique_ptr<TGraph> smoothGraph(std::unique_ptr<TGraph> g, const int option = 0);
+  std::unique_ptr<TGraph> smoothHist(const TH1* h, int option = 0);
 
   void addSetNamesToList(std::vector<std::string>& list, RooWorkspace* w, TString setName);
   void makeNamedSet(RooWorkspace* w, TString mergedSet, std::vector<std::string>& names);
