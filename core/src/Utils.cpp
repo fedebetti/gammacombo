@@ -964,8 +964,8 @@ TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
 }
 
 /// Convert a TH1 to a TGraph.
-std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(TH1* h, const bool withErrors) {
-  std::unique_ptr<TGraph> g = nullptr;
+std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(const TH1* h, const bool withErrors) {
+  std::unique_ptr<TGraph> g;
   if (withErrors)
     g = std::make_unique<TGraphErrors>(h->GetNbinsX());
   else
@@ -979,13 +979,13 @@ std::unique_ptr<TGraph> Utils::convertTH1ToTGraph(TH1* h, const bool withErrors)
 }
 
 /// Smooths a graph
-TGraph* Utils::smoothGraph(TGraph* g, int option) {
-  auto smoother = TGraphSmooth();
-  TGraph* gr;
+std::unique_ptr<TGraph> Utils::smoothGraph(TGraph* g, const int option) {
+  TGraphSmooth smoother;
+  std::unique_ptr<TGraph> gr;
   if (option == 0)
-    gr = (TGraph*)smoother.SmoothSuper(g)->Clone(Form("sm%s", g->GetName()));
+    gr = std::unique_ptr<TGraph>(static_cast<TGraph*>(smoother.SmoothSuper(g)->Clone(Form("sm%s", g->GetName()))));
   else if (option == 1)
-    gr = (TGraph*)smoother.Approx(g)->Clone(Form("sm%s", g->GetName()));
+    gr = std::unique_ptr<TGraph>(static_cast<TGraph*>(smoother.Approx(g)->Clone(Form("sm%s", g->GetName()))));
   else {
     cout << "Utils::smoothGraph() : ERROR - no such option " << option << endl;
     exit(1);
@@ -993,10 +993,17 @@ TGraph* Utils::smoothGraph(TGraph* g, int option) {
   return gr;
 }
 
+/// Smooths a graph
+std::unique_ptr<TGraph> Utils::smoothGraph(std::unique_ptr<TGraph> g, const int option) {
+  auto gr = Utils::smoothGraph(g.get(), option);
+  g.reset(nullptr);
+  return gr;
+}
+
 // Smooths a histogram
-TGraph* Utils::smoothHist(TH1* h, int option) {
+std::unique_ptr<TGraph> Utils::smoothHist(const TH1* h, const int option) {
   auto g = convertTH1ToTGraph(h);
-  return smoothGraph(g.get(), option);
+  return smoothGraph(std::move(g), option);
 }
 
 /**
