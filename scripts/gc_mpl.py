@@ -73,7 +73,7 @@ def read2dscan(h, bf, minnll):
   return x,y,z
 
 def read_gc_scan(fname, pars=None):
-  
+
   pars = pars or opts.vars
   if not os.path.exists(fname):
     raise RuntimeError('No such file', fname)
@@ -368,4 +368,3 @@ def plot2d(fname, scans, xvar, yvar, xlim=None, ylim=None, ncontours=2, cl2d=Fal
 
 #if opts
 # plot2d( 'plot', scans, r'$|q/p|$', r'$\phi$')
-

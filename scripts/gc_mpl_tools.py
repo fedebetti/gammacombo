@@ -37,16 +37,16 @@ def print_interval(fname, nsigma=1, floatfmt=[]):
             ns = 3
         else:
             continue
-        
+
         if ns>nsigma:
-            continue 
+            continue
 
         conf = f'{chi2.cdf(ns**2, 1):4.1%}'
-        
+
         for sol in cfgs:
             print_rows.append( [ ns, conf, sol['central'], sol['neg'], sol['pos'], sol['min'], sol['max'] ] )
 
-    print( tabulate( print_rows, headers=['nSig','cl','val','-err','+err','min','max'], floatfmt=floatfmt) )   
+    print( tabulate( print_rows, headers=['nSig','cl','val','-err','+err','min','max'], floatfmt=floatfmt) )
 
 def read1dscan(h, bf, minnll):
 
@@ -162,7 +162,7 @@ def getfnames( prefix, xpar, ypar=None ):
         fname = f'plots/scanner/{prefix}_{xpar}_{ypar}.root'
     else:
         fname = f'plots/scanner/{prefix}_{xpar}.root'
-    
+
     bfname = fname.replace('scanner/','par/').replace('_scanner','').replace('.root','.dat')
 
     if not os.path.exists( fname ):
@@ -177,33 +177,33 @@ def print_cl( prefix, xpar, ypar=None, prob=True ):
 
     if ypar is not None:
         return
-    
-    pref = prefix.split('scanner')[1] 
+
+    pref = prefix.split('scanner')[1]
     suff = 'Prob' if prob else 'Plugin'
     fname = f'plots/cl/clintervals{pref}_{xpar}_{suff}.py'
     if not os.path.exists(fname):
         return
-    
+
     try:
         print_interval(fname, nsigma=1)
     except:
         return
 
 def get_scan_res( prefix, xpar, ypar=None ):
-    
+
     pars = [xpar]
     if ypar is not None:
         pars.append(ypar)
 
     fname, bfname = getfnames( prefix, xpar, ypar )
-    
+
     header_str = prefix + ' - ' + xpar
     if ypar is not None:
         header_str += ' , '  + ypar
 
     print(header_str)
     print_cl( prefix, xpar, ypar )
-    
+
     return read_gc_scan( fname, bfname, pars )
 
 def_lopts_1d = [ dict( c='steelblue' ),
@@ -229,7 +229,7 @@ def_lopts_2d = [
         { 'colors' : ((0.8,0.6,0.2)   ,(0.6,0.2,0.0)   )   , 'zorder': 3 },
         { 'colors' : ((0.84,0.00,0.99),(0.82,0.04,0.82))   , 'zorder': 5 },
         { 'colors' : ((0.55,0.28,0.10),(0.60,0.30,0.10))   , 'zorder': 7 },
-        { 'colors' : ((0.0,0.4,0.0)   ,(0.2,0.4,0.2)   )   , 'zorder': 9 } 
+        { 'colors' : ((0.0,0.4,0.0)   ,(0.2,0.4,0.2)   )   , 'zorder': 9 }
         # { 'colors' : ((0.90,0.20,0.20),(0.70,0.00,0.00))   , 'zorder': 7 },
         # { 'colors' : ((0.0,0.4,0.0)   ,(0.2,0.4,0.2)   )   , 'zorder': 9 }
                ]
@@ -427,14 +427,14 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
 
         # plot the fill
         ax.fill_between( x, 0, y, **fopts[i] )
-    
+
     # overlay the lines
     for i, (x, y) in enumerate(scanpoints):
-        
+
         # plot the line
         ax.plot( x, y, **lopts[i] )
-    
-    # add legend 
+
+    # add legend
     leg_els = []
     if legtitles:
         for i, title in enumerate(legtitles):
@@ -459,7 +459,7 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
         # if 'prop' not in legopts:
         #     legopts['prop'] = {'family': 'Times New Roman'}
         ax.legend( handles=leg_els, **legopts )
-    
+
     # style
     ax.set_ylim(0,1)
     ax.autoscale( enable=True, axis='x', tight=True )
@@ -470,7 +470,7 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
 
     # yaxis label
     ax.set_ylabel('$p=1-CL$')
-    
+
     # add logos
     if logo:
         addLHCbLogo(ax, prelim=prelim)
@@ -486,7 +486,7 @@ def plot1d( scanpoints, lopts=[], fopts=[], xtitle=None, legtitles=None, angle=F
     if save:
         fig = plt.gcf()
         fig.savefig(save)
-        
+
 def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=1, legtitles=None, angle=[False,False], ax=None, save=None, bf=None, cl2d=False, logo=False, prelim=False, contourline=False, legopts={}, axes_origin=(0.14, 0.16), righttop_padding=(0.04, 0.04) ):
     """ parameters
     scanpoints : 2D array-like
@@ -556,10 +556,10 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
 
         # plot the fill
         ax.contourf( x, y, z, levels=[0]+levels, **fopts[i] )
-    
+
     # overlay the lines
     for i, (x, y, z) in enumerate(scanpoints):
-        
+
         # plot the line
         ax.contour( x, y, z, levels=levels, **lopts[i] )
 
@@ -568,8 +568,8 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
         for i, pt in enumerate(bf):
             if pt is not None:
                 ax.plot( pt[0], pt[1], **mopts[i] )
-    
-    # add legend 
+
+    # add legend
     leg_handles = []
     leg_labels = []
     if legtitles:
@@ -599,23 +599,23 @@ def plot2d( scanpoints, lopts=[], fopts=[], mopts=[], title=[None,None], levels=
             if 'colors' in fopt.keys():
                 c = fopt.pop('colors')
                 fopt['fc'] = c[0]
-            
+
             if ltitle is not None:
                 leg_labels.append(ltitle)
                 leg_opts = { **lopt, **fopt }
                 leg_handle = (patches.Patch(**leg_opts), Line2D([0], [0], lw=0, **mopt)) if mopt else patches.Patch(**leg_opts)
                 leg_handles.append(leg_handle)
-        
+
         # if 'prop' not in legopts:
         #     legopts['prop'] = {'family': 'Times New Roman'}
         ax.legend( leg_handles, leg_labels, **legopts )
-        
+
     # style
     if title[0]:
         ax.set_xlabel( title[0] )
     if title[1]:
         ax.set_ylabel( title[1] )
-    
+
     # add logos
     if logo:
         addLHCbLogo(ax, prelim=prelim)
@@ -646,16 +646,16 @@ def lhcb_logo(pos=[0.02,0.88], prelim=False, date=None, ax=None):
         ax.text( pos[0], pos[1]-0.10, date, transform=ax.transAxes, size=12.2, ha='left', bbox=props, fontdict=font, usetex=False)
 
 def hflav_logo(subtitle, pos=[0.02,0.98], ax=None, scale=1):
-    
+
     ax = ax or plt.gca()
-    
+
     xwidth = 0.22 # width of logo in units of axis
     yratio = 0.7  # relative height of y to xwidth (in axis units)
     ysub = 0.8    # relative size of subtitle to HFLAV title
     fontsize = 16 # font size of HFLAV bit
     fontsub = 0.7 # relative size of subtitle font
     font = {'family': 'sans-serif', 'style': 'italic', 'color': 'white', 'weight': 500, 'size': scale * fontsize, 'stretch': 'condensed'}
-    
+
     fraction = 1 - ysub / (1 + ysub)
 
     # black part with white HFLAV
@@ -664,7 +664,7 @@ def hflav_logo(subtitle, pos=[0.02,0.98], ax=None, scale=1):
     xc = (x[0]+x[1])/2
     yc = (y[0]+y[1])/2
     ax.fill( [x[0],x[1],x[1],x[0]], [y[0],y[0],y[1],y[1]], 'k', ec='k', lw=0.5, transform=ax.transAxes, clip_on=False, zorder=100 )
-    ax.text( xc, yc-0.01, 'HFLAV', fontdict=font, ha='center', va='center', transform=ax.transAxes, usetex=False, clip_on=False, zorder=110 ) 
+    ax.text( xc, yc-0.01, 'HFLAV', fontdict=font, ha='center', va='center', transform=ax.transAxes, usetex=False, clip_on=False, zorder=110 )
 
     # white part with black subtitle
     y = (pos[1]-yratio*xwidth, pos[1]-yratio*fraction*xwidth)
@@ -675,7 +675,7 @@ def hflav_logo(subtitle, pos=[0.02,0.98], ax=None, scale=1):
     ax.text( xc, yc-0.005, subtitle, fontdict=font, ha='center', va='center', transform=ax.transAxes, usetex=False, clip_on=False, zorder=130 )
 
 def corr_plot(df, savef=None, names=None):
-    
+
     # symmetrise
     if names=='columns':
         names = df.columns.values
@@ -686,7 +686,7 @@ def corr_plot(df, savef=None, names=None):
         if j>i:
             corr[j,i] = corr[i,j]
 
-    
+
     scale = len(names)/12
     fig, ax = plt.subplots(figsize=(scale*6.4,scale*4.8))
     im = ax.imshow(corr, cmap='coolwarm', interpolation='none', aspect='auto', vmin=-1, vmax=1, rasterized=True)
@@ -708,7 +708,7 @@ def corr_plot(df, savef=None, names=None):
         ax.tick_params( direction='out' )
         ax.minorticks_off()
 
-    
+
     if savef is not None:
         fig.savefig(savef)
         if '.pdf' in savef:
@@ -738,19 +738,19 @@ class plotter():
         self.mopts = []
 
     def add_scan(self, scanname, pars, label, bf=False, col=None, hatch=None, lw=None):
-        
+
         if scanname is not None:
             x, y, z, pt = get_scan_res(f'{args.prefix}{scanname}', *pars)
         else:
-            x = y = z = np.empty((2,2)) * np.nan # tricks a fake 
+            x = y = z = np.empty((2,2)) * np.nan # tricks a fake
             pt = None
-        
+
         # best fit point
         if bf:
             self.bfs.append( pt )
         else:
             self.bfs.append( None )
-        
+
         # scan points
         if self.dim==1:
             self.scanpoints.append( [x,y] )
@@ -767,7 +767,7 @@ class plotter():
 
         # 2d opts
         # elif self.dim==2:
-        # self.mopts.append( 
+        # self.mopts.append(
 
     def plot(self):
 
@@ -795,15 +795,15 @@ class plotter():
         if self.dim==1:
             plot1d( self.scanpoints, self.lopts, self.fopts, xtitle=self.xtitle, legtitles=self.legtitles, angle=self.xangle, ax=ax, legopts=legopts )
         elif self.dim==2:
-            plot2d( self.scanpoints, self.lopts, self.fopts, self.mopts, title=[self.xtitle,self.ytitle], levels=2, 
-                    legtitles=self.legtitles, angle=[self.xangle, self.yangle], ax=ax, bf=self.bfs, cl2d=True, legopts=legopts ) 
+            plot2d( self.scanpoints, self.lopts, self.fopts, self.mopts, title=[self.xtitle,self.ytitle], levels=2,
+                    legtitles=self.legtitles, angle=[self.xangle, self.yangle], ax=ax, bf=self.bfs, cl2d=True, legopts=legopts )
 
         if self.logo=='l':
             hflav_logo('Moriond 2024', ax=ax)
         else:
             hflav_logo('Moriond 2024', ax=ax, pos=[0.76,0.98])
 
-        # limits 
+        # limits
         if self.xrange is not None:
             ax.set_xlim(*self.xrange)
         if self.yrange is not None:
@@ -815,7 +815,7 @@ class plotter():
             ax.set_ylabel('$1-CL$', loc='top')
         elif self.dim==2:
             ax.set_ylabel(ax.get_ylabel(), loc='top')
-        
+
         # CL lines
         if self.cls is not None:
             ax.axhline( chi2.sf(1,1), c='k', ls=':', lw=1 )
@@ -829,7 +829,6 @@ class plotter():
 
         fig.savefig(self.save)
         fig.savefig(self.save.replace('pdf','png'))
-        
+
         if not args.interactive:
             fig.clf()
-

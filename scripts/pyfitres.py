@@ -307,7 +307,7 @@ def input_log_to_latex(fname, outfname):
             if line.split('.')[0].replace(' ','').isdigit():
                 ind = int(line.split('.')[0].replace(' ',''))
                 pdf_id = int(line.split('measurement ')[1].split(']')[0])
-                title = line.split(f'measurement {pdf_id}]')[1].replace('\n','') 
+                title = line.split(f'measurement {pdf_id}]')[1].replace('\n','')
                 print( f'{ind:3d} {pdf_id:4d} {title}' )
                 inputs.append( { 'ind': ind, 'id:': pdf_id, 'title': title } )
         if 'input observables' in line:
@@ -320,13 +320,13 @@ def input_log_to_latex(fname, outfname):
     for i, line in enumerate(lines):
         if '. PDF: ' in line:
             ind = int(line.split('.')[0].replace(' ',''))
-            inputs[ind-1]['name'] = line.split(': ')[1].split('(UID')[0] 
+            inputs[ind-1]['name'] = line.split(': ')[1].split('(UID')[0]
             inputs[ind-1]['start_line'] = i
             if ind>1:
                 inputs[ind-2]['end_line'] = i-1
             if ind == len(inputs):
                 inputs[ind-1]['end_line'] = None
-    
+
     with open(outfname,'w') as outf:
         # read each individual input
         for i, inp in enumerate(inputs):
@@ -367,7 +367,7 @@ def input_log_to_latex(fname, outfname):
                     els = cline.split()
                     print( '    ' + ' & '.join( [ f'${el:>6s}$' for el in els[2:] ] ) + r' \\', file=outf )
                 print( r'\end{tabular} \\', file=outf)
-                
+
                 # syst corr
                 print( 'Systematic correlation:', r'\\', file=outf )
                 print( r'\begin{tabular}{ ' + 'r '*nObs + '}', file=outf )
@@ -375,5 +375,3 @@ def input_log_to_latex(fname, outfname):
                     els = cline.split()
                     print( '    ' + ' & '.join( [ f'${el:>6s}$' for el in els[2:] ] ), file=outf )
                 print( r'\end{tabular} \\', '\n', file=outf)
-            
-

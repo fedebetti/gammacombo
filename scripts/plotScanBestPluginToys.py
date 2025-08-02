@@ -67,4 +67,3 @@ canv2.Modified()
 canv2.Print('plots/pdf/scanbestall.pdf')
 
 raw_input()
-
