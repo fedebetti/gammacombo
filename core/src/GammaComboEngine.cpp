@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <format>
 #include <memory>
+#include <string.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -56,9 +57,13 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
   m_batchscriptwriter = make_unique<BatchScriptWriter>(argc, argv);
 
   // run ROOT in interactive mode, if requested (-i)
-  if (arg->interactive)
+  if (arg->interactive) {
+    // -a is a reserved option for TApplication
+    std::string actionStr = "--action";  // (needed to avoid compiler warnings)
+    for (int i = 2; i < argc; ++i)
+      if (!strcmp(argv[i], "-a")) { argv[i] = actionStr.data(); }
     theApp = std::make_unique<TApplication>("App", &argc, argv);
-  else
+  } else
     gROOT->SetBatch(false);
 
   // reconfigure RooFormulaVar output
