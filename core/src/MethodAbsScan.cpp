@@ -30,18 +30,6 @@ using namespace std;
 using namespace RooFit;
 using namespace Utils;
 
-namespace {
-  auto msgBase = [](const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout) {
-    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-    stream << prefix << msgOut << std::endl;
-  };
-
-  auto errBase = [](const std::string& prefix, const std::string& msg, bool exit = true) {
-    msgBase(prefix, msg + ". Exit...", std::cerr);
-    if (exit) { std::exit(1); }
-  };
-}  // namespace
-
 MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
   combiner = c;
   w = c->getWorkspace();
@@ -53,22 +41,13 @@ MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
   thName = "th_" + combiner->getPdfName();
 
   // check workspace content
-  if (!w->pdf(pdfName)) {
-    cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << pdfName << endl;
-    exit(1);
-  }
-  if (!w->set(obsName)) {
-    cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << obsName << endl;
-    exit(1);
-  }
-  if (!w->set(parsName)) {
-    cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << parsName << endl;
-    exit(1);
-  }
-  if (!w->set(thName)) {
-    cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << thName << endl;
-    exit(1);
-  }
+  auto error = [](const TString& name) {
+    Utils::errBase("MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : ", std::string(name));
+  };
+  if (!w->pdf(pdfName)) error(pdfName);
+  if (!w->set(obsName)) error(obsName);
+  if (!w->set(parsName)) error(parsName);
+  if (!w->set(thName)) error(thName);
 }
 
 /// Constructor without combiner. This is still needed for the datasets stuff
@@ -98,16 +77,19 @@ MethodAbsScan::MethodAbsScan(const OptParser* opt)
 /// \param force If set to true it fits again, even it the fit was already run before.
 ///
 void MethodAbsScan::doInitialFit(bool force) {
+  auto info = [](const std::string& msg) { Utils::msgBase("MethodAbsScan::doInitialFit() : ", msg); };
+  auto warning = [](const std::string& msg) { Utils::msgBase("MethodAbsScan::doInitialFit() : WARNING : ", msg); };
+  static const auto separator = std::string(60, '=');
+
   RooMsgService::instance().setGlobalKillBelow(ERROR);
   if (arg->debug) {
-    cout << "\n============================================================" << endl;
-    cout << "MethodAbsScan::doInitialFit() : MAKE FIRST FIT ..." << endl;
-    cout << "MethodAbsScan::doInitialFit() : PDF " << pdfName << endl << endl;
+    std::cout << std::format("\n{:s}\n", separator);
+    info(std::format("MAKE FIRST FIT...\nPDF name: {:s}\n", std::string(pdfName)));
   }
   if (!force && chi2minGlobalFound) {
     if (arg->debug) {
-      cout << "MethodAbsScan::doInitialFit() : Already found previously: chi2minGlobal = " << chi2minGlobal << endl;
-      cout << "\n============================================================" << endl;
+      info(std::format("Already found previously: chi2minGlobal = {:f}", chi2minGlobal));
+      std::cout << "\n" << separator << std::endl;
     }
     return;
   }
@@ -131,31 +113,25 @@ void MethodAbsScan::doInitialFit(bool force) {
   fixParameters(w, "const");
 
   // check choice of start parameters
-  double nsigma = 10.;
   PullPlotter p(this);
-  if (p.hasPullsAboveNsigma(nsigma)) {
-    cout << "MethodAbsScan::doInitialFit() : WARNING : Chosen start parameter values result in pulls larger\n"
-            "                                WARNING : than "
-         << nsigma
-         << " sigma. Check the values in your\n"
-            "                                WARNING : ParametersAbs class!\n"
-            "Offending pulls:"
-         << endl;
+  if (double nsigma = 10.; p.hasPullsAboveNsigma(nsigma)) {
+    warning(std::format("Chosen start parameter values result in pulls larger than {:.2f} sigma\n"
+                        "Check the values in your ParametersAbs class!\n"
+                        "Offending pulls:",
+                        nsigma));
     p.printPulls(nsigma);
-    cout << endl;
+    std::cout << std::endl;
   }
 
-  // print init parameters
+  // Print initial parameters
   if (arg->debug) {
-    cout << "MethodAbsScan::doInitialFit() : init parameters:" << endl;
-    w->set(parsName)->Print("v");
-    cout << "MethodAbsScan::doInitialFit() : init pulls:" << endl;
-    p.printPulls(0.);
-    cout << "MethodAbsScan::doInitialFit() : PDF evaluated at init parameters: ";
-    cout << w->pdf(pdfName)->getVal() << endl;
     RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*w->pdf(pdfName)));
-    cout << "MethodAbsScan::doInitialFit() : Chi2 at init parameters: ";
-    cout << ll.getVal() << endl;
+    info("Initial parameters:");
+    w->set(parsName)->Print("v");
+    info("Initial pulls:");
+    p.printPulls(0.);
+    info(std::format("PDF evaluated at initial parameters: {:e}", w->pdf(pdfName)->getVal()));
+    info(std::format("Chi2 at initial parameters: {:f}", ll.getVal()));
   }
 
   int quiet = arg->debug ? 1 : -1;
@@ -168,7 +144,7 @@ void MethodAbsScan::doInitialFit(bool force) {
   // reset parameters to their values at function call
   setParameters(w, parsName, startPars->get(0));
 
-  if (arg->debug) cout << "============================================================\n" << endl;
+  if (arg->debug) std::cout << separator << "\n" << std::endl;
   RooMsgService::instance().setGlobalKillBelow(INFO);
 }
 
@@ -211,26 +187,32 @@ void MethodAbsScan::setChi2minGlobal(double x) {
 }
 
 void MethodAbsScan::initScan() {
-  if (arg->debug) cout << "MethodAbsScan::initScan() : initializing ..." << endl;
-  if (m_initialized) {
-    cout << "MethodAbsScan::initScan() : already initialized." << endl;
-    exit(1);
-  }
+  auto info = [](const std::string& msg) { Utils::msgBase("MethodAbsScan::initScan() : ", msg); };
+  auto error = [](const std::string& msg, bool exit = true, bool header = true) {
+    Utils::errBase(header ? "MethodAbsScan::initScan() : ERROR : " : "\n", msg, exit);
+  };
+
+  if (arg->debug) info("MethodAbsScan::initScan() : Start execution...");
+  if (m_initialized) error("Already initialized");
+
+  auto parNotFound = [this, &error](const TString var) {
+    std::string pars;
+    for (const auto& name : combiner->getParameterNames()) pars += std::format("{:s}\n", std::string(name));
+    error("", false);
+    error(std::format("No such scan parameter: {:s}\n"
+                      "Choose an existing one using: --var par\n\n"
+                      "Available parameters:\n"
+                      "---------------------\n\n"
+                      "{:s}\n",
+                      std::string(var), pars),
+          true, false);
+  };
 
   // Init the 1-CL histograms. Range is taken from the scan range defined in
   // the ParameterAbs class (and derived ones), unless the --scanrange command
   // line argument is set.
   auto par1 = w->var(scanVar1);
-  if (!par1) {
-    if (arg->debug) cout << "MethodAbsScan::initScan() : ";
-    cout << "ERROR : No such scan parameter: " << scanVar1 << endl;
-    cout << "        Choose an existing one using: --var par" << endl << endl;
-    cout << "  Available parameters:" << endl;
-    cout << "  ---------------------" << endl << endl;
-    for (const auto& name : combiner->getParameterNames()) { cout << "    " << name << endl; }
-    cout << endl;
-    exit(1);
-  }
+  if (!par1) { parNotFound(scanVar1); }
   if (!m_xrangeset && arg->scanrangeMin != arg->scanrangeMax) { setXscanRange(arg->scanrangeMin, arg->scanrangeMax); }
   setLimit(w, scanVar1, "scan");
   double min1 = par1->getMin();
@@ -255,16 +237,7 @@ void MethodAbsScan::initScan() {
 
   if (scanVar2 != "") {
     RooRealVar* par2 = w->var(scanVar2);
-    if (!par2) {
-      if (arg->debug) cout << "MethodAbsScan::initScan() : ";
-      cout << "ERROR : No such scan parameter: " << scanVar2 << endl;
-      cout << "        Choose an existing one using: --var par" << endl << endl;
-      cout << "  Available parameters:" << endl;
-      cout << "  ---------------------" << endl << endl;
-      for (const auto& name : combiner->getParameterNames()) { cout << "    " << name << endl; }
-      cout << endl;
-      exit(1);
-    }
+    if (!par2) { parNotFound(scanVar2); }
     if (!m_yrangeset && arg->scanrangeyMin != arg->scanrangeyMax) {
       setYscanRange(arg->scanrangeyMin, arg->scanrangeyMax);
     }
@@ -305,7 +278,7 @@ void MethodAbsScan::initScan() {
 /// It contains the 1-CL histograms and the solutions.
 ///
 void MethodAbsScan::saveScanner(TString fName) const {
-  auto error = [](const std::string& msg) { errBase("MethodAbsScan::saveScanner : ERROR : ", msg); };
+  auto error = [](const std::string& msg) { Utils::errBase("MethodAbsScan::saveScanner : ERROR : ", msg); };
 
   if (fName == "") {
     FileNameBuilder fb(arg);
@@ -343,7 +316,7 @@ void MethodAbsScan::saveScanner(TString fName) const {
 /// It contains the 1-CL histograms and the solutions.
 ///
 bool MethodAbsScan::loadScanner(TString fName) {
-  auto error = [](const std::string& msg) { errBase("MethodAbsScan::loadScanner : ERROR : ", msg); };
+  auto error = [](const std::string& msg) { Utils::errBase("MethodAbsScan::loadScanner : ERROR : ", msg); };
 
   if (fName == "") {
     FileNameBuilder fb(arg);
@@ -677,10 +650,12 @@ std::optional<std::pair<double, double>> MethodAbsScan::interpolate(TH1* h, cons
 void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected, const bool quiet) {
 
   // Messaging
-  auto debug = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : DEBUG : ", msg); };
-  auto info = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : ", msg); };
-  auto warning = [](const std::string& msg) { msgBase("MethodAbsScan::calcCLintervals() : WARNING : ", msg); };
-  auto error = [](const std::string& msg) { errBase("MethodAbsScan::calcCLintervals() : ERROR : ", msg, false); };
+  auto debug = [](const std::string& msg) { Utils::msgBase("MethodAbsScan::calcCLintervals() : DEBUG : ", msg); };
+  auto info = [](const std::string& msg) { Utils::msgBase("MethodAbsScan::calcCLintervals() : ", msg); };
+  auto warning = [](const std::string& msg) { Utils::msgBase("MethodAbsScan::calcCLintervals() : WARNING : ", msg); };
+  auto error = [](const std::string& msg) {
+    Utils::errBase("MethodAbsScan::calcCLintervals() : ERROR : ", msg, false);
+  };
   if (arg->debug) debug(std::format("Calling arguments: {:d}, {:s}, {:s}", CLsType, calc_expected, quiet));
 
   // TODO
@@ -964,7 +939,7 @@ const CLInterval* MethodAbsScan::getCLintervalCentral(int sigma, bool quiet) { r
  * @return      A copy of the desired CLInterval.
  */
 const CLInterval* MethodAbsScan::getCLinterval(const int iSol, const int index, const bool quiet) {
-  auto error = [](const std::string& msg) { errBase("MethodAbsScan::getCLinterval : ERROR : ", msg); };
+  auto error = [](const std::string& msg) { Utils::errBase("MethodAbsScan::getCLinterval : ERROR : ", msg); };
 
   if (clintervals.empty()) calcCLintervals(0, false, quiet);
   if (clintervals.empty()) error("This should never happen");

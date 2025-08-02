@@ -26,24 +26,12 @@
 #include <utility>
 #include <vector>
 
-namespace {
-  auto msgBase = [](const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout) {
-    auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefix.size(), ' '));
-    stream << prefix << msgOut << std::endl;
-  };
-
-  auto errBase = [](const std::string& prefix, const std::string& msg) { msgBase(prefix, msg, std::cerr); };
-}  // namespace
-
 /// Constructor.
 OneMinusClPlot::OneMinusClPlot(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {}
 
 /// Helper function for operation that is repeated several times.
 std::unique_ptr<TH1> OneMinusClPlot::getHistogram(MethodAbsScan* s, const int CLsType, const bool removeErrs) const {
-  auto error = [](const std::string& msg) {
-    errBase("OneMinusClPlot::getHistogram : ERROR : ", msg);
-    exit(1);
-  };
+  auto error = [](const std::string& msg) { Utils::errBase("OneMinusClPlot::getHistogram : ERROR : ", msg); };
 
   if (!s) error("MethodAbsScan is equal to nullptr");
   const TH1* pH = nullptr;
@@ -85,7 +73,7 @@ std::unique_ptr<TH1> OneMinusClPlot::getHistogram(MethodAbsScan* s, const int CL
  */
 TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, const bool first, const bool last, const bool filled,
                                    const int CLsType) {
-  auto debug = [](const std::string& msg) { msgBase("OneMinusClPlot::scan1dPlot : DEBUG : ", msg); };
+  auto debug = [](const std::string& msg) { Utils::msgBase("OneMinusClPlot::scan1dPlot : DEBUG : ", msg); };
 
   if (arg->debug) debug(std::format("Plot {:s} ({:s})", std::string(s->getName()), std::string(s->getMethodName())));
   canvas->cd();
@@ -372,7 +360,7 @@ void OneMinusClPlot::scan1dPlotSimple(MethodAbsScan* s, const bool first, const 
  * @param smooth
  */
 void OneMinusClPlot::scan1dCLsPlot(MethodAbsScan* s, const bool smooth, const bool obsError) {
-  auto info = [](const std::string& msg) { msgBase("OneMinusClPlot::scan1dCLsPlot() : ", msg); };
+  auto info = [](const std::string& msg) { Utils::msgBase("OneMinusClPlot::scan1dCLsPlot() : ", msg); };
   if (arg->debug) info(std::format("plotting {:s} ({:s})", std::string(s->getName()), std::string(s->getMethodName())));
   canvas->cd();
 

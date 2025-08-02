@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <format>
+#include <iostream>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -28,6 +29,18 @@ using namespace RooFit;
 
 int Utils::countFitBringBackAngle;     ///< counts how many times an angle needed to be brought back
 int Utils::countAllFitBringBackAngle;  ///< counts how many times fitBringBackAngle() was called
+
+void Utils::errBase(const std::string& prefix, const std::string& msg, bool exit) {
+  const std::string endStringSeparator = msg.ends_with('\n') ? "" : ". ";
+  msgBase(prefix, msg + (exit ? endStringSeparator + "Exit..." : ""), std::cerr);
+  if (exit) { std::exit(1); }
+};
+
+void Utils::msgBase(const std::string& prefix, const std::string& msg, std::ostream& stream) {
+  auto prefixLength = std::ranges::count_if(prefix, [](char c) { return c != '\n'; });
+  auto msgOut = Utils::replaceAll(msg, "\n", "\n" + std::string(prefixLength, ' '));
+  stream << prefix << msgOut << std::endl;
+};
 
 ///
 /// Fit PDF to minimum.
