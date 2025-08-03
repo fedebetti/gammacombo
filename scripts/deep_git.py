@@ -20,7 +20,8 @@ parser.add_option(
 )
 (opts, args) = parser.parse_args()
 
-import os, sys
+import os
+import sys
 
 if not os.path.exists("cmake/combiners.cmake"):
     sys.exit("No file found at cmake/combiners.cmake so nothing to do")

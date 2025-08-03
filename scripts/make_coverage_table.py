@@ -31,14 +31,15 @@ print_rows = []
 print("")
 
 import os
-import ROOT as r
+
 import matplotlib.pyplot as plt
+import ROOT as r
 
 plt.rcParams.update({"font.size": 16})
-from matplotlib.colors import to_rgba
 import numpy as np
+from matplotlib.colors import to_rgba
 from scipy.optimize import curve_fit
-from scipy.stats import norm, chi2
+from scipy.stats import chi2, norm
 
 if args.list:
     with open(args.list) as f:
@@ -146,14 +147,14 @@ def plots(tf):
     ax.text(
         0.7,
         0.7,
-        "$\mu={:6.3f} \\pm {:5.3f}$".format(mean, std / (N**0.5)),
+        "$\\mu={:6.3f} \\pm {:5.3f}$".format(mean, std / (N**0.5)),
         transform=ax.transAxes,
         fontsize=16,
     )
     ax.text(
         0.7,
         0.6,
-        "$\sigma={:5.3f} \\pm {:5.3f}$".format(std, std / ((N - 1) ** 0.5)),
+        "$\\sigma={:5.3f} \\pm {:5.3f}$".format(std, std / ((N - 1) ** 0.5)),
         transform=ax.transAxes,
         fontsize=16,
     )
@@ -161,7 +162,7 @@ def plots(tf):
     ax.tick_params(axis="both", labelsize=16)
     xlab = "{0}".format(args.par)
     if args.degrees:
-        xlab += " [$^\circ$]"
+        xlab += r" [$^\circ$]"
     ax.set_xlabel(xlab, fontsize=16)
     ax.set_ylabel("ntoys", fontsize=16)
     fig.tight_layout()
@@ -282,7 +283,7 @@ if args.xtitle:
 lab = "Coverage"
 if args.par:
     lab += " on {0}".format(args.par)
-lab += " [$\sigma$]"
+lab += r" [$\sigma$]"
 ax[0].set_ylabel(lab, fontsize=16)
 ax[0].legend(
     fontsize=14, ncol=3 if args.bffil else 2, bbox_to_anchor=(0.5, 1.2), loc="center"

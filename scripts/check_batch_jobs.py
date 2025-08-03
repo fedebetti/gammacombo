@@ -60,11 +60,11 @@ if opts.resubmit:
     if opts.resubmit not in allowed_resubmits:
         sys.exit("--resubmit must be one of Queued, Failed, Running, All")
 
-import os
+import datetime
 import fnmatch
+import os
 import re
 import time
-import datetime
 
 regex = None
 if opts.regex:
@@ -194,8 +194,6 @@ if len(total_run) > 0:
 if len(total_done) > 0:
     print("\tComplete:", len(total_done), "/", len(total_scripts))
 
-
-import time
 
 if opts.synch:
     # check if back_up is required

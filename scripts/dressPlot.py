@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-import ROOT as r
 import os
 import sys
-
 from optparse import OptionParser
+
+import ROOT as r
 
 parser = OptionParser()
 parser.add_option(

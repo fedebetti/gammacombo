@@ -12,13 +12,12 @@ parser.add_argument(
 parser.add_argument("-v", "--var", default=[], action="append", help="Variables")
 opts = parser.parse_args()
 
-import numpy as np
-from scipy.stats import chi2
-
 import itertools
-
 import os
+
+import numpy as np
 import ROOT as r
+from scipy.stats import chi2
 
 r.gErrorIgnoreLevel = r.kFatal
 
@@ -158,8 +157,8 @@ class scan:
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, AutoMinorLocator
 from matplotlib.patches import Patch
+from matplotlib.ticker import AutoMinorLocator
 
 mpl.rcParams["axes.linewidth"] = 1
 

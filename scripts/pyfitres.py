@@ -2,10 +2,10 @@
 ### output and keep it in a python uncertainties package format
 
 import os
-import uncertainties as u
+
 import numpy as np
 import pandas as pd
-from operator import itemgetter
+import uncertainties as u
 from scipy.stats import multivariate_normal
 from scipy.stats.distributions import chi2
 

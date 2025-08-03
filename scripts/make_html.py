@@ -57,11 +57,9 @@ parser.add_option(
 )
 (opts, args) = parser.parse_args()
 
-import os
-import sys
-import re
-import time
 import datetime
+import os
+import re
 import zipfile
 
 regex = None

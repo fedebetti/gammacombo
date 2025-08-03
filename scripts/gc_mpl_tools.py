@@ -1,15 +1,15 @@
-import os
-import sys
 import importlib
-import ROOT as r
-import numpy as np
 import itertools
-from scipy.stats import chi2
-from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
+import os
+
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
+import ROOT as r
 from matplotlib import rcParams
 from matplotlib.lines import Line2D
+from scipy.interpolate import interp1d
+from scipy.stats import chi2
 from tabulate import tabulate
 
 
