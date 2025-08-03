@@ -169,4 +169,4 @@ canv.Print('plots/C/%s.C'%opts.outputfile)
 canv.SaveAs('plots/root/%s.root'%opts.outputfile)
 
 if not opts.batch:
-    input("Ok?")
+    eval(input("Ok?"))

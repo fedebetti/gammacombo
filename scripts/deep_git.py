@@ -20,7 +20,7 @@ def printLine(text=''):
   for i in range(front_dashes): to_print += '-'
   to_print += text
   for i in range(back_dashes): to_print += '-'
-  print to_print
+  print(to_print)
 
 def executeGitCommand(path):
   printLine()

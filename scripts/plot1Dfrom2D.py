@@ -46,13 +46,13 @@ p2d = nb2d.Clone('p2d')
 p2d.Sumw2()
 p2d.Divide(na2d)
 
-print tree.GetEntries()
-print na.GetMaximum()
-print na_r.GetMaximum()
+print(tree.GetEntries())
+print(na.GetMaximum())
+print(na_r.GetMaximum())
 
-print p.GetMaximum()
-print p_r.GetMaximum()
-print p2d.GetMaximum()
+print(p.GetMaximum())
+print(p_r.GetMaximum())
+print(p2d.GetMaximum())
 
 canv = r.TCanvas('c','c',1200,900)
 canv.Divide(3,3)
@@ -85,7 +85,7 @@ canv.Modified()
 
 canv.Print("plots/2dtest.pdf")
 
-raw_input()
+input()
 outf = r.TFile("root/2dtestOut.root","recreate")
 outf.cd()
 nb.Write()

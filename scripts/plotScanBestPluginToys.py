@@ -16,7 +16,7 @@ chain = r.TChain("plugin")
 for f in files:
   chain.Add( f )
 
-print chain.GetEntries()
+print(chain.GetEntries())
 
 scan_val = -99999.
 smallest_diff = 1.e10
@@ -29,7 +29,7 @@ for ev in range(chain.GetEntries()):
     smallest_diff = diff
     scan_val = chain.scanpoint
 
-print 'Scan val found: ', scan_val
+print('Scan val found: ', scan_val)
 
 full_dist = r.TH1F('full_dist','',500,0,0.1)
 
@@ -41,8 +41,8 @@ for ev in range(chain.GetEntries()):
   if r.TMath.Abs( scan_val - chain.scanpoint) < 1.e-6:
     fit_vals.append( chain.scanbest )
 
-print fit_vals
-print len(fit_vals)
+print(fit_vals)
+print(len(fit_vals))
 
 dist = r.TH1F('dist','',100,0,0.06)
 
@@ -66,4 +66,4 @@ canv2.Update()
 canv2.Modified()
 canv2.Print('plots/pdf/scanbestall.pdf')
 
-raw_input()
+input()
