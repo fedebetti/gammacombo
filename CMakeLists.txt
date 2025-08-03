@@ -50,18 +50,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 # https://cliutils.gitlab.io/modern-cmake/chapters/packages/ROOT.html)
 find_package(ROOT 6.18 CONFIG REQUIRED)
 message(STATUS "Found ROOT: ${ROOT_INCLUDE_DIRS}")
-# ROOT does not support specifying maximum version in find_package
-find_program(ROOT_CONFIG_EXECUTABLE root-config PATHS $ENV{ROOTSYS}/bin)
-execute_process(
-  COMMAND ${ROOT_CONFIG_EXECUTABLE} --version
-  OUTPUT_VARIABLE ROOT_VERSION
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(${ROOT_VERSION} GREATER_EQUAL 6.34)
-  message(
-    FATAL_ERROR
-      "ROOT ${ROOT_VERSION} is not supported (createIterator() method was removed from RooFit in ROOT 6.34)"
-  )
-endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O3 ${ROOT_CXX_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
 
