@@ -59,7 +59,7 @@ class SharedArrayImp : public TObject
 };
 
 /** @brief copy on write TYPE array class to make cloning cheap
- * 
+ *
  * @author Manuel Tobias Schiller <manuel.schiller@nikhef.nl>
  * @date 2012-08-30
  */
@@ -85,7 +85,7 @@ class SharedArray : public TObject
     /// clone method
     virtual SharedArray<TYPE>* Clone(const char* newname = 0) const;
     /// destructor
-    virtual ~SharedArray(); 
+    virtual ~SharedArray();
     /// assignment
     SharedArray& operator=(const SharedArray<TYPE>& other);
     /// get size of array
@@ -107,7 +107,7 @@ class SharedArray : public TObject
     }
     /// pointer to array implementation
     SharedArrayImp<TYPE>* pimpl;
-    
+
     public:
     /** @brief proxy class to distinguish reads from writes
      *

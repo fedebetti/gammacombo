@@ -55,7 +55,7 @@ void BatchScriptWriter::writeScripts(OptParser *arg, vector<Combiner*> *cmb){
     if ( arg->isAction("coveragebatch") ) {
       dirname += arg->id<0 ? "_id0" : Form("_id%d",arg->id);
     }
-    
+
     char cwd[1024];
     getcwd(cwd,1024);
 
@@ -88,7 +88,7 @@ void BatchScriptWriter::writeScripts(OptParser *arg, vector<Combiner*> *cmb){
         else if ( arg->batchout ) {
             outf_dir = Form("%s/%02d%02d%04d/%s", arg->batchout.Data(),day,month,year,dirname.Data());
         }
-    
+
     }
     if ( arg->var.size()==2 ) {
       scriptname = "scan2d"+methodname+"_"+c->getName()+"_"+arg->var[0];
@@ -272,7 +272,7 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, Op
   outfile << Form("if ( %s --nrun %d ); then",exec.c_str(),jobn) << endl;
   outfile << Form("\trm -f %s/%s.run",cwd,fname.Data()) << endl;
   outfile << Form("\ttouch %s/%s.jobcomplete",cwd,fname.Data()) << endl;
-  
+
   TString basename = rootfilename;
   basename.Remove(0, rootfilename.Last('/')+1);
   system(Form("mkdir -p %s",outfloc.Data()));
@@ -284,7 +284,7 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, Op
   outfile << Form("\t\ttouch %s/%s.done",cwd,fname.Data()) << endl;
   outfile << "\t\techo \"SUCCESS!\"" << endl;
   outfile << "\telse" << endl;
-  outfile << Form("\t\ttouch %s/%s.fail",cwd,fname.Data()) << endl; 
+  outfile << Form("\t\ttouch %s/%s.fail",cwd,fname.Data()) << endl;
   outfile << Form("\t\trm -f %s/%s.run",cwd,fname.Data()) << endl;
   outfile << "\tfi" << endl;
 

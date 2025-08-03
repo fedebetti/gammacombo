@@ -34,4 +34,3 @@ class PDF_Circle : public PDF_Abs
 };
 
 #endif
-

@@ -5,7 +5,7 @@
 # create symbolic lib target for calling library targets
 MACRO( ADD_SHARED_LIBRARY _name )
     ADD_LIBRARY( ${_name} SHARED ${ARGN} )
-    
+
     # change lib_target properties
     SET_TARGET_PROPERTIES( ${_name} PROPERTIES
         # create *nix style library versions + symbolic links

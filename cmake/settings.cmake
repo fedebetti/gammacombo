@@ -20,4 +20,3 @@ ENDIF()
 
 # write this variable to cache
 SET( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Where to install ${PROJECT_NAME}" FORCE )
-

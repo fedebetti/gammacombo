@@ -23,8 +23,8 @@ RooCrossCorPdf::RooCrossCorPdf(const char *name, const char *title,
 
 
 RooCrossCorPdf::RooCrossCorPdf(const RooCrossCorPdf& other, const char* name) :
-    RooAbsPdf(other, name), 
-    _th("th",this,other._th), 
+    RooAbsPdf(other, name),
+    _th("th",this,other._th),
     _obs("obs",this,other._obs),
     _invcov(other._invcov),
     _nObsPdf1(other._nObsPdf1)
@@ -32,7 +32,7 @@ RooCrossCorPdf::RooCrossCorPdf(const RooCrossCorPdf& other, const char* name) :
 }
 
 
-Double_t RooCrossCorPdf::evaluate() const 
+Double_t RooCrossCorPdf::evaluate() const
 {
     //return 1.;
     // Represent observables and theory as vector
@@ -54,4 +54,3 @@ Double_t RooCrossCorPdf::evaluate() const
     }
     return exp(-ret);
 }
-

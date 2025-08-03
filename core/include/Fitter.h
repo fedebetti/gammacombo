@@ -21,7 +21,7 @@ public:
 
     Fitter(OptParser *arg, RooWorkspace *w, TString name);
     ~Fitter();
-    
+
     void        fit();
     void        fitForce();
     void        fitImprove();
@@ -33,7 +33,7 @@ public:
     inline void setStartpars(const RooArgSet* pars){setStartparsFirstFit(pars);};
     inline void setStartparsFirstFit(const RooArgSet* pars){startparsFirstFit=pars;};
     inline void setStartparsSecondFit(const RooArgSet* pars){startparsSecondFit=pars;};
-    
+
     OptParser *arg;                       ///< command line arguments
     RooWorkspace *w;                      ///< holds all input pdfs, parameters, and observables, as well as the combination
     TString name;                         ///< Name of the pdf. Call combine() first.

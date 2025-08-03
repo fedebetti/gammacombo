@@ -224,4 +224,3 @@ void ParameterCache::setPoint(Combiner *cmb, int i) {
         }
     }
 }
-

@@ -30,4 +30,3 @@ class PDF_Cartesian : public PDF_Abs
 };
 
 #endif
-

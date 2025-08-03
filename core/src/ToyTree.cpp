@@ -574,4 +574,3 @@ bool ToyTree::isWsVarAngle(TString var)
     }
     return isAngle(w->var(var));
 }
-

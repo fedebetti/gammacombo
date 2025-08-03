@@ -104,4 +104,3 @@ class MethodCoverageScan : public MethodAbsScan
 };
 
 #endif
-

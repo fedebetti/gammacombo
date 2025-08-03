@@ -798,7 +798,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
 
         // //ideal method, but prone to fluctuations
         hCLsExp->SetBinContent   ( i, TMath::Min( quantiles_cls[2] , 1.) );
-        hCLsExp->SetBinError   ( i, sqrt((1.-TMath::Min( quantiles_cls[2] , 1.))*TMath::Min( quantiles_cls[2] , 1.)/sampledBValues[i].size()) );        
+        hCLsExp->SetBinError   ( i, sqrt((1.-TMath::Min( quantiles_cls[2] , 1.))*TMath::Min( quantiles_cls[2] , 1.)/sampledBValues[i].size()) );
         hCLsErr1Up->SetBinContent( i, TMath::Min( quantiles_cls[3] , 1.) );
         hCLsErr1Dn->SetBinContent( i, TMath::Min( quantiles_cls[1] , 1.) );
         hCLsErr2Up->SetBinContent( i, TMath::Min( quantiles_cls[4] , 1.) );
@@ -900,7 +900,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     // leg_medianerr->AddEntry(mederr_poisson_cls, "simple binomial error on cls dist.", "L");
     // leg_medianerr->AddEntry(mederr_poisson_clsb_clb, "(wrong) error prop. clsb/clb", "L");
     // leg_medianerr->Draw("same");
-    // canvas_medianerr->SaveAs("median_error_test.png"); 
+    // canvas_medianerr->SaveAs("median_error_test.png");
     // //...
 
 
@@ -955,7 +955,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     }
 
     if (arg->debug || arg->controlplot) {
-        
+
         // Bkg-only p-values distribution. assuming first scan point ~ bkg-only.
         // Should be flat. Large peaks at 0/1 indicate negative test statistics.
         TCanvas *canvas1 = newNoWarnTCanvas("canvas1", "canvas1");
@@ -1010,7 +1010,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
 
 
         // Distribution of good plugin toys
-        // Values should be 1. and flat. 
+        // Values should be 1. and flat.
         savePlot(canvas1, "failed_toys_plugin_"+scanVar1);
         TCanvas* can = newNoWarnTCanvas("can", "can");
         can->cd();
@@ -1046,7 +1046,7 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
         leg_gof->SetHeader("Should be smooth close to best fit point");
         leg_gof->SetFillColorAlpha(0, 0.5);
         leg_gof->Draw("same");
-        TArrow *lD = new TArrow( hCL->GetBinCenter(hCL->GetMaximumBin()),0.9*h_gof->GetMaximum(), hCL->GetBinCenter(hCL->GetMaximumBin()), h_gof->GetMinimum(), 0.15, "|>" ); 
+        TArrow *lD = new TArrow( hCL->GetBinCenter(hCL->GetMaximumBin()),0.9*h_gof->GetMaximum(), hCL->GetBinCenter(hCL->GetMaximumBin()), h_gof->GetMinimum(), 0.15, "|>" );
         lD->SetLineColor(kRed);
         lD->SetLineWidth(2);
         lD->Draw("same");

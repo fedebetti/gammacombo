@@ -29,4 +29,3 @@ class PDF_GausB : public PDF_Abs
 };
 
 #endif
-

@@ -1,6 +1,6 @@
 /**
  * Gamma Combination
- * Author: Matthew Kenzie matthew.kenzie@cern.ch 
+ * Author: Matthew Kenzie matthew.kenzie@cern.ch
  * Date: Apr 2015
  *
  **/
@@ -19,7 +19,7 @@ using namespace Utils;
 class BatchScriptWriter
 {
   public:
-    
+
     BatchScriptWriter(int argc, char* argv[]);
     ~BatchScriptWriter();
 
@@ -32,4 +32,3 @@ class BatchScriptWriter
 };
 
 #endif
-

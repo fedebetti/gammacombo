@@ -26,9 +26,9 @@ public:
 
     void progress();
     void skipSteps(unsigned int n);
-    
+
 private:
-    
+
     void progressBar();
     void progressPercentage();
 

@@ -28,12 +28,12 @@ public:
 
   Graphviz(OptParser *arg);
   ~Graphviz();
-  
+
   void       printCombiner(Combiner* cmb);
   void       printCombinerLayer(Combiner* cmb);
-    
+
 private:
-  
+
   TString   graphvizString(TString s);
   // TString   graphvizString(string s);
   bool      isDmixingParameter(TString s);

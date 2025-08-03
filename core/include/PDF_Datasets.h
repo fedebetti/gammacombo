@@ -85,7 +85,7 @@ public:
                                       const double &rangeMin, const double &rangeMax);
     void                  setToyData(RooAbsData* ds);
     void                  setBkgToyData(RooAbsData* ds);
-    
+
     void                  setGlobalObsSnapshotBkgToy(TString snapshotname) {globalObsBkgToySnapshotName = snapshotname;};
 
     void                  unblind(TString var, TString unblindRegs);

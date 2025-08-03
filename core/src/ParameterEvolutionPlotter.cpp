@@ -308,4 +308,3 @@ void ParameterEvolutionPlotter::updateCurrentCanvas()
     TCanvas* c1 = m_canvases[m_canvases.size()-1];
     c1->Update();
 }
-
