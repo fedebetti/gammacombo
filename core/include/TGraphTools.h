@@ -8,20 +8,18 @@
 #ifndef TGraphTools_h
 #define TGraphTools_h
 
-#include <TGraph.h>
-#include <TGraphErrors.h>
-#include <TGraphAsymmErrors.h>
-#include <TGraphSmooth.h>
 #include "Utils.h"
+#include <TGraph.h>
+#include <TGraphAsymmErrors.h>
+#include <TGraphErrors.h>
+#include <TGraphSmooth.h>
 
 using namespace std;
 using namespace Utils;
 
-class TGraphTools
-{
-    public:
-
-        TGraph* addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew);
+class TGraphTools {
+ public:
+  TGraph* addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew);
 };
 
 #endif

@@ -1,18 +1,18 @@
 #ifndef FitResultDump_h
 #define FitResultDump_h
 
-#include <iostream>
-#include <fstream>
 #include "MethodAbsScan.h"
+#include <fstream>
+#include <iostream>
 
 class FitResultDump {
 
-    public:
-        FitResultDump();
-        ~FitResultDump();
+ public:
+  FitResultDump();
+  ~FitResultDump();
 
-        void dumpResult(std::string ofname, MethodAbsScan *scanner);
-        ofstream outf;
+  void dumpResult(std::string ofname, MethodAbsScan* scanner);
+  ofstream outf;
 };
 
 #endif

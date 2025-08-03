@@ -12,14 +12,13 @@
 
 #include <ParametersAbs.h>
 
-class ParametersCartesian : public ParametersAbs
-{
-public:
-    ParametersCartesian();
-    inline ~ParametersCartesian(){};
+class ParametersCartesian : public ParametersAbs {
+ public:
+  ParametersCartesian();
+  inline ~ParametersCartesian(){};
 
-protected:
-    void defineParameters();
+ protected:
+  void defineParameters();
 };
 
 #endif

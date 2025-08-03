@@ -8,40 +8,27 @@
 
 #include <Riostream.h>
 
-#include <RooHistPdfAngleVar.h>
-#include <RooAbsReal.h>
 #include <RooAbsCategory.h>
-#include <math.h>
+#include <RooAbsReal.h>
+#include <RooHistPdfAngleVar.h>
 #include <TMath.h>
+#include <math.h>
 
-RooHistPdfAngleVar::RooHistPdfAngleVar(const char *name, const char *title,
-    RooAbsReal& _xobs,
-    RooAbsReal& _xth,
-    RooAbsReal& _xshift) :
-    RooAbsReal(name,title),
-    xobs("xobs","xobs",this,_xobs),
-    xth("xth","xth",this,_xth),
-    xshift("xshift","xshift",this,_xshift)
-{
-}
+RooHistPdfAngleVar::RooHistPdfAngleVar(const char* name, const char* title, RooAbsReal& _xobs, RooAbsReal& _xth,
+                                       RooAbsReal& _xshift)
+    : RooAbsReal(name, title), xobs("xobs", "xobs", this, _xobs), xth("xth", "xth", this, _xth),
+      xshift("xshift", "xshift", this, _xshift) {}
 
+RooHistPdfAngleVar::RooHistPdfAngleVar(const RooHistPdfAngleVar& other, const char* name)
+    : RooAbsReal(other, name), xobs("xobs", this, other.xobs), xth("xth", this, other.xth),
+      xshift("xshift", this, other.xshift) {}
 
-RooHistPdfAngleVar::RooHistPdfAngleVar(const RooHistPdfAngleVar& other, const char* name) :
-    RooAbsReal(other,name),
-    xobs("xobs",this,other.xobs),
-    xth("xth",this,other.xth),
-    xshift("xshift",this,other.xshift)
-{
-}
+RooHistPdfAngleVar::~RooHistPdfAngleVar() {}
 
-RooHistPdfAngleVar::~RooHistPdfAngleVar() { }
-
-
-Double_t RooHistPdfAngleVar::evaluate() const
-{
-    double val = fmod(double(xth) - double(xobs) + double(xshift), 2.*TMath::Pi());
-    if ( val<0.0 ) val = val + 2.*TMath::Pi();
-    return val;
+Double_t RooHistPdfAngleVar::evaluate() const {
+  double val = fmod(double(xth) - double(xobs) + double(xshift), 2. * TMath::Pi());
+  if (val < 0.0) val = val + 2. * TMath::Pi();
+  return val;
 }
 
 ClassImp(RooHistPdfAngleVar)
