@@ -85,7 +85,7 @@ def getGitPathsFromCombiners():
         if "COMBINER_MODULES" in line:
             switch = True
             continue
-        if switch == True and ")" in line:
+        if switch and ")" in line:
             switch = False
             continue
         if switch:

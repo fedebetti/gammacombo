@@ -52,7 +52,7 @@ if args.xlabels:
     try:
         xlabels = [float(x) for x in xlabels]
         args.xfloat = True
-    except:
+    except Exception:
         args.xfloat = False
 
 args.bffil = None
@@ -87,7 +87,8 @@ def plots(tf):
     x_plug, y_plug = htoxy(h_plug)
     x_prob, y_prob = htoxy(h_prob)
 
-    f = lambda x, p0, p1: p0 + x * p1
+    def f(x, p0, p1):
+        return p0 + x * p1
 
     plug_opt, _ = curve_fit(f, x_plug, y_plug, sigma=y_plug**0.5)
     prob_opt, _ = curve_fit(f, x_prob, y_prob, sigma=y_prob**0.5)
@@ -132,7 +133,9 @@ def plots(tf):
     mean = np.average(x_obs, weights=y_obs)
     std = (np.average((x_obs - mean) ** 2, weights=y_obs)) ** 0.5
 
-    f = lambda x, m, s: norm.pdf(x, m, s)
+    def f(x, m, s):
+        return norm.pdf(x, m, s)
+
     bw = x_obs[1] - x_obs[0]
     N = np.sum(y_obs)
 

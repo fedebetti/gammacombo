@@ -64,15 +64,15 @@ def read2dscan(h, bf, minnll):
         [h.GetYaxis().GetBinCenter(b) for b in range(1, h.GetNbinsX() + 1)]
     )
 
-    # get global bins
-    gbins = np.array(
-        [
-            list([xbin, ybin])
-            for xbin, ybin in itertools.product(
-                range(h.GetNbinsX()), range(h.GetNbinsY())
-            )
-        ]
-    )
+    # # get global bins
+    # gbins = np.array(
+    #     [
+    #         list([xbin, ybin])
+    #         for xbin, ybin in itertools.product(
+    #             range(h.GetNbinsX()), range(h.GetNbinsY())
+    #         )
+    #     ]
+    # )
 
     # get content of each bin
     entries = np.array(
@@ -231,22 +231,22 @@ def plot2d(fname, scans, xvar, yvar, xlim=None, ylim=None, ncontours=2, cl2d=Fal
     if cl2d:
         levels = [chi2.ppf(1 - chi2.sf(n**2, 1), 2) for n in range(ncontours + 1)]
 
-    # line colors
-    lcolors = [
-        ((0.35, 0.33, 0.85), (0.09, 0.66, 0.91)),
-        ((0.82, 0.04, 0.82), (0.84, 0.00, 0.99)),
-        ((0.6, 0.2, 0.0), (0.8, 0.6, 0.2)),
-        ((0.70, 0.00, 0.00), (0.90, 0.20, 0.20)),
-        ((0.2, 0.4, 0.2), (0.0, 0.4, 0.0)),
-    ]
+    # # line colors
+    # lcolors = [
+    #     ((0.35, 0.33, 0.85), (0.09, 0.66, 0.91)),
+    #     ((0.82, 0.04, 0.82), (0.84, 0.00, 0.99)),
+    #     ((0.6, 0.2, 0.0), (0.8, 0.6, 0.2)),
+    #     ((0.70, 0.00, 0.00), (0.90, 0.20, 0.20)),
+    #     ((0.2, 0.4, 0.2), (0.0, 0.4, 0.0)),
+    # ]
 
-    fcolors = [
-        ("#bee7fd", "#d3e9ff"),
-        ((0.96, 0.48, 1.00), (1.00, 0.60, 1.00)),
-        ((0.90, 0.78, 0.60), (0.99, 0.87, 0.71)),
-        ("#d95f02", "#d95f02"),
-        ((0.40, 1.00, 0.40), (0.40, 0.80, 0.40)),
-    ]
+    # fcolors = [
+    #     ("#bee7fd", "#d3e9ff"),
+    #     ((0.96, 0.48, 1.00), (1.00, 0.60, 1.00)),
+    #     ((0.90, 0.78, 0.60), (0.99, 0.87, 0.71)),
+    #     ("#d95f02", "#d95f02"),
+    #     ((0.40, 1.00, 0.40), (0.40, 0.80, 0.40)),
+    # ]
 
     leg_els = []
     for i, scan in enumerate(scans):

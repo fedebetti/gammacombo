@@ -138,18 +138,18 @@ def compare(meas1, meas2, indices=[], inter_corr=0.0):
     assert len(meas1) == len(meas2)
     dim = len(meas1)
 
-    # now we build a 2N x 2N matrix to hold the correlation between the two measurements
-    off_diag = inter_corr * np.identity(dim)
-    tot_corr = np.identity(2 * dim)
-    tot_corr[0:dim, 0:dim] = u.correlation_matrix(meas1)
-    tot_corr[dim : 2 * dim, dim : 2 * dim] = u.correlation_matrix(meas2)
-    tot_corr[0:dim, dim : 2 * dim] = off_diag
-    tot_corr[dim : 2 * dim, 0:dim] = off_diag
-    tot_vals = [tuple((val.n, val.s)) for val in meas1] + [
-        tuple((val.n, val.s)) for val in meas2
-    ]
+    # # now we build a 2N x 2N matrix to hold the correlation between the two measurements
+    # off_diag = inter_corr * np.identity(dim)
+    # tot_corr = np.identity(2 * dim)
+    # tot_corr[0:dim, 0:dim] = u.correlation_matrix(meas1)
+    # tot_corr[dim : 2 * dim, dim : 2 * dim] = u.correlation_matrix(meas2)
+    # tot_corr[0:dim, dim : 2 * dim] = off_diag
+    # tot_corr[dim : 2 * dim, 0:dim] = off_diag
+    # tot_vals = [tuple((val.n, val.s)) for val in meas1] + [
+    #     tuple((val.n, val.s)) for val in meas2
+    # ]
 
-    all_values = u.correlated_values_norm(tot_vals, tot_corr)
+    # all_values = u.correlated_values_norm(tot_vals, tot_corr)
 
     # get the differences with the correlation included
 
@@ -167,9 +167,9 @@ def compare(meas1, meas2, indices=[], inter_corr=0.0):
     dcor1 = u.correlation_matrix(duvals1)
 
     ## METHOD 2
-    duvals2 = [all_values[v] - all_values[v + dim] for v in range(dim)]
-    dcov2 = u.covariance_matrix(duvals2)
-    dcor2 = u.correlation_matrix(duvals2)
+    # duvals2 = [all_values[v] - all_values[v + dim] for v in range(dim)]
+    # dcov2 = u.covariance_matrix(duvals2)
+    # dcor2 = u.correlation_matrix(duvals2)
 
     duvals = duvals1
     dcov = dcov1
@@ -221,7 +221,7 @@ def point_compare(meas, point):
 
     vals = [val.n for val in meas]
     cov = u.covariance_matrix(meas)
-    cor = u.correlation_matrix(meas)
+    # cor = u.correlation_matrix(meas)
 
     # get nll at min
     nll2_min = -2.0 * multivariate_normal.logpdf(vals, vals, cov)
@@ -317,7 +317,6 @@ def input_log_to_latex(fname, outfname):
 
     # read list of inputs
     inputs = []
-    loc = None
     for i, line in enumerate(lines):
         if "." in line[:3]:
             if line.split(".")[0].replace(" ", "").isdigit():
@@ -327,7 +326,6 @@ def input_log_to_latex(fname, outfname):
                 print(f"{ind:3d} {pdf_id:4d} {title}")
                 inputs.append({"ind": ind, "id:": pdf_id, "title": title})
         if "input observables" in line:
-            loc = i
             break
 
     lines = lines[i:]

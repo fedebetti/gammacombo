@@ -226,7 +226,7 @@ def print_cl(prefix, xpar, ypar=None, prob=True):
 
     try:
         print_interval(fname, nsigma=1)
-    except:
+    except Exception:
         return
 
 
@@ -346,7 +346,7 @@ keys = hflav_cols.keys()
 
 for key in keys:
     item = hflav_cols[key]
-    if type(item) != str:
+    if type(item) is not str:
         newval = tuple([float(v) / 255.0 for v in item])
         hflav_cols[key] = newval
 
@@ -354,7 +354,7 @@ keys = lhcb_cols.keys()
 
 for key in keys:
     item = lhcb_cols[key]
-    if type(item) != str:
+    if type(item) is not str:
         newval = tuple([float(v) / 255.0 for v in item])
         lhcb_cols[key] = newval
 
@@ -363,7 +363,7 @@ keys = lhcb_2d_cols.keys()
 for key in keys:
     items = lhcb_2d_cols[key]
     for i, item in enumerate(items):
-        if type(item) != str:
+        if type(item) is not str:
             newval = tuple([float(v) / 255.0 for v in item])
             lhcb_2d_cols[key][i] = newval
 
@@ -630,17 +630,17 @@ def plot2d(
     ax = plt.gca()
 
     # figure out the levels
-    if type(levels) == int:
+    if type(levels) is int:
         levels = [lev + 1 for lev in range(levels)]
-    if type(levels[0]) == int:
+    if type(levels[0]) is int:
         levels = [lev**2 for lev in levels]
         if cl2d:
             levels = [chi2.ppf(chi2.cdf(lev, 1), 2) for lev in levels]
     else:
         levels = [chi2.ppf(lev, 2) for lev in levels]
 
-    # figure out frac contained
-    fc = [chi2.cdf(lev, 2) for lev in levels]
+    # # figure out frac contained
+    # fc = [chi2.cdf(lev, 2) for lev in levels]
 
     nscanners = len(scanpoints)
     fopts = get_fopts(nscanners, fopts, dim=2)
@@ -965,7 +965,10 @@ class plotter:
 
     def add_scan(self, scanname, pars, label, bf=False, col=None, hatch=None, lw=None):
         if scanname is not None:
-            x, y, z, pt = get_scan_res(f"{args.prefix}{scanname}", *pars)
+            print("FIXME: args should not visible here")
+            # x, y, z, pt = get_scan_res(f"{args.prefix}{scanname}", *pars)
+            x = y = z = np.empty((2, 2)) * np.nan  # tricks a fake
+            pt = None
         else:
             x = y = z = np.empty((2, 2)) * np.nan  # tricks a fake
             pt = None
@@ -1146,5 +1149,5 @@ class plotter:
         fig.savefig(self.save)
         fig.savefig(self.save.replace("pdf", "png"))
 
-        if not args.interactive:
-            fig.clf()
+        # if not args.interactive:
+        #     fig.clf()
