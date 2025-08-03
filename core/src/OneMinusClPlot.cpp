@@ -5,7 +5,7 @@
  *
  **/
 
-#include "OneMinusClPlot.h"
+#include <OneMinusClPlot.h>
 
 OneMinusClPlot::OneMinusClPlot(OptParser *arg, TString name, TString title)
     : OneMinusClPlotAbs(arg, name, title)

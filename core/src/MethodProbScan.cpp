@@ -4,8 +4,8 @@
  * Date: August 2012
  *
  */
-#include "TSystem.h"
-#include "MethodProbScan.h"
+#include <TSystem.h>
+#include <MethodProbScan.h>
 
 MethodProbScan::MethodProbScan(Combiner *comb)
 : MethodAbsScan(comb)

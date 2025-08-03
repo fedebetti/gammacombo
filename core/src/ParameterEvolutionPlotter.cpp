@@ -1,4 +1,4 @@
-#include "ParameterEvolutionPlotter.h"
+#include <ParameterEvolutionPlotter.h>
 
 ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan *scanner)
 {

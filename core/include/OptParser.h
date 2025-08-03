@@ -11,7 +11,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include "TRegexp.h"
+#include <TRegexp.h>
 #include "Utils.h"
 #include "tclap/CmdLine.h"
 

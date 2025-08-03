@@ -8,7 +8,7 @@
 #define MethodBergerBoosScan_h
 
 #include "MethodPluginScan.h"
-#include "TLeaf.h"
+#include <TLeaf.h>
 
 class MethodBergerBoosScan : public MethodPluginScan
 {

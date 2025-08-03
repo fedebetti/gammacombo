@@ -1,8 +1,8 @@
-#include "GammaComboEngine.h"
-#include "MethodDatasetsPluginScan.h"
-#include "MethodDatasetsProbScan.h"
-#include "PDF_Datasets.h"
-#include "TLatex.h"
+#include <GammaComboEngine.h>
+#include <MethodDatasetsPluginScan.h>
+#include <MethodDatasetsProbScan.h>
+#include <PDF_Datasets.h>
+#include <TLatex.h>
 
 GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]):
     runOnDataSet(false)

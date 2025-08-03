@@ -13,15 +13,15 @@
  * parameter of interest is fixed to a certain value (scanpoint)
  */
 
-#include "MethodDatasetsPluginScan.h"
-#include "TRandom3.h"
-#include "TArrow.h"
-#include "TLatex.h"
+#include <MethodDatasetsPluginScan.h>
+#include <TRandom3.h>
+#include <TArrow.h>
+#include <TLatex.h>
 #include <algorithm>
 #include <ios>
 #include <iomanip>
-#include "TFitResultPtr.h"
-#include "TFitResult.h"
+#include <TFitResultPtr.h>
+#include <TFitResult.h>
 // #include <boost/accumulators/accumulators.hpp>
 // #include <boost/accumulators/statistics/stats.hpp>
 // #include <boost/accumulators/statistics/mean.hpp>

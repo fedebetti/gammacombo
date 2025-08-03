@@ -1,4 +1,4 @@
-#include "CLInterval.h"
+#include <CLInterval.h>
 
 CLInterval::CLInterval()
 {

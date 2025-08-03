@@ -1,4 +1,4 @@
-#include "ProgressBar.h"
+#include <ProgressBar.h>
 
 ProgressBar::ProgressBar(OptParser *arg, unsigned int n)
 {

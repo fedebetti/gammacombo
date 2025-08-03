@@ -11,7 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
-#include "TString.h"
+#include <TString.h>
 
 using namespace std;
 

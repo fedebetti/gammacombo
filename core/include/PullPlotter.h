@@ -13,7 +13,7 @@
 #include "Utils.h"
 #include "MethodAbsScan.h"
 #include "OptParser.h"
-#include "TPaveText.h"
+#include <TPaveText.h>
 
 class MethodAbsScan;
 

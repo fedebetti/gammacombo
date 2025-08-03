@@ -1,4 +1,4 @@
-#include "RooSlimFitResult.h"
+#include <RooSlimFitResult.h>
 
 RooSlimFitResult::RooSlimFitResult(RooFitResult* r, bool storeCorrelation)
 {

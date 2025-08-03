@@ -12,3 +12,7 @@ repos:
     rev: v0.6.13
     hooks:
     -   id: cmake-format
+-   repo: https://gitlab.cern.ch/lhcb-core/dev-tools/check-include-convention.git
+    rev: 0.1.0
+    hooks:
+    -   id: check-include-convention

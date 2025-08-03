@@ -1,8 +1,8 @@
 #ifndef PDF_CrossCor_GausA_vs_GausB_h
 #define PDF_CrossCor_GausA_vs_GausB_h
 
-#include "RooGenericPdf.h"
-#include "PDF_Abs.h"
+#include <RooGenericPdf.h>
+#include <PDF_Abs.h>
 #include "PDF_CrossCorAbs.h"
 #include "ParametersTutorial.h"
 

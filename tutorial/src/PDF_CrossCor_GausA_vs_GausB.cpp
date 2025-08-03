@@ -5,7 +5,7 @@
  *
  **/
 
-#include "PDF_CrossCor_GausA_vs_GausB.h"
+#include <PDF_CrossCor_GausA_vs_GausB.h>
 
 PDF_CrossCor_GausA_vs_GausB::PDF_CrossCor_GausA_vs_GausB(PDF_Abs* pdf1, PDF_Abs* pdf2, TString cCor)
     : PDF_CrossCorAbs(pdf1,pdf2)

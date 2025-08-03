@@ -1,4 +1,4 @@
-#include "Graphviz.h"
+#include <Graphviz.h>
 
 Graphviz::Graphviz(OptParser *arg)
 {

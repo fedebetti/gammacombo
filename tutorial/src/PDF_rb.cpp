@@ -5,7 +5,7 @@
  *
  **/
 
-#include "PDF_rb.h"
+#include <PDF_rb.h>
 
 PDF_rb::PDF_rb(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(1)

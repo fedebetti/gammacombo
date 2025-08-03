@@ -8,7 +8,7 @@
 #ifndef PDF_GausB_h
 #define PDF_GausB_h
 
-#include "PDF_Abs.h"
+#include <PDF_Abs.h>
 #include "ParametersTutorial.h"
 
 using namespace RooFit;

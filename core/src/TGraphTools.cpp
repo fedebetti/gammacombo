@@ -1,4 +1,4 @@
-#include "TGraphTools.h"
+#include <TGraphTools.h>
 
 TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew)
 {

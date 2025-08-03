@@ -1,4 +1,4 @@
-#include "MethodCoverageScan.h"
+#include <MethodCoverageScan.h>
 
 MethodCoverageScan::MethodCoverageScan(Combiner *comb)
     : MethodAbsScan(comb)
