@@ -5,10 +5,43 @@
  *
  **/
 
-#include <string>
-
-#include <RooProdPdf.h>
 #include <Utils.h>
+
+#include <RooSlimFitResult.h>
+#include <rdtsc.h>
+
+#include <RooFitResult.h>
+#include <RooFormulaVar.h>
+#include <RooMinimizer.h>
+#include <RooMsgService.h>
+#include <RooRandom.h>
+#include <RooRealVar.h>
+#include <RooWorkspace.h>
+
+#include <TCanvas.h>
+#include <TColor.h>
+#include <TError.h>
+#include <TGraphErrors.h>
+#include <TGraphSmooth.h>
+#include <TH1.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TMath.h>
+#include <TMatrixDSymEigen.h>
+#include <TPaveText.h>
+#include <TTree.h>
+#include <TVectorD.h>
+
+#include <boost/algorithm/string.hpp>
+
+#include <algorithm>
+#include <cassert>
+#include <cstdio>
+#include <iostream>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 int Utils::countFitBringBackAngle;     ///< counts how many times an angle needed to be brought back
 int Utils::countAllFitBringBackAngle;  ///< counts how many times fitBringBackAngle() was called
@@ -20,7 +53,7 @@ int Utils::countAllFitBringBackAngle;  ///< counts how many times fitBringBackAn
 /// \param printLevel -1 = no output, 1 verbose output
 ///
 RooFitResult* Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
 
   // pdf->Print("v");
   // const RooProdPdf *prod = (RooProdPdf*)pdf;
@@ -29,14 +62,14 @@ RooFitResult* Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
   // for (int i=0; i<pdflist.getSize(); i++){
   // const RooAbsPdf *ipdf = (RooAbsPdf*)pdflist.at(i);
   // chi2 += -2*TMath::Log(ipdf->getVal());
-  // cout << ipdf->GetName() << " " << -2*TMath::Log(ipdf->getVal()) << " " << chi2 << endl;
+  // std::cout << ipdf->GetName() << " " << -2*TMath::Log(ipdf->getVal()) << " " << chi2 << std::endl;
   //////ipdf->Print("v");
   //}
-  // cout << chi2 << endl;
+  // std::cout << chi2 << std::endl;
 
   RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*pdf));
-  // cout << ll.getVal() << endl;
-  // string a;
+  // std::cout << ll.getVal() << std::endl;
+  // std::string a;
   // cin >> a;
   bool quiet = printLevel < 0;
   RooMinimizer m(ll);
@@ -56,7 +89,7 @@ RooFitResult* Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
   if (thorough) {
     m.hesse();
     // MINOS seems to fail in more complicated scenarios
-    // Can't just use m.minos() because there's a cout that cannot be turned off (root 5-34-03).
+    // Can't just use m.minos() because there's a std::cout that cannot be turned off (root 5-34-03).
     // It's not there when we run minos only on selected parameters- so select them all!
     // //m.minos();
     // RooArgSet floatingPars;
@@ -72,7 +105,7 @@ RooFitResult* Utils::fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel) {
   if (!quiet) std::printf("Fit took %llu clock cycles.\n", stop - start);
   RooFitResult* r = m.save();
   // if (!quiet) r->Print("v");
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
   return r;
 }
 
@@ -95,11 +128,11 @@ double Utils::bringBackAngle(double angle) {
 /// \return difference
 ///
 double Utils::angularDifference(double angle1, double angle2) {
-  float angleSmaller = max(bringBackAngle(angle1), bringBackAngle(angle2));
-  float angleLarger = min(bringBackAngle(angle1), bringBackAngle(angle2));
+  float angleSmaller = std::max(bringBackAngle(angle1), bringBackAngle(angle2));
+  float angleLarger = std::min(bringBackAngle(angle1), bringBackAngle(angle2));
   float diff1 = angleLarger - angleSmaller;
   float diff2 = (2. * TMath::Pi() - angleLarger) + angleSmaller;
-  return min(diff1, diff2);
+  return std::min(diff1, diff2);
 }
 
 ///
@@ -152,12 +185,12 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
   TString pdfName = "pdf_" + name;
   RooFitResult* r = 0;
   int printlevel = -1;
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
 
   // save start parameters
   if (!w->set(parsName)) {
-    cout << "MethodProbScan::scan2d() : ERROR : parsName not found: " << parsName << endl;
-    exit(1);
+    std::cout << "MethodProbScan::scan2d() : ERROR : parsName not found: " << parsName << std::endl;
+    std::exit(1);
   }
   RooDataSet* startPars = new RooDataSet("startParsForce", "startParsForce", *w->set(parsName));
   startPars->add(*w->set(parsName));
@@ -181,8 +214,9 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
     }
   }
   int nPars = varyPars->getSize();
-  if (debug) cout << "Utils::fitToMinForce() : nPars = " << nPars << " => " << pow(2., nPars) << " fits" << endl;
-  if (debug) cout << "Utils::fitToMinForce() : varying ";
+  if (debug)
+    std::cout << "Utils::fitToMinForce() : nPars = " << nPars << " => " << pow(2., nPars) << " fits" << std::endl;
+  if (debug) std::cout << "Utils::fitToMinForce() : varying ";
   if (debug) varyPars->Print();
 
   //////////
@@ -196,7 +230,7 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
   // We define a binary mask where each bit corresponds
   // to parameter at max or at min.
   for (int i = 0; i < pow(2., nPars); i++) {
-    if (debug) cout << "Utils::fitToMinForce() : fit " << i << "        \r" << flush;
+    if (debug) std::cout << "Utils::fitToMinForce() : fit " << i << "        \r" << std::flush;
     setParameters(w, parsName, startPars->get(0));
 
     for (int ip = 0; ip < nPars; ip++) {
@@ -234,10 +268,10 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
     }
   }
 
-  if (debug) cout << endl;
-  if (debug) cout << "Utils::fitToMinForce() : nErrors = " << nErrors << endl;
+  if (debug) std::cout << std::endl;
+  if (debug) std::cout << "Utils::fitToMinForce() : nErrors = " << nErrors << std::endl;
 
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 
   // (re)set to best parameters
   setParameters(w, parsName, r);
@@ -267,7 +301,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
   TString obsName = "obs_" + name;
   TString pdfName = "pdf_" + name;
   int printlevel = -1;
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
 
   // step 1: find a minimum to start with
   RooFitResult* r1 = 0;
@@ -281,7 +315,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     r1 = m.save();
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
-    //   cout << "step 1" << endl;
+    //   std::cout << "step 1" << std::endl;
     //   r1->Print("v");
     //   gStyle->SetPalette(1);
     //   float xmin = 0.;
@@ -329,7 +363,7 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
 
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
-    //   cout << "step 3" << endl;
+    //   std::cout << "step 3" << std::endl;
     //   r2->Print("v");
     //
     //   gStyle->SetPalette(1);
@@ -368,13 +402,13 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     r3 = m.save();
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
-    //   cout << "step 3" << endl;
+    //   std::cout << "step 3" << std::endl;
     //   r3->Print("v");
     // }
   }
 
   // step 5: chose better minimum
-  // cout << r1->minNll() << " " << r3->minNll() << endl;
+  // std::cout << r1->minNll() << " " << r3->minNll() << std::endl;
   RooFitResult* r = 0;
   if (r1->minNll() < r3->minNll()) {
     delete r3;
@@ -382,10 +416,10 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
   } else {
     delete r1;
     r = r3;
-    // cout << "Utils::fitToMinImprove() : improved fit is better!" << endl;
+    // std::cout << "Utils::fitToMinImprove() : improved fit is better!" << std::endl;
   }
 
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 
   // set to best parameters
   setParameters(w, parsName, r);
@@ -470,7 +504,7 @@ void Utils::setParameters(RooWorkspace* w, RooFitResult* values) {
     RooRealVar* var = dynamic_cast<RooRealVar*>(w->allVars().find(p->GetName()));
     if (!(var)) {
       std::cout << "WARNING in Utils::setParameters(RooWorkspace,RooFitResult) -- no Var found with name "
-                << p->GetName() << " in Workspace!" << endl;
+                << p->GetName() << " in Workspace!" << std::endl;
     } else {
       var->setVal(p->getVal());
     }
@@ -513,7 +547,7 @@ void Utils::setParametersFloating(const RooAbsCollection* setMe, const RooAbsCol
 ///
 void Utils::setParameters(RooWorkspace* w, TString parname, const RooAbsCollection* set) {
   if (!w->set(parname)) {
-    cout << "Utils::setParameters() : ERROR : set not found in workspace: " << parname << endl;
+    std::cout << "Utils::setParameters() : ERROR : set not found in workspace: " << parname << std::endl;
     assert(0);
   }
   setParameters(w->set(parname), set);
@@ -556,7 +590,7 @@ void Utils::setParameters(RooWorkspace* w, TString parname, RooFitResult* r, boo
 
 void Utils::setParameters(RooWorkspace* w, TString parname, RooSlimFitResult* r, bool constAndFloat) {
   // avoid calls to floatParsFinal on a RooSlimFitResult - errgh!
-  vector<string>& names = r->_parsNames;
+  std::vector<std::string>& names = r->_parsNames;
   for (int i = 0; i < names.size(); i++) {
     RooRealVar* var = (RooRealVar*)w->var(names[i].c_str());
     if (var) var->setVal(r->_parsVal[i]);
@@ -615,9 +649,9 @@ void Utils::floatParameters(const RooAbsCollection* set) {
 /// \param limitname - Name of the limit to set.
 ///
 void Utils::setLimit(RooRealVar* v, TString limitname) {
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   v->setRange(v->getMin(limitname), v->getMax(limitname));
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
 
 ///
@@ -629,9 +663,9 @@ void Utils::setLimit(RooRealVar* v, TString limitname) {
 /// \param limitname - Name of the limit to set.
 ///
 void Utils::setLimit(RooWorkspace* w, TString parname, TString limitname) {
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   w->var(parname)->setRange(w->var(parname)->getMin(limitname), w->var(parname)->getMax(limitname));
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
 
 ///
@@ -641,12 +675,12 @@ void Utils::setLimit(RooWorkspace* w, TString parname, TString limitname) {
 /// \param limitname - Name of the limit to set.
 ///
 void Utils::setLimit(const RooAbsCollection* set, TString limitname) {
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   for (const auto& pAbs : *set) {
     const auto p = static_cast<RooRealVar*>(pAbs);
     p->setRange(p->getMin(limitname), p->getMax(limitname));
   }
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
 
 ///
@@ -769,7 +803,7 @@ TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, float* err) {
 /// Build a covariance matrix
 /// from a correlation matrix and error vectors.
 ///
-TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, vector<double>& err) {
+TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, std::vector<double>& err) {
   int n = cor.GetNcols();
   TMatrixDSym cov(n);
   for (int i = 0; i < n; i++)
@@ -790,20 +824,20 @@ RooFormulaVar* Utils::makeTheoryVar(TString name, TString title, TString formula
   return new RooFormulaVar(name, title, formula, *explicitDependents);
 }
 
-void Utils::addSetNamesToList(vector<string>& list, RooWorkspace* w, TString setName) {
+void Utils::addSetNamesToList(std::vector<std::string>& list, RooWorkspace* w, TString setName) {
   for (const auto& p : *w->set(setName)) list.push_back(p->GetName());
 }
 
 ///
 /// Make a named set from a list of strings of object names
 /// Duplicates will only be contained once
-void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, vector<string>& names) {
+void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, std::vector<std::string>& names) {
 
   // 1. remove duplicates
   sort(names.begin(), names.end());
-  vector<string> vars;
+  std::vector<std::string> vars;
   vars.push_back(names[0]);
-  string previous = names[0];
+  std::string previous = names[0];
   for (int i = 1; i < names.size(); i++) {
     if (previous == names[i]) continue;
     vars.push_back(names[i]);
@@ -825,15 +859,15 @@ void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, vector<string>& nam
 ///
 void Utils::mergeNamedSets(RooWorkspace* w, TString mergedSet, TString set1, TString set2) {
   // 1. fill all variables into a vector
-  vector<string> varsAll;
+  std::vector<std::string> varsAll;
   for (const auto& p : *w->set(set1)) varsAll.push_back(p->GetName());
   for (const auto& p : *w->set(set2)) varsAll.push_back(p->GetName());
 
   // 2. remove duplicates
   sort(varsAll.begin(), varsAll.end());
-  vector<string> vars;
+  std::vector<std::string> vars;
   vars.push_back(varsAll[0]);
-  string previous = varsAll[0];
+  std::string previous = varsAll[0];
   for (int i = 1; i < varsAll.size(); i++) {
     if (previous == varsAll[i]) continue;
     vars.push_back(varsAll[i]);
@@ -876,7 +910,7 @@ bool Utils::FileExists(TString strFilename) {
 }
 
 void Utils::savePlot(TCanvas* c1, TString name) {
-  cout << "saving plot (pdf and other formats) to: plots/pdf/" + name + ".pdf" << endl;
+  std::cout << "saving plot (pdf and other formats) to: plots/pdf/" + name + ".pdf" << std::endl;
   gErrorIgnoreLevel = kWarning;
   c1->Print("plots/png/" + name + ".png");
   c1->Print("plots/pdf/" + name + ".pdf");
@@ -929,11 +963,11 @@ int Utils::calcNsubdigits(double value, int sigdigits) {
 TTree* Utils::convertRooDatasetToTTree(RooDataSet* d) {
   // set up the TTree based on the content of the first
   // row of the dataset
-  map<string, float> variables;  ///< the proxy variables
+  std::map<std::string, float> variables;  ///< the proxy variables
   TTree* t = new TTree("tree", "tree");
   for (const auto& pAbs : *d->get(0)) {
     const auto p = static_cast<RooRealVar*>(pAbs);
-    variables.insert(pair<string, float>(p->GetName(), p->getVal()));
+    variables.insert(std::pair<std::string, float>(p->GetName(), p->getVal()));
     t->Branch(p->GetName(), &variables[p->GetName()], TString(p->GetName()) + "/F");
   }
 
@@ -975,8 +1009,8 @@ TGraph* Utils::smoothGraph(TGraph* g, int option) {
   else if (option == 1)
     gr = (TGraph*)smoother->Approx(g)->Clone(Form("sm%s", g->GetName()));
   else {
-    cout << "Utils::smoothGraph() : ERROR - no such option " << option << endl;
-    exit(1);
+    std::cout << "Utils::smoothGraph() : ERROR - no such option " << option << std::endl;
+    std::exit(1);
   }
   delete smoother;
   return gr;
@@ -1041,7 +1075,7 @@ bool Utils::isPosDef(TMatrixDSym* c) {
   Double_t minEigenVal = eigenvalues[0];
   for (int k = 0; k < c->GetNcols(); k++) minEigenVal = TMath::Min(minEigenVal, eigenvalues[k]);
   if (minEigenVal < 0) {
-    cout << "isPosDef() : ERROR : Matrix not pos. def." << endl;
+    std::cout << "isPosDef() : ERROR : Matrix not pos. def." << std::endl;
     return 0;
   }
   return 1;
@@ -1052,7 +1086,7 @@ bool Utils::isPosDef(TMatrixDSym* c) {
 ///
 bool Utils::isAngle(RooRealVar* v) { return v->getUnit() == TString("Rad") || v->getUnit() == TString("rad"); }
 
-int Utils::makeNewColor(string hex) {
+int Utils::makeNewColor(std::string hex) {
   int ci = TColor::GetFreeColorIndex();
   int ri, gi, bi;
   sscanf(hex.c_str(), "#%02x%02x%02x", &ri, &gi, &bi);
@@ -1060,7 +1094,7 @@ int Utils::makeNewColor(string hex) {
   float g = float(gi) / 255.;
   float b = float(bi) / 255.;
   TColor* col = new TColor(ci, r, g, b);
-  cout << ci << " " << hex << " " << r << " " << g << " " << b << endl;
+  std::cout << ci << " " << hex << " " << r << " " << g << " " << b << std::endl;
   return col->GetNumber();
 }
 
@@ -1072,7 +1106,7 @@ void Utils::fillArgList(RooArgList* list, RooWorkspace* w, std::vector<TString> 
   for (std::vector<TString>::iterator it = names.begin(); it != names.end(); ++it) {
     if (!list->add(*w->var(*it), kTRUE)) {  //> add silent
       std::cout << "WARNING: Utils::fillArgList - Var either already in ArgList: " << list->GetName()
-                << " or the List does own its vars" << endl;
+                << " or the List does own its vars" << std::endl;
     };
   }
 }
@@ -1145,15 +1179,15 @@ void Utils::setParametersFloating(RooWorkspace* w, std::vector<TString> names) {
 /// Debug tools: print the content of a vector to stdout.
 ///
 void Utils::dump_vector(const std::vector<int>& l) {
-  for (std::vector<int>::const_iterator it = l.begin(); it != l.end(); it++) { cout << *it << endl; }
+  for (std::vector<int>::const_iterator it = l.begin(); it != l.end(); it++) { std::cout << *it << std::endl; }
 }
 void Utils::dump_vector(const std::vector<float>& l) {
-  for (std::vector<float>::const_iterator it = l.begin(); it != l.end(); it++) { cout << *it << endl; }
+  for (std::vector<float>::const_iterator it = l.begin(); it != l.end(); it++) { std::cout << *it << std::endl; }
 }
 void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {
   for (int ix = 0; ix < l.size(); ix++) {
-    for (int iy = 0; iy < l[0].size(); iy++) { cout << printf("%5i", l[ix][iy]) << " "; }
-    cout << endl;
+    for (int iy = 0; iy < l[0].size(); iy++) { std::cout << printf("%5i", l[ix][iy]) << " "; }
+    std::cout << std::endl;
   }
 }
 
@@ -1162,8 +1196,8 @@ void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {
 ///
 void Utils::dump_map(const std::map<int, std::vector<int>>& map) {
   for (std::map<int, std::vector<int>>::const_iterator it = map.begin(); it != map.end(); it++) {
-    cout << "Key: " << it->first << endl;
-    cout << "Values" << endl;
+    std::cout << "Key: " << it->first << std::endl;
+    std::cout << "Values" << std::endl;
     dump_vector(it->second);
   }
 }
@@ -1172,18 +1206,18 @@ std::vector<std::vector<int>> Utils::transpose(std::vector<std::vector<int>>& v)
   std::vector<std::vector<int>> newVector;
   int oldNx = v.size();
   if (oldNx == 0) {
-    cout << "Utils::transpose() : ERROR : x dimension is 0" << endl;
+    std::cout << "Utils::transpose() : ERROR : x dimension is 0" << std::endl;
     return newVector;
   }
   int oldNy = v[0].size();
   if (oldNy == 0) {
-    cout << "Utils::transpose() : ERROR : y dimension is 0" << endl;
+    std::cout << "Utils::transpose() : ERROR : y dimension is 0" << std::endl;
     return newVector;
   }
   // check if rectangular
   for (int j = 1; j < oldNx; j++) {
     if (v[j].size() != oldNy) {
-      cout << "Utils::transpose() : ERROR : vector not rectangular" << endl;
+      std::cout << "Utils::transpose() : ERROR : vector not rectangular" << std::endl;
       return newVector;
     }
   }
@@ -1276,8 +1310,8 @@ void Utils::HFAGLabel(const TString& label, Double_t xpos, Double_t ypos, Double
 
 void Utils::assertFileExists(TString strFilename) {
   if (!FileExists(strFilename)) {
-    cout << "ERROR : File not found: " + strFilename << endl;
-    exit(EXIT_FAILURE);
+    std::cout << "ERROR : File not found: " + strFilename << std::endl;
+    std::exit(EXIT_FAILURE);
   }
 }
 
@@ -1299,7 +1333,7 @@ std::vector<double> Utils::computeNormalQuantiles(std::vector<double>& values, i
   return quantiles;
 }
 
-double Utils::getCorrelationFactor(const vector<double>& a, const vector<double>& b) {
+double Utils::getCorrelationFactor(const std::vector<double>& a, const std::vector<double>& b) {
 
   assert(a.size() == b.size());
 

@@ -1,5 +1,35 @@
 #include <ControlPlots.h>
 
+#include <MethodProbScan.h>
+#include <OptParser.h>
+#include <ToyTree.h>
+#include <Utils.h>
+
+#include <RooRealVar.h>
+
+#include <TCanvas.h>
+#include <TCut.h>
+#include <TEnv.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TGraph.h>
+#include <TH1D.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TLegend.h>
+#include <TLine.h>
+#include <TMath.h>
+#include <TPaveStats.h>
+#include <TPaveText.h>
+#include <TString.h>
+#include <TStyle.h>
+#include <TTree.h>
+#include <TVirtualPad.h>
+
+#include <cstdlib>
+#include <iostream>
+#include <vector>
+
 ControlPlots::ControlPlots(ToyTree* tt) {
   this->tt = tt;
   arg = tt->getArg();
@@ -13,7 +43,7 @@ ControlPlots::ControlPlots(ToyTree* tt) {
     std::cout << "\nError in ControlPlots::ControlPlots(): Prob free fit or Prob scan fit have inappropriate fit "
                  "result (fit status or cov qual). Cannot do control plots."
               << std::endl;
-    exit(1);
+    std::exit(1);
   }
 }
 
@@ -24,7 +54,7 @@ ControlPlots::~ControlPlots() {}
 ///
 void ControlPlots::ctrlPlotPvalue() {
   gStyle->SetOptStat(1111);
-  TCanvas* c2 = newNoWarnTCanvas(getUniqueRootName(), name + " P-value Plots", 900, 600);
+  TCanvas* c2 = Utils::newNoWarnTCanvas(Utils::getUniqueRootName(), name + " P-value Plots", 900, 600);
   c2->Divide(1, 1);
   int ip = 1;
   TPad* pad;
@@ -114,7 +144,7 @@ void ControlPlots::ctrlPlotPvalue() {
 ///
 void ControlPlots::ctrlPlotChi2() {
   gStyle->SetOptStat(1111);
-  TCanvas* c2 = newNoWarnTCanvas(getUniqueRootName(), name + " Chi2 Plots", 900, 600);
+  TCanvas* c2 = Utils::newNoWarnTCanvas(Utils::getUniqueRootName(), name + " Chi2 Plots", 900, 600);
   c2->Divide(3, 2);
   int ip = 1;
   TPad* pad;
@@ -267,7 +297,7 @@ void ControlPlots::ctrlPlotChi2() {
 ///
 void ControlPlots::ctrlPlotNuisances() {
   selectNewCanvas("Nuisances 1");
-  vector<TString> usedVariableNames;
+  std::vector<TString> usedVariableNames;
 
   int nBinsX = 50;
   int nBinsY = tt->getScanpointN() / 2;
@@ -296,9 +326,10 @@ void ControlPlots::ctrlPlotNuisances() {
 
     if ((bName.BeginsWith("d_") || bName.BeginsWith("g"))  //  pi symmetry is only in the B strong phases!
         && !(bName.BeginsWith("dD"))) {
-      cout << "\nControlPlots::ctrlPlotNuisances() : WARNING : folding everything into the range [0,pi]. This is a "
-              "remnant of the LHCb gamma combination.\n"
-           << endl;
+      std::cout
+          << "\nControlPlots::ctrlPlotNuisances() : WARNING : folding everything into the range [0,pi]. This is a "
+             "remnant of the LHCb gamma combination.\n"
+          << std::endl;
       varScan = "fmod(" + varScan + ",3.14152)";
       varFree = "fmod(" + varFree + ",3.14152)";
       varStart = "fmod(" + varStart + ",3.14152)";
@@ -314,7 +345,7 @@ void ControlPlots::ctrlPlotNuisances() {
 
     {
       selectNewPad();
-      if (arg->debug) cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varScan << endl;
+      if (arg->debug) std::cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varScan << std::endl;
       t->Draw("scanpoint:" + varScan, ctrlPlotCuts, "colz");  // first test plot to get the automatic x axis range
       float xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
                                                   : customRangeLo;
@@ -338,7 +369,7 @@ void ControlPlots::ctrlPlotNuisances() {
     }
     {
       selectNewPad();
-      if (arg->debug) cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varFree << endl;
+      if (arg->debug) std::cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varFree << std::endl;
       t->Draw("scanpoint:" + varFree, ctrlPlotCuts, "colz");  // first test plot to get the automatic x axis range
       float xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
                                                   : customRangeLo;
@@ -376,7 +407,7 @@ void ControlPlots::ctrlPlotObservables() {
     if (!bName.Contains("obs")) continue;
     TString bBaseName = bName;
     bBaseName.ReplaceAll("_obs", "");
-    if (arg->debug) cout << "ControlPlots::ctrlPlotObservables() : plotting " << bBaseName << endl;
+    if (arg->debug) std::cout << "ControlPlots::ctrlPlotObservables() : plotting " << bBaseName << std::endl;
     int nBinsX = 50;
     int nBinsY = tt->getScanpointN() / 2;
     selectNewPad();
@@ -456,7 +487,7 @@ void ControlPlots::ctrlPlotChi2Distribution() {
 /// Plot deltaChi2 of the toys versus the scan variable.
 ///
 void ControlPlots::ctrlPlotChi2Parabola() {
-  if (arg->debug) cout << "ControlPlots::ctrlPlotChi2Parabola() : plotting ..." << endl;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotChi2Parabola() : plotting ..." << std::endl;
   int nBins = 12;  //  this many chi2 plots we want
   selectNewCanvas("Chi2Parabola 1");
   float scanpointMin = tt->getScanpointMin();
@@ -504,9 +535,9 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // create a new TTree that contains the profile likelihood
   // chi2 so we can compare
   if (arg->debug)
-    cout << "ControlPlots::ctrlPlotMore() : creating a new TTree that also contains the pll chi2 ..." << endl;
-  TFile* fDummy =
-      new TFile("/tmp/" + getUniqueRootName(), "recreate");  //  dummy file so the new tree is not memory resident
+    std::cout << "ControlPlots::ctrlPlotMore() : creating a new TTree that also contains the pll chi2 ..." << std::endl;
+  TFile* fDummy = new TFile("/tmp/" + Utils::getUniqueRootName(),
+                            "recreate");  //  dummy file so the new tree is not memory resident
   TTree* tNew = new TTree("tNew", "tNew");
   float tNew_scanpoint = 0.;
   float tNew_chi2min = 0.;
@@ -522,8 +553,8 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   for (Long64_t j = 0; j < nentries; j++) {
     // status bar
     if (arg->debug && (((int)j % (int)(nentries / printFreq)) == 0)) {
-      cout << "ControlPlots::ctrlPlotMore() : reading toys " << Form("%.0f", (float)j / (float)nentries * 100.)
-           << "%   \r" << flush;
+      std::cout << "ControlPlots::ctrlPlotMore() : reading toys " << Form("%.0f", (float)j / (float)nentries * 100.)
+                << "%   \r" << std::flush;
     }
     tt->GetEntry(j);
     int iBin = profileLH->getHchisq()->FindBin(tt->scanpoint);
@@ -534,15 +565,15 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   }
   t->SetBranchStatus("*", 1);  // perhaps we need ".*" in certain root versions?
   if (arg->debug)
-    cout << "ControlPlots::ctrlPlotMore() : creating new TTree done.                      "
-         << endl;  // extra spaces for the above \r
+    std::cout << "ControlPlots::ctrlPlotMore() : creating new TTree done.                      "
+              << std::endl;  // extra spaces for the above \r
 
   // make control plots
   // selectNewPad();
   // t->Draw("scanpoint:chi2minToy", "abs(chi2minToy)<25");
   // makePlotsNice("htemp", "");
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 1 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 1 ...\r" << std::flush;
   selectNewPad();
   t->Draw("scanpoint:chi2minToy", "abs(chi2minToy)<25", "colz");
   makePlotsNice();
@@ -551,7 +582,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // t->Draw("scanbest:chi2minToy", "abs(chi2minToy)<25");
   // makePlotsNice("htemp", "");
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 2 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 2 ...\r" << std::flush;
   selectNewPad();
   RooRealVar* scanvar = profileLH->getScanVar1();
   float svmin = scanvar->getMin("scan");
@@ -559,7 +590,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   t->Draw("scanbest:chi2minToy", Form("abs(chi2minToy)<25 && %f<scanbest && scanbest<%f", svmin, svmax), "colz");
   makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 3 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 3 ...\r" << std::flush;
   selectNewPad();
   tNew->Draw("scanpoint:chi2min", "", "colz");
   makePlotsNice();
@@ -570,18 +601,18 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // t->Draw("scanpoint:chi2min", "", "colz");
   // makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 4 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 4 ...\r" << std::flush;
   selectNewPad();
   t->Draw("chi2min:nrun", "", "colz");
   makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 5 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 5 ...\r" << std::flush;
   selectNewPad()->SetRightMargin(0.1);
   ;
   tNew->Draw("scanpoint:chi2min-chi2minPLH", "", "colz");
   makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 6 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 6 ...\r" << std::flush;
   selectNewPad();
   t->Draw("chi2minGlobal:nrun", "", "colz");
   makePlotsNice();
@@ -592,13 +623,13 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   l->SetLineColor(kRed);
   l->Draw();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plots done.        " << endl;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plots done.        " << std::endl;
   delete tNew;
 }
 
 TCanvas* ControlPlots::selectNewCanvas(TString title) {
   title.ReplaceAll(name + " ", "");
-  TCanvas* c1 = newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900);
+  TCanvas* c1 = Utils::newNoWarnTCanvas(Utils::getUniqueRootName(), name + " " + title, 1200, 900);
   c1->Divide(4, 3);
   ctrlPlotCanvases.push_back(c1);
   ctrlPadId = 0;
@@ -618,7 +649,7 @@ TVirtualPad* ControlPlots::selectNewPad() {
   }
 
   ctrlPadId += 1;
-  // cout << "ControlPlots::selectNewPad() : selecting pad id " << ctrlPadId << endl;
+  // std::cout << "ControlPlots::selectNewPad() : selecting pad id " << ctrlPadId << std::endl;
   return c1->cd(ctrlPadId);
 }
 
@@ -631,7 +662,7 @@ void ControlPlots::saveCtrlPlots() {
     fName.ReplaceAll(name + " ", name + "_" + arg->var[0] + "_");
     fName.ReplaceAll(" ", "_");
     fName = "ctrlPlot_" + fName;
-    savePlot(ctrlPlotCanvases[i], fName);
+    Utils::savePlot(ctrlPlotCanvases[i], fName);
   }
 }
 

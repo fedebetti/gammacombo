@@ -1,5 +1,14 @@
 #include <Rounder.h>
 
+#include <OptParser.h>
+#include <Utils.h>
+
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+
+using Utils::Round;
+
 Rounder::Rounder(OptParser* arg, float cllo, float clhi, float central)
     : m_cllo(cllo), m_clhi(clhi), m_central(central) {
   assert(arg);
@@ -10,7 +19,8 @@ Rounder::~Rounder() {}
 
 int Rounder::getNsubdigits() {
   if (arg->digits > -1) return arg->digits;
-  return TMath::Max(calcNsubdigits(fabs(m_central - m_cllo)), calcNsubdigits(fabs(m_central - m_clhi)));
+  using Utils::calcNsubdigits;
+  return std::max(calcNsubdigits(std::abs(m_central - m_cllo)), calcNsubdigits(std::abs(m_central - m_clhi)));
 }
 
 float Rounder::CLlo() { return Round(m_cllo, getNsubdigits()); }

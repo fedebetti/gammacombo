@@ -7,6 +7,21 @@
 
 #include <PDF_Circle.h>
 
+#include <ParametersTutorial.h>
+
+#include <PDF_Abs.h>
+
+#include <RooArgList.h>
+#include <RooArgSet.h>
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
+
+#include <TString.h>
+
+#include <cstdlib>
+#include <iostream>
+
 PDF_Circle::PDF_Circle(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   name = "Circle";
   initParameters();
@@ -47,8 +62,8 @@ void PDF_Circle::setObservables(TString c) {
     obsValSource = "year2013";
     setObservable("radius_obs", 2.0);
   } else {
-    cout << "PDF_Circle::setObservables() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Circle::setObservables() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -58,8 +73,8 @@ void PDF_Circle::setUncertainties(TString c) {
     StatErr[0] = 0.25;
     SystErr[0] = 0;
   } else {
-    cout << "PDF_Circle::initCov() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Circle::initCov() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -68,8 +83,8 @@ void PDF_Circle::setCorrelations(TString c) {
   if (c.EqualTo("year2013")) {
     corSource = "no correlations for 1 obs";
   } else {
-    cout << "PDF_Circle::setCorrelations() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Circle::setCorrelations() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 

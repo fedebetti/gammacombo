@@ -7,15 +7,8 @@
 
 #ifndef UtilsConfig_h
 #define UtilsConfig_h
-#include <cassert>
-#include <iostream>
-#include <sstream>
-#include <stdlib.h>
-#include <sys/stat.h>
 
 #include <TString.h>
-
-using namespace std;
 
 namespace Utils {
   enum config {

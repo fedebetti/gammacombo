@@ -2,13 +2,10 @@
 #define PDF_CrossCor_GausA_vs_GausB_h
 
 #include "PDF_CrossCorAbs.h"
-#include "ParametersTutorial.h"
-#include <PDF_Abs.h>
-#include <RooGenericPdf.h>
 
-using namespace RooFit;
-using namespace std;
-using namespace Utils;
+#include <TString.h>
+
+class PDF_Abs;
 
 class PDF_CrossCor_GausA_vs_GausB : public PDF_CrossCorAbs {
  public:

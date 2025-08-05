@@ -12,15 +12,12 @@
 #ifndef Graphviz_h
 #define Graphviz_h
 
-#include "Combiner.h"
-#include "OptParser.h"
-#include "Utils.h"
+#include <TString.h>
 
 #include <fstream>
-#include <iostream>
 
-using namespace std;
-using namespace Utils;
+class Combiner;
+class OptParser;
 
 class Graphviz {
  public:
@@ -34,7 +31,7 @@ class Graphviz {
   TString graphvizString(TString s);
   // TString   graphvizString(string s);
   bool isDmixingParameter(TString s);
-  ofstream& openFile(TString name);
+  std::ofstream& openFile(TString name);
   OptParser* arg;  ///< command line arguments
 };
 

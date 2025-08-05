@@ -8,14 +8,7 @@
 #ifndef TGraphTools_h
 #define TGraphTools_h
 
-#include "Utils.h"
-#include <TGraph.h>
-#include <TGraphAsymmErrors.h>
-#include <TGraphErrors.h>
-#include <TGraphSmooth.h>
-
-using namespace std;
-using namespace Utils;
+class TGraph;
 
 class TGraphTools {
  public:

@@ -1,6 +1,30 @@
 #include <PullPlotter.h>
+
+#include <Combiner.h>
+#include <MethodAbsScan.h>
+#include <OptParser.h>
+#include <PDF_Abs.h>
+#include <RooSlimFitResult.h>
+#include <Utils.h>
+
+#include <RooAbsPdf.h>
+#include <RooArgSet.h>
+#include <RooFormulaVar.h>
+#include <RooRealVar.h>
+
+#include <TCanvas.h>
 #include <TFitResult.h>
+#include <TGaxis.h>
+#include <TH1F.h>
 #include <TLatex.h>
+#include <TMath.h>
+#include <TPaveText.h>
+
+#include <cassert>
+#include <iostream>
+#include <ostream>
+#include <string>
+#include <vector>
 
 PullPlotter::PullPlotter(MethodAbsScan* cmb) {
   assert(cmb);
@@ -76,7 +100,7 @@ void PullPlotter::defineOrder() {
 /// \param maxid - Define the max index for the "(3 of 7)" statement
 /// \param nObs - total number of observables
 ///
-void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, int maxid, int nObs) {
+void PullPlotter::plotPullsCanvas(std::vector<TString>& observables, int currentid, int maxid, int nObs) {
   // pull bar
   float width = 0.45;   // width of pull bar
   float spacing = 0.1;  // space between two lines
@@ -89,8 +113,8 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
   // pull axis
   float xminPullAxis = -pullRange;
   float xmaxPullAxis = +pullRange;
-  TCanvas* cPulls =
-      newNoWarnTCanvas("cPulls" + getUniqueRootName(), cmb->getTitle(), 0, 0, 600, 40 * observables.size() + 120);
+  TCanvas* cPulls = Utils::newNoWarnTCanvas("cPulls" + Utils::getUniqueRootName(), cmb->getTitle(), 0, 0, 600,
+                                            40 * observables.size() + 120);
   cPulls->Range(xminCoords, yminCoords, xmaxCoords, ymaxCoords);
 
   // compute (5 of 7) string
@@ -158,10 +182,11 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
     // compute precision for subdigits
     float pObsVal = pObs->getVal();
     float pThVal = pTh->getVal();
-    if (isAngle(pObs)) {
-      pObsVal = RadToDeg(pObsVal);
-      pThVal = RadToDeg(pThVal);
+    if (Utils::isAngle(pObs)) {
+      pObsVal = Utils::RadToDeg(pObsVal);
+      pThVal = Utils::RadToDeg(pThVal);
     }
+    using Utils::calcNsubdigits;
     int p = TMath::Max(calcNsubdigits(pThVal, 3), calcNsubdigits(pObsVal, 3));
     if (arg->digits > 0) p = arg->digits;
 
@@ -192,7 +217,7 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
         ->SetTextSize(25);
     t3->Draw();
   }
-  savePlot(cPulls, Form("pulls_" + cmb->getName() + "_sol%i_%iof%i", nSolution, currentid, maxid));
+  Utils::savePlot(cPulls, Form("pulls_" + cmb->getName() + "_sol%i_%iof%i", nSolution, currentid, maxid));
 }
 
 ///
@@ -200,20 +225,20 @@ void PullPlotter::plotPullsCanvas(vector<TString>& observables, int currentid, i
 /// the chi2 that each pdf contributes to the total combination
 ///
 void PullPlotter::savePulls() {
-  cout << "saving pulls" << endl;
+  std::cout << "saving pulls" << std::endl;
 
-  ofstream outfile;
+  std::ofstream outfile;
   outfile.open("plots/par/pulls_" + cmb->getName() + ".dat");
-  outfile << "# ObsName  ObsVal  ObsErr  ThVal  Pull  Chi2" << endl;
+  outfile << "# ObsName  ObsVal  ObsErr  ThVal  Pull  Chi2" << std::endl;
 
   double running_chi2 = 0;
 
   Combiner* combiner = cmb->getCombiner();
-  vector<PDF_Abs*>& pdfs = combiner->getPdfs();
+  std::vector<PDF_Abs*>& pdfs = combiner->getPdfs();
   for (const auto& pdf : pdfs) {
     double pdf_chi2 = 0;
-    // cout << pdf->getName() << endl;
-    outfile << "pulls: " << pdf->getName() << endl;
+    // std::cout << pdf->getName() << std::endl;
+    outfile << "pulls: " << pdf->getName() << std::endl;
     const RooArgList* obs = pdf->getObservables();
     // combiner holds the parameters so get them and set them on each pdf
     const RooArgSet* parsMin = combiner->getParameters();
@@ -237,16 +262,16 @@ void PullPlotter::savePulls() {
       RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
 
       double pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
-      string name = string(pObs->GetName()).substr(0, string(pObs->GetName()).find(string("_obs")));
+      std::string name = std::string(pObs->GetName()).substr(0, std::string(pObs->GetName()).find(std::string("_obs")));
 
       outfile << "  " << name << " " << pObs->getVal() << " " << pObs->getError() << " " << pTh->getVal() << " " << pull
-              << " " << pull * pull << endl;
+              << " " << pull * pull << std::endl;
 
       // printf("%f %f %f %f", pTh->getVal(), pObs->getVal(), pObs->getError(), pull);
     }
-    outfile << "pdf chi2: " << chi2_contrib << endl;
+    outfile << "pdf chi2: " << chi2_contrib << std::endl;
   }
-  outfile << "total chi2: " << running_chi2 << endl;
+  outfile << "total chi2: " << running_chi2 << std::endl;
 
   outfile.close();
 }
@@ -257,8 +282,8 @@ void PullPlotter::savePulls() {
 /// using chi2, ndof and the prob function.
 ///
 void PullPlotter::plotPulls() {
-  if (arg->debug) cout << "PullPlotter::plotPulls() : ";
-  cout << "making pull plot  (" << cmb->getTitle() << ", solution " << nSolution << ") ..." << endl;
+  if (arg->debug) std::cout << "PullPlotter::plotPulls() : ";
+  std::cout << "making pull plot  (" << cmb->getTitle() << ", solution " << nSolution << ") ..." << std::endl;
 
   // a histogram to store all the pulls
   TH1F* hPulls = new TH1F("hPulls", "hPulls", 50, -5, 5);
@@ -274,12 +299,12 @@ void PullPlotter::plotPulls() {
   }
 
   // find observables we want to plot the pull of, and print their values
-  vector<TString> observables;
-  if (arg->verbose) cout << endl;
+  std::vector<TString> observables;
+  if (arg->verbose) std::cout << std::endl;
   for (int i = obsOrder.size() - 1; i >= 0; i--) {
     RooRealVar* pObs = (RooRealVar*)cmb->getObservables()->find(obsOrder[i]);
     if (!pObs) {
-      if (arg->debug) cout << "obs not found " << obsOrder[i] << endl;
+      if (arg->debug) std::cout << "obs not found " << obsOrder[i] << std::endl;
       continue;
     }
 
@@ -293,7 +318,7 @@ void PullPlotter::plotPulls() {
       pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
     }
     if (!pTh) {
-      if (arg->verbose) cout << "th not found for " << pObs->GetName() << endl;
+      if (arg->verbose) std::cout << "th not found for " << pObs->GetName() << std::endl;
       continue;
     }
 
@@ -308,10 +333,10 @@ void PullPlotter::plotPulls() {
     // fill histogram of pulls
     hPulls->Fill((pTh->getVal() - pObs->getVal()) / pObs->getError());
   }
-  if (arg->verbose) cout << endl;
+  if (arg->verbose) std::cout << std::endl;
 
   // now plot the pulls of the observables we found in chunks of 10.
-  vector<TString> observablesChunk;
+  std::vector<TString> observablesChunk;
   for (int i = 0; i < observables.size(); i++) {
     observablesChunk.push_back(observables[i]);
     if (observablesChunk.size() % 10 == 0) {
@@ -325,7 +350,7 @@ void PullPlotter::plotPulls() {
   }
 
   // and plot all the pulls
-  TCanvas* cPull = newNoWarnTCanvas("cPull" + getUniqueRootName(), cmb->getTitle(), 0, 0, 600, 400);
+  TCanvas* cPull = Utils::newNoWarnTCanvas("cPull" + Utils::getUniqueRootName(), cmb->getTitle(), 0, 0, 600, 400);
   cPull->cd();
   hPulls->GetXaxis()->SetTitle("Pull [#sigma]");
   TFitResultPtr r = hPulls->Fit("gaus", "SQ");
@@ -338,7 +363,7 @@ void PullPlotter::plotPulls() {
   l.DrawLatex(0.7, 0.66, "Fit:");
   l.DrawLatex(0.72, 0.60, Form("#mu = (%4.2f #pm %4.2f)", r->Parameter(1), r->ParError(1)));
   l.DrawLatex(0.72, 0.54, Form("#sigma = (%4.2f #pm %4.2f)", r->Parameter(2), r->ParError(2)));
-  savePlot(cPull, "pull_tot_" + cmb->getName());
+  Utils::savePlot(cPull, "pull_tot_" + cmb->getName());
 }
 
 ///
@@ -355,7 +380,8 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma) {
     pThName.ReplaceAll("obs", "th");
     RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
     if (!pTh) {
-      if (arg->verbose) cout << "hasPullsAboveNsigma() : WARNING : th not found for " << pObs->GetName() << endl;
+      if (arg->verbose)
+        std::cout << "hasPullsAboveNsigma() : WARNING : th not found for " << pObs->GetName() << std::endl;
       continue;
     }
     // compute pull
@@ -377,7 +403,7 @@ void PullPlotter::printPulls(float aboveNsigma) {
     pThName.ReplaceAll("obs", "th");
     RooRealVar* pTh = (RooRealVar*)cmb->getTheory()->find(pThName);
     if (!pTh) {
-      if (arg->verbose) cout << "printPulls() : WARNING : th not found for " << pObs->GetName() << endl;
+      if (arg->verbose) std::cout << "printPulls() : WARNING : th not found for " << pObs->GetName() << std::endl;
       continue;
     }
     // compute pull

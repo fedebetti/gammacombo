@@ -2,13 +2,11 @@
 #define ROOCROSSCORPDF
 
 #include <RooAbsPdf.h>
-// #include "RooRealProxy.h"
-// #include "Rtypes.h"
 #include <RooListProxy.h>
-#include <TMatrixDSym.h>
-#include <TVectorD.h>
 
-class RooRealVar;
+#include <TMatrixDSym.h>
+
+class TObject;
 
 class RooCrossCorPdf : public RooAbsPdf {
 

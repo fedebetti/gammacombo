@@ -1,9 +1,17 @@
 #include <PValueCorrection.h>
 
+#include <TChain.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TH1F.h>
+#include <TMath.h>
+#include <TSystemDirectory.h>
+#include <TSystemFile.h>
+
 #include <cassert>
 #include <cmath>
-
-using namespace std;
+#include <cstdlib>
+#include <iostream>
 
 PValueCorrection::PValueCorrection(TString _transFunc, bool _verbose) : transFunc(_transFunc), verbose(_verbose) {
   allowedFuncs.push_back("none");
@@ -23,8 +31,9 @@ PValueCorrection::PValueCorrection(int id, bool _verbose) : transFunc(""), verbo
   else if (id == 3)
     transFunc = "p1+1/x";
   else {
-    cout << "ERROR -- PValueCorrection::PValueCorrection(int) -- correction id must be in the range [0,3]" << endl;
-    exit(1);
+    std::cout << "ERROR -- PValueCorrection::PValueCorrection(int) -- correction id must be in the range [0,3]"
+              << std::endl;
+    std::exit(1);
   }
   allowedFuncs.push_back("none");
   allowedFuncs.push_back("p1");
@@ -49,8 +58,8 @@ void PValueCorrection::setFitParam(int i, double val) {
 
 void PValueCorrection::checkValid() {
   if (find(allowedFuncs.begin(), allowedFuncs.end(), transFunc) == allowedFuncs.end()) {
-    cout << "ERROR -- " << transFunc << " is not a valid transform function" << endl;
-    exit(1);
+    std::cout << "ERROR -- " << transFunc << " is not a valid transform function" << std::endl;
+    std::exit(1);
   }
 }
 
@@ -105,13 +114,16 @@ double PValueCorrection::transform(double x) {
 }
 
 void PValueCorrection::printCoverage(float n68, float n95, float n99, float n, TString name) {
-  cout << "PValueCorrection::printCoverage(): " << name << endl;
-  cout << "  eta=68.27%: alpha=" << Form("%.4f", 1. * n68 / n) << " +/- " << Form("%.4f", sqrt(n68 * (n - n68) / n) / n)
-       << "  alpha-eta=" << Form("%.4f", 1. * n68 / n - 0.6827) << endl
-       << "  eta=95.45%: alpha=" << Form("%.4f", 1. * n95 / n) << " +/- " << Form("%.4f", sqrt(n95 * (n - n95) / n) / n)
-       << "  alpha-eta=" << Form("%.4f", 1. * n95 / n - 0.9545) << endl
-       << "  eta=99.73%: alpha=" << Form("%.4f", 1. * n99 / n) << " +/- " << Form("%.4f", sqrt(n99 * (n - n99) / n) / n)
-       << "  alpha-eta=" << Form("%.4f", 1. * n99 / n - 0.9973) << endl;
+  std::cout << "PValueCorrection::printCoverage(): " << name << std::endl;
+  std::cout << "  eta=68.27%: alpha=" << Form("%.4f", 1. * n68 / n) << " +/- "
+            << Form("%.4f", sqrt(n68 * (n - n68) / n) / n) << "  alpha-eta=" << Form("%.4f", 1. * n68 / n - 0.6827)
+            << std::endl
+            << "  eta=95.45%: alpha=" << Form("%.4f", 1. * n95 / n) << " +/- "
+            << Form("%.4f", sqrt(n95 * (n - n95) / n) / n) << "  alpha-eta=" << Form("%.4f", 1. * n95 / n - 0.9545)
+            << std::endl
+            << "  eta=99.73%: alpha=" << Form("%.4f", 1. * n99 / n) << " +/- "
+            << Form("%.4f", sqrt(n99 * (n - n99) / n) / n) << "  alpha-eta=" << Form("%.4f", 1. * n99 / n - 0.9973)
+            << std::endl;
 }
 
 void PValueCorrection::write(TString fname) {
@@ -123,7 +135,7 @@ void PValueCorrection::write(TString fname) {
 
 void PValueCorrection::write(TFile* f) {
   f->cd();
-  if (verbose) cout << "PValueCorrection::write() -- writing to file " << f->GetName() << endl;
+  if (verbose) std::cout << "PValueCorrection::write() -- writing to file " << f->GetName() << std::endl;
   fitFunc.SetName(TString(h_pvalue_before->GetName()) + "_fit");
   h_pvalue_before->Write();
   h_pvalue_after->Write();
@@ -145,17 +157,17 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
     while ((file = (TSystemFile*)next())) {
       fname = file->GetName();
       if (!file->IsDirectory() && fname.Contains(Form("id%d", id)) && fname.EndsWith(".root")) {
-        // cout << fname << endl;
+        // std::cout << fname << std::endl;
         fChain->Add(name + "/" + fname);
         foundFiles++;
       }
     }
   }
 
-  cout << "PValueCorrector::readFiles() -- found " << foundFiles << " files in " << dir.GetName() << " with total of "
-       << fChain->GetEntries() << " entries" << endl;
-  cout << "PValueCorrector::readFiles() -- will apply on the fly correction of type ";
-  isPlugin ? cout << " plugin" << endl : cout << " prob" << endl;
+  std::cout << "PValueCorrector::readFiles() -- found " << foundFiles << " files in " << dir.GetName()
+            << " with total of " << fChain->GetEntries() << " entries" << std::endl;
+  std::cout << "PValueCorrector::readFiles() -- will apply on the fly correction of type ";
+  isPlugin ? std::cout << " plugin" << std::endl : std::cout << " prob" << std::endl;
 
   // fill histogram from tree
   h_pvalue_before = new TH1F("h_pvalue_before", "p-value", 50, 0., 1.);

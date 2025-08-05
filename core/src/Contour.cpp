@@ -1,5 +1,16 @@
 #include <Contour.h>
 
+#include <OptParser.h>
+#include <Utils.h>
+
+#include <TGraph.h>
+#include <TH2F.h>
+#include <TList.h>
+
+#include <cassert>
+#include <iostream>
+#include <vector>
+
 ///
 /// Constructor. The class stores copies of the TGraphs provided in listOfGraphs.
 ///
@@ -30,7 +41,7 @@ Contour::~Contour() {
 /// Draw the contours into the currently active Canvas.
 ///
 void Contour::Draw() {
-  // cout << "Contour::Draw() : drawing contour (sigma=" << m_sigma << ") ..." << endl;
+  // std::cout << "Contour::Draw() : drawing contour (sigma=" << m_sigma << ") ..." << std::endl;
   DrawFilled();
   DrawLine();
 }
@@ -97,7 +108,7 @@ void Contour::setStyle(int linecolor, int linestyle, int linewidth, int fillcolo
 /// \param contours - vector containing contours without holes
 /// \return - vector with contours with holes
 ///
-vector<TGraph*> Contour::makeHoles(vector<TGraph*>& contours) {
+std::vector<TGraph*> Contour::makeHoles(std::vector<TGraph*>& contours) {
   int n = contours.size();
   bool joined = false;
   int iJoined1;
@@ -119,7 +130,7 @@ vector<TGraph*> Contour::makeHoles(vector<TGraph*>& contours) {
   }
 
   if (joined) {
-    vector<TGraph*> newContours;
+    std::vector<TGraph*> newContours;
     newContours.push_back(gJoined);
     for (int i = 0; i < n; i++) {
       if (i != iJoined1 && i != iJoined2) newContours.push_back(contours[i]);
@@ -154,16 +165,16 @@ TGraph* Contour::joinIfInside(TGraph* g1, TGraph* g2) {
   // will form a hole! We'll merge at the points that are closest.
   int i1, i2;
   findClosestPoints(g1, g2, i1, i2);
-  // cout << "g1 ===========" << endl;
+  // std::cout << "g1 ===========" << std::endl;
   // g1->Print();
-  // cout << "g2 ===========" << endl;
+  // std::cout << "g2 ===========" << std::endl;
   // g2->Print();
   // change graph order such that it stars and ends with the nearest point
   g1 = changePointOrder(g1, i1);
   g2 = changePointOrder(g2, i2);
-  // cout << "g1 ===========" << endl;
+  // std::cout << "g1 ===========" << std::endl;
   // g1->Print();
-  // cout << "g2 ===========" << endl;
+  // std::cout << "g2 ===========" << std::endl;
   // g2->Print();
   // merge them
   TGraph* gNew = new TGraph(g1->GetN() + g2->GetN());
@@ -175,7 +186,7 @@ TGraph* Contour::joinIfInside(TGraph* g1, TGraph* g2) {
     g2->GetPoint(i, pointx, pointy);
     gNew->SetPoint(i + g1->GetN(), pointx, pointy);
   }
-  // cout << "gNew ===========" << endl;
+  // std::cout << "gNew ===========" << std::endl;
   // gNew->Print();
   return gNew;
 }
@@ -205,7 +216,7 @@ void Contour::findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2) {
     for (int ii2 = 0; ii2 < g2->GetN(); ii2++) {
       g1->GetPoint(ii1, x1, y1);
       g2->GetPoint(ii2, x2, y2);
-      double d = sqrt(sq(x1 - x2) + sq(y1 - y2));
+      double d = sqrt(Utils::sq(x1 - x2) + Utils::sq(y1 - y2));
       if (d < distance) {
         i1 = ii1;
         i2 = ii2;
@@ -236,7 +247,7 @@ void Contour::findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2) {
 /// \param contour - input contours
 /// \param hCL - a histogram defining the boundaries
 ///
-void Contour::magneticBoundaries(vector<TGraph*>& contours, const TH2F* hCL) {
+void Contour::magneticBoundaries(std::vector<TGraph*>& contours, const TH2F* hCL) {
   float magneticRange = 0.75;
   float xmin = hCL->GetXaxis()->GetXmin();
   float xmax = hCL->GetXaxis()->GetXmax();
@@ -272,7 +283,7 @@ void Contour::magneticBoundaries(const TH2F* hCL) {
 ///
 void Contour::setTransparency(float percent) {
   if (!(0. <= percent && percent <= 1.)) {
-    cout << "Contour::setTransparency() : ERROR : percent not in [0,1]. Skipping." << endl;
+    std::cout << "Contour::setTransparency() : ERROR : percent not in [0,1]. Skipping." << std::endl;
     return;
   }
   m_alpha = 1. - percent;

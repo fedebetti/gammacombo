@@ -1,10 +1,8 @@
-#include <RooFit.h>
-#include <iostream>
-#include <math.h>
+#include <RooCrossCorPdf.h>
 
 #include <RooAbsReal.h>
-#include <RooCrossCorPdf.h>
-#include <RooRealVar.h>
+
+#include <TVectorD.h>
 
 RooCrossCorPdf::RooCrossCorPdf(const char* name, const char* title, const RooArgList& th, const RooArgList& obs,
                                const TMatrixDSym& invcov, int nObsPdf1)

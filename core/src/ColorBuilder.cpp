@@ -1,5 +1,9 @@
 #include <ColorBuilder.h>
 
+#include <TColor.h>
+#include <TObjArray.h>
+#include <TROOT.h>
+
 ColorBuilder::ColorBuilder() {}
 
 ColorBuilder::~ColorBuilder() {}

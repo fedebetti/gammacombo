@@ -1,20 +1,19 @@
-#include <TFile.h>
+#include <RooMultiPdf.h>
 
 #include <RooAddPdf.h>
+#include <RooCategory.h>
 #include <RooChebychev.h>
 #include <RooDataSet.h>
 #include <RooExponential.h>
 #include <RooFitResult.h>
+#include <RooFormulaVar.h>
 #include <RooGaussian.h>
 #include <RooGenericPdf.h>
-#include <RooMultiPdf.h>
 #include <RooPlot.h>
-#include <RooPolynomial.h>
 #include <RooRealVar.h>
 #include <RooWorkspace.h>
 
-using namespace std;
-using namespace RooFit;
+#include <TFile.h>
 
 // Builds a workspace containing a multipdf which can be given to GammaCombo
 // The background pdfs here are an exponential, 2nd order polynomial and power law

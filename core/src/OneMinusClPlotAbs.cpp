@@ -7,6 +7,15 @@
 
 #include <OneMinusClPlotAbs.h>
 
+#include <MethodAbsScan.h>
+#include <OptParser.h>
+
+#include <TPaveText.h>
+#include <TString.h>
+#include <TStyle.h>
+
+#include <iostream>
+
 OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title) {
   font = 133;
   labelsize = 35;   ///< axis labels, numeric solutions, CL guide lines
@@ -41,14 +50,14 @@ OneMinusClPlotAbs::~OneMinusClPlotAbs() {
 /// Add a scanner to this plot.
 ///
 void OneMinusClPlotAbs::addScanner(MethodAbsScan* s, int CLsType) {
-  if (arg->debug) cout << "OneMinusClPlotAbs::addScanner() : adding " << s->getName() << endl;
+  if (arg->debug) std::cout << "OneMinusClPlotAbs::addScanner() : adding " << s->getName() << std::endl;
   if (CLsType == 0 || (CLsType == 1 && s->getHCLs()) || (CLsType == 2 && s->getHCLsFreq())) {
     scanners.push_back(s);
     do_CLs.push_back(CLsType);
   }
   // else if ((CLsType==1 && !s->getHCLs()) || (CLsType==2 && !s->getHCLsFreq()))
   // {
-  //  cout << "No CLs histogram was determined. Will not plot." << endl;
+  //  std::cout << "No CLs histogram was determined. Will not plot." << std::endl;
   // }
 }
 
@@ -57,10 +66,11 @@ void OneMinusClPlotAbs::addScanner(MethodAbsScan* s, int CLsType) {
 ///
 void OneMinusClPlotAbs::save() {
   if (m_mainCanvas == 0) {
-    cout << "OneMinusClPlotAbs::save() : ERROR : Empty canvas. Call Draw() or DrawFull() before saving!" << endl;
+    std::cout << "OneMinusClPlotAbs::save() : ERROR : Empty canvas. Call Draw() or DrawFull() before saving!"
+              << std::endl;
     return;
   }
-  savePlot(m_mainCanvas, name + arg->plotext);
+  Utils::savePlot(m_mainCanvas, name + arg->plotext);
 }
 
 ///

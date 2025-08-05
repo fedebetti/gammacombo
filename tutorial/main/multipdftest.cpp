@@ -1,19 +1,16 @@
-#include <TFile.h>
+#include <RooMultiPdf.h>
 
-#include <RooAddPdf.h>
+#include <RooCategory.h>
 #include <RooChebychev.h>
 #include <RooDataSet.h>
 #include <RooExponential.h>
 #include <RooGaussian.h>
 #include <RooGenericPdf.h>
-#include <RooMultiPdf.h>
 #include <RooPlot.h>
-#include <RooPolynomial.h>
 #include <RooRealVar.h>
 #include <RooWorkspace.h>
 
-using namespace std;
-using namespace RooFit;
+#include <TFile.h>
 
 int main(int argc, char* argv[]) {
   // mass variable

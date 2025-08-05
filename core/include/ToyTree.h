@@ -8,23 +8,22 @@
 #ifndef ToyTree_h
 #define ToyTree_h
 
-#include "OptParser.h"
-#include "PDF_Abs.h"
-#include "PDF_Datasets.h"
-#include "ProgressBar.h"
-#include "Utils.h"
-#include <TChain.h>
-#include <TCut.h>
-#include <TEnv.h>
-#include <TF1.h>
-#include <TFile.h>
-#include <TPaveStats.h>
-#include <TPaveText.h>
+#include <TString.h>
 
-#include "MethodProbScan.h"
+#include <RooArgSet.h>
 
-using namespace std;
-using namespace Utils;
+#include <map>
+#include <string>
+
+class Combiner;
+class OptParser;
+class PDF_Datasets;
+
+class RooFitResult;
+class RooWorkspace;
+
+class TChain;
+class TTree;
 
 ///
 /// Interface class for the root trees that are written
@@ -123,12 +122,12 @@ class ToyTree {
   TString thName;    ///< set name of theory parameters, derived from name
   TString globName;  ///< set name of explicit set of global observables
 
-  map<string, float> parametersScan;    ///< fit result of the scan fit
-  map<string, float> parametersFree;    ///< fit result of the free fit
-  map<string, float> parametersPll;     ///< parameters of the profile likelihood curve of the data
-  map<string, float> observables;       ///< values of the observables
-  map<string, float> theory;            ///< theory parameters (=observables at profile likelihood points)
-  map<TString, float> constraintMeans;  ///< values of global observables
+  std::map<std::string, float> parametersScan;  ///< fit result of the scan fit
+  std::map<std::string, float> parametersFree;  ///< fit result of the free fit
+  std::map<std::string, float> parametersPll;   ///< parameters of the profile likelihood curve of the data
+  std::map<std::string, float> observables;     ///< values of the observables
+  std::map<std::string, float> theory;          ///< theory parameters (=observables at profile likelihood points)
+  std::map<TString, float> constraintMeans;     ///< values of global observables
 
   float scanpointMin;   ///< minimum of the scanpoint, computed by computeMinMaxN().
   float scanpointMax;   ///< maximum of the scanpoint, computed by computeMinMaxN().

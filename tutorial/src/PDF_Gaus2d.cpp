@@ -7,6 +7,21 @@
 
 #include <PDF_Gaus2d.h>
 
+#include <ParametersTutorial.h>
+
+#include <PDF_Abs.h>
+
+#include <RooArgList.h>
+#include <RooArgSet.h>
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
+
+#include <TString.h>
+
+#include <cstdlib>
+#include <iostream>
+
 PDF_Gaus2d::PDF_Gaus2d(TString cObs, TString cErr, TString cCor) : PDF_Abs(2) {
   name = "Gaus2D";
   initParameters();
@@ -51,8 +66,8 @@ void PDF_Gaus2d::setObservables(TString c) {
     setObservable("a_gaus_obs", 0.1);
     setObservable("b_gaus_obs", 1.5);
   } else {
-    cout << "PDF_Gaus2d::setObservables() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Gaus2d::setObservables() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -64,8 +79,8 @@ void PDF_Gaus2d::setUncertainties(TString c) {
     SystErr[0] = 0;  // a
     SystErr[1] = 0;  // b
   } else {
-    cout << "PDF_Gaus2d::setUncertainties() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Gaus2d::setUncertainties() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -76,8 +91,8 @@ void PDF_Gaus2d::setCorrelations(TString c) {
     corStatMatrix[1][0] = 0.6;  // a, b
     corSystMatrix[1][0] = 0.0;  // a, b
   } else {
-    cout << "PDF_Gaus2d::setCorrelations() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Gaus2d::setCorrelations() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 

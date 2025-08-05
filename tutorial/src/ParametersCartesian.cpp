@@ -1,5 +1,8 @@
 #include <ParametersCartesian.h>
 
+#include <Parameter.h>
+#include <Utils.h>
+
 ParametersCartesian::ParametersCartesian() { defineParameters(); }
 
 ///
@@ -10,6 +13,8 @@ ParametersCartesian::ParametersCartesian() { defineParameters(); }
 ///  free:  range applied when no boundary is required - set this far away from any possible value
 ///
 void ParametersCartesian::defineParameters() {
+  using Utils::DegToRad;
+
   Parameter* p = 0;
 
   p = newParameter("g");

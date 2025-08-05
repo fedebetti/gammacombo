@@ -9,11 +9,6 @@
 #define CLInterval_h
 
 #include <TString.h>
-#include <iostream>
-#include <sstream>
-#include <stdlib.h>
-
-using namespace std;
 
 ///
 /// Class that represents a confidence interval

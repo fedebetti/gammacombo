@@ -1,5 +1,20 @@
 #include <ConfidenceContours.h>
 
+#include <Contour.h>
+#include <OptParser.h>
+
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TH2F.h>
+#include <TMath.h>
+#include <TROOT.h>
+#include <TVirtualPad.h>
+
+#include <cassert>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
+
 ConfidenceContours::ConfidenceContours(OptParser* arg) {
   assert(arg);
   m_arg = arg;
@@ -20,7 +35,7 @@ ConfidenceContours::~ConfidenceContours() {}
 // TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist)
 //{
 // float boundary = hist->GetMinimum();
-// TH2F* hBoundaries = new TH2F(getUniqueRootName(),getUniqueRootName(),
+// TH2F* hBoundaries = new TH2F(Utils::getUniqueRootName(),Utils::getUniqueRootName(),
 // hist->GetNbinsX()+4,
 // hist->GetXaxis()->GetXmin() - 2*hist->GetXaxis()->GetBinWidth(1),
 // hist->GetXaxis()->GetXmax() + 2*hist->GetXaxis()->GetBinWidth(1),
@@ -63,7 +78,7 @@ ConfidenceContours::~ConfidenceContours() {}
 //}
 TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist) {
   float boundary = hist->GetMinimum();
-  TH2F* hBoundaries = new TH2F(getUniqueRootName(), getUniqueRootName(), hist->GetNbinsX() + 2,
+  TH2F* hBoundaries = new TH2F(Utils::getUniqueRootName(), Utils::getUniqueRootName(), hist->GetNbinsX() + 2,
                                hist->GetXaxis()->GetXmin() - hist->GetXaxis()->GetBinWidth(1),
                                hist->GetXaxis()->GetXmax() + hist->GetXaxis()->GetBinWidth(1), hist->GetNbinsY() + 2,
                                hist->GetYaxis()->GetXmin() - hist->GetYaxis()->GetBinWidth(1),
@@ -89,8 +104,8 @@ TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist) {
 ///
 TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, float offset) {
   float chi2min = hist->GetMinimum();
-  // cout << "ConfidenceContours::transformChi2valleyToHill() : chi2min=" << chi2min << endl;
-  TH2F* newHist = histHardCopy(hist, false, true);
+  // std::cout << "ConfidenceContours::transformChi2valleyToHill() : chi2min=" << chi2min << std::endl;
+  TH2F* newHist = Utils::histHardCopy(hist, false, true);
   for (int ix = 1; ix <= hist->GetXaxis()->GetNbins(); ix++) {
     for (int iy = 1; iy <= hist->GetYaxis()->GetNbins(); iy++) {
       newHist->SetBinContent(ix, iy, -hist->GetBinContent(ix, iy) + offset + chi2min);
@@ -132,25 +147,25 @@ void ConfidenceContours::addFilledPlotArea(TH2F* hist) {
 /// \param hist - the 2D histogram
 /// \param type - the type of the 2D histogram, either chi2 or p-value
 ///
-void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id) {
+void ConfidenceContours::computeContours(TH2F* hist, Utils::histogramType type, int id) {
   if (m_arg->debug) {
-    cout << "ConfidenceContours::computeContours() : making contours of histogram ";
-    cout << hist->GetName();
-    cout << ", type " << (type == kChi2 ? "chi2" : "p-value") << endl;
+    std::cout << "ConfidenceContours::computeContours() : making contours of histogram ";
+    std::cout << hist->GetName();
+    std::cout << ", type " << (type == Utils::kChi2 ? "chi2" : "p-value") << std::endl;
   }
   // clean up contours from a previous call
   m_contours.clear();
 
   // transform chi2 from valley to hill
   float offset = 100.;
-  if (type == kChi2) hist = transformChi2valleyToHill(hist, offset);
+  if (type == Utils::kChi2) hist = transformChi2valleyToHill(hist, offset);
 
   // add boundaries
   TH2F* histb = addBoundaryBins(hist);
 
   // make contours
   histb->SetContour(m_nMaxContours);
-  if (type == kChi2) {
+  if (type == Utils::kChi2) {
     // chi2 units
     if (m_arg->plot2dcl[id] > 0) {
       for (int i = 0; i < m_nMaxContours; i++) {
@@ -188,7 +203,7 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
 
   // create and access the contours
   if (m_arg->interactive) gROOT->SetBatch(true);  // don't display the temporary canvas
-  TCanvas* ctmp = newNoWarnTCanvas(getUniqueRootName(), "ctmp");
+  TCanvas* ctmp = Utils::newNoWarnTCanvas(Utils::getUniqueRootName(), "ctmp");
   histb->Draw("contlist");
   gPad->Update();  // needed to be able to access the contours as TGraphs
   TObjArray* contours = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
@@ -227,14 +242,14 @@ void ConfidenceContours::computeContours(TH2F* hist, histogramType type, int id)
   }
 
   // clean up
-  if (type == kChi2) delete hist;  // a copy was made earlier in this case
+  if (type == Utils::kChi2) delete hist;  // a copy was made earlier in this case
 }
 
 ///
 /// Draw the contours into the currently active Canvas.
 ///
 void ConfidenceContours::Draw() {
-  // cout << "ConfidenceContours::Draw() : drawing ..." << endl;
+  // std::cout << "ConfidenceContours::Draw() : drawing ..." << std::endl;
   if (m_contstoplots.size() > 0) {
     for (int ind = m_contstoplots.size() - 1; ind >= 0; ind--) {
       int i = m_contstoplots[ind] - 1;
@@ -257,7 +272,7 @@ void ConfidenceContours::Draw() {
 /// Draw the contours into the currently active Canvas.
 ///
 void ConfidenceContours::DrawDashedLine() {
-  // cout << "ConfidenceContours::DrawDashedLine() : drawing ..." << endl;
+  // std::cout << "ConfidenceContours::DrawDashedLine() : drawing ..." << std::endl;
   if (m_contstoplots.size() > 0) {
     for (int ind = m_contstoplots.size() - 1; ind >= 0; ind--) {
       int i = m_contstoplots[ind] - 1;
@@ -278,8 +293,8 @@ void ConfidenceContours::DrawDashedLine() {
 ///
 /// Set the contour style.
 ///
-void ConfidenceContours::setStyle(vector<int>& linecolor, vector<int>& linestyle, vector<int>& linewidth,
-                                  vector<int>& fillcolor, vector<int>& fillstyle) {
+void ConfidenceContours::setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth,
+                                  std::vector<int>& fillcolor, std::vector<int>& fillstyle) {
   m_linecolor = linecolor;
   m_linestyle = linestyle;
   m_fillcolor = fillcolor;
@@ -288,13 +303,13 @@ void ConfidenceContours::setStyle(vector<int>& linecolor, vector<int>& linestyle
   // for ( int i=0; i<m_linestyle.size(); i++ ) m_linewidth.push_back(2);
   //  check if enough styles where given for the number of contours to be plotted
   if (m_arg->plotnsigmacont > m_linestyle.size()) {
-    cout << "ConfidenceContours::setStyle() : ERROR : not enough sigma contour styles defined! ";
-    cout << "Reusing style of " << m_linestyle.size() << " sigma contour." << endl;
+    std::cout << "ConfidenceContours::setStyle() : ERROR : not enough sigma contour styles defined! ";
+    std::cout << "Reusing style of " << m_linestyle.size() << " sigma contour." << std::endl;
     for (int i = m_linestyle.size(); i < m_arg->plotnsigmacont; i++) {
       int laststyle = m_linestyle.size() - 1;
       if (laststyle < 0) {
-        cout << "ConfidenceContours::setStyle() : ERROR : linestyle is empty. Exit." << endl;
-        exit(1);
+        std::cout << "ConfidenceContours::setStyle() : ERROR : linestyle is empty. Exit." << std::endl;
+        std::exit(1);
       }
       m_linecolor.push_back(m_linecolor[laststyle]);
       m_linestyle.push_back(m_linestyle[laststyle]);

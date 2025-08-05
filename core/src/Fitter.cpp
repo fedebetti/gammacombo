@@ -1,5 +1,16 @@
 #include <Fitter.h>
 
+#include <OptParser.h>
+#include <Utils.h>
+
+#include <RooFitResult.h>
+#include <RooWorkspace.h>
+
+#include <TString.h>
+
+#include <cassert>
+#include <iostream>
+
 Fitter::Fitter(OptParser* arg, RooWorkspace* w, TString name) {
   this->w = w;
   this->name = name;
@@ -26,13 +37,13 @@ Fitter::~Fitter() {}
 ///
 void Fitter::fitTwice() {
   // first fit
-  setParametersFloating(w, parsName, startparsFirstFit);
-  RooFitResult* r1 = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
+  Utils::setParametersFloating(w, parsName, startparsFirstFit);
+  RooFitResult* r1 = Utils::fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
   bool f1failed = !(r1->edm() < 1 && r1->covQual() == 3);
 
   // second fit
-  setParametersFloating(w, parsName, startparsSecondFit);
-  RooFitResult* r2 = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
+  Utils::setParametersFloating(w, parsName, startparsSecondFit);
+  RooFitResult* r2 = Utils::fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
   bool f2failed = !(r2->edm() < 1 && r2->covQual() == 3);
 
   if (f1failed && f2failed) {
@@ -56,7 +67,7 @@ void Fitter::fitTwice() {
     delete r1;
   }
 
-  setParametersFloating(w, parsName, theResult);
+  Utils::setParametersFloating(w, parsName, theResult);
 }
 
 ///
@@ -64,9 +75,9 @@ void Fitter::fitTwice() {
 /// setStartparsFirstFit().
 ///
 void Fitter::fitForce() {
-  setParametersFloating(w, parsName, startparsFirstFit);
-  theResult = fitToMinForce(w, name);
-  setParametersFloating(w, parsName, theResult);
+  Utils::setParametersFloating(w, parsName, startparsFirstFit);
+  theResult = Utils::fitToMinForce(w, name);
+  Utils::setParametersFloating(w, parsName, theResult);
 }
 
 ///
@@ -103,4 +114,4 @@ void Fitter::fit() {
     fitTwice();
 }
 
-void Fitter::print() { cout << "Fitter: nFit1Best=" << nFit1Best << " nFit2Best=" << nFit2Best << endl; }
+void Fitter::print() { std::cout << "Fitter: nFit1Best=" << nFit1Best << " nFit2Best=" << nFit2Best << std::endl; }

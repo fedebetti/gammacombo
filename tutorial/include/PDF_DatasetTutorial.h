@@ -3,6 +3,10 @@
 
 #include <PDF_Datasets.h>
 
+class RooDataSet;
+class RooFitResult;
+class RooWorkspace;
+
 class PDF_DatasetTutorial : public PDF_Datasets {
  public:
   PDF_DatasetTutorial(RooWorkspace* w);

@@ -1,7 +1,17 @@
-#include <random>
-
 #include <PDF_DatasetTutorial.h>
-#include <RooExponential.h>
+
+#include <RooAbsPdf.h>
+#include <RooDataSet.h>
+#include <RooFitResult.h>
+#include <RooMsgService.h>
+#include <RooRealVar.h>
+#include <RooWorkspace.h>
+
+#include <TRandom3.h>
+
+#include <cstdlib>
+#include <iostream>
+#include <random>
 
 PDF_DatasetTutorial::PDF_DatasetTutorial(RooWorkspace* w) : PDF_Datasets(w) {}
 PDF_DatasetTutorial::~PDF_DatasetTutorial(){};
@@ -22,11 +32,11 @@ RooFitResult* PDF_DatasetTutorial::fit(RooDataSet* dataToFit) {
     std::cout << "This set can be empty." << std::endl;
     std::cout << "By default its name should be 'default_internal_constraint_set_name'." << std::endl;
     std::cout << "Other names can be passed via PDF_Datasets::initConstraints" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
 
   // Turn off RooMsg
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   RooMsgService::instance().setSilentMode(kTRUE);
 
   RooFitResult* result = pdf->fitTo(
@@ -34,7 +44,7 @@ RooFitResult* PDF_DatasetTutorial::fit(RooDataSet* dataToFit) {
       RooFit::Minos(kFALSE), RooFit::Hesse(kFALSE), RooFit::Strategy(3), RooFit::Minimizer("Minuit2", "minimize"));
 
   RooMsgService::instance().setSilentMode(kFALSE);
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
   this->fitStatus = result->status();
   return result;
 };

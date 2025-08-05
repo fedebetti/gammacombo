@@ -8,11 +8,7 @@
 #ifndef ProgressBar_h
 #define ProgressBar_h
 
-#include "OptParser.h"
-#include "Utils.h"
-
-using namespace std;
-using namespace Utils;
+class OptParser;
 
 ///
 /// Class showing a progress bar.

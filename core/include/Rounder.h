@@ -10,11 +10,7 @@
 #ifndef Rounder_h
 #define Rounder_h
 
-#include "OptParser.h"
-#include "Utils.h"
-
-using namespace std;
-using namespace Utils;
+class OptParser;
 
 class Rounder {
  public:

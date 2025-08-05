@@ -1,5 +1,21 @@
 #include <OptParser.h>
 
+#include <Utils.h>
+
+#include <tclap/MultiArg.h>
+#include <tclap/ValuesConstraint.h>
+
+#include <TObjArray.h>
+#include <TObjString.h>
+#include <TRegexp.h>
+#include <TString.h>
+
+#include <cassert>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <vector>
+
 ///
 /// Organize command line options.
 /// The strategy is to have one object of this class present in the
@@ -353,8 +369,8 @@ void OptParser::bookFlowcontrolOptions() {
 /// \param opt Book this option.
 ///
 void OptParser::bookOption(TString opt) {
-  if (!isIn<TString>(availableOptions, opt)) {
-    cout << "OptParser::bookOption() : ERROR : No such option! Check OptParser::defineOptions()." << endl;
+  if (!Utils::isIn<TString>(availableOptions, opt)) {
+    std::cout << "OptParser::bookOption() : ERROR : No such option! Check OptParser::defineOptions()." << std::endl;
     return;
   }
   bookedOptions.push_back(opt);
@@ -363,12 +379,12 @@ void OptParser::bookOption(TString opt) {
 ///
 /// Check the --action argument. Was action 's' given?
 ///
-bool OptParser::isAction(TString s) { return isIn<TString>(action, s); }
+bool OptParser::isAction(TString s) { return Utils::isIn<TString>(action, s); }
 
 ///
 /// Check the --quickhack argument. Was hack 'id' given?
 ///
-bool OptParser::isQuickhack(int id) { return isIn<int>(qh, id); }
+bool OptParser::isQuickhack(int id) { return Utils::isIn<int>(qh, id); }
 
 ///
 /// Parse the command line for booked options. Then apply some
@@ -377,31 +393,30 @@ bool OptParser::isQuickhack(int id) { return isIn<int>(qh, id); }
 /// it will assume the default value given here.
 ///
 void OptParser::parseArguments(int argc, char* argv[]) {
-  // CmdLine cmd("", ' ', "");
-  // cmd = CmdLine("", ' ', "");
 
   // --------------- arguments that take a value
-  TCLAP::ValueArg<string> dateArg("", "date", "Plot the date.", false, "", "string");
-  TCLAP::ValueArg<string> scanrangeArg("", "scanrange",
-                                       "Restrict the scan range to a given range. "
-                                       "In 2D scans, this corresponds to the x variable. "
-                                       "Format: --scanrange min:max.",
-                                       false, "default", "string");
-  TCLAP::ValueArg<string> scanrangeyArg("", "scanrangey",
-                                        "For 2D plots, restrict the scan range "
-                                        "of the y variable to a given range. "
-                                        "Format: --scanrangey min:max.",
-                                        false, "default", "string");
+  TCLAP::ValueArg<std::string> dateArg("", "date", "Plot the date.", false, "", "string");
+  TCLAP::ValueArg<std::string> scanrangeArg("", "scanrange",
+                                            "Restrict the scan range to a given range. "
+                                            "In 2D scans, this corresponds to the x variable. "
+                                            "Format: --scanrange min:max.",
+                                            false, "default", "string");
+  TCLAP::ValueArg<std::string> scanrangeyArg("", "scanrangey",
+                                             "For 2D plots, restrict the scan range "
+                                             "of the y variable to a given range. "
+                                             "Format: --scanrangey min:max.",
+                                             false, "default", "string");
   TCLAP::ValueArg<float> scaleerrArg("", "scaleerr", "Scale the errors by this number", false, -999., "float");
   TCLAP::ValueArg<float> scalestaterrArg("", "scalestaterr", "Scale the STAT only errors by this number", false, -999.,
                                          "float");
-  TCLAP::ValueArg<string> plotoriginArg(
+  TCLAP::ValueArg<std::string> plotoriginArg(
       "", "origin", "Plot Origin on 2D plots. Default 0:0. Can move to another location. Format: --origin min:max",
       false, "default", "string");
-  TCLAP::ValueArg<string> plotrangeyArg("", "plotrangey",
-                                        "Plot range of the y-axis for 1D plots. Default 0:1. For log plots 1.e-3:1. "
-                                        "Format: --plotrangey min:max.",
-                                        false, "default", "string");
+  TCLAP::ValueArg<std::string> plotrangeyArg(
+      "", "plotrangey",
+      "Plot range of the y-axis for 1D plots. Default 0:1. For log plots 1.e-3:1. "
+      "Format: --plotrangey min:max.",
+      false, "default", "string");
   TCLAP::ValueArg<int> ndivArg(
       "", "ndiv",
       "Set the number of axis divisions (x axis in 1d and 2d plots): "
@@ -435,60 +450,61 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                  "Set the number of printed"
                                  " digits right of the decimal point. Default is automatic.",
                                  false, -1, "int");
-  TCLAP::ValueArg<string> plotextArg("", "plotext", "Add an extension to the output plot name.", false, "", "string");
-  TCLAP::ValueArg<string> plotlegArg("", "leg",
-                                     "Adjust the plot legend.\n"
-                                     "Disable the legend with --leg off .\n"
-                                     "2d plots: set the position of the legend. "
-                                     "Format: --leg xmin:ymin in normalized coordinates [0,1]. Default: 0.17:0.75",
-                                     false, "default", "string");
-  TCLAP::ValueArg<string> plotlegsizeArg(
+  TCLAP::ValueArg<std::string> plotextArg("", "plotext", "Add an extension to the output plot name.", false, "",
+                                          "string");
+  TCLAP::ValueArg<std::string> plotlegArg("", "leg",
+                                          "Adjust the plot legend.\n"
+                                          "Disable the legend with --leg off .\n"
+                                          "2d plots: set the position of the legend. "
+                                          "Format: --leg xmin:ymin in normalized coordinates [0,1]. Default: 0.17:0.75",
+                                          false, "default", "string");
+  TCLAP::ValueArg<std::string> plotlegsizeArg(
       "", "legsize",
       "Adjust the plot legend size.\n"
       "2d plots: set the size of the legend. "
       "Format: --legsize xsize:ysize in normalized coordinates [0,1]. Default: 0.38:0.15",
       false, "default", "string");
-  TCLAP::ValueArg<string> plotlegboxArg(
+  TCLAP::ValueArg<std::string> plotlegboxArg(
       "", "legbox",
       "Make a box for the legend.\n"
       "2d plots: set the size of the legend box. "
       "Format: --legbox xsize:ysize in normalized coordinates [0,1]. Default: 0.38:0.15",
       false, "default", "string");
-  TCLAP::ValueArg<string> plotlegstyleArg("", "legstyle", "Change the legend style.", false, "default", "string");
+  TCLAP::ValueArg<std::string> plotlegstyleArg("", "legstyle", "Change the legend style.", false, "default", "string");
   TCLAP::ValueArg<int> plotlegcolsArg("", "legcols", "Set the number of columns in the legend. Default: 1", false, 1,
                                       "int");
-  TCLAP::ValueArg<string> pluginplotrangeArg("", "pluginplotrange",
-                                             "Restrict the Plugin plot to a given range to "
-                                             "rejcet low-statistics outliers. Format: --pluginplotrange min-max.",
-                                             false, "default", "string");
+  TCLAP::ValueArg<std::string> pluginplotrangeArg("", "pluginplotrange",
+                                                  "Restrict the Plugin plot to a given range to "
+                                                  "rejcet low-statistics outliers. Format: --pluginplotrange min-max.",
+                                                  false, "default", "string");
   TCLAP::ValueArg<int> plotnsigmacontArg("", "ncontours", "plot this many sigma contours in 2d plots (max 5)", false, 2,
                                          "int");
-  TCLAP::ValueArg<string> plotcontourlabelsArg(
+  TCLAP::ValueArg<std::string> plotcontourlabelsArg(
       "", "labelcontours",
       "Add labels for the contours. Pass in the format of cId:ncontours."
       "e.g. if you want to label the 5th combiner (index 4) up to 4 sigma contours and the 2nd combiner (index 1) up "
       "to 3 sigma use --labelcontours 4:4,1:3",
       false, "", "string");
-  TCLAP::ValueArg<string> filenameadditionArg(
+  TCLAP::ValueArg<std::string> filenameadditionArg(
       "", "ext", "Add this piece into the file name (in case you don't want files/plots to be overwritten", false, "",
       "string");
-  TCLAP::ValueArg<string> filenamechangeArg(
+  TCLAP::ValueArg<std::string> filenamechangeArg(
       "", "filename", "Change filename to this name (after the basename of the executable)", false, "", "string");
-  TCLAP::ValueArg<string> hfagLabelArg(
+  TCLAP::ValueArg<std::string> hfagLabelArg(
       "", "hfagLabel",
       "Use the HFAG label with a name (e.g. ICHEP 2016). Passing \'default\' gives the HFAG label with no subname",
       false, "", "string");
-  TCLAP::ValueArg<string> hfagLabelPosArg(
+  TCLAP::ValueArg<std::string> hfagLabelPosArg(
       "", "hfagLabelPos",
       "Set the position and scale of the HFAG logo. "
       "Format: --hfagLabelPos xpos:ypos:scale in noramlised coordinates [0,1]. To use default values "
       "for one coordinate, use 'def': --hfagLabelPos def:y:def",
       false, "default", "string");
-  TCLAP::ValueArg<string> plotgroupArg("", "group",
-                                       "Set the group logo. Use '--group off' to disable the logo. "
-                                       "See also --grouppos. Default: GammaCombo",
-                                       false, "GammaCombo", "string");
-  TCLAP::ValueArg<string> plotgroupposArg(
+  TCLAP::ValueArg<std::string> plotgroupArg("", "group",
+                                            "Set the group logo. Use '--group off' to disable the logo. "
+                                            "See also --grouppos. Default: GammaCombo",
+                                            false, "GammaCombo", "string");
+  TCLAP::ValueArg<std::string> plotgroupposArg(
       "", "grouppos",
       "Set the position of the group logo. "
       "Format: --grouppos xmin:ymin in normalized coordinates [0,1]. To use default values "
@@ -498,19 +514,19 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                       "float");
   TCLAP::ValueArg<float> printSolYArg("", "printsoly", "y coordinate to shift solution by in 1D plots", false, -999.,
                                       "float");
-  /// TCLAP::ValueArg<string> queueArg("q","queue","Batch queue to submit to. If none is given then the scripts will be
-  /// written but not submitted.", false, "", "string");
+  /// TCLAP::ValueArg<std::string> queueArg("q","queue","Batch queue to submit to. If none is given then the scripts
+  /// will be written but not submitted.", false, "", "string");
   TCLAP::ValueArg<int> batchstartnArg(
       "", "batchstartn",
       "number of first batch job (e.g. if you have already submitted 100 you can submit another 100 starting from 101)",
       false, 1, "int");
   TCLAP::ValueArg<int> nbatchjobsArg("", "nbatchjobs", "number of jobs to write scripts for and submit to batch system",
                                      false, 0, "int");
-  TCLAP::ValueArg<string> batchoutArg("", "batchout", "location of batch output files", false, "", "string");
-  TCLAP::ValueArg<string> batchreqsArg("", "batchreqs",
-                                       "file which provides condor submission file options and requirements, e.g. "
-                                       "--batchreqs ../scripts/cam_condor_reqs.txt",
-                                       false, "", "string");
+  TCLAP::ValueArg<std::string> batchoutArg("", "batchout", "location of batch output files", false, "", "string");
+  TCLAP::ValueArg<std::string> batchreqsArg("", "batchreqs",
+                                            "file which provides condor submission file options and requirements, e.g. "
+                                            "--batchreqs ../scripts/cam_condor_reqs.txt",
+                                            false, "", "string");
   TCLAP::ValueArg<int> nBBpointsArg("", "nBBpoints", "number of BergerBoos points per scanpoint", false, 1, "int");
   TCLAP::ValueArg<int> idArg("", "id",
                              "When making controlplots (--controlplots), only consider the "
@@ -534,28 +550,29 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                      false, 100, "int");
   TCLAP::ValueArg<int> ncoveragetoysArg(
       "", "ncoveragetoys", "Number of toys to throw in the coverage method. Default: 100", false, 100, "int");
-  TCLAP::MultiArg<string> jobsArg("j", "jobs",
-                                  "Range of toy job ids to be considered. "
-                                  "To be used with --action plugin. "
-                                  "Can be given multiple times when plotting more than one combinations. In that case, "
-                                  "they need to be given in same "
-                                  "order as the -c options. \n"
-                                  "Format (range):  -j min-max \n"
-                                  "Format (single): -j n",
-                                  false, "string");
-  TCLAP::ValueArg<string> jobdirArg("", "jobdir", "Give absolute job-directory if working on batch systems.", false,
-                                    "default", "string");
+  TCLAP::MultiArg<std::string> jobsArg(
+      "j", "jobs",
+      "Range of toy job ids to be considered. "
+      "To be used with --action plugin. "
+      "Can be given multiple times when plotting more than one combinations. In that case, "
+      "they need to be given in same "
+      "order as the -c options. \n"
+      "Format (range):  -j min-max \n"
+      "Format (single): -j n",
+      false, "string");
+  TCLAP::ValueArg<std::string> jobdirArg("", "jobdir", "Give absolute job-directory if working on batch systems.",
+                                         false, "default", "string");
   TCLAP::ValueArg<int> teststatArg("", "teststat",
                                    "Define the desired test statistic to determine confidence intervals/limits.\n"
                                    "1: use one-sided profile likelihood ratio q\n"
                                    "2: use classical profile likelihood ratio t (default)",
                                    false, 2, "int");
-  TCLAP::ValueArg<string> toyFilesArg("", "toyFiles",
-                                      "Pass some different toy files, for example if you want 1D projection of 2D FC.",
-                                      false, "default", "string");
-  TCLAP::ValueArg<string> xtitleArg("", "xtitle", "Set x axis title.", false, "", "string");
-  TCLAP::ValueArg<string> ytitleArg("", "ytitle", "Set y axis title.", false, "", "string");
-  TCLAP::ValueArg<string> saveArg("", "save", "Save the workspace this file name", false, "", "string");
+  TCLAP::ValueArg<std::string> toyFilesArg(
+      "", "toyFiles", "Pass some different toy files, for example if you want 1D projection of 2D FC.", false,
+      "default", "string");
+  TCLAP::ValueArg<std::string> xtitleArg("", "xtitle", "Set x axis title.", false, "", "string");
+  TCLAP::ValueArg<std::string> ytitleArg("", "ytitle", "Set y axis title.", false, "", "string");
+  TCLAP::ValueArg<std::string> saveArg("", "save", "Save the workspace this file name", false, "", "string");
   TCLAP::ValueArg<int> updateFreqArg("", "updateFreq",
                                      "Frequency with which to update plots when running in interactive mode (higher "
                                      "number will be faster). Default: 10",
@@ -587,7 +604,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                 false);
   TCLAP::SwitchArg probforceArg("", "probforce", "Use a stronger minimum finding method for the Prob method.", false);
   TCLAP::SwitchArg probimproveArg("", "probimprove", "Use IMPROVE minimum finding for the Prob method.", false);
-  TCLAP::ValueArg<string> probScanResultArg(
+  TCLAP::ValueArg<std::string> probScanResultArg(
       "", "probScanResult", "Result of a probScan used as input for a Datasets Plugin Scan", false, "notSet", "string");
   TCLAP::SwitchArg largestArg("", "largest",
                               "Report largest CL interval: lowest boundary of "
@@ -624,7 +641,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   TCLAP::SwitchArg saveAtMinArg("", "saveAtMin", "Save workspace after minimization", false);
 
   // --------------- aruments that can be given multiple times
-  vector<string> vAction;
+  std::vector<std::string> vAction;
   // vAction.push_back("bb");
   // vAction.push_back("bbbatch");
   vAction.push_back("coverage");
@@ -639,27 +656,28 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   vAction.push_back("test");
   vAction.push_back("uniform");
   vAction.push_back("gaus");
-  ValuesConstraint<string> cAction(vAction);
-  TCLAP::MultiArg<string> actionArg("a", "action", "Perform action", false, &cAction);
-  TCLAP::MultiArg<string> varArg("", "var",
-                                 "Scan variable (default: g). Can be given twice, in which case "
-                                 "2D scans are performed.",
-                                 false, "string");
-  TCLAP::MultiArg<string> relationArg("", "relation",
-                                      "Provide the truth relation of the PDF family PDF_GenericGaus, "
-                                      "that connects an observable to the parameters. "
-                                      "Example: --relation 'x+y'. Default: idendity.",
+  TCLAP::ValuesConstraint<std::string> cAction(vAction);
+  TCLAP::MultiArg<std::string> actionArg("a", "action", "Perform action", false, &cAction);
+  TCLAP::MultiArg<std::string> varArg("", "var",
+                                      "Scan variable (default: g). Can be given twice, in which case "
+                                      "2D scans are performed.",
                                       false, "string");
-  TCLAP::MultiArg<string> combidArg("c", "combid",
-                                    "ID of combination to be computed. "
-                                    "Use -u to get a list of available combinations. \n"
-                                    "One can also specify modifications to a given combination by adding "
-                                    "or removing PDFs. The syntax is \n"
-                                    " -c 26         # this scans combination number 26\n"
-                                    " -c 26:+12     # this adds PDF number 12 to combination number 26\n"
-                                    " -c 26:+12,-13 # this adds PDF 12 and removes PDF 13 from combination number 26\n"
-                                    "Use -u to get a list of available PDF numbers.",
-                                    false, "int");
+  TCLAP::MultiArg<std::string> relationArg("", "relation",
+                                           "Provide the truth relation of the PDF family PDF_GenericGaus, "
+                                           "that connects an observable to the parameters. "
+                                           "Example: --relation 'x+y'. Default: idendity.",
+                                           false, "string");
+  TCLAP::MultiArg<std::string> combidArg(
+      "c", "combid",
+      "ID of combination to be computed. "
+      "Use -u to get a list of available combinations. \n"
+      "One can also specify modifications to a given combination by adding "
+      "or removing PDFs. The syntax is \n"
+      " -c 26         # this scans combination number 26\n"
+      " -c 26:+12     # this adds PDF number 12 to combination number 26\n"
+      " -c 26:+12,-13 # this adds PDF 12 and removes PDF 13 from combination number 26\n"
+      "Use -u to get a list of available PDF numbers.",
+      false, "int");
   TCLAP::MultiArg<int> colorArg("", "color",
                                 "ID of color to be used for the combination. "
                                 "Default: 0 for first scanner, 1 for second, etc.",
@@ -679,14 +697,15 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "1: Simplified CLs (deprecated version, using CLb=CLs+b(s=0). Almost always larger intervals than Standard CLs)\n"
       "2: Standard  CLs (sampling the full distribution for CLb)\n",
       false, "int");
-  TCLAP::MultiArg<string> hexfillcolorArg(
+  TCLAP::MultiArg<std::string> hexfillcolorArg(
       "", "hexfillcolor",
       "Fill color of the 1D and 2D contours to be used for the combination. Default is picked up from color vector",
       false, "int");
-  TCLAP::MultiArg<string> hexlinecolorArg("", "hexlinecolor",
-                                          "Set line color of the 1D and 2D contours to be used for the combination. "
-                                          "Default is picked up from color vector.",
-                                          false, "int");
+  TCLAP::MultiArg<std::string> hexlinecolorArg(
+      "", "hexlinecolor",
+      "Set line color of the 1D and 2D contours to be used for the combination. "
+      "Default is picked up from color vector.",
+      false, "int");
   TCLAP::MultiArg<float> filltransparencyArg(
       "", "filltransparency",
       "Fill transparency of the 1D and 2D contours to be used for the combination. Default is 0 (solid) for all.",
@@ -759,30 +778,31 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "38: Scale x by 100.\n"
       "39: Scale y by 100.\n",
       false, "int");
-  TCLAP::MultiArg<string> readfromfileArg(
+  TCLAP::MultiArg<std::string> readfromfileArg(
       "", "readfromfile",
       "Read the observables, uncertainties and correlations from a file - e.g. for reading in toys."
       "If 'default' is given, the default values are used."
       "This is not very 'safe'. It does not protect against doing stupid things so please be careful when using it!"
       "An example file is given in ../scripts/test_readin.dat",
       false, "string");
-  TCLAP::MultiArg<string> titleArg("", "title",
-                                   "Override the title of a combination. "
-                                   "If 'default' is given, the default title for that combination is used. "
-                                   "If 'noleg' is given, this entry is not shown in the legend. "
-                                   "Example: --title 'This is the 1. combination.' --title 'And this the second.'",
-                                   false, "string");
-  TCLAP::MultiArg<string> fixArg("", "fix",
-                                 "Fix one or more parameters in a combination. "
-                                 "If 'none' is given, all parameters are floated (default). "
-                                 "If given multiple times, the first --fix argument refers to the first combination, "
-                                 "the second one to the second and so on. "
-                                 "If given a single time, it is applied to all combinations. \n"
-                                 "Example: --fix 'g=1.7,r_dk=-0.09' \n"
-                                 "To fix just the parameters in the second combination, do\n"
-                                 "Example: --fix none --fix 'g=1.7,r_dk=0.09' \n",
-                                 false, "string");
-  TCLAP::MultiArg<string> physrangeArg(
+  TCLAP::MultiArg<std::string> titleArg("", "title",
+                                        "Override the title of a combination. "
+                                        "If 'default' is given, the default title for that combination is used. "
+                                        "If 'noleg' is given, this entry is not shown in the legend. "
+                                        "Example: --title 'This is the 1. combination.' --title 'And this the second.'",
+                                        false, "string");
+  TCLAP::MultiArg<std::string> fixArg(
+      "", "fix",
+      "Fix one or more parameters in a combination. "
+      "If 'none' is given, all parameters are floated (default). "
+      "If given multiple times, the first --fix argument refers to the first combination, "
+      "the second one to the second and so on. "
+      "If given a single time, it is applied to all combinations. \n"
+      "Example: --fix 'g=1.7,r_dk=-0.09' \n"
+      "To fix just the parameters in the second combination, do\n"
+      "Example: --fix none --fix 'g=1.7,r_dk=0.09' \n",
+      false, "string");
+  TCLAP::MultiArg<std::string> physrangeArg(
       "", "prange",
       "Adjust the physical range of one or more parameters in a combination. "
       "The ranges are enforced through the --pr option. "
@@ -795,20 +815,20 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "Example: --prange def --prange 'g=1.7:1.9,r_dk=0.09:0.2' \n"
       "Set to -999:-999 to remove range \n",
       false, "string");
-  TCLAP::MultiArg<string> randomizeToyVarsArg(
+  TCLAP::MultiArg<std::string> randomizeToyVarsArg(
       "", "randomizeToyVars",
       "A list of nuisance parameters to randomize in the toy generation for the plugin method when the -a uniform, -a "
       "flat or -a gaus methods are also used. Pass as comma sepearted list e.g --randomizeToyVars 'r_dk,r_dpi,d_dk' . "
       "Pass once per combiner. If nothing is given here but you pass -a uniform, flat or gaus then ALL nuisance "
       "parameter values will be varied in the toys.",
       false, "string");
-  TCLAP::MultiArg<string> removeRangeArg("", "removeRange",
-                                         "Remove the range entirely of one or more parameters in a combination. "
-                                         "The range are enforced through the --pr option."
-                                         "If 'all' is given, all parameter ranges are removed"
-                                         "Can also use regex matching",
-                                         false, "string");
-  TCLAP::MultiArg<string> startArg(
+  TCLAP::MultiArg<std::string> removeRangeArg("", "removeRange",
+                                              "Remove the range entirely of one or more parameters in a combination. "
+                                              "The range are enforced through the --pr option."
+                                              "If 'all' is given, all parameter ranges are removed"
+                                              "Can also use regex matching",
+                                              false, "string");
+  TCLAP::MultiArg<std::string> startArg(
       "", "start",
       "Set starting values of one or more parameters in a combination. "
       "If 'none' is given, and no --parfile is passed it will use the defaults in the ParametersAbs class (default). "
@@ -826,11 +846,11 @@ void OptParser::parseArguments(int argc, char* argv[]) {
                                "Parameters will be saved for scan point bin that contains x. "
                                "Angles have to be given in radians.",
                                false, "float");
-  TCLAP::MultiArg<string> sn2dArg("", "sn2d",
-                                  "Save nuisances as for --sn (1d case) but for 2d scans at the given points. "
-                                  "Format: x:y",
-                                  false, "string");
-  TCLAP::MultiArg<string> loadParamsFileArg(
+  TCLAP::MultiArg<std::string> sn2dArg("", "sn2d",
+                                       "Save nuisances as for --sn (1d case) but for 2d scans at the given points. "
+                                       "Format: x:y",
+                                       false, "string");
+  TCLAP::MultiArg<std::string> loadParamsFileArg(
       "", "parfile",
       "Load starting parameters for the corresponding "
       "combination from this particular file. "
@@ -850,7 +870,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "for the second combination at point 1. If you only want to run an Asimov for the second "
       "combination, select asimov point 0 for the first one.",
       false, "int");
-  TCLAP::MultiArg<string> asimovFileArg(
+  TCLAP::MultiArg<std::string> asimovFileArg(
       "", "asimovfile",
       "Load the parameter point to set an Asimov "
       "toy from this file. "
@@ -897,6 +917,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // The order is alphabetical - this order defines how the options
   // are ordered on the command line, unfortunately in reverse.
   //
+  using Utils::isIn;
   if (isIn<TString>(bookedOptions, "verbose")) cmd.add(verboseArg);
   if (isIn<TString>(bookedOptions, "var")) cmd.add(varArg);
   if (isIn<TString>(bookedOptions, "usage")) cmd.add(usageArg);
@@ -1137,16 +1158,16 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // vector<int> resultAddPdf;
   // vector<int> resultDelPdf;
   // TString parseMe = combidArg.getValue()[0];
-  // cout << "parseMe " << parseMe << endl;
+  // std::cout << "parseMe " << parseMe << std::endl;
   // parseCombinerString(parseMe, resultCmbId, resultAddPdf, resultDelPdf);
-  // cout << "resultCmbId " << resultCmbId << endl;
-  // for ( int i=0; i<resultAddPdf.size(); i++){cout << "resultAddPdf " << resultAddPdf[i] << endl;}
-  // for ( int i=0; i<resultDelPdf.size(); i++){cout << "resultDelPdf " << resultDelPdf[i] << endl;}
-  // exit(0);
-  vector<string> tmp = combidArg.getValue();
+  // std::cout << "resultCmbId " << resultCmbId << std::endl;
+  // for ( int i=0; i<resultAddPdf.size(); i++){cout << "resultAddPdf " << resultAddPdf[i] << std::endl;}
+  // for ( int i=0; i<resultDelPdf.size(); i++){cout << "resultDelPdf " << resultDelPdf[i] << std::endl;}
+  // std::exit(0);
+  std::vector<std::string> tmp = combidArg.getValue();
   for (int i = 0; i < tmp.size(); i++) {
     int resultCmbId = 0;
-    vector<int> resultAddDelPdf;
+    std::vector<int> resultAddDelPdf;
     parseCombinerString(tmp[i], resultCmbId, resultAddDelPdf);
     combid.push_back(resultCmbId);
     combmodifications.push_back(resultAddDelPdf);
@@ -1159,8 +1180,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --var
   tmp = varArg.getValue();
   if (tmp.size() > 2) {
-    cout << "Argument error --var: please give two instances at maximum." << endl;
-    exit(1);
+    std::cout << "Argument error --var: please give two instances at maximum." << std::endl;
+    std::exit(1);
   }
   for (int i = 0; i < tmp.size(); i++) var.push_back(tmp[i]);
   if (tmp.size() == 0) var.push_back("g");
@@ -1174,7 +1195,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   tmp = readfromfileArg.getValue();
   // loop over instances passed
   for (int i = 0; i < tmp.size(); i++) {
-    vector<TString> a;
+    std::vector<TString> a;
     // split at , and push back
     TObjArray* assignmentArray = TString(tmp[i]).Tokenize(",");  // split at ","
     for (int j = 0; j < assignmentArray->GetEntries(); j++) {
@@ -1185,7 +1206,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   }
   // fill the remaining with default
   for (int i = tmp.size(); i < combid.size(); i++) {
-    vector<TString> a;
+    std::vector<TString> a;
     a.push_back("default");
     readfromfile.push_back(a);
   }
@@ -1213,8 +1234,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --covCorrect
   coverageCorrectionID = coverageCorrectionIDArg.getValue();
   if (coverageCorrectionID < 0 || coverageCorrectionID > 3) {
-    cout << "Argument error: covCorrect has to be in the range [0,3]" << endl;
-    exit(1);
+    std::cout << "Argument error: covCorrect has to be in the range [0,3]" << std::endl;
+    std::exit(1);
   }
   coverageCorrectionPoint = coverageCorrectionPointArg.getValue();
 
@@ -1231,8 +1252,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --jobs
   if (jobsArg.getValue().size() > 1 && jobsArg.getValue().size() != combid.size()) {
-    cout << "Argument error: Please give as many job ranges (-j) as combinations (-c)." << endl;
-    exit(1);
+    std::cout << "Argument error: Please give as many job ranges (-j) as combinations (-c)." << std::endl;
+    std::exit(1);
   }
   if (jobsArg.getValue().size() == 0) {
     // default: job 1
@@ -1256,8 +1277,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       int min = convertToDigitWithCheck(x, usage);
       int max = convertToDigitWithCheck(y, usage);
       if (min > max) {
-        cout << "Argument error: job range min>max." << endl;
-        exit(1);
+        std::cout << "Argument error: job range min>max." << std::endl;
+        std::exit(1);
       }
       jmin.push_back(min);
       jmax.push_back(max);
@@ -1340,7 +1361,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --prange
   tmp = physrangeArg.getValue();
   for (int i = 0; i < tmp.size(); i++) {  // loop over instances of --prange
-    vector<RangePar> ranges;
+    std::vector<Utils::RangePar> ranges;
     // parse default string
     if (TString(tmp[i]) == TString("def")) {
       physRanges.push_back(ranges);
@@ -1350,30 +1371,31 @@ void OptParser::parseArguments(int argc, char* argv[]) {
     TObjArray* rangesArray = TString(tmp[i]).Tokenize(",");  // split string at ","
     for (int j = 0; j < rangesArray->GetEntries(); j++) {    // loop over ranges
       TString rangeString = ((TObjString*)rangesArray->At(j))->GetString();
-      RangePar p;
+      Utils::RangePar p;
       TString parsedRangeStr;
       bool check = parseAssignment(rangeString, p.name, parsedRangeStr);
       check = check && parseRange(parsedRangeStr, p.min, p.max);
       if (check)
         ranges.push_back(p);
-      else { cout << "ERROR : parse error in --prange argument: " << rangeString << endl << endl; }
+      else { std::cout << "ERROR : parse error in --prange argument: " << rangeString << std::endl << std::endl; }
     }
     physRanges.push_back(ranges);
   }
   // test code for --prange
   // for ( int i = 0; i < physRanges.size(); i++ ){
-  // cout << "combination " << i << endl;
+  // std::cout << "combination " << i << std::endl;
   // for ( int j = 0; j < physRanges[i].size(); j++ ){
-  // cout << physRanges[i][j].name << " = " << physRanges[i][j].min << " ... " << physRanges[i][j].max << endl;
+  // std::cout << physRanges[i][j].name << " = " << physRanges[i][j].min << " ... " << physRanges[i][j].max <<
+  // std::endl;
   //}
   //}
-  // exit(0);
+  // std::exit(0);
 
   // --randomizeToyVars
   tmp = randomizeToyVarsArg.getValue();
   for (int i = 0; i < tmp.size(); i++) {                   // loop over instances of --randomizeToyVars
     TObjArray* parsArray = TString(tmp[i]).Tokenize(",");  // split string at ","
-    vector<TString> pars;
+    std::vector<TString> pars;
     for (int j = 0; j < parsArray->GetEntries(); j++) {
       TString par = ((TObjString*)parsArray->At(j))->GetString();
       pars.push_back(par);
@@ -1385,7 +1407,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   tmp = removeRangeArg.getValue();
   for (int i = 0; i < tmp.size(); i++) {                   // loop over instances of --removeRange
     TObjArray* parsArray = TString(tmp[i]).Tokenize(",");  // split string at ","
-    vector<TString> pars;
+    std::vector<TString> pars;
     for (int j = 0; j < parsArray->GetEntries(); j++) {
       TString par = ((TObjString*)parsArray->At(j))->GetString();
       pars.push_back(par);
@@ -1396,7 +1418,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --fix
   tmp = fixArg.getValue();
   for (int i = 0; i < tmp.size(); i++) {  // loop over instances of --fix
-    vector<FixPar> assignments;
+    std::vector<Utils::FixPar> assignments;
     // parse 'none' default string
     if (TString(tmp[i]) == TString("none")) {
       fixParameters.push_back(assignments);
@@ -1406,11 +1428,11 @@ void OptParser::parseArguments(int argc, char* argv[]) {
     TObjArray* assignmentArray = TString(tmp[i]).Tokenize(",");  // split string at ","
     for (int j = 0; j < assignmentArray->GetEntries(); j++) {    // loop over assignments
       TString assignmentString = ((TObjString*)assignmentArray->At(j))->GetString();
-      FixPar p;
+      Utils::FixPar p;
       if (parseAssignment(assignmentString, p.name, p.value)) {
         assignments.push_back(p);
       } else {
-        cout << "ERROR : parse error in --fix argument: " << assignmentString << endl << endl;
+        std::cout << "ERROR : parse error in --fix argument: " << assignmentString << std::endl << std::endl;
       }
     }
     fixParameters.push_back(assignments);
@@ -1419,7 +1441,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --start
   tmp = startArg.getValue();
   for (int i = 0; i < tmp.size(); i++) {  // loop over instances of --start
-    vector<StartPar> assignments;
+    std::vector<Utils::StartPar> assignments;
     // parse 'none' default string
     if (TString(tmp[i]) == TString("none")) {
       startVals.push_back(assignments);
@@ -1429,11 +1451,11 @@ void OptParser::parseArguments(int argc, char* argv[]) {
     TObjArray* assignmentArray = TString(tmp[i]).Tokenize(",");  // split string at ","
     for (int j = 0; j < assignmentArray->GetEntries(); j++) {    // loop over assignments
       TString assignmentString = ((TObjString*)assignmentArray->At(j))->GetString();
-      StartPar p;
+      Utils::StartPar p;
       if (parseAssignment(assignmentString, p.name, p.value)) {
         assignments.push_back(p);
       } else {
-        cout << "ERROR : parse error in --fix argument: " << assignmentString << endl << endl;
+        std::cout << "ERROR : parse error in --fix argument: " << assignmentString << std::endl << std::endl;
       }
     }
     startVals.push_back(assignments);
@@ -1519,7 +1541,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   usage += "  Examples:\n";
   usage += "  --labelcontours 0=[1,2,3]           (0th combiner gets 1,2,3 sigma contours)\n";
   usage += "  --labelcontours 0=[1,2,3]:6=[1,3,5] (as above and also 6th combiner gets 1,3,5 sigma contours)\n";
-  string val = plotcontourlabelsArg.getValue();
+  std::string val = plotcontourlabelsArg.getValue();
   TObjArray* assignmentArray = TString(val).Tokenize(":");  // split string at ":"
   for (int i = 0; i < assignmentArray->GetEntries(); i++) {
     TString assignmentString = ((TObjString*)assignmentArray->At(i))->GetString();
@@ -1537,14 +1559,14 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // check --po argument
   if (plotpluginonly && !isAction("plugin")) {
-    cout << "ERROR : --po can only be given when -a plugin is set." << endl;
-    exit(1);
+    std::cout << "ERROR : --po can only be given when -a plugin is set." << std::endl;
+    std::exit(1);
   }
 
   // check --CL argument
   if (var.size() > 1 && CL.size() > 0) {
     std::cout << "ERROR: User specific confidence levels are only available for 1D option." << std::endl;
-    exit(1);
+    std::exit(1);
   }
 }
 
@@ -1572,9 +1594,9 @@ void OptParser::parsePosition(TString parseMe, float& x, float& y, TString usage
   TRegexp format2("^def:0?\\.[0-9]+$");
   TRegexp format3("^0?\\.[0-9]+:def$");
   if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3))) {
-    cout << "position parse error: could not parse " << parseMe << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "position parse error: could not parse " << parseMe << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   TString xStr = parseMe;
   TString yStr = parseMe;
@@ -1592,9 +1614,9 @@ void OptParser::parsePosition(TString parseMe, float& x, float& y, TString usage
   }
   if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
     // should never be reached
-    cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << endl;
-    cout << "They need to be in  [0,1], or equal to -1 to set the default value." << endl;
-    exit(1);
+    std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
+    std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -1614,9 +1636,9 @@ void OptParser::parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y,
   TRegexp format6("^0?\\.[0-9]+:def:def$");
   if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3) ||
         parseMe.Contains(format4) || parseMe.Contains(format5) || parseMe.Contains(format6))) {
-    cout << "position parse error: could not parse " << parseMe << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "position parse error: could not parse " << parseMe << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   TString xStr = parseMe;
   TString sStr = parseMe;
@@ -1638,9 +1660,9 @@ void OptParser::parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y,
   }
   if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
     // should never be reached
-    cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << endl;
-    cout << "They need to be in  [0,1], or equal to -1 to set the default value." << endl;
-    exit(1);
+    std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
+    std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
+    std::exit(1);
   }
   if (zStr.EqualTo("def")) {
     scale = 1;
@@ -1707,10 +1729,10 @@ bool OptParser::parseAssignment(TString parseMe, TString& name, float& value) {
 ///
 int OptParser::convertToIntWithCheck(TString parseMe, TString usage) {
   if (!(!parseMe.Contains(".") && !parseMe.Contains(",") && parseMe.IsFloat())) {
-    cout << "ERROR : could not parse argument. This string is not a positive or negative integer: '" << parseMe << "'"
-         << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "ERROR : could not parse argument. This string is not a positive or negative integer: '" << parseMe
+              << "'" << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   return parseMe.Atoi();
 }
@@ -1721,9 +1743,10 @@ int OptParser::convertToIntWithCheck(TString parseMe, TString usage) {
 ///
 int OptParser::convertToDigitWithCheck(TString parseMe, TString usage) {
   if (!parseMe.IsDigit()) {
-    cout << "ERROR : could not parse argument. This string is not a positive integer: '" << parseMe << "'" << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "ERROR : could not parse argument. This string is not a positive integer: '" << parseMe << "'"
+              << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   return parseMe.Atoi();
 }
@@ -1742,7 +1765,7 @@ int OptParser::convertToDigitWithCheck(TString parseMe, TString usage) {
 ///                     to/from the combiner. If it is supposed to be added, a positive PDF ID
 ///                 is stored, if it is supposed to be deleted, a negative PDF ID is stored
 ///
-void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<int>& resultAddDelPdf) {
+void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, std::vector<int>& resultAddDelPdf) {
   resultCmbId = 0;
   resultAddDelPdf.clear();
   TString usage = "";
@@ -1760,8 +1783,8 @@ void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<in
   // 1. parse leading combiner ID
   TObjArray* array = parseMe.Tokenize(":");  // split string at ":"
   if (array->GetEntries() != 2) {
-    cout << "-c parse error: too many ':'. " << usage << endl;
-    exit(1);
+    std::cout << "-c parse error: too many ':'. " << usage << std::endl;
+    std::exit(1);
   }
   TString combinerIdStr = ((TObjString*)array->At(0))->GetString();  // gets the part before the colon
   resultCmbId = convertToDigitWithCheck(combinerIdStr, usage);
@@ -1771,8 +1794,8 @@ void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<in
   for (int j = 0; j < arrayCommaList->GetEntries(); j++) {
     TString pdfId = ((TObjString*)arrayCommaList->At(j))->GetString();
     if (!(pdfId.BeginsWith("+") || pdfId.BeginsWith("-"))) {
-      cout << "-c parse error: first character not a + or -. " << usage << endl;
-      exit(1);
+      std::cout << "-c parse error: first character not a + or -. " << usage << std::endl;
+      std::exit(1);
     }
     resultAddDelPdf.push_back(convertToIntWithCheck(pdfId, usage));
   }

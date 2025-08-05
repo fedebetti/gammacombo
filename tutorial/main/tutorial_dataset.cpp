@@ -1,9 +1,10 @@
 #include <GammaComboEngine.h>
-#include <RooExponential.h>
-#include <RooGaussian.h>
+#include <PDF_Datasets.h>
+
+#include <RooRealVar.h>
 #include <RooWorkspace.h>
+
 #include <TFile.h>
-// #include "PDF_DatasetTutorial.h"
 
 int main(int argc, char* argv[]) {
   //////////////////////////////////////////////////////////////

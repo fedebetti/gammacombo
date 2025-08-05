@@ -6,12 +6,11 @@
 #include <RooFitResult.h>
 #include <RooFormulaVar.h>
 #include <RooGaussian.h>
-#include <RooLognormal.h>
 #include <RooPlot.h>
 #include <RooRealVar.h>
 #include <RooWorkspace.h>
+
 #include <TCanvas.h>
-#include <TFile.h>
 
 int main() {
   /////////////////////////////////////////////////////////

@@ -7,9 +7,9 @@
 #ifndef _SHAREDARRAY_H
 #define _SHAREDARRAY_H
 
-#include <vector>
-
 #include <TObject.h>
+
+#include <vector>
 
 /** @brief class to hold array data, refcounted
  *

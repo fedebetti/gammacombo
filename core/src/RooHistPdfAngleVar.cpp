@@ -6,13 +6,11 @@
 
 // Your description goes here...
 
-#include <Riostream.h>
-
-#include <RooAbsCategory.h>
-#include <RooAbsReal.h>
 #include <RooHistPdfAngleVar.h>
+
+#include <RooAbsReal.h>
+
 #include <TMath.h>
-#include <math.h>
 
 RooHistPdfAngleVar::RooHistPdfAngleVar(const char* name, const char* title, RooAbsReal& _xobs, RooAbsReal& _xth,
                                        RooAbsReal& _xshift)

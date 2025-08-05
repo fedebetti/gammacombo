@@ -9,12 +9,13 @@
 #ifndef ParametersAbs_h
 #define ParametersAbs_h
 
-#include "OptParser.h"
 #include "Parameter.h"
-#include "Utils.h"
 
-using namespace std;
-using namespace Utils;
+#include <TString.h>
+
+#include <vector>
+
+class RooRealVar;
 
 class ParametersAbs {
  public:
@@ -26,7 +27,7 @@ class ParametersAbs {
   Parameter::Range range(float min, float max);
 
  protected:
-  vector<Parameter*> m_parameters;
+  std::vector<Parameter*> m_parameters;
   inline virtual void defineParameters(){};
 };
 

@@ -8,17 +8,13 @@
 #ifndef FileNameBuilder_h
 #define FileNameBuilder_h
 
-#include "OptParser.h"
-#include "Utils.h"
+#include <TString.h>
 
-using namespace std;
-using namespace Utils;
+#include <vector>
 
-// forward declarations - include headers only in
-// cpp file to deal with circular dependencies
-class MethodAbsScan;
-class GammaComboEngine;
 class Combiner;
+class MethodAbsScan;
+class OptParser;
 
 ///
 /// Class that defines the file names of various files being
@@ -35,8 +31,8 @@ class FileNameBuilder {
   TString getFileNameSolution(const MethodAbsScan* s);
   TString getFileNamePar(const Combiner* c);
   TString getFileNamePar(const MethodAbsScan* s);
-  TString getFileNamePlot(const vector<Combiner*>& cmb);
-  TString getFileNamePlotSingle(const vector<Combiner*>& cmb, int cId);
+  TString getFileNamePlot(const std::vector<Combiner*>& cmb);
+  TString getFileNamePlotSingle(const std::vector<Combiner*>& cmb, int cId);
   TString getFileNameStartPar(const Combiner* c);
   TString getFileNameStartPar(const MethodAbsScan* s);
   TString getFileNameAsimovPar(const Combiner* c);

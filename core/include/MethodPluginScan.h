@@ -8,53 +8,24 @@
 #ifndef MethodPluginScan_h
 #define MethodPluginScan_h
 
-#include <iostream>
-#include <stdlib.h>
-
-#include "RooSlimFitResult.h"
-#include <RooAddition.h>
-#include <RooArgSet.h>
-#include <RooConstVar.h>
-#include <RooCustomizer.h>
-#include <RooDataHist.h>
-#include <RooDataSet.h>
-#include <RooGaussian.h>
-#include <RooGlobalFunc.h>
-#include <RooMultiVarGaussian.h>
-#include <RooPlot.h>
-#include <RooPoisson.h>
-#include <RooProdPdf.h>
-#include <RooRandom.h>
-#include <RooRealVar.h>
-#include <RooWorkspace.h>
-
-#include <TCanvas.h>
-#include <TChain.h>
-#include <TCut.h>
-#include <TFile.h>
-#include <TGaxis.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TLegend.h>
-#include <TMarker.h>
-#include <TMath.h>
-#include <TRandom3.h>
-#include <TStopwatch.h>
-#include <TStyle.h>
-#include <TTree.h>
-
-#include "ControlPlots.h"
-#include "FitResultCache.h"
 #include "MethodAbsScan.h"
-#include "MethodProbScan.h"
-#include "PDF_Datasets.h"
-#include "ProgressBar.h"
-#include "ToyTree.h"
-#include "Utils.h"
 
-using namespace RooFit;
-using namespace std;
-using namespace Utils;
+#include <TString.h>
+
+#include <map>
+#include <vector>
+
+class Combiner;
+class Fitter;
+class MethodProbScan;
+class OptParser;
+class PDF_Datasets;
+class ProgressBar;
+class ToyTree;
+
+class RooDataSet;
+
+class TH1F;
 
 class MethodPluginScan : public MethodAbsScan {
  public:
@@ -70,7 +41,7 @@ class MethodPluginScan : public MethodAbsScan {
   void readScan2dTrees(int runMin = 1, int runMax = 1);
   int getNtoys() { return nToys; };
   double getPvalue1d(RooSlimFitResult* plhScan, double chi2minGlobal, ToyTree* t = 0, int id = 0, bool quiet = false);
-  void makeControlPlotsCLs(map<int, vector<double>> bVals, map<int, vector<double>> sbVals);
+  void makeControlPlotsCLs(std::map<int, std::vector<double>> bVals, std::map<int, std::vector<double>> sbVals);
 
  protected:
   TH1F* analyseToys(ToyTree* t, int id = -1, bool quiet = false);

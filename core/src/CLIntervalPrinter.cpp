@@ -1,5 +1,17 @@
 #include <CLIntervalPrinter.h>
 
+#include <OptParser.h>
+#include <Rounder.h>
+#include <Utils.h>
+
+#include <TString.h>
+
+#include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <vector>
+
 CLIntervalPrinter::CLIntervalPrinter(OptParser* arg, TString name, TString var, TString unit, TString method,
                                      int CLsType) {
   assert(arg);
@@ -20,7 +32,7 @@ CLIntervalPrinter::~CLIntervalPrinter() {}
 ///
 /// \param intervals - vector of confidence intervals, each one corresponding to one solution
 ///
-void CLIntervalPrinter::addIntervals(vector<CLInterval>& intervals) { _intervals.push_back(intervals); }
+void CLIntervalPrinter::addIntervals(std::vector<CLInterval>& intervals) { _intervals.push_back(intervals); }
 
 ///
 /// Helper function to sort the intervals according to their
@@ -31,13 +43,14 @@ bool CLIntervalPrinter::compareByMin(const CLInterval& a, const CLInterval& b) {
 void CLIntervalPrinter::print() {
   for (int k = 0; k < _intervals.size(); k++) {
     // sort the intervals
-    vector<CLInterval> sortedIntervals(_intervals[k]);
-    sort(sortedIntervals.begin(), sortedIntervals.end(), compareByMin);
+    std::vector<CLInterval> sortedIntervals(_intervals[k]);
+    std::sort(sortedIntervals.begin(), sortedIntervals.end(), compareByMin);
     for (int j = 0; j < sortedIntervals.size(); j++) {
       CLInterval i = sortedIntervals[j];
 
       // convert to degrees if necessary
       if (_degrees) {
+        using Utils::RadToDeg;
         i.central = RadToDeg(i.central);
         i.min = RadToDeg(i.min);
         i.max = RadToDeg(i.max);
@@ -48,24 +61,24 @@ void CLIntervalPrinter::print() {
       int d = myRounder.getNsubdigits();
       printf("%s = [%7.*f, %7.*f] (%7.*f -%7.*f +%7.*f) @%3.2fCL", _var.Data(), d, myRounder.CLlo(), d,
              myRounder.CLhi(), d, myRounder.central(), d, myRounder.errNeg(), d, myRounder.errPos(), 1. - i.pvalue);
-      if (_unit != "") cout << ", [" << _unit << "]";
+      if (_unit != "") std::cout << ", [" << _unit << "]";
       // \todo remove the following code from quickhack stage once we have switched
       // to the CLIntervalMaker mechanism to get more useful information
       // on the CL intervals
-      cout << ", " << _method;
-      if (_clstype == 1) cout << " Simplified CL_s";
-      if (_clstype == 2) cout << " Standard CL_s";
+      std::cout << ", " << _method;
+      if (_clstype == 1) std::cout << " Simplified CL_s";
+      if (_clstype == 2) std::cout << " Standard CL_s";
 
       if (_arg->isQuickhack(8)) {
         if (_arg->verbose) {
-          cout << Form(", central: %-7s", i.centralmethod.Data());
-          cout << Form(", interval: [%-6s, %-6s]", i.minmethod.Data(), i.maxmethod.Data());
-          cout << ", p(central): " << i.pvalueAtCentral;
+          std::cout << Form(", central: %-7s", i.centralmethod.Data());
+          std::cout << Form(", interval: [%-6s, %-6s]", i.minmethod.Data(), i.maxmethod.Data());
+          std::cout << ", p(central): " << i.pvalueAtCentral;
         }
       }
-      cout << endl;
+      std::cout << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 
@@ -76,12 +89,12 @@ void CLIntervalPrinter::savePython() {
     ofname = dirname + "/clintervals_" + _name + "_" + _var + "_" + _method + ".py";
   else
     ofname = dirname + "/clintervals_" + _name + "_" + _var + "_" + _method + "_CLs" + std::to_string(_clstype) + ".py";
-  if (_arg->verbose) cout << "CLIntervalPrinter::save() : saving " << ofname << endl;
+  if (_arg->verbose) std::cout << "CLIntervalPrinter::save() : saving " << ofname << std::endl;
   system("mkdir -p " + dirname);
-  ofstream outf;
+  std::ofstream outf;
   outf.open(ofname);
-  outf << "# Confidence Intervals" << endl;
-  outf << "intervals = {" << endl;
+  outf << "# Confidence Intervals" << std::endl;
+  outf << "intervals = {" << std::endl;
 
   float previousCL = -1.0;
 
@@ -91,6 +104,7 @@ void CLIntervalPrinter::savePython() {
 
       // convert to degrees if necessary
       if (_degrees) {
+        using Utils::RadToDeg;
         i.central = RadToDeg(i.central);
         i.min = RadToDeg(i.min);
         i.max = RadToDeg(i.max);
@@ -102,8 +116,8 @@ void CLIntervalPrinter::savePython() {
 
       float thisCL = 1. - i.pvalue;
       if (previousCL != thisCL) {
-        if (previousCL != -1) outf << "  ]," << endl;
-        outf << Form("  '%.2f' : [", thisCL) << endl;
+        if (previousCL != -1) outf << "  ]," << std::endl;
+        outf << Form("  '%.2f' : [", thisCL) << std::endl;
       }
 
       outf << Form("    {'var':'%s', 'min':'%.*f', 'max':'%.*f', 'central':'%.*f', "
@@ -112,7 +126,7 @@ void CLIntervalPrinter::savePython() {
                    d, myRounder.errPos(), thisCL, _unit.Data(), _method.Data());
       previousCL = thisCL;
     }
-  if (previousCL != -1) { outf << "  ]" << endl; }
-  outf << "}" << endl;
+  if (previousCL != -1) { outf << "  ]" << std::endl; }
+  outf << "}" << std::endl;
   outf.close();
 }

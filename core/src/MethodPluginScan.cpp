@@ -6,8 +6,40 @@
  */
 
 #include <MethodPluginScan.h>
+
+#include <Combiner.h>
+#include <ControlPlots.h>
+#include <FitResultCache.h>
+#include <Fitter.h>
+#include <MethodAbsScan.h>
+#include <MethodProbScan.h>
+#include <OptParser.h>
+#include <PDF_Datasets.h>
+#include <PValueCorrection.h>
+#include <ProgressBar.h>
+#include <RooSlimFitResult.h>
+#include <ToyTree.h>
+#include <Utils.h>
+
+#include <RooAbsPdf.h>
+#include <RooDataSet.h>
+#include <RooMsgService.h>
+#include <RooRandom.h>
+#include <RooRealVar.h>
+
 #include <TArrow.h>
+#include <TCanvas.h>
+#include <TChain.h>
+#include <TH1F.h>
+#include <TH2F.h>
 #include <TLatex.h>
+#include <TLegend.h>
+#include <TMath.h>
+
+#include <cassert>
+#include <iostream>
+#include <map>
+#include <vector>
 
 ///
 /// Initialize from a previous Prob scan, setting the profile
@@ -102,9 +134,9 @@ RooSlimFitResult* MethodPluginScan::getParevolPoint(float scanpoint) {
   // get point in nuisance parameter space where the toys get generated at
   int iCurveRes = parevolPLH->getHCL()->FindBin(scanpoint) - 1;
   if (!parevolPLH->curveResults[iCurveRes]) {
-    cout << "MethodPluginScan::getParevolPoint() : ERROR : curve result not found, id=" << iCurveRes;
-    cout << ", scanpoint=" << scanpoint << endl;
-    exit(1);
+    std::cout << "MethodPluginScan::getParevolPoint() : ERROR : curve result not found, id=" << iCurveRes;
+    std::cout << ", scanpoint=" << scanpoint << std::endl;
+    std::exit(1);
   }
 
   // check that the scan variable is indeed present
@@ -112,21 +144,21 @@ RooSlimFitResult* MethodPluginScan::getParevolPoint(float scanpoint) {
   list.add(parevolPLH->curveResults[iCurveRes]->constPars());
   RooRealVar* var = (RooRealVar*)list.find(scanVar1);
   if (!var) {
-    cout << "MethodPluginScan::getParevolPoint() : ERROR : "
-            "scan variable not found in parameter evolution, var="
-         << scanVar1 << endl;
-    cout << "MethodPluginScan::getParevolPoint() : Printout follows:" << endl;
+    std::cout << "MethodPluginScan::getParevolPoint() : ERROR : "
+                 "scan variable not found in parameter evolution, var="
+              << scanVar1 << std::endl;
+    std::cout << "MethodPluginScan::getParevolPoint() : Printout follows:" << std::endl;
     parevolPLH->curveResults[iCurveRes]->Print();
-    exit(1);
+    std::exit(1);
   }
 
   // check if the scan variable here differs from that of
   // the external curve
   if (fabs((scanpoint - var->getVal()) / scanpoint) > 0.01) {
-    cout << "MethodPluginScan::getParevolPoint() : WARNING : "
-            "scanpoint and parameter evolution point differ by more than 1%:"
-         << endl;
-    cout << scanpoint << " " << var->getVal() << endl;
+    std::cout << "MethodPluginScan::getParevolPoint() : WARNING : "
+                 "scanpoint and parameter evolution point differ by more than 1%:"
+              << std::endl;
+    std::cout << scanpoint << " " << var->getVal() << std::endl;
   }
 
   return parevolPLH->curveResults[iCurveRes];
@@ -141,17 +173,17 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
   RooRandom::randomGenerator()->SetSeed(0);
   RooMsgService::instance().setStreamStatus(0, kFALSE);
   RooMsgService::instance().setStreamStatus(1, kFALSE);
-  RooDataSet* dataset = w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false));
+  RooDataSet* dataset = w->pdf(pdfName)->generate(*w->set(obsName), nToys, RooFit::AutoBinned(false));
   RooMsgService::instance().setStreamStatus(0, kTRUE);
   RooMsgService::instance().setStreamStatus(1, kTRUE);
 
   // Test toy generation - print out the first 10 toys to stdout.
   // Triggered by --qh 5
   if (arg->isQuickhack(5)) {
-    if (w->var("kD_k3pi")) cout << "kD_k3pi=" << w->var("kD_k3pi")->getVal() << endl;
-    if (w->var("dD_k3pi")) cout << "dD_k3pi=" << w->var("dD_k3pi")->getVal() << endl;
-    if (w->var("kD_kskpi")) cout << "kD_kskpi=" << w->var("kD_kskpi")->getVal() << endl;
-    if (w->var("dD_kskpi")) cout << "dD_kskpi=" << w->var("dD_kskpi")->getVal() << endl;
+    if (w->var("kD_k3pi")) std::cout << "kD_k3pi=" << w->var("kD_k3pi")->getVal() << std::endl;
+    if (w->var("dD_k3pi")) std::cout << "dD_k3pi=" << w->var("dD_k3pi")->getVal() << std::endl;
+    if (w->var("kD_kskpi")) std::cout << "kD_kskpi=" << w->var("kD_kskpi")->getVal() << std::endl;
+    if (w->var("dD_kskpi")) std::cout << "dD_kskpi=" << w->var("dD_kskpi")->getVal() << std::endl;
     for (int j = 0; j < 10 && j < nToys; j++) {
       const RooArgSet* toyData = dataset->get(j);
       toyData->Print("v");
@@ -171,11 +203,12 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
   // read the generated values for one variable from the
   // first two toys
   //
-  vector<TString> affected_var;
+  std::vector<TString> affected_var;
   affected_var.push_back("kD_k3pi");
   affected_var.push_back("kD_kskpi");
 
-  for (vector<TString>::iterator aff_var_it = affected_var.begin(); aff_var_it != affected_var.end(); aff_var_it++) {
+  for (std::vector<TString>::iterator aff_var_it = affected_var.begin(); aff_var_it != affected_var.end();
+       aff_var_it++) {
 
     TString aff_obs = *aff_var_it + "_obs";
 
@@ -199,17 +232,17 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
       TString dD_aff_var = *aff_var_it;
       dD_aff_var.ReplaceAll("kD", "dD");
 
-      cout << aff_obs << " GENERATION ERROR AT " << *aff_var_it << "=" << w->var(*aff_var_it)->getVal() << " "
-           << dD_aff_var << "=" << w->var(dD_aff_var)->getVal() << endl;
+      std::cout << aff_obs << " GENERATION ERROR AT " << *aff_var_it << "=" << w->var(*aff_var_it)->getVal() << " "
+                << dD_aff_var << "=" << w->var(dD_aff_var)->getVal() << std::endl;
       TRandom3 r;
       w->var(*aff_var_it)->setVal(r.Gaus(w->var(*aff_var_it)->getVal(), 0.05));
       w->var(dD_aff_var)->setVal(r.Gaus(w->var(dD_aff_var)->getVal(), 0.04));
-      cout << aff_obs << " SECOND GENERATION AT " << *aff_var_it << "=" << w->var(*aff_var_it)->getVal() << " "
-           << dD_aff_var << "=" << w->var(dD_aff_var)->getVal() << endl;
+      std::cout << aff_obs << " SECOND GENERATION AT " << *aff_var_it << "=" << w->var(*aff_var_it)->getVal() << " "
+                << dD_aff_var << "=" << w->var(dD_aff_var)->getVal() << std::endl;
 
       RooMsgService::instance().setStreamStatus(0, kFALSE);
       RooMsgService::instance().setStreamStatus(1, kFALSE);
-      dataset = w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false));
+      dataset = w->pdf(pdfName)->generate(*w->set(obsName), nToys, RooFit::AutoBinned(false));
       RooMsgService::instance().setStreamStatus(0, kTRUE);
       RooMsgService::instance().setStreamStatus(1, kTRUE);
       for (int i = 0; i < 2; i++) {
@@ -222,7 +255,8 @@ RooDataSet* MethodPluginScan::generateToys(int nToys) {
           }
         }
       }
-      cout << aff_obs << " NEW VALUES : toy 0: " << generatedValues[0] << " toy 1: " << generatedValues[1] << endl;
+      std::cout << aff_obs << " NEW VALUES : toy 0: " << generatedValues[0] << " toy 1: " << generatedValues[1]
+                << std::endl;
     }
   }
 
@@ -267,7 +301,7 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   assert(f);
   // assert(pb);
   if (!plhScan->hasParameter(scanVar1)) {
-    cout << "MethodPluginScan::getPvalue1d() : ERROR : scan variable not found in plhScan. Exit." << endl;
+    std::cout << "MethodPluginScan::getPvalue1d() : ERROR : scan variable not found in plhScan. Exit." << std::endl;
     assert(0);
   }
 
@@ -280,20 +314,20 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
 
   // Set nuisances. This is the point in parameter space where
   // the toys need to be generated.
-  setParameters(w, parsName, plhScan, true);
+  Utils::setParameters(w, parsName, plhScan, true);
 
   // Kenzie-Cousins-Highland (randomize nuisance parameters within a uniform range)
   if (arg->isAction("uniform")) {
     // set parameter ranges to their bb range (should be something wide 95, 99% CL)
     const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
-    for (const auto& par : *pars) setLimit(static_cast<RooRealVar*>(par), "bboos");
+    for (const auto& par : *pars) Utils::setLimit(static_cast<RooRealVar*>(par), "bboos");
     if (verbose) {
-      cout << "Uniform generating from:" << endl;
+      std::cout << "Uniform generating from:" << std::endl;
       pars->Print("v");
     }
-    randomizeParameters(w, parsName);
+    Utils::randomizeParameters(w, parsName);
     if (verbose) {
-      cout << "Set:" << endl;
+      std::cout << "Set:" << std::endl;
       w->set(parsName)->Print("v");
     }
   }
@@ -302,12 +336,12 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   // best fit value and uncertainty from the PLH scan)
   if (arg->isAction("gaus")) {
     if (verbose) {
-      cout << "Gaussian generating from:" << endl;
+      std::cout << "Gaussian generating from:" << std::endl;
       plhScan->floatParsFinal().Print("v");
     }
-    randomizeParametersGaussian(w, toysName, plhScan);
+    Utils::randomizeParametersGaussian(w, toysName, plhScan);
     if (verbose) {
-      cout << "Set:" << endl;
+      std::cout << "Set:" << std::endl;
       w->set(parsName)->Print("v");
     }
   }
@@ -350,7 +384,7 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
     //    (or select the right one)
     //
     const RooArgSet* toyData = toyDataSet->get(j);
-    setParameters(w, obsName, toyData);
+    Utils::setParameters(w, obsName, toyData);
     t->storeObservables();
 
     //
@@ -403,7 +437,7 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
     //
     if (BkgToys) {
       const RooArgSet* toyDataBkg = BkgToys->get(j);
-      setParameters(w, obsName, toyDataBkg);
+      Utils::setParameters(w, obsName, toyDataBkg);
       // t->storeObservables();
     }
 
@@ -432,8 +466,8 @@ void MethodPluginScan::computePvalue1d(RooSlimFitResult* plhScan, double chi2min
   }
 
   // clean up
-  setParameters(w, parsName, frCache.getParsAtFunctionCall());
-  setParameters(w, obsName, obsDataset->get(0));
+  Utils::setParameters(w, parsName, frCache.getParsAtFunctionCall());
+  Utils::setParameters(w, obsName, obsDataset->get(0));
   delete toyDataSet;
 }
 
@@ -457,7 +491,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
   if (!quiet) myPb = new ProgressBar(arg, nToys);
 
   // do the work
-  if (!quiet) cout << "MethodPluginScan::getPvalue1d() : computing p-value ..." << endl;
+  if (!quiet) std::cout << "MethodPluginScan::getPvalue1d() : computing p-value ..." << std::endl;
   computePvalue1d(plhScan, chi2minGlobal, myTree, id, myFit, myPb);
 
   // compute p-value
@@ -469,7 +503,7 @@ double MethodPluginScan::getPvalue1d(RooSlimFitResult* plhScan, double chi2minGl
   if (solutions.size() == 0) {
     if (arg->verbose || arg->debug)
       std::cout << "MethodPluginScan::getPvalue1d() : WARNING: setting solutions from PL scan" << std::endl;
-    vector<RooSlimFitResult*> s;
+    std::vector<RooSlimFitResult*> s;
     s.push_back(plhScan);
     setSolutions(s);
   }
@@ -510,15 +544,16 @@ int MethodPluginScan::scan1d(int nRun) {
   float max = hCL->GetXaxis()->GetXmax();
 
   if (arg->verbose) {
-    cout << endl;
-    cout << "Plugin configuration:" << endl;
-    cout << "  combination:    " << title << endl;
-    cout << "  scan variable:  " << scanVar1 << endl;
-    cout << "  scan range:     " << min << " ... " << max << endl;
-    cout << "  scan steps:     " << nPoints1d << endl;
-    cout << "  par. evolution: " << (parevolPLH != profileLH ? parevolPLH->getTitle() : "same as combination") << endl;
-    cout << "  nToys:          " << nToys << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "Plugin configuration:" << std::endl;
+    std::cout << "  combination:    " << title << std::endl;
+    std::cout << "  scan variable:  " << scanVar1 << std::endl;
+    std::cout << "  scan range:     " << min << " ... " << max << std::endl;
+    std::cout << "  scan steps:     " << nPoints1d << std::endl;
+    std::cout << "  par. evolution: " << (parevolPLH != profileLH ? parevolPLH->getTitle() : "same as combination")
+              << std::endl;
+    std::cout << "  nToys:          " << nToys << std::endl;
+    std::cout << std::endl;
   }
 
   // Set up toy root tree
@@ -537,8 +572,8 @@ int MethodPluginScan::scan1d(int nRun) {
   ProgressBar* pb = new ProgressBar(arg, allSteps);
 
   // start scan
-  if (arg->debug) cout << "MethodPluginScan::scan1d() : ";
-  cout << "PLUGIN scan starting ..." << endl;
+  if (arg->debug) std::cout << "MethodPluginScan::scan1d() : ";
+  std::cout << "PLUGIN scan starting ..." << std::endl;
   for (int i = 0; i < nPoints1d; i++) {
     float scanpoint = min + (max - min) * (double)i / (double)nPoints1d + hCL->GetBinWidth(1) / 2.;
     t.scanpoint = scanpoint;
@@ -554,8 +589,8 @@ int MethodPluginScan::scan1d(int nRun) {
     computePvalue1d(plhScan, profileLH->getChi2minGlobal(), &t, i, myFit, pb);
 
     // reset
-    setParameters(w, parsName, frCache.getParsAtFunctionCall());
-    setParameters(w, obsName, obsDataset->get(0));
+    Utils::setParameters(w, parsName, frCache.getParsAtFunctionCall());
+    Utils::setParameters(w, obsName, obsDataset->get(0));
   }
 
   if (arg->debug) myFit->print();
@@ -598,18 +633,19 @@ void MethodPluginScan::scan2d(int nRun) {
   float max2 = hCL2d->GetYaxis()->GetXmax();
 
   if (arg->verbose) {
-    cout << endl;
-    cout << "Plugin configuration:" << endl;
-    cout << "  combination:           " << title << endl;
-    cout << "  scan variables:        x=" << scanVar1 << ", y=" << scanVar2 << endl;
-    cout << "  scan range:            x=[" << min1 << ", " << max1 << "], y=[" << min2 << ", " << max2 << "]" << endl;
-    cout << "  scan steps:            x=" << nPoints2dx << ", y=" << nPoints2dy << endl;
-    cout << "  par. evolution:        " << (parevolPLH != profileLH ? parevolPLH->getTitle() : "same as combination")
-         << endl;
-    cout << "  par. evol. scan steps: x=" << profileLH->curveResults2d[1].size()
-         << ", y=" << profileLH->curveResults2d.size() << endl;
-    cout << "  nToys :                " << nToys << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "Plugin configuration:" << std::endl;
+    std::cout << "  combination:           " << title << std::endl;
+    std::cout << "  scan variables:        x=" << scanVar1 << ", y=" << scanVar2 << std::endl;
+    std::cout << "  scan range:            x=[" << min1 << ", " << max1 << "], y=[" << min2 << ", " << max2 << "]"
+              << std::endl;
+    std::cout << "  scan steps:            x=" << nPoints2dx << ", y=" << nPoints2dy << std::endl;
+    std::cout << "  par. evolution:        "
+              << (parevolPLH != profileLH ? parevolPLH->getTitle() : "same as combination") << std::endl;
+    std::cout << "  par. evol. scan steps: x=" << profileLH->curveResults2d[1].size()
+              << ", y=" << profileLH->curveResults2d.size() << std::endl;
+    std::cout << "  nToys :                " << nToys << std::endl;
+    std::cout << std::endl;
   }
 
   // Set up root tree.
@@ -636,7 +672,7 @@ void MethodPluginScan::scan2d(int nRun) {
   //
 
   // start scan
-  cout << "MethodPluginScan::scan2d() : starting ..." << endl;
+  std::cout << "MethodPluginScan::scan2d() : starting ..." << std::endl;
   for (int i1 = 0; i1 < nPoints2dx; i1++) {
     for (int i2 = 0; i2 < nPoints2dy; i2++) {
       float scanpoint1 =
@@ -673,20 +709,20 @@ void MethodPluginScan::scan2d(int nRun) {
 
           // Set nuisances. This is the point in parameter space where
           // the toys need to be generated.
-          setParameters(w, parsName, extCurveResult);
+          Utils::setParameters(w, parsName, extCurveResult);
 
           // Kenzie-Cousins-Highland (randomize nuisance parameters within a uniform range)
           if (arg->isAction("uniform")) {
             // set parameter ranges to their bb range (should be something wide 95, 99% CL)
             const RooArgSet* pars = w->set(toysName) ? w->set(toysName) : w->set(parsName);
-            for (const auto& par : *pars) { setLimit(static_cast<RooRealVar*>(par), "bboos"); }
+            for (const auto& par : *pars) { Utils::setLimit(static_cast<RooRealVar*>(par), "bboos"); }
             if (verbose) {
-              cout << "Uniform generating from:" << endl;
+              std::cout << "Uniform generating from:" << std::endl;
               pars->Print("v");
             }
-            randomizeParameters(w, parsName);
+            Utils::randomizeParameters(w, parsName);
             if (verbose) {
-              cout << "Set:" << endl;
+              std::cout << "Set:" << std::endl;
               w->set(parsName)->Print("v");
             }
           }
@@ -695,12 +731,12 @@ void MethodPluginScan::scan2d(int nRun) {
           // best fit value and uncertainty from the PLH scan)
           if (arg->isAction("gaus")) {
             if (verbose) {
-              cout << "Gaussian generating from:" << endl;
+              std::cout << "Gaussian generating from:" << std::endl;
               profileLH->curveResults2d[iCurveRes1][iCurveRes2]->floatParsFinal().Print("v");
             }
-            randomizeParametersGaussian(w, toysName, profileLH->curveResults2d[iCurveRes1][iCurveRes2]);
+            Utils::randomizeParametersGaussian(w, toysName, profileLH->curveResults2d[iCurveRes1][iCurveRes2]);
             if (verbose) {
-              cout << "Set:" << endl;
+              std::cout << "Set:" << std::endl;
               w->set(parsName)->Print("v");
             }
           }
@@ -719,37 +755,39 @@ void MethodPluginScan::scan2d(int nRun) {
                 fabs((scanpoint2 - var2->getVal()) / scanpoint2) > 0.01) {
               if (nWarnExtPointDiffer < nWarnExtPointDifferMax || arg->debug) {
                 if (fabs((scanpoint1 - var1->getVal()) / scanpoint1) > 0.01)
-                  cout
+                  std::cout
                       << "MethodPluginScan::scan2d() : WARNING : scanpoint1 and external point differ by more than 1%: "
-                      << "scanpoint1=" << scanpoint1 << " var1=" << var1->getVal() << endl;
+                      << "scanpoint1=" << scanpoint1 << " var1=" << var1->getVal() << std::endl;
                 if (fabs((scanpoint2 - var2->getVal()) / scanpoint2) > 0.01)
-                  cout
+                  std::cout
                       << "MethodPluginScan::scan2d() : WARNING : scanpoint2 and external point differ by more than 1%: "
-                      << "scanpoint2=" << scanpoint2 << " var2=" << var2->getVal() << endl;
+                      << "scanpoint2=" << scanpoint2 << " var2=" << var2->getVal() << std::endl;
               }
               if (nWarnExtPointDiffer == 0) {
-                cout << endl;
-                cout << "                                       Try using the same number of scan points for both "
-                        "Plugin and Prob."
-                     << endl;
-                cout << "                                       See --npoints, --npoints2dx, --npoints2dy, --npointstoy"
-                     << endl;
-                cout << endl;
+                std::cout << std::endl;
+                std::cout << "                                       Try using the same number of scan points for both "
+                             "Plugin and Prob."
+                          << std::endl;
+                std::cout
+                    << "                                       See --npoints, --npoints2dx, --npoints2dy, --npointstoy"
+                    << std::endl;
+                std::cout << std::endl;
               }
               if (nWarnExtPointDiffer == nWarnExtPointDifferMax) {
-                cout << "MethodPluginScan::scan2d() : WARNING : scanpoint1 and external point differ by more than 1%: "
-                        "[further warnings suppressed.]"
-                     << endl;
+                std::cout
+                    << "MethodPluginScan::scan2d() : WARNING : scanpoint1 and external point differ by more than 1%: "
+                       "[further warnings suppressed.]"
+                    << std::endl;
               }
               nWarnExtPointDiffer++;
             }
           } else {
-            cout << "MethodPluginScan::scan2d() : WARNING : variable 1 or 2 not found"
-                    ", var1="
-                 << scanVar1 << ", var2=" << scanVar1 << endl;
-            cout << "MethodPluginScan::scan2d() : Printout follows:" << endl;
+            std::cout << "MethodPluginScan::scan2d() : WARNING : variable 1 or 2 not found"
+                         ", var1="
+                      << scanVar1 << ", var2=" << scanVar1 << std::endl;
+            std::cout << "MethodPluginScan::scan2d() : Printout follows:" << std::endl;
             profileLH->curveResults2d[iCurveRes1][iCurveRes2]->Print();
-            exit(1);
+            std::exit(1);
           }
         }
       }
@@ -775,7 +813,7 @@ void MethodPluginScan::scan2d(int nRun) {
         // 1. Load toy dataset
         //
         const RooArgSet* toyData = toyDataSet->get(j);
-        setParameters(w, obsName, toyData);
+        Utils::setParameters(w, obsName, toyData);
         t.storeObservables();
 
         //
@@ -787,9 +825,9 @@ void MethodPluginScan::scan2d(int nRun) {
         par2->setConstant(true);
         RooFitResult* r;
         if (!arg->scanforce)
-          r = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
+          r = Utils::fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
         else
-          r = fitToMinForce(w, name);
+          r = Utils::fitToMinForce(w, name);
         t.chi2minToy = r->minNll();
         t.statusScan = 0;
         t.storeParsScan();
@@ -803,9 +841,9 @@ void MethodPluginScan::scan2d(int nRun) {
         par1->setConstant(false);
         par2->setConstant(false);
         if (!arg->scanforce)
-          r = fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
+          r = Utils::fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
         else
-          r = fitToMinForce(w, name);
+          r = Utils::fitToMinForce(w, name);
         t.chi2minGlobalToy = r->minNll();
         t.statusFree = 0;
         t.scanbest = ((RooRealVar*)w->set(parsName)->find(scanVar1))->getVal();
@@ -820,8 +858,8 @@ void MethodPluginScan::scan2d(int nRun) {
       }
 
       // reset
-      setParameters(w, parsName, frCache.getParsAtFunctionCall());
-      setParameters(w, obsName, obsDataset->get(0));
+      Utils::setParameters(w, parsName, frCache.getParsAtFunctionCall());
+      Utils::setParameters(w, obsName, obsDataset->get(0));
       delete toyDataSet;
     }
   }
@@ -863,7 +901,7 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   /// to derive the range from the root files - else we'll have bining effects.
   float halfBinWidth = (t->getScanpointMax() - t->getScanpointMin()) / (float)t->getScanpointN() / 2;
   if (t->getScanpointN() == 1) halfBinWidth = 1.;
-  TH1F* hCL = new TH1F(getUniqueRootName(), "hCL", t->getScanpointN(), t->getScanpointMin() - halfBinWidth,
+  TH1F* hCL = new TH1F(Utils::getUniqueRootName(), "hCL", t->getScanpointN(), t->getScanpointMin() - halfBinWidth,
                        t->getScanpointMax() + halfBinWidth);
   TH1F* h_better = (TH1F*)hCL->Clone("h_better");
   // histogram to store number of toys which enter CLb p Value calculation
@@ -887,8 +925,8 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
   t->activateCoreBranchesOnly();  // speeds up the event loop
   ProgressBar* pb = nullptr;
   if (!quiet) pb = new ProgressBar(arg, nentries);
-  if (arg->debug) cout << "MethodPluginScan::analyseToys() : ";
-  if (!quiet) cout << "building p-value histogram ..." << endl;
+  if (arg->debug) std::cout << "MethodPluginScan::analyseToys() : ";
+  if (!quiet) std::cout << "building p-value histogram ..." << std::endl;
 
   for (Long64_t i = 0; i < nentries; i++) {
     if (!quiet) pb->progress();
@@ -991,26 +1029,27 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     }
   }
 
-  if (arg->debug) cout << "MethodPluginScan::analyseToys() : ";
+  if (arg->debug) std::cout << "MethodPluginScan::analyseToys() : ";
   if (id == -1) {
-    cout << "read an average of ";
-    cout << (nentries - nfailed) / nPoints1d << " toys per scan point." << endl;
+    std::cout << "read an average of ";
+    std::cout << (nentries - nfailed) / nPoints1d << " toys per scan point." << std::endl;
   } else {
     if (!quiet) {
-      cout << "read ";
-      cout << ntoysid << " toys at ID " << id << endl;
+      std::cout << "read ";
+      std::cout << ntoysid << " toys at ID " << id << std::endl;
     }
   }
-  if (arg->debug) cout << "MethodPluginScan::analyseToys() : ";
-  if (!quiet) cout << "fraction of failed toys: " << (double)nfailed / (double)nentries * 100. << "%." << endl;
-  if (arg->debug) cout << "MethodPluginScan::analyseToys() : ";
+  if (arg->debug) std::cout << "MethodPluginScan::analyseToys() : ";
   if (!quiet)
-    cout << "fraction of negative test stat toys: " << h_background->GetEntries() / (double)nentries * 100. << "%."
-         << endl;
+    std::cout << "fraction of failed toys: " << (double)nfailed / (double)nentries * 100. << "%." << std::endl;
+  if (arg->debug) std::cout << "MethodPluginScan::analyseToys() : ";
+  if (!quiet)
+    std::cout << "fraction of negative test stat toys: " << h_background->GetEntries() / (double)nentries * 100. << "%."
+              << std::endl;
   if (id == -1 && nwrongrun > 0) {
-    cout << "\nMethodPluginScan::analyseToys() : WARNING : Read toys that differ in global chi2min (wrong run) : "
-         << (double)nwrongrun / (double)(nentries - nfailed) * 100. << "%.\n"
-         << endl;
+    std::cout << "\nMethodPluginScan::analyseToys() : WARNING : Read toys that differ in global chi2min (wrong run) : "
+              << (double)nwrongrun / (double)(nentries - nfailed) * 100. << "%.\n"
+              << std::endl;
   }
 
   for (int i = 1; i <= h_better->GetNbinsX(); i++) {
@@ -1056,17 +1095,17 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
       hCLsFreq->SetBinError(i, 0.);
     } else {
       hCLsFreq->SetBinContent(i, p / dataCLb);
-      hCLsFreq->SetBinError(i, (p / dataCLb) *
-                                   sqrt(sq(hCL->GetBinError(i) / hCL->GetBinContent(i)) + sq(dataCLbErr / dataCLb)));
+      hCLsFreq->SetBinError(i, (p / dataCLb) * sqrt(Utils::sq(hCL->GetBinError(i) / hCL->GetBinContent(i)) +
+                                                    Utils::sq(dataCLbErr / dataCLb)));
     }
     if (arg->debug) {
-      cout << "At scanpoint " << std::scientific << hCL->GetBinCenter(i)
-           << ": ===== number of toys for pValue calculation: " << nbetter << endl;
-      cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue:         " << p << endl;
-      cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLb:         " << p_clb << endl;
-      cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLsFreq: " << hCLsFreq->GetBinContent(i)
-           << endl;
-      cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLs: " << p_bkg << endl;
+      std::cout << "At scanpoint " << std::scientific << hCL->GetBinCenter(i)
+                << ": ===== number of toys for pValue calculation: " << nbetter << std::endl;
+      std::cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue:         " << p << std::endl;
+      std::cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLb:         " << p_clb << std::endl;
+      std::cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLsFreq: " << hCLsFreq->GetBinContent(i)
+                << std::endl;
+      std::cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLs: " << p_bkg << std::endl;
     }
 
     /// Now make the histograms for the CLs banana plots
@@ -1075,32 +1114,32 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     // // // the quantiles of the CLb distribution (for expected CLs)
     // std::vector<double> probs  = { TMath::Prob(4,1), TMath::Prob(1,1), 0.5, 1.-TMath::Prob(1,1), 1.-TMath::Prob(4,1)
     // }; std::vector<double> clb_vals  = { 1.-TMath::Prob(4,1), 1.-TMath::Prob(1,1), 0.5, TMath::Prob(1,1),
-    // TMath::Prob(4,1) }; std::vector<double> quantiles = Quantile<double>( sampledSBValues[i], probs );
+    // TMath::Prob(4,1) }; std::vector<double> quantiles = Utils::Quantile<double>( sampledSBValues[i], probs );
     // std::vector<double> clsb_vals;
     // //for (int k=0; k<quantiles.size(); k++) clsb_vals.push_back( TMath::Prob( quantiles[k], 1 ) );
     // for (int k=0; k<quantiles.size(); k++ ){
     //   // asymptotic as chi2
     //   //clsb_vals.push_back( TMath::Prob( quantiles[k], 1 ) );
     //   // from toys
-    //   clsb_vals.push_back(getVectorFracAboveValue( sampledSchi2Values[i], quantiles[k] ) );
+    //   clsb_vals.push_back(Utils::getVectorFracAboveValue( sampledSchi2Values[i], quantiles[k] ) );
     // }
 
     // // check
     // if ( arg->debug ) {
-    //   cout << i << endl;
-    //   cout << "Quants: ";
-    //   for (int k=0; k<quantiles.size(); k++) cout << quantiles[k] << " , ";
-    //   cout << endl;
-    //   cout << "CLb: ";
-    //   for (int k=0; k<clb_vals.size(); k++) cout << clb_vals[k] << " , ";
-    //   cout << endl;
-    //   cout << "CLsb: ";
-    //   for (int k=0; k<clsb_vals.size(); k++) cout << clsb_vals[k] << " , ";
-    //   cout << endl;
-    //   cout << "CLs: ";
-    //   for (int k=0; k<clsb_vals.size(); k++) cout << clsb_vals[k]/clb_vals[k] << " , ";
-    //   // for (int k=0; k<clsb_vals.size(); k++) cout << clsb_vals[k]/probs[k] << " , ";
-    //   cout << endl;
+    //   std::cout << i << std::endl;
+    //   std::cout << "Quants: ";
+    //   for (int k=0; k<quantiles.size(); k++) std::cout << quantiles[k] << " , ";
+    //   std::cout << std::endl;
+    //   std::cout << "CLb: ";
+    //   for (int k=0; k<clb_vals.size(); k++) std::cout << clb_vals[k] << " , ";
+    //   std::cout << std::endl;
+    //   std::cout << "CLsb: ";
+    //   for (int k=0; k<clsb_vals.size(); k++) std::cout << clsb_vals[k] << " , ";
+    //   std::cout << std::endl;
+    //   std::cout << "CLs: ";
+    //   for (int k=0; k<clsb_vals.size(); k++) std::cout << clsb_vals[k]/clb_vals[k] << " , ";
+    //   // for (int k=0; k<clsb_vals.size(); k++) std::cout << clsb_vals[k]/probs[k] << " , ";
+    //   std::cout << std::endl;
     // }
 
     // // Matt's idea
@@ -1119,15 +1158,16 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
       std::cout
           << "MethodPluginScan::analyseToys(): Not the same number of entries in sampledBValues and sampledSBValues!"
           << std::endl;
-      exit(EXIT_FAILURE);
+      std::exit(EXIT_FAILURE);
     }
 
     for (int j = 0; j < sampledBValues[i].size(); j++) {
-      double clsb_val =
-          getVectorFracAboveValue(sampledSchi2Values[i], sampledSBValues[i][j]);  // p_cls+b value for each bkg-only toy
-      double clb_val = getVectorFracAboveValue(sampledBValues[i],
-                                               sampledSBValues[i][j]);  // p_clb value for each bkg-only toy CAUTION:
-                                                                        // duplicate use of sampledBValues
+      double clsb_val = Utils::getVectorFracAboveValue(sampledSchi2Values[i],
+                                                       sampledSBValues[i][j]);  // p_cls+b value for each bkg-only toy
+      double clb_val =
+          Utils::getVectorFracAboveValue(sampledBValues[i],
+                                         sampledSBValues[i][j]);  // p_clb value for each bkg-only toy CAUTION:
+                                                                  // duplicate use of sampledBValues
       double cls_val = clsb_val / clb_val;
 
       clsb_vals.push_back(clsb_val);
@@ -1152,7 +1192,7 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
         bkg_pvals_clb->Fill(TMath::Min(clb_vals[j], 1.));
       }
 
-      TCanvas* canvasdebug = newNoWarnTCanvas("canvasdebug", "canvas1", 1200, 1000);
+      TCanvas* canvasdebug = Utils::newNoWarnTCanvas("canvasdebug", "canvas1", 1200, 1000);
       bkg_pvals_cls->Draw();
       bkg_pvals_clsb->Draw("same");
       bkg_pvals_clb->Draw("same");
@@ -1163,34 +1203,34 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
       leg->AddEntry(bkg_pvals_clsb, "CLs+b", "L");
       leg->AddEntry(bkg_pvals_clb, "CLb", "L");
       leg->Draw("same");
-      savePlot(canvasdebug, TString(Form("p_values%d", i)) + "_" + scanVar1);
+      Utils::savePlot(canvasdebug, TString(Form("p_values%d", i)) + "_" + scanVar1);
     }
 
     std::vector<double> probs = {TMath::Prob(4, 1) / 2., TMath::Prob(1, 1) / 2., 0.5, 1. - (TMath::Prob(1, 1) / 2.),
                                  1. - (TMath::Prob(4, 1) / 2.)};
     // std::vector<double> probs  = {TMath::Prob(4,1), TMath::Prob(1,1),
     // 0.5, 1.-(TMath::Prob(1,1)), 1.-(TMath::Prob(4,1)) };
-    std::vector<double> quantiles_clsb = Quantile<double>(clsb_vals, probs);
-    std::vector<double> quantiles_clb = Quantile<double>(clb_vals, probs);
-    std::vector<double> quantiles_cls = Quantile<double>(cls_vals, probs);
+    std::vector<double> quantiles_clsb = Utils::Quantile<double>(clsb_vals, probs);
+    std::vector<double> quantiles_clb = Utils::Quantile<double>(clb_vals, probs);
+    std::vector<double> quantiles_cls = Utils::Quantile<double>(cls_vals, probs);
 
     // check
     if (arg->debug) {
-      cout << i << endl;
-      cout << "Quants: ";
-      for (int k = 0; k < probs.size(); k++) cout << probs[k] << " , ";
-      cout << endl;
-      cout << "CLb: ";
-      for (int k = 0; k < quantiles_clb.size(); k++) cout << quantiles_clb[k] << " , ";
-      cout << endl;
-      cout << "CLsb: ";
-      for (int k = 0; k < quantiles_clsb.size(); k++) cout << quantiles_clsb[k] << " , ";
-      cout << endl;
-      cout << "CLs: ";
-      for (int k = 0; k < quantiles_cls.size(); k++) cout << quantiles_cls[k] << " , ";
-      cout << endl;
-      // for (int k=0; k<quantiles_cls.size(); k++) cout << quantiles_clsb[k]/quantiles_clb[k] << " , ";
-      // cout << endl;
+      std::cout << i << std::endl;
+      std::cout << "Quants: ";
+      for (int k = 0; k < probs.size(); k++) std::cout << probs[k] << " , ";
+      std::cout << std::endl;
+      std::cout << "CLb: ";
+      for (int k = 0; k < quantiles_clb.size(); k++) std::cout << quantiles_clb[k] << " , ";
+      std::cout << std::endl;
+      std::cout << "CLsb: ";
+      for (int k = 0; k < quantiles_clsb.size(); k++) std::cout << quantiles_clsb[k] << " , ";
+      std::cout << std::endl;
+      std::cout << "CLs: ";
+      for (int k = 0; k < quantiles_cls.size(); k++) std::cout << quantiles_cls[k] << " , ";
+      std::cout << std::endl;
+      // for (int k=0; k<quantiles_cls.size(); k++) std::cout << quantiles_clsb[k]/quantiles_clb[k] << " , ";
+      // std::cout << std::endl;
     }
 
     // //effective method -> works robustly (cf. TLimit class), but is actually wrong
@@ -1234,9 +1274,9 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     float nall = h_all->GetBinContent(iBinBestFit);
     float fitprobabilityVal = nGofBetter / nall;
     float fitprobabilityErr = sqrt(fitprobabilityVal * (1. - fitprobabilityVal) / nall);
-    if (arg->debug) cout << "MethodPluginScan::analyseToys() : ";
-    cout << "fit prob of best-fit point (" << assumedbestfitpoint
-         << "): " << Form("(%.1f+/-%.1f)%%", fitprobabilityVal * 100., fitprobabilityErr * 100.) << endl;
+    if (arg->debug) std::cout << "MethodPluginScan::analyseToys() : ";
+    std::cout << "fit prob of best-fit point (" << assumedbestfitpoint
+              << "): " << Form("(%.1f+/-%.1f)%%", fitprobabilityVal * 100., fitprobabilityErr * 100.) << std::endl;
   }
 
   t->activateAllBranches();
@@ -1271,25 +1311,25 @@ void MethodPluginScan::readScan1dTrees(int runMin, int runMax, TString fName) {
   fileNameBase += "_" + name + "_" + scanVar1 + "_run";
   // read different files if requested
   if (arg->toyFiles != "" && arg->toyFiles != "default") fileNameBase = arg->toyFiles;
-  if (arg->debug) cout << "MethodPluginScan::readScan1dTrees() : ";
-  cout << "reading files: " << fileNameBase + "*.root" << endl;
+  if (arg->debug) std::cout << "MethodPluginScan::readScan1dTrees() : ";
+  std::cout << "reading files: " << fileNameBase + "*.root" << std::endl;
   for (int i = runMin; i <= runMax; i++) {
     TString file = Form(fileNameBase + "%i.root", i);
-    if (!FileExists(file)) {
-      cout << "WARNING : File not found: " + file + " ..." << endl;
+    if (!Utils::FileExists(file)) {
+      std::cout << "WARNING : File not found: " + file + " ..." << std::endl;
       nFilesMissing += 1;
       continue;
     }
-    if (arg->verbose) cout << "reading " + file << endl;
+    if (arg->verbose) std::cout << "reading " + file << std::endl;
     c->Add(file);
     nFilesRead += 1;
   }
-  if (arg->debug) cout << "MethodPluginScan::readScan1dTrees() : ";
-  cout << "read toy files: " << nFilesRead;
+  if (arg->debug) std::cout << "MethodPluginScan::readScan1dTrees() : ";
+  std::cout << "read toy files: " << nFilesRead;
   if (nFilesRead == 0) {
-    if (arg->debug) cout << "MethodPluginScan::readScan1dTrees() : ";
-    cerr << "ERROR : no files read!" << endl;
-    exit(EXIT_FAILURE);
+    if (arg->debug) std::cout << "MethodPluginScan::readScan1dTrees() : ";
+    std::cerr << "ERROR : no files read!" << std::endl;
+    std::exit(EXIT_FAILURE);
   }
 
   ToyTree t(combiner, c);
@@ -1336,25 +1376,25 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
   // read different file if requested
   if (arg->toyFiles != "" && arg->toyFiles != "default") fileNameBase = arg->toyFiles;
 
-  if (arg->debug) cout << "MethodPluginScan::readScan2dTrees() : ";
-  cout << "reading files: " << fileNameBase + "*.root" << endl;
+  if (arg->debug) std::cout << "MethodPluginScan::readScan2dTrees() : ";
+  std::cout << "reading files: " << fileNameBase + "*.root" << std::endl;
   for (int i = runMin; i <= runMax; i++) {
     TString file = Form(fileNameBase + "%i.root", i);
-    if (!FileExists(file)) {
-      if (arg->verbose) cout << "ERROR : File not found: " + file + " ..." << endl;
+    if (!Utils::FileExists(file)) {
+      if (arg->verbose) std::cout << "ERROR : File not found: " + file + " ..." << std::endl;
       nFilesMissing += 1;
       continue;
     }
-    if (arg->verbose) cout << "reading " + file + " ..." << endl;
+    if (arg->verbose) std::cout << "reading " + file + " ..." << std::endl;
     chain->Add(file);
     nFilesRead += 1;
   }
-  cout << "read toy files: " << nFilesRead;
-  cout << ", missing files: " << nFilesMissing << endl;
+  std::cout << "read toy files: " << nFilesRead;
+  std::cout << ", missing files: " << nFilesMissing << std::endl;
   if (nFilesRead == 0) {
-    if (arg->debug) cout << "MethodPluginScan::readScan2dTrees() : ";
-    cout << "ERROR : no files read!" << endl;
-    exit(1);
+    if (arg->debug) std::cout << "MethodPluginScan::readScan2dTrees() : ";
+    std::cout << "ERROR : no files read!" << std::endl;
+    std::exit(1);
   }
 
   ToyTree t(combiner, chain);
@@ -1377,7 +1417,7 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
   if (t.getScanpointN() == 1) halfBinWidthx = 1.;
   if (t.getScanpointyN() == 1) halfBinWidthy = 1.;
   if (hCL2d) delete hCL2d;
-  hCL2d = new TH2F(getUniqueRootName(), "hCL2d", t.getScanpointN(), t.getScanpointMin() - halfBinWidthx,
+  hCL2d = new TH2F(Utils::getUniqueRootName(), "hCL2d", t.getScanpointN(), t.getScanpointMin() - halfBinWidthx,
                    t.getScanpointMax() + halfBinWidthx, t.getScanpointyN(), t.getScanpointyMin() - halfBinWidthx,
                    t.getScanpointyMax() + halfBinWidthx);
   TH2F* h_better = (TH2F*)hCL2d->Clone("h_better");
@@ -1390,8 +1430,8 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
 
   t.activateCoreBranchesOnly();  // speeds up the event loop
   ProgressBar pb(arg, nentries);
-  if (arg->debug) cout << "MethodPluginScan::readScan2dTrees() : ";
-  cout << "building p-value histogram ..." << endl;
+  if (arg->debug) std::cout << "MethodPluginScan::readScan2dTrees() : ";
+  std::cout << "building p-value histogram ..." << std::endl;
 
   for (Long64_t i = 0; i < nentries; i++) {
     pb.progress();
@@ -1431,15 +1471,16 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
     if (inPhysicalRegion) { h_all->Fill(t.scanpoint, t.scanpointy); }
   }
 
-  if (arg->debug) cout << "MethodPluginScan::readScan2dTrees() : ";
+  if (arg->debug) std::cout << "MethodPluginScan::readScan2dTrees() : ";
   if (arg->id == -1) {
-    cout << "read an average of " << (nentries - nfailed) / nPoints2dx / nPoints2dy << " toys per scan point." << endl;
+    std::cout << "read an average of " << (nentries - nfailed) / nPoints2dx / nPoints2dy << " toys per scan point."
+              << std::endl;
   } else {
-    cout << "read ";
-    cout << ntoysid << " toys at ID " << arg->id << endl;
+    std::cout << "read ";
+    std::cout << ntoysid << " toys at ID " << arg->id << std::endl;
   }
-  if (arg->debug) cout << "MethodPluginScan::readScan2dTrees() : ";
-  cout << "fraction of failed toys: " << (double)nfailed / (double)nentries * 100. << "%." << endl;
+  if (arg->debug) std::cout << "MethodPluginScan::readScan2dTrees() : ";
+  std::cout << "fraction of failed toys: " << (double)nfailed / (double)nentries * 100. << "%." << std::endl;
 
   // compute 1-CL
   for (int i = 1; i <= h_better->GetNbinsX(); i++) {
@@ -1483,7 +1524,8 @@ double MethodPluginScan::importance(double pvalue) {
 /// but for the moment I don't see a way how to put it there.
 /// The Chisquare quantile plots have to be updated as well.
 ///
-void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<int, vector<double>> sbVals) {
+void MethodPluginScan::makeControlPlotsCLs(std::map<int, std::vector<double>> bVals,
+                                           std::map<int, std::vector<double>> sbVals) {
   // the quantiles of the CLb distribution (for expected CLs)
   std::vector<double> probs = {TMath::Prob(4, 1), TMath::Prob(1, 1), 0.5, 1. - TMath::Prob(1, 1),
                                1. - TMath::Prob(4, 1)};
@@ -1492,12 +1534,12 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
 
   for (int i = 1; i <= hCLs->GetNbinsX(); i++) {
 
-    std::vector<double> quantiles = Quantile<double>(bVals[i], probs);
+    std::vector<double> quantiles = Utils::Quantile<double>(bVals[i], probs);
     std::vector<double> clsb_vals;
     for (int k = 0; k < quantiles.size(); k++) {
-      clsb_vals.push_back(getVectorFracAboveValue(sbVals[i], quantiles[k]));
+      clsb_vals.push_back(Utils::getVectorFracAboveValue(sbVals[i], quantiles[k]));
     }
-    TCanvas* c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
+    TCanvas* c = Utils::newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));
     double max = *(std::max_element(bVals[i].begin(), bVals[i].end()));
     TH1F* hb = new TH1F(Form("hb%d", i), "hbq", 50, 0, max);
     TH1F* hsb = new TH1F(Form("hsb%d", i), "hsbq", 50, 0, max);
@@ -1508,7 +1550,7 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
     double dataVal = TMath::ChisquareQuantile(1. - hCL->GetBinContent(i), 1);
     TArrow* lD = new TArrow(dataVal, 0.6 * hsb->GetMaximum(), dataVal, 0., 0.15, "|>");
 
-    vector<TLine*> qLs;
+    std::vector<TLine*> qLs;
     for (int k = 0; k < quantiles.size(); k++) {
       qLs.push_back(new TLine(quantiles[k], 0, quantiles[k], 0.8 * hsb->GetMaximum()));
     }
@@ -1575,10 +1617,10 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
     leg->AddEntry(lD, "Data", "L");
     leg->Draw("same");
     c->SetLogy();
-    savePlot(c, TString(Form("cls_testStatControlPlot_p%d", i)) + "_" + scanVar1);
+    Utils::savePlot(c, TString(Form("cls_testStatControlPlot_p%d", i)) + "_" + scanVar1);
   }
 
-  TCanvas* c = newNoWarnTCanvas("cls_ctr", "CLs Control");
+  TCanvas* c = Utils::newNoWarnTCanvas("cls_ctr", "CLs Control");
   hCLsFreq->SetLineColor(kBlack);
   hCLsFreq->SetLineWidth(3);
   hCLsExp->SetLineColor(kRed);
@@ -1611,5 +1653,5 @@ void MethodPluginScan::makeControlPlotsCLs(map<int, vector<double>> bVals, map<i
   hCLsExp->Draw("Lsame");
   hCLsFreq->Draw("Lsame");
 
-  savePlot(c, "cls_ControlPlot_" + scanVar1);
+  Utils::savePlot(c, "cls_ControlPlot_" + scanVar1);
 }

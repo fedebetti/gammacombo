@@ -9,12 +9,19 @@
 #define MethodDatasetsProbScan_h
 
 #include "MethodProbScan.h"
-#include "PDF_Datasets.h"
-#include "ProgressBar.h"
-#include "RooSlimFitResult.h"
-#include "ToyTree.h"
-#include <TBranch.h>
-#include <TLeaf.h>
+
+#include <TString.h>
+
+#include <vector>
+
+class OptParser;
+class PDF_Datasets;
+class ToyTree;
+
+class RooFitResult;
+
+class TChain;
+class TH1F;
 
 class MethodDatasetsProbScan : public MethodProbScan {
  public:

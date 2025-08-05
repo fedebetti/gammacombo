@@ -6,13 +6,9 @@
 
 // Your description goes here...
 
-#include <Riostream.h>
-
-#include <RooAbsCategory.h>
-#include <RooAbsReal.h>
 #include <RooHistPdfVar.h>
-#include <TMath.h>
-#include <math.h>
+
+#include <RooAbsReal.h>
 
 RooHistPdfVar::RooHistPdfVar(const char* name, const char* title, RooAbsReal& _xobs, RooAbsReal& _xth,
                              RooAbsReal& _xshift)

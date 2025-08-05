@@ -19,6 +19,19 @@
 
 #include "PDF_Abs.h"
 
+#include <TString.h>
+
+#include <map>
+#include <vector>
+
+class OptParser;
+
+class RooAbsData;
+class RooAbsPdf;
+class RooAbsReal;
+class RooFitResult;
+class RooWorkspace;
+
 class PDF_Datasets : public PDF_Abs {
  public:
   PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt);
@@ -44,7 +57,7 @@ class PDF_Datasets : public PDF_Abs {
   virtual void initObservables();  // overriding the inherited virtual method
   void initGlobalObservables(const TString& setName);
   void initParameters(const TString& setName);
-  void initParameters(const vector<TString>& parNames);
+  void initParameters(const std::vector<TString>& parNames);
   virtual void initParameters();  // overriding the inherited virtual method
   void initMultipdfCat(const TString& name);
   void initPDF(const TString& name);

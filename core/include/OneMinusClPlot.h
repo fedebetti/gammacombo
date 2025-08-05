@@ -9,13 +9,14 @@
 #define OneMinusClPlot_h
 
 #include "OneMinusClPlotAbs.h"
-#include "Rounder.h"
-#include "TGraphTools.h"
-#include "Utils.h"
 
-using namespace Utils;
-using namespace RooFit;
-using namespace std;
+#include <TString.h>
+
+class MethodAbsScan;
+class OptParser;
+
+class TCanvas;
+class TGraph;
 
 class OneMinusClPlot : public OneMinusClPlotAbs {
  public:

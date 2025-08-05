@@ -8,11 +8,14 @@
 #ifndef FitResultCache_h
 #define FitResultCache_h
 
-#include "OptParser.h"
-#include "Utils.h"
+#include <RooDataSet.h>
 
-using namespace std;
-using namespace Utils;
+#include <cassert>
+#include <vector>
+
+class OptParser;
+
+class RooArgSet;
 
 ///
 /// Helper class for the scan methods. Store several parameter points
@@ -49,7 +52,7 @@ class FitResultCache {
   int _roundrobinid;    ///< id of currently active round robin cell
   RooDataSet* _parsAtFunctionCall;
   RooDataSet* _parsAtGlobalMin;
-  vector<RooDataSet*> _parsRoundRobin;
+  std::vector<RooDataSet*> _parsRoundRobin;
 };
 
 #endif

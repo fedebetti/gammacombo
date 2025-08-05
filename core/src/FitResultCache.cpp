@@ -1,5 +1,13 @@
 #include <FitResultCache.h>
 
+#include <OptParser.h>
+
+#include <RooDataSet.h>
+
+#include <cassert>
+#include <cstdlib>
+#include <iostream>
+
 FitResultCache::FitResultCache(OptParser* arg, int roundrobinsize) {
   assert(arg);
   _arg = arg;
@@ -26,10 +34,10 @@ FitResultCache::~FitResultCache() {
 ///
 void FitResultCache::storeParsAtFunctionCall(const RooArgSet* set) {
   if (_parsAtFunctionCall) {
-    cout << "FitResultCache::storeParsAtFunctionCall() : ERROR : "
-            "Trying to overwrite the parameters at funciton call. Exit."
-         << endl;
-    exit(1);
+    std::cout << "FitResultCache::storeParsAtFunctionCall() : ERROR : "
+                 "Trying to overwrite the parameters at funciton call. Exit."
+              << std::endl;
+    std::exit(1);
   }
   assert(set);
   _parsAtFunctionCall = new RooDataSet("parsAtFunctionCall", "parsAtFunctionCall", *set);
@@ -83,10 +91,10 @@ const RooArgSet* FitResultCache::getRoundRobinNminus(int n) {
   int id = _roundrobinid - n;
   if (id < 0) id += _parsRoundRobin.size();
   if (id < 0 || id >= _parsRoundRobin.size() || _parsRoundRobin[id] == 0) {
-    cout << "FitResultCache::getRoundRobinNminus() : ERROR : "
-            "Trying to access a round robin point that doesn't exist: id="
-         << id << ". Exit." << endl;
-    exit(1);
+    std::cout << "FitResultCache::getRoundRobinNminus() : ERROR : "
+                 "Trying to access a round robin point that doesn't exist: id="
+              << id << ". Exit." << std::endl;
+    std::exit(1);
   }
   return _parsRoundRobin[id]->get(0);
 }

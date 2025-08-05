@@ -7,6 +7,15 @@
 
 #include <PDF_CrossCorAbs.h>
 
+#include <ParametersTutorial.h>
+
+#include <PDF_Abs.h>
+#include <RooCrossCorPdf.h>
+#include <UtilsConfig.h>
+
+#include <RooArgList.h>
+#include <RooRealVar.h>
+
 PDF_CrossCorAbs::PDF_CrossCorAbs(PDF_Abs* pdf1, PDF_Abs* pdf2) : PDF_Abs(pdf1->getNobs() + pdf2->getNobs()) {
   name = "CrossCorAbs";
   assert(pdf1);
@@ -81,7 +90,7 @@ void PDF_CrossCorAbs::copyMeasurementCovariance() {
     }
 }
 
-void PDF_CrossCorAbs::setCorrelations(config c) { assert(0); };
+void PDF_CrossCorAbs::setCorrelations(Utils::config c) { assert(0); };
 
 void PDF_CrossCorAbs::buildPdf() {
   TMatrixDSym covInverse = covMatrix;
