@@ -275,8 +275,7 @@ vector<string>& Combiner::getParameterNames() {
   // 1. make a list of all parameters from the pdfs
   vector<string> varsAll;
   for (int i = 0; i < pdfs.size(); i++) {
-    TIterator* it = pdfs[i]->getParameters()->createIterator();
-    while (RooAbsReal* v = (RooAbsReal*)it->Next()) { varsAll.push_back(v->GetName()); }
+    for (const auto& v : *pdfs[i]->getParameters()) varsAll.push_back(v->GetName());
   }
   // 2. remove duplicates
   sort(varsAll.begin(), varsAll.end());
@@ -308,21 +307,17 @@ vector<string>& Combiner::getObservableNames() {
   if (!_isCombined) {
     // collect observables from all PDFs
     for (int i = 0; i < pdfs.size(); i++) {
-      TIterator* it = pdfs[i]->getObservables()->createIterator();
-      while (RooRealVar* p = (RooRealVar*)it->Next()) vars->push_back(p->GetName());
-      delete it;
+      for (const auto& obs : *pdfs[i]->getObservables()) vars->push_back(obs->GetName());
     }
   } else {
     // get observables from the combined workspace
-    const RooArgSet* obs = w->set("obs_" + pdfName);
-    if (!obs) {
+    const RooArgSet* observables = w->set("obs_" + pdfName);
+    if (!observables) {
       cout << "Combiner::getObservableNames() : ERROR : Observables set not found in workspace: "
            << "obs_" + pdfName << endl;
       assert(0);
     }
-    TIterator* it = obs->createIterator();
-    while (RooRealVar* p = (RooRealVar*)it->Next()) vars->push_back(p->GetName());
-    delete it;
+    for (const auto& obs : *observables) vars->push_back(obs->GetName());
   }
   return *vars;
 }
@@ -559,9 +554,7 @@ void Combiner::loadParameterLimits() {
   }
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
   if (arg->debug) cout << "Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
-  TIterator* it = w->set("par_" + pdfName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) setLimit(w, p->GetName(), rangeName);
-  delete it;
+  for (const auto& p : *w->set("par_" + pdfName)) setLimit(w, p->GetName(), rangeName);
 }
 
 ///

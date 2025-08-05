@@ -218,9 +218,8 @@ void PullPlotter::savePulls() {
     // combiner holds the parameters so get them and set them on each pdf
     const RooArgSet* parsMin = combiner->getParameters();
     RooArgList* pars = pdf->getParameters();
-    TIterator* it1 = pars->createIterator();
-    while (RooRealVar* pPar = (RooRealVar*)it1->Next()) {
-      pPar->setVal(((RooAbsReal*)parsMin->find(pPar->GetName()))->getVal());
+    for (const auto& pPar : *pars) {
+      static_cast<RooRealVar*>(pPar)->setVal(((RooAbsReal*)parsMin->find(pPar->GetName()))->getVal());
     }
     //
     // const RooArgList* th  = pdf->getTheory();
@@ -229,8 +228,8 @@ void PullPlotter::savePulls() {
     double chi2_contrib = ll.getVal();
     running_chi2 += chi2_contrib;
     // loop observables
-    TIterator* it = obs->createIterator();
-    while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+    for (const auto& pObsAbs : *obs) {
+      const auto pObs = static_cast<RooRealVar*>(pObsAbs);
       // find associated theory value
       TString pThName = pObs->GetName();
       pThName.ReplaceAll("obs", "th");
@@ -266,8 +265,7 @@ void PullPlotter::plotPulls() {
 
   // add any observables that are not in the ordered list defined above,
   // where the order of certain observables is defined manually
-  TIterator* it = cmb->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+  for (const auto& pObs : *cmb->getObservables()) {
     bool found = false;
     for (int i = 0; i < obsOrder.size(); i++) {
       if (obsOrder[i] == TString(pObs->GetName())) found = true;
@@ -350,8 +348,8 @@ void PullPlotter::plotPulls() {
 /// \return - True, if one pull is above N sigma.
 ///
 bool PullPlotter::hasPullsAboveNsigma(float nsigma) {
-  TIterator* it = cmb->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+  for (const auto& pObsAbs : *cmb->getObservables()) {
+    const auto pObs = static_cast<RooRealVar*>(pObsAbs);
     // find associated theory value
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
@@ -372,8 +370,8 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma) {
 /// \param aboveNsigma Only print pulls above (or equal) N sigma.
 ///
 void PullPlotter::printPulls(float aboveNsigma) {
-  TIterator* it = cmb->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)it->Next()) {
+  for (const auto& pObsAbs : *cmb->getObservables()) {
+    const auto pObs = static_cast<RooRealVar*>(pObsAbs);
     // find associated theory value
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");

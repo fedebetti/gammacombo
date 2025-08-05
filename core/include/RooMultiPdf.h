@@ -17,7 +17,6 @@
 #include <RooRealVar.h>
 
 #include <RooListProxy.h>
-#include <TIterator.h>
 
 #include <iostream>
 #include <vector>

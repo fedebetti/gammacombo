@@ -387,12 +387,10 @@ void PDF_Abs::print() const {
     cout << "      nPar = " << parameters->getSize() << endl;
     cout << "      ";
     bool first = true;
-    TIterator* it = parameters->createIterator();
-    while (RooAbsReal* v = (RooAbsReal*)it->Next()) {
+    for (const auto& v : *parameters) {
       cout << (first ? "" : ", ") << v->GetName();
       first = false;
     }
-    delete it;
     cout << endl;
   } else
     cout << "PDF_Abs::print() : parameters not initialized. Call initParameters() first." << endl;
@@ -400,8 +398,7 @@ void PDF_Abs::print() const {
 
   if (theory) {
     cout << "    relations:" << endl;
-    TIterator* it = theory->createIterator();
-    while (RooAbsReal* v = (RooAbsReal*)it->Next()) {
+    for (const auto& v : *theory) {
       // it's not easy to extract the formula from a RooFormulaVar.
       TString thName = v->GetName();
       thName.ReplaceAll(uniqueID, "");
@@ -422,7 +419,6 @@ void PDF_Abs::print() const {
       if (formula == "") formula = v->ClassName();  // compiled custom Roo*Var classes don't have a formula
       cout << formula << endl;
     }
-    delete it;
   } else
     cout << "PDF_Abs::print() : theory not initialized. Call initRelations() first." << endl;
   cout << endl;
@@ -432,8 +428,7 @@ void PDF_Abs::printParameters() {
   if (parameters) {
     cout << "      parameters:  ";
     bool first = true;
-    TIterator* it = parameters->createIterator();
-    while (RooAbsReal* v = (RooAbsReal*)it->Next()) {
+    for (const auto& v : *parameters) {
       TString vName = v->GetName();
       cout << (first ? "" : ", ") << vName;
       first = false;
@@ -447,8 +442,7 @@ void PDF_Abs::printObservables() {
   if (observables) {
     cout << "      observables: ";
     bool first = true;
-    TIterator* it = observables->createIterator();
-    while (RooAbsReal* v = (RooAbsReal*)it->Next()) {
+    for (const auto& v : *observables) {
       TString vName = v->GetName();
       vName.ReplaceAll("_obs", "");
       vName.ReplaceAll(uniqueID, "");
@@ -537,8 +531,7 @@ bool PDF_Abs::checkConsistency() {
   bool allOk = true;
 
   // check if all observables end with '_obs'
-  TIterator* it = observables->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
+  for (const auto& p : *observables) {
     TString pObsName = p->GetName();
     pObsName.ReplaceAll(uniqueID, "");
     if (!pObsName.EndsWith("_obs")) {
@@ -549,9 +542,7 @@ bool PDF_Abs::checkConsistency() {
   }
 
   // check if all predicted observables end with '_th'
-  delete it;
-  it = theory->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
+  for (const auto& p : *theory) {
     TString pThName = p->GetName();
     pThName.ReplaceAll(uniqueID, "");
     if (!pThName.EndsWith("_th")) {

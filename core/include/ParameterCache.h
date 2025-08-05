@@ -11,7 +11,6 @@
 #include "Utils.h"
 #include <RooAbsArg.h>
 #include <TDatime.h>
-#include <TIterator.h>
 #include <TString.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>

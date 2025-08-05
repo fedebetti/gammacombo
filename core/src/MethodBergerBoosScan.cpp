@@ -458,14 +458,12 @@ int MethodBergerBoosScan::scan1d(int nRun) {
 
 void MethodBergerBoosScan::setNewBergerBoosPoint(int m) {
   // Get new BB Point from BBTree Class member
-  TIterator* iter = w->set(parsName)->createIterator();
-  // int p=0;
-  while (RooRealVar* par = (RooRealVar*)iter->Next()) {
+  for (const auto& parAbs : *w->set(parsName)) {
+    const auto par = static_cast<RooRealVar*>(parAbs);
     // Set new parameter values by reading the BBTree
     float VAL = -666;
     BBtree->GetBranch(par->GetName())->GetEntry(m - 1);
     VAL = BBtree->GetLeaf(par->GetName())->GetValue();
     par->setVal(VAL);
   }
-  delete iter;
 };
