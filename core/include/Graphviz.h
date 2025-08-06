@@ -16,29 +16,26 @@
 #include "OptParser.h"
 #include "Utils.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 using namespace Utils;
 
-class Graphviz
-{
-public:
-
-  Graphviz(OptParser *arg);
+class Graphviz {
+ public:
+  Graphviz(OptParser* arg);
   ~Graphviz();
-  
-  void       printCombiner(Combiner* cmb);
-  void       printCombinerLayer(Combiner* cmb);
-    
-private:
-  
-  TString   graphvizString(TString s);
+
+  void printCombiner(Combiner* cmb);
+  void printCombinerLayer(Combiner* cmb);
+
+ private:
+  TString graphvizString(TString s);
   // TString   graphvizString(string s);
-  bool      isDmixingParameter(TString s);
+  bool isDmixingParameter(TString s);
   ofstream& openFile(TString name);
-  OptParser *arg;                     ///< command line arguments
+  OptParser* arg;  ///< command line arguments
 };
 
 #endif

@@ -10,15 +10,14 @@
 #ifndef ParametersTutorial_h
 #define ParametersTutorial_h
 
-#include "ParametersAbs.h"
+#include <ParametersAbs.h>
 
-class ParametersTutorial : public ParametersAbs
-{
-public:
-    ParametersTutorial();
+class ParametersTutorial : public ParametersAbs {
+ public:
+  ParametersTutorial();
 
-protected:
-    void defineParameters();
+ protected:
+  void defineParameters();
 };
 
 #endif

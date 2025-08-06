@@ -65,4 +65,3 @@ jobs:
     - name: Print Info
       if: github.actor == 'gammacombo'
       run: echo "Success. Check your CI tests at https://gammacombo.github.io/ci.html"
-
