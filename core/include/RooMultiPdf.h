@@ -1,33 +1,17 @@
 #ifndef ROO_MULTIPDF
 #define ROO_MULTIPDF
 
-#include <RooAbsArg.h>
-#include <RooAbsCategory.h>
 #include <RooAbsPdf.h>
-#include <RooAbsProxy.h>
-#include <RooAbsReal.h>
-#include <RooArgList.h>
-#include <RooArgProxy.h>
-#include <RooCategory.h>
 #include <RooCategoryProxy.h>
-#include <RooConstVar.h>
-#include <RooFormulaVar.h>
-#include <RooLinkedList.h>
-#include <RooRealProxy.h>
-#include <RooRealVar.h>
-
 #include <RooListProxy.h>
 
 #include <iostream>
-#include <vector>
 
-class RooAbsArg;
-class RooAbsPdf;
-class RooAbsReal;
-/*class RooRealProxy;*/
 class RooArgList;
+class RooArgSet;
+class RooCategory;
 
-using namespace std;
+class TObject;
 
 class RooMultiPdf : public RooAbsPdf {
  public:
@@ -60,7 +44,7 @@ class RooMultiPdf : public RooAbsPdf {
   RooAbsPdf* getPdf(int index) const;
   virtual Double_t getValV(const RooArgSet* nset) const;
   /// needed since otherwise printValue calls evaluate(), which is taboo
-  virtual void printValue(ostream& os) const { getCurrentPdf()->printValue(os); }
+  virtual void printValue(std::ostream& os) const { getCurrentPdf()->printValue(os); }
 
  protected:
   RooListProxy c;

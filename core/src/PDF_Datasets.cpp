@@ -8,6 +8,25 @@
 
 #include <PDF_Datasets.h>
 
+#include <OptParser.h>
+#include <Utils.h>
+
+#include <RooCategory.h>
+#include <RooFitResult.h>
+#include <RooMsgService.h>
+#include <RooMultiPdf.h>
+#include <RooProdPdf.h>
+#include <RooRandom.h>
+#include <RooRealVar.h>
+#include <RooWorkspace.h>
+
+#include <TObjString.h>
+
+#include <iostream>
+#include <vector>
+
+class RooWorkspace;
+
 PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt) : PDF_Abs(nObs) {
   wspc = w;  // new RooWorkspace(*w);
   obsName = "default_internal_observables_set_name";
@@ -47,8 +66,8 @@ void PDF_Datasets::initConstraints(const TString& setName) {
   // obtain the part of the PDF that can generate the global observables
   this->_constraintPdf = new RooProdPdf("constraintPdf", "", *wspc->set(constraintName));
   if (_constraintPdf == nullptr) {
-    std::cout << "ERROR in PDF_B_MuMu::initConstraints - constraint pdf not initialized." << endl;
-    exit(EXIT_FAILURE);
+    std::cout << "ERROR in PDF_B_MuMu::initConstraints - constraint pdf not initialized." << std::endl;
+    std::exit(EXIT_FAILURE);
   }
   if (data && pdf)
     minNll = pdf->createNLL(*data, RooFit::Extended(kTRUE),
@@ -61,7 +80,7 @@ void PDF_Datasets::initData(const TString& name) {
     std::cout << "WARNING in PDF_Datasets::initData -- Data already set" << std::endl;
     std::cout << "WARNING in PDF_Datasets::initData -- Data will not be overwritten" << std::endl;
     std::cout << "WARNING in PDF_Datasets::initData -- !!!" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   dataName = name;
   data = (RooAbsData*)wspc->data(dataName);
@@ -69,7 +88,7 @@ void PDF_Datasets::initData(const TString& name) {
     isDataSet = true;
   else {
     std::cout << "FATAL in PDF_Datasets::initData -- Data: " << dataName << " not found in workspace" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   if (pdf && getWorkspace()->obj(constraintName))
     minNll = pdf->createNLL(*data, RooFit::Extended(kTRUE),
@@ -87,7 +106,7 @@ void PDF_Datasets::initObservables(const TString& setName) {
   if (!isPdfInitialized()) {
     std::cerr << "FATAL in PDF_Datasets::initObservables -- first call PDF_Datasets::initPdf to init the PDF!"
               << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   obsName = setName;
   observables = (RooArgList*)wspc->set(obsName);
@@ -101,18 +120,18 @@ void PDF_Datasets::initGlobalObservables(const TString& setName) {
   if (!wspc->set(globalObsName)) {
     std::cerr << "FATAL in PDF_Datasets::initGlobalObservables -- RooArgSet " << setName << " not found in workspace"
               << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   wspc->saveSnapshot(globalObsDataSnapshotName, *wspc->set(globalObsName));
 };
 
 void PDF_Datasets::initObservables() {
-  std::cout << "ERROR in PDF_Datasets::initObservables():" << endl;
+  std::cout << "ERROR in PDF_Datasets::initObservables():" << std::endl;
   std::cout << "This function is not supported for dataset scans." << std::endl;
   std::cout << "You must define the RooArgSet of observables in the Workspace." << std::endl;
   std::cout << "The name of the set in the workspace must be passed to the PDF object via " << std::endl;
   std::cout << "PDF_Datasets::initObservables(const TString& setName)" << std::endl;
-  exit(EXIT_FAILURE);
+  std::exit(EXIT_FAILURE);
 };
 
 void PDF_Datasets::initParameters(const TString& setName) {
@@ -123,14 +142,14 @@ void PDF_Datasets::initParameters(const TString& setName) {
   if (!isPdfInitialized()) {
     std::cout << "FATAL in PDF_Datasets::initParameters -- first call PDF_Datasets::initPdf to init the PDF!"
               << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   parName = setName;
   parameters = (RooArgList*)wspc->set(parName);
   areParsSet = true;
 };
 
-void PDF_Datasets::initParameters(const vector<TString>& parNames) {
+void PDF_Datasets::initParameters(const std::vector<TString>& parNames) {
   if (areParametersSet()) {
     std::cout << "WARNING in PDF_Generic_Abs::initParameters -- Parameters already set" << std::endl;
     return;
@@ -138,7 +157,7 @@ void PDF_Datasets::initParameters(const vector<TString>& parNames) {
   if (!isPdfInitialized()) {
     std::cout << "FATAL in PDF_Generic_Abs::initParameters -- first call PDF_Generic_Abs::initPdf to init the PDF!"
               << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   parameters = new RooArgList("parameters");
   Utils::fillArgList(parameters, wspc, parNames);
@@ -148,28 +167,28 @@ void PDF_Datasets::initParameters(const vector<TString>& parNames) {
 };
 
 void PDF_Datasets::initParameters() {
-  std::cout << "ERROR in PDF_Datasets::initParameters():" << endl;
+  std::cout << "ERROR in PDF_Datasets::initParameters():" << std::endl;
   std::cout << "This function is not supported for dataset scans." << std::endl;
   std::cout << "You must define the RooArgSet of parameters in the Workspace." << std::endl;
   std::cout << "The name of the set in the workspace must be passed to the PDF object via " << std::endl;
   std::cout << "PDF_Datasets::initParameters(const TString& setName)" << std::endl;
-  exit(EXIT_FAILURE);
+  std::exit(EXIT_FAILURE);
 };
 
 void PDF_Datasets::initMultipdfCat(const TString& name) {
   if (isMultipdfCatSet) {
     std::cout << "ERROR in PDF_Datasets::initMultipdfCat -- Multipdf category already set" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   if (!(isPdfSet || isMultipdfSet)) {
     std::cout << "ERROR in PDF_Datasets::initMultipdfCat -- Need to call initPDF() before initMultipdfCat()"
               << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   if (isPdfSet && !isMultipdfSet) {
     std::cout << "ERROR in PDF_Datasets::initMultipdfCat -- Pdf already set, but it's not a MultiPdf -> contradiction!"
               << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   multipdfCatName = name;
   multipdfCat = wspc->cat(multipdfCatName);
@@ -178,7 +197,7 @@ void PDF_Datasets::initMultipdfCat(const TString& name) {
   else {
     std::cout << "FATAL in PDF_Datasets::initMultipdfCat -- Category: " << multipdfCatName << " not found in workspace"
               << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   std::cout << "INFO in PDF_Datasets::initMultipdfCat -- Category initialized." << std::endl;
   return;
@@ -187,12 +206,12 @@ void PDF_Datasets::initMultipdfCat(const TString& name) {
 void PDF_Datasets::initPDF(const TString& name) {
   if (isPdfSet) {
     std::cout << "ERROR in PDF_Datasets::initPDF -- PDF already set" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   pdfName = name;
   if (!wspc->pdf(pdfName)) {
     std::cout << "FATAL in PDF_Datasets::initPDF -- PDF: " << pdfName << " not found in workspace" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
 
   if (wspc->pdf(pdfName)->InheritsFrom("RooMultiPdf")) {
@@ -202,7 +221,7 @@ void PDF_Datasets::initPDF(const TString& name) {
       isMultipdfSet = true;
     } else {
       std::cout << "FATAL in PDF_Datasets::initPDF -- PDF: " << pdfName << " not found in workspace" << std::endl;
-      exit(EXIT_FAILURE);
+      std::exit(EXIT_FAILURE);
     }
   } else {
     std::cout << "intitalising no multipdf. isPdfSet=" << isPdfSet << " isMultipdfSet=" << isMultipdfSet << "."
@@ -213,7 +232,7 @@ void PDF_Datasets::initPDF(const TString& name) {
     isPdfSet = true;
   else {
     std::cout << "FATAL in PDF_Datasets::initPDF -- PDF: " << pdfName << " not found in workspace" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   if (isMultipdfSet)
     std::cout << "INFO in PDF_Datasets::initPDF -- PDF initialized (MultiPdf)" << std::endl;
@@ -232,12 +251,12 @@ void PDF_Datasets::initBkgPDF(const TString& name) {
   // << std::endl;
   if (isBkgPdfSet) {
     std::cout << "ERROR in PDF_Datasets::initBkgPDF -- Bkg PDF already set" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   pdfBkgName = name;
   if (!wspc->pdf(pdfBkgName)) {
     std::cout << "FATAL in PDF_Datasets::initBkgPDF -- PDF: " << pdfBkgName << " not found in workspace" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   if (wspc->pdf(pdfBkgName)->InheritsFrom("RooMultiPdf")) {
     multipdfBkg = (RooMultiPdf*)wspc->pdf(pdfBkgName);
@@ -246,7 +265,7 @@ void PDF_Datasets::initBkgPDF(const TString& name) {
       isBkgMultipdfSet = true;
     else {
       std::cout << "FATAL in PDF_Datasets::initBkgPDF -- PDF: " << pdfBkgName << " not found in workspace" << std::endl;
-      exit(EXIT_FAILURE);
+      std::exit(EXIT_FAILURE);
     }
   } else {
     pdfBkg = wspc->pdf(pdfBkgName);
@@ -255,7 +274,7 @@ void PDF_Datasets::initBkgPDF(const TString& name) {
     isBkgPdfSet = true;
   else {
     std::cout << "FATAL in PDF_Datasets::initBkgPDF -- PDF: " << pdfBkgName << " not found in workspace" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
 
   std::cout << "INFO in PDF_Datasets::initBkgPDF -- PDF initialized. CLs method ready." << std::endl;
@@ -273,13 +292,13 @@ void PDF_Datasets::setVarRange(const TString& varName, const TString& rangeName,
         rangeName == "force")) {
     std::cout << "ERROR in PDF_Datasets::setVarRange -- UNKNOWN range name! -- return" << std::endl;
   }
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   if (rangeMin == rangeMax) {
     std::cout << "WARNING in PDF_Datasets::setVarRange -- rangeMin == rangeMax! If you want to set parameter constant "
               << "use e.g. RooRealVar::setConstant. Expect crash in CL calculation!" << std::endl;
   }
   var->setRange(rangeName, rangeMin, rangeMax);
-  RooMsgService::instance().setGlobalKillBelow(INFO);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 };
 
 void PDF_Datasets::setToyData(RooAbsData* ds) {
@@ -306,17 +325,17 @@ void PDF_Datasets::printParameters() {
   int parcounter = 0;
   for (const auto& pAbs : *this->parameters) {
     const auto p = static_cast<RooRealVar*>(pAbs);
-    cout << p->GetName() << " " << p->getVal() << " ";
+    std::cout << p->GetName() << " " << p->getVal() << " ";
     parcounter += 1;
-    if (parcounter % 5 == 0) cout << endl << "  ";
+    if (parcounter % 5 == 0) std::cout << std::endl << "  ";
   }
-  cout << endl << endl;
+  std::cout << std::endl << std::endl;
 };
 
 OptParser* PDF_Datasets::getArg() {
   std::cout << "ERROR: getting the options parser from the pdf has been deprecated" << std::endl;
   std::cout << "(This is up for discussion of course)" << std::endl;
-  exit(EXIT_FAILURE);
+  std::exit(EXIT_FAILURE);
 };
 
 void PDF_Datasets::generateBkgToysGlobalObservables(int SeedShift, int index) {
@@ -370,11 +389,11 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
     std::cout << "This set can be empty." << std::endl;
     std::cout << "By default its name should be 'default_internal_constraint_set_name'." << std::endl;
     std::cout << "Other names can be passed via PDF_Datasets::initConstraints" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
 
   // Turn off RooMsg
-  RooMsgService::instance().setGlobalKillBelow(ERROR);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   RooMsgService::instance().setSilentMode(kTRUE);
   // Choose Dataset to fit to
   // unfortunately Minuit2 does not initialize the status of the roofitresult, if all parameters are constant. Therefore
@@ -417,7 +436,7 @@ RooFitResult* PDF_Datasets::fit(RooAbsData* dataToFit) {
         pdf->fitTo(*dataToFit, RooFit::Save(), RooFit::ExternalConstraints(*getWorkspace()->set(constraintName)),
                    RooFit::Extended(kTRUE), RooFit::Strategy(fitStrategy));
     RooMsgService::instance().setSilentMode(kFALSE);
-    RooMsgService::instance().setGlobalKillBelow(INFO);
+    RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
     this->fitStatus = result->status() + (result->covQual() % 3);
     if (this->fitStatus != 0)
       std::cout << "PDF_Datasets::fit(): Imperfect fit! Fit status " << result->status() << " cov Qual "
@@ -443,20 +462,20 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
     std::cout << "This set can be empty." << std::endl;
     std::cout << "By default its name should be 'default_internal_constraint_set_name'." << std::endl;
     std::cout << "Other names can be passed via PDF_Datasets::initConstraints" << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   nbkgfits++;
   // if (!pdfBkg)
   // {
   //     std::cout << "WARNING in PDF_Datasets::fitBkg -- No background PDF given!" << std::endl;
-  //     // exit(EXIT_FAILURE);
+  //     // std::exit(EXIT_FAILURE);
   // }
   // std::cout << "WARNING in PDF_Datasets::fitBkg -- Fitting bkg model as sig+bkg model with " << signalvar << " to
   // zero!" << std::endl;
   if (pdfBkg) {
 
     // Turn off RooMsg
-    RooMsgService::instance().setGlobalKillBelow(ERROR);
+    RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(kTRUE);
     // unfortunately Minuit2 does not initialize the status of the roofitresult, if all parameters are constant.
     // Therefore need to stay with standard Minuit fitting. RooFitResult* result  = pdfBkg->fitTo( *dataToFit,
@@ -498,7 +517,7 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
       RooAbsReal* nll_bkg = pdfBkg->createNLL(*dataToFit, RooFit::Extended(kTRUE));
 
       RooMsgService::instance().setSilentMode(kFALSE);
-      RooMsgService::instance().setGlobalKillBelow(INFO);
+      RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 
       this->fitStatus = result->status() + (result->covQual() % 3);
       if (this->fitStatus != 0)
@@ -515,7 +534,7 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
     getWorkspace()->var(signalvar)->setConstant(true);
 
     // Turn off RooMsg
-    RooMsgService::instance().setGlobalKillBelow(ERROR);
+    RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(kTRUE);
     // Choose Dataset to fit to
 
@@ -561,7 +580,7 @@ RooFitResult* PDF_Datasets::fitBkg(RooAbsData* dataToFit, TString signalvar) {
       // RooFitResult* result  = pdfBkg->fitTo( *dataToFit, RooFit::Save() ,
       // RooFit::ExternalConstraints(*this->getWorkspace()->set(constraintName)), RooFit::Extended(kTRUE));
       RooMsgService::instance().setSilentMode(kFALSE);
-      RooMsgService::instance().setGlobalKillBelow(INFO);
+      RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
       this->fitStatus = result->status() + (result->covQual() % 3);
       if (this->fitStatus != 0)
         std::cout << "PDF_Datasets::fitBkg(): Imperfect fit! Fit status " << result->status() << " cov Qual "
@@ -609,7 +628,7 @@ void PDF_Datasets::generateBkgToys(int SeedShift, TString signalvar) {
 
   // if(!isBkgPdfSet){
   //     std::cout << "WRANING in PDF_Datasets::generateBkgToys: No bkg pdf given." << std::endl;
-  //     // exit(EXIT_FAILURE);
+  //     // std::exit(EXIT_FAILURE);
   // }
   // std::cout << "WARNING in PDF_Datasets::generateBkgToys -- Fitting bkg model as sig+bkg model with " << signalvar <<
   // " to zero!" << std::endl;
@@ -658,7 +677,7 @@ void PDF_Datasets::initializeRandomGenerator(int seedShift) {
     if (arg == nullptr) {
       std::cerr << "Error in PDF_Datasets::initializeRandomGenerator." << std::endl;
       std::cerr << "You must pass the OptParser in the constructor in order to use this function." << std::endl;
-      exit(EXIT_FAILURE);
+      std::exit(EXIT_FAILURE);
     }
     std::cout << "random seed is not 0" << std::endl;
     RooRandom::randomGenerator()->SetSeed(seedShift + (arg->nrun) * (arg->ntoys) * (arg->npoints1d));
@@ -675,7 +694,7 @@ void PDF_Datasets::unblind(TString var, TString unblindRegs) {
       for (const auto& obs : *observables) { std::cerr << " " << obs->GetName(); }
       std::cerr << "." << std::endl;
     }
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
   }
   TString unblindString = "";
   TObjArray* regs = unblindRegs.Tokenize(",");  // split string at ","

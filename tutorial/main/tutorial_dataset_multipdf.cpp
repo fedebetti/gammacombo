@@ -1,7 +1,8 @@
 #include <GammaComboEngine.h>
-#include <RooExponential.h>
-#include <RooGaussian.h>
+#include <PDF_Datasets.h>
+
 #include <RooWorkspace.h>
+
 #include <TFile.h>
 
 int main(int argc, char* argv[]) {

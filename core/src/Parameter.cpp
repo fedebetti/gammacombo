@@ -1,5 +1,7 @@
 #include <Parameter.h>
 
+#include <iostream>
+
 Parameter::Parameter() {
   name = "not initialized";
   title = "not initialized";
@@ -14,13 +16,13 @@ Parameter::Parameter() {
 }
 
 void Parameter::Print() {
-  cout << " name       = " << name << endl;
-  cout << " title      = " << title << endl;
-  cout << " unit       = " << unit << endl;
-  cout << " startvalue = " << startvalue << endl;
-  cout << " phys       = " << phys.min << " ... " << phys.max << endl;
-  cout << " scan       = " << scan.min << " ... " << scan.max << endl;
-  cout << " force      = " << force.min << " ... " << force.max << endl;
-  cout << " bboos      = " << bboos.min << " ... " << bboos.max << endl;
-  cout << " free       = " << free.min << " ... " << free.max << endl;
+  std::cout << " name       = " << name << std::endl;
+  std::cout << " title      = " << title << std::endl;
+  std::cout << " unit       = " << unit << std::endl;
+  std::cout << " startvalue = " << startvalue << std::endl;
+  std::cout << " phys       = " << phys.min << " ... " << phys.max << std::endl;
+  std::cout << " scan       = " << scan.min << " ... " << scan.max << std::endl;
+  std::cout << " force      = " << force.min << " ... " << force.max << std::endl;
+  std::cout << " bboos      = " << bboos.min << " ... " << bboos.max << std::endl;
+  std::cout << " free       = " << free.min << " ... " << free.max << std::endl;
 }

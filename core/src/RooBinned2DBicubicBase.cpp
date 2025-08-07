@@ -2,13 +2,14 @@
  * @author Manuel Tobias Schiller <manuel.schiller@nikhef.nl>
  * @date 2012-08-29
  */
-#include <cmath>
-#include <iostream>
-
-#include <RooArgSet.h>
-#include <TH2.h>
 
 #include <RooBinned2DBicubicBase.h>
+
+#include <RooArgSet.h>
+
+#include <TH2.h>
+
+#include <cmath>
 
 template <class BASE>
 RooBinned2DBicubicBase<BASE>::BinSizeException::~BinSizeException() throw() {}

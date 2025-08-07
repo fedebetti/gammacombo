@@ -1,10 +1,17 @@
 #include <TGraphTools.h>
 
+#include <Utils.h>
+
+#include <TGraph.h>
+#include <TGraphErrors.h>
+
+#include <vector>
+
 TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, float yNew) {
   // get x and y coordinates as vectors- the TGraph interface is just not suited to
   // what we want to do
-  vector<float> xVec;
-  vector<float> yVec;
+  std::vector<float> xVec;
+  std::vector<float> yVec;
   Double_t xOld, yOld;
   for (int i = 0; i < g->GetN(); i++) {
     g->GetPoint(i, xOld, yOld);
@@ -32,7 +39,7 @@ TGraph* TGraphTools::addPointToGraphAtFirstMatchingX(TGraph* g, float xNew, floa
     gNew = new TGraphErrors(g->GetN() + 1);
   else
     gNew = new TGraph(g->GetN() + 1);
-  gNew->SetName(getUniqueRootName());
+  gNew->SetName(Utils::getUniqueRootName());
 
   // set the points
   for (int i = 0; i < xVec.size(); i++) { gNew->SetPoint(i, xVec[i], yVec[i]); }

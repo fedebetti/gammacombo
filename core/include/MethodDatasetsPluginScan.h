@@ -9,20 +9,27 @@
 #ifndef MethodDatasetsPluginScan_h
 #define MethodDatasetsPluginScan_h
 
-#include "MethodDatasetsProbScan.h"
 #include "MethodPluginScan.h"
-#include "PDF_Datasets.h"
-#include "ProgressBar.h"
-#include "RooSlimFitResult.h"
-#include <TBranch.h>
-#include <TLeaf.h>
+
+#include <TString.h>
+
+#include <map>
+#include <vector>
+
+class MethodDatasetsProbScan;
+class OptParser;
+class PDF_Datasets;
+class RooSlimFitResult;
+class ToyTree;
+
+class TChain;
 
 class MethodDatasetsPluginScan : public MethodPluginScan {
  public:
   MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, OptParser* opt);
   void drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn = "default");
   float getParValAtIndex(int index, TString parName);
-  MethodDatasetsProbScan* getProfileLH() { return dynamic_cast<MethodDatasetsProbScan*>(this->profileLH); };
+  MethodDatasetsProbScan* getProfileLH();
   virtual void initScan();
   void loadParameterLimits();
   void performBootstrapTest(int nSamples = 1000, const TString& ext = "");

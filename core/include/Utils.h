@@ -8,43 +8,35 @@
 #ifndef Utils_h
 #define Utils_h
 
-#include <boost/algorithm/string.hpp>
-#include <sys/stat.h>
-
-// ROOT
-#include <TCanvas.h>
-#include <TGraphErrors.h>
-#include <TGraphSmooth.h>
-#include <TH1.h>
-#include <TH2F.h>
 #include <TMath.h>
 #include <TMatrixDSym.h>
-#include <TMatrixDSymEigen.h>
-#include <TObjString.h>
-#include <TPad.h>
-#include <TPaveText.h>
 #include <TString.h>
-#include <TStyle.h>
-#include <TTree.h>
-#include <TVectorD.h>
 
-// RooFit
-#include "RooSlimFitResult.h"
-#include <RooAbsPdf.h>
-#include <RooDataSet.h>
-#include <RooFitResult.h>
-#include <RooFormulaVar.h>
-#include <RooMinimizer.h>
-#include <RooRandom.h>
-#include <RooRealVar.h>
-#include <RooWorkspace.h>
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <sys/stat.h>
+#include <vector>
 
-// Local
-#include "UtilsConfig.h"
-#include "rdtsc.h"
+class RooSlimFitResult;
 
-using namespace std;
-using namespace RooFit;
+class RooAbsCollection;
+class RooAbsPdf;
+class RooArgList;
+class RooArgSet;
+class RooDataSet;
+class RooFitResult;
+class RooFormulaVar;
+class RooRealVar;
+class RooWorkspace;
+
+class TCanvas;
+class TH1F;
+class TH2F;
+class TGraph;
+class TH1;
+class TTree;
 
 namespace Utils {
   extern int countFitBringBackAngle;     ///< counts how many times an angle needed to be brought back
@@ -85,7 +77,7 @@ namespace Utils {
   double angularDifference(double angle1, double angle2);
   bool isPosDef(TMatrixDSym* c);
   bool isAngle(RooRealVar* v);
-  int makeNewColor(string hex);
+  int makeNewColor(std::string hex);
 
   RooFitResult* fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel);
   RooFitResult* fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel);
@@ -100,8 +92,8 @@ namespace Utils {
   TGraph* smoothGraph(TGraph* g, int option = 0);
   TGraph* smoothHist(TH1* h, int option = 0);
 
-  void addSetNamesToList(vector<string>& list, RooWorkspace* w, TString setName);
-  void makeNamedSet(RooWorkspace* w, TString mergedSet, vector<string>& names);
+  void addSetNamesToList(std::vector<std::string>& list, RooWorkspace* w, TString setName);
+  void makeNamedSet(RooWorkspace* w, TString mergedSet, std::vector<std::string>& names);
   void mergeNamedSets(RooWorkspace* w, TString mergedSet, TString set1, TString set2);
   void randomizeParameters(RooWorkspace* w, TString setname);
   void randomizeParametersGaussian(RooWorkspace* w, TString setname, RooSlimFitResult* r);
@@ -123,13 +115,13 @@ namespace Utils {
   void setLimit(RooRealVar* v, TString limitname);
   void setLimit(RooWorkspace* w, TString parname, TString limitname);
   void setLimit(const RooAbsCollection* set, TString limitname);
-  double getCorrelationFactor(const vector<double>& a, const vector<double>& b);
+  double getCorrelationFactor(const std::vector<double>& a, const std::vector<double>& b);
 
   template <typename T>
   TMatrixDSym buildCorMatrix(const int n, std::vector<T> data);
   bool buildCorMatrix(TMatrixDSym& cor);
   TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, float* err);
-  TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, vector<double>& err);
+  TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, std::vector<double>& err);
 
   RooFormulaVar* makeTheoryVar(TString name, TString title, TString formula, RooArgList* pars);
 
@@ -137,7 +129,7 @@ namespace Utils {
   bool FileExists(TString strFilename);
   void assertFileExists(TString strFilename);
   template <class T>
-  inline bool isIn(vector<T> vec, T var) {
+  inline bool isIn(std::vector<T> vec, T var) {
     return (find(vec.begin(), vec.end(), var) != vec.end());
   };
 
@@ -186,12 +178,12 @@ namespace Utils {
 }  // namespace Utils
 
 /**
- * Build a symmetric correlation matrix from a vector summarising its contents.
+ * Build a symmetric correlation matrix from a std::vector summarising its contents.
  *
  * @param n    Number of observables.
  * @param data Summary of matrix elements.
  *
- * The input data can be a vector of size:
+ * The input data can be a std::vector of size:
  *
  *   - n x n, in the following format:
  *
@@ -294,17 +286,17 @@ double Utils::getVectorFracAboveValue(const std::vector<T>& vec, T val) {
 
 template <typename T>
 void Utils::print(const std::vector<T>& vec) {
-  cout << "[ (size=" << vec.size() << ") ";
+  std::cout << "[ (size=" << vec.size() << ") ";
   for (int i = 0; i < vec.size(); i++) {
     print(vec[i]);
-    if (i < vec.size() - 1) cout << " , ";
+    if (i < vec.size() - 1) std::cout << " , ";
   }
-  cout << " ]";
+  std::cout << " ]";
 }
 
 template <typename T>
 void Utils::print(T val) {
-  cout << val;
+  std::cout << val;
 }
 
 template <typename T>

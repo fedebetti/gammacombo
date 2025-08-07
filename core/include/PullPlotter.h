@@ -10,15 +10,12 @@
 #ifndef PullPlotter_h
 #define PullPlotter_h
 
-#include "MethodAbsScan.h"
-#include "OptParser.h"
-#include "Utils.h"
-#include <TPaveText.h>
+#include <TString.h>
+
+#include <vector>
 
 class MethodAbsScan;
-
-using namespace std;
-using namespace Utils;
+class OptParser;
 
 class PullPlotter {
  public:
@@ -33,12 +30,12 @@ class PullPlotter {
 
  private:
   void defineOrder();
-  void plotPullsCanvas(vector<TString>& observables, int currentid, int maxid, int nObs);
+  void plotPullsCanvas(std::vector<TString>& observables, int currentid, int maxid, int nObs);
 
-  MethodAbsScan* cmb;        // the scanner to plot pulls for
-  OptParser* arg;            // command line arguments
-  vector<TString> obsOrder;  // contains observable names in the desired plot order
-  int nSolution;             // index of the solution wrt which the pulls are computed
+  MethodAbsScan* cmb;             // the scanner to plot pulls for
+  OptParser* arg;                 // command line arguments
+  std::vector<TString> obsOrder;  // contains observable names in the desired plot order
+  int nSolution;                  // index of the solution wrt which the pulls are computed
 };
 
 #endif

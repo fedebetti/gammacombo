@@ -1,5 +1,7 @@
 #include <ParametersTutorial.h>
 
+#include <Parameter.h>
+
 ParametersTutorial::ParametersTutorial() { defineParameters(); }
 
 ///

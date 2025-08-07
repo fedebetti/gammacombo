@@ -1,23 +1,34 @@
-#include <ctime>
-
 #include <BatchScriptWriter.h>
+
+#include <Combiner.h>
+#include <OptParser.h>
+#include <PDF_Abs.h>
+
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <unistd.h>
+#include <vector>
 
 BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]) : exec("") {
   for (int i = 0; i < argc; i++) {
     // skip arguments we dont need
-    if (string(argv[i]) == string("--nbatchjobs") || (i > 0 && string(argv[i - 1]) == string("--nbatchjobs")) ||
-        string(argv[i]) == string("--batchstartn") || (i > 0 && string(argv[i - 1]) == string("--batchstartn")) ||
-        string(argv[i]) == string("--batcheos") || string(argv[i]) == string("-i")) {
+    if (std::string(argv[i]) == std::string("--nbatchjobs") ||
+        (i > 0 && std::string(argv[i - 1]) == std::string("--nbatchjobs")) ||
+        std::string(argv[i]) == std::string("--batchstartn") ||
+        (i > 0 && std::string(argv[i - 1]) == std::string("--batchstartn")) ||
+        std::string(argv[i]) == std::string("--batcheos") || std::string(argv[i]) == std::string("-i")) {
       continue;
     }
-    exec += string(argv[i]) + " ";
+    exec += std::string(argv[i]) + " ";
   }
-  subpkg = string(argv[0]);
+  subpkg = std::string(argv[0]);
 }
 
 BatchScriptWriter::~BatchScriptWriter() {}
 
-void BatchScriptWriter::writeScripts(OptParser* arg, vector<Combiner*>* cmb) {
+void BatchScriptWriter::writeScripts(OptParser* arg, std::vector<Combiner*>* cmb) {
 
   for (int i = 0; i < arg->combid.size(); i++) {
     int combinerId = arg->combid[i];
@@ -31,14 +42,14 @@ void BatchScriptWriter::writeScripts(OptParser* arg, vector<Combiner*>* cmb) {
     } else if (arg->isAction("coveragebatch")) {
       methodname = "Coverage";
     } else {
-      cout << "BatchScriptWriter::writeScripts() : ERROR : only need to write batch scripts for pluginbatch method"
-           << endl;
-      exit(1);
+      std::cout << "BatchScriptWriter::writeScripts() : ERROR : only need to write batch scripts for pluginbatch method"
+                << std::endl;
+      std::exit(1);
     }
     if (arg->isAction("uniform")) methodname += "Uniform";
     if (arg->isAction("gaus")) methodname += "Gaus";
 
-    cout << "Writing submission scripts for combination " << c->getName() << endl;
+    std::cout << "Writing submission scripts for combination " << c->getName() << std::endl;
 
     TString dirname = "scan1d" + methodname + "_" + c->getName() + "_" + arg->var[0];
     if (arg->var.size() == 2) { dirname = "scan2d" + methodname + "_" + c->getName() + "_" + arg->var[0]; }
@@ -81,15 +92,15 @@ void BatchScriptWriter::writeScripts(OptParser* arg, vector<Combiner*>* cmb) {
     scriptname = scripts_dir_path + "/" + scriptname;
 
     // write out a list of the submission files
-    ofstream subfilelist;
+    std::ofstream subfilelist;
     subfilelist.open(scriptname + "_sublist.txt");
     for (int job = arg->batchstartn; job < arg->batchstartn + arg->nbatchjobs; job++) {
       TString fname = scriptname + Form("_run%d", job) + ".sh";
-      subfilelist << fname << endl;
+      subfilelist << fname << std::endl;
       writeScript(fname, outf_dir, job, arg);
     }
     subfilelist.close();
-    cout << "Written submission file list to\n\t" << scriptname << "_sublist.txt" << endl;
+    std::cout << "Written submission file list to\n\t" << scriptname << "_sublist.txt" << std::endl;
     writeCondorScript(scriptname, arg);
   }
 }
@@ -101,7 +112,7 @@ void BatchScriptWriter::writeScripts_datasets(OptParser* arg, PDF_Abs* pdf) {
 
   if (!pdf) {
     std::cout << "BatchScriptWriter::writeScripts_datasets(): ERROR: No PDF given " << std::endl;
-    exit(1);
+    std::exit(1);
   }
 
   TString methodname = "";
@@ -110,14 +121,14 @@ void BatchScriptWriter::writeScripts_datasets(OptParser* arg, PDF_Abs* pdf) {
   } else if (arg->isAction("coveragebatch")) {
     methodname = "Coverage";
   } else {
-    cout << "BatchScriptWriter::writeScripts() : ERROR : only need to write batch scripts for pluginbatch method"
-         << endl;
-    exit(1);
+    std::cout << "BatchScriptWriter::writeScripts() : ERROR : only need to write batch scripts for pluginbatch method"
+              << std::endl;
+    std::exit(1);
   }
   if (arg->isAction("uniform")) methodname += "Uniform";
   if (arg->isAction("gaus")) methodname += "Gaus";
 
-  cout << "Writing submission scripts for PDF " << pdf->getName() << endl;
+  std::cout << "Writing submission scripts for PDF " << pdf->getName() << std::endl;
 
   TString dirname = "scan1dDatasets" + methodname + "_" + pdf->getName() + "_" + arg->var[0];
   if (arg->var.size() == 2) { dirname = "scan2dDatasets" + methodname + "_" + pdf->getName() + "_" + arg->var[0]; }
@@ -153,11 +164,11 @@ void BatchScriptWriter::writeScripts_datasets(OptParser* arg, PDF_Abs* pdf) {
   scriptname = scripts_dir_path + "/" + scriptname;
 
   // write out a list of the submission files
-  ofstream subfilelist;
+  std::ofstream subfilelist;
   subfilelist.open(scriptname + "_sublist.txt");
   for (int job = arg->batchstartn; job < arg->batchstartn + arg->nbatchjobs; job++) {
     TString fname = scriptname + Form("_run%d", job) + ".sh";
-    subfilelist << fname << endl;
+    subfilelist << fname << std::endl;
     writeScript(fname, outf_dir, job, arg);
   }
   subfilelist.close();
@@ -167,42 +178,42 @@ void BatchScriptWriter::writeScripts_datasets(OptParser* arg, PDF_Abs* pdf) {
 void BatchScriptWriter::writeCondorScript(TString fname, OptParser* arg) {
 
   TString subfilename = fname + ".sub";
-  // cout << "\t" << subfilename << endl;
-  ofstream outfile;
+  // std::cout << "\t" << subfilename << std::endl;
+  std::ofstream outfile;
   outfile.open(subfilename);
 
   char cwd[1024];
   getcwd(cwd, 1024);
 
-  outfile << "##### auto-generated by BatchScriptWriter #####" << endl;
-  outfile << "executable = $(subfile)" << endl;
-  outfile << "arguments = " << endl;
+  outfile << "##### auto-generated by BatchScriptWriter #####" << std::endl;
+  outfile << "executable = $(subfile)" << std::endl;
+  outfile << "arguments = " << std::endl;
   // add specific requirements if requested
   if (arg->batchreqs != "") {
-    ifstream infile(arg->batchreqs.Data());
+    std::ifstream infile(arg->batchreqs.Data());
     if (infile) {
-      string line;
+      std::string line;
       if (infile.is_open()) {
         while (getline(infile, line)) {
           if (line.empty()) continue;
-          outfile << line << endl;
+          outfile << line << std::endl;
         }
       }
     }
   }
 
-  outfile << "output = $(subfile).out" << endl;
-  outfile << "error = $(subfile).err" << endl;
-  outfile << Form("log = %s.log", fname.Data()) << endl;
-  outfile << Form("queue subfile from %s_sublist.txt", fname.Data()) << endl;
+  outfile << "output = $(subfile).out" << std::endl;
+  outfile << "error = $(subfile).err" << std::endl;
+  outfile << Form("log = %s.log", fname.Data()) << std::endl;
+  outfile << Form("queue subfile from %s_sublist.txt", fname.Data()) << std::endl;
   outfile.close();
 
   system(Form("chmod +x %s", subfilename.Data()));
 
-  cout << "Written condor submission script to\n\t" << subfilename << endl;
+  std::cout << "Written condor submission script to\n\t" << subfilename << std::endl;
 
   if (arg->batchsubmit) {
-    // cout << Form("condor_submit %s/%s",cwd,subfilename.Data()) << endl;
+    // std::cout << Form("condor_submit %s/%s",cwd,subfilename.Data()) << std::endl;
     system(Form("condor_submit %s/%s", cwd, subfilename.Data()));
   }
 }
@@ -211,35 +222,35 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, Op
 
   TString rootfilename = fname;
   (rootfilename.ReplaceAll("sub", "root")).ReplaceAll(".sh", ".root");
-  cout << "\t" << fname << endl;
-  ofstream outfile;
+  std::cout << "\t" << fname << std::endl;
+  std::ofstream outfile;
   outfile.open(fname);
 
   char cwd[1024];
   getcwd(cwd, 1024);
 
-  outfile << "#!/bin/bash" << endl;
-  outfile << "##### auto-generated by BatchScriptWriter #####" << endl;
-  outfile << Form("rm -f %s/%s.done", cwd, fname.Data()) << endl;
-  outfile << Form("rm -f %s/%s.fail", cwd, fname.Data()) << endl;
-  outfile << Form("rm -f %s/%s.run", cwd, fname.Data()) << endl;
-  outfile << Form("rm -f %s/%s.log", cwd, fname.Data()) << endl;
-  outfile << "mkdir -p scratch" << endl;
-  outfile << "cd scratch" << endl;
-  outfile << Form("source %s/../scripts/setup_lxplus.sh", cwd) << endl;
-  outfile << Form("cp -r %s/ExpNll .", cwd) << endl;
-  outfile << "mkdir -p bin" << endl;
-  outfile << Form("cp %s/%s bin/", cwd, subpkg.c_str()) << endl;
-  outfile << "mkdir -p plots/dot" << endl;
-  outfile << Form("cp -r %s/plots/dot/* plots/dot", cwd) << endl;
-  outfile << "mkdir -p plots/par" << endl;
-  outfile << Form("cp -r %s/plots/par/* plots/par", cwd) << endl;
-  outfile << "mkdir -p plots/scanner" << endl;
-  outfile << "mkdir -p root" << endl;
-  outfile << Form("touch %s/%s.run", cwd, fname.Data()) << endl;
-  outfile << Form("if ( %s --nrun %d ); then", exec.c_str(), jobn) << endl;
-  outfile << Form("\trm -f %s/%s.run", cwd, fname.Data()) << endl;
-  outfile << Form("\ttouch %s/%s.jobcomplete", cwd, fname.Data()) << endl;
+  outfile << "#!/bin/bash" << std::endl;
+  outfile << "##### auto-generated by BatchScriptWriter #####" << std::endl;
+  outfile << Form("rm -f %s/%s.done", cwd, fname.Data()) << std::endl;
+  outfile << Form("rm -f %s/%s.fail", cwd, fname.Data()) << std::endl;
+  outfile << Form("rm -f %s/%s.run", cwd, fname.Data()) << std::endl;
+  outfile << Form("rm -f %s/%s.log", cwd, fname.Data()) << std::endl;
+  outfile << "mkdir -p scratch" << std::endl;
+  outfile << "cd scratch" << std::endl;
+  outfile << Form("source %s/../scripts/setup_lxplus.sh", cwd) << std::endl;
+  outfile << Form("cp -r %s/ExpNll .", cwd) << std::endl;
+  outfile << "mkdir -p bin" << std::endl;
+  outfile << Form("cp %s/%s bin/", cwd, subpkg.c_str()) << std::endl;
+  outfile << "mkdir -p plots/dot" << std::endl;
+  outfile << Form("cp -r %s/plots/dot/* plots/dot", cwd) << std::endl;
+  outfile << "mkdir -p plots/par" << std::endl;
+  outfile << Form("cp -r %s/plots/par/* plots/par", cwd) << std::endl;
+  outfile << "mkdir -p plots/scanner" << std::endl;
+  outfile << "mkdir -p root" << std::endl;
+  outfile << Form("touch %s/%s.run", cwd, fname.Data()) << std::endl;
+  outfile << Form("if ( %s --nrun %d ); then", exec.c_str(), jobn) << std::endl;
+  outfile << Form("\trm -f %s/%s.run", cwd, fname.Data()) << std::endl;
+  outfile << Form("\ttouch %s/%s.jobcomplete", cwd, fname.Data()) << std::endl;
 
   TString basename = rootfilename;
   basename.Remove(0, rootfilename.Last('/') + 1);
@@ -248,19 +259,19 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, Op
   if (arg->batcheos)
     copy_line = Form("xrdcp -p %s root://eoslhcb.cern.ch/%s/%s", rootfilename.Data(), outfloc.Data(), basename.Data());
 
-  outfile << Form("\techo \"Copying file to %s/%s\"", outfloc.Data(), basename.Data()) << endl;
-  outfile << Form("\tif ( %s ); then", copy_line.Data()) << endl;
-  outfile << Form("\t\ttouch %s/%s.done", cwd, fname.Data()) << endl;
-  outfile << "\t\techo \"SUCCESS!\"" << endl;
-  outfile << "\telse" << endl;
-  outfile << Form("\t\ttouch %s/%s.fail", cwd, fname.Data()) << endl;
-  outfile << Form("\t\trm -f %s/%s.run", cwd, fname.Data()) << endl;
-  outfile << "\tfi" << endl;
+  outfile << Form("\techo \"Copying file to %s/%s\"", outfloc.Data(), basename.Data()) << std::endl;
+  outfile << Form("\tif ( %s ); then", copy_line.Data()) << std::endl;
+  outfile << Form("\t\ttouch %s/%s.done", cwd, fname.Data()) << std::endl;
+  outfile << "\t\techo \"SUCCESS!\"" << std::endl;
+  outfile << "\telse" << std::endl;
+  outfile << Form("\t\ttouch %s/%s.fail", cwd, fname.Data()) << std::endl;
+  outfile << Form("\t\trm -f %s/%s.run", cwd, fname.Data()) << std::endl;
+  outfile << "\tfi" << std::endl;
 
-  outfile << "else" << endl;
-  outfile << Form("\ttouch %s/%s.fail", cwd, fname.Data()) << endl;
-  outfile << Form("\trm -f %s/%s.run", cwd, fname.Data()) << endl;
-  outfile << "fi" << endl;
+  outfile << "else" << std::endl;
+  outfile << Form("\ttouch %s/%s.fail", cwd, fname.Data()) << std::endl;
+  outfile << Form("\trm -f %s/%s.run", cwd, fname.Data()) << std::endl;
+  outfile << "fi" << std::endl;
   outfile.close();
 
   system(Form("chmod +x %s", fname.Data()));

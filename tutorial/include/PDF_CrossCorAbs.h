@@ -8,14 +8,8 @@
 #ifndef PDF_CrossCorAbs_h
 #define PDF_CrossCorAbs_h
 
-#include "ParametersTutorial.h"
 #include <PDF_Abs.h>
-#include <RooCrossCorPdf.h>
-#include <RooGenericPdf.h>
-
-using namespace RooFit;
-using namespace std;
-using namespace Utils;
+#include <UtilsConfig.h>
 
 class PDF_CrossCorAbs : public PDF_Abs {
  public:
@@ -25,7 +19,7 @@ class PDF_CrossCorAbs : public PDF_Abs {
   void initObservables();
   virtual void initParameters();
   virtual void initRelations();
-  virtual void setCorrelations(config c);
+  virtual void setCorrelations(Utils::config c);
 
  protected:
   void copyMeasurementCovariance();

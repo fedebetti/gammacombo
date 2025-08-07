@@ -1,5 +1,25 @@
 #include <ParameterEvolutionPlotter.h>
 
+#include <MethodProbScan.h>
+#include <OptParser.h>
+#include <RooSlimFitResult.h>
+#include <Utils.h>
+
+#include <RooWorkspace.h>
+
+#include <TAxis.h>
+#include <TCanvas.h>
+#include <TColor.h>
+#include <TGaxis.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TString.h>
+#include <TVirtualPad.h>
+
+#include <cassert>
+#include <iostream>
+#include <vector>
+
 ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
   // copy over the command line arguments
   arg = scanner->getArg();
@@ -71,7 +91,8 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlimFitResult*> results, TString parName) {
+TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(std::vector<RooSlimFitResult*> results,
+                                                                  TString parName) {
   TGraphErrors* g = new TGraphErrors(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -87,7 +108,7 @@ TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(vector<RooSlim
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> results, TString parName) {
+TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(std::vector<RooSlimFitResult*> results, TString parName) {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -102,7 +123,7 @@ TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(vector<RooSlimFitResult*> 
 ///
 /// Make a chi2 graph.
 ///
-TGraph* ParameterEvolutionPlotter::makeChi2Graph(vector<RooSlimFitResult*> results) {
+TGraph* ParameterEvolutionPlotter::makeChi2Graph(std::vector<RooSlimFitResult*> results) {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -123,16 +144,16 @@ TGraph* ParameterEvolutionPlotter::makeChi2Graph(vector<RooSlimFitResult*> resul
 /// only those comprising the 1-CL curve.
 ///
 void ParameterEvolutionPlotter::plotParEvolution() {
-  vector<RooSlimFitResult*> results = allResults;
-  // vector<RooSlimFitResult*> results = curveResults;
+  std::vector<RooSlimFitResult*> results = allResults;
+  // std::vector<RooSlimFitResult*> results = curveResults;
 
-  cout << "ParameterEvolutionPlotter::plotParEvolution() : plotting ..." << endl;
+  std::cout << "ParameterEvolutionPlotter::plotParEvolution() : plotting ..." << std::endl;
   selectNewCanvas(title + " 1");
 
   // get all parameters, loop over them
   for (const auto& p : *w->set(parsName)) {
     if (p->isConstant() && p->GetName() != scanVar1) continue;
-    if (arg->debug) cout << "ParameterEvolutionPlotter::plotParEvolution() : var = " << p->GetName() << endl;
+    if (arg->debug) std::cout << "ParameterEvolutionPlotter::plotParEvolution() : var = " << p->GetName() << std::endl;
     TVirtualPad* pad = selectNewPad();
     pad->SetLeftMargin(0.25);
     pad->SetTopMargin(0.10);
@@ -193,7 +214,7 @@ void ParameterEvolutionPlotter::saveEvolutionPlots() {
   for (int i = 0; i < m_canvases.size(); i++) {
     TString fName = "parEvolution_" + name + "_" + scanVar1;
     fName += Form("_%i", i + 1);
-    savePlot(m_canvases[i], fName);
+    Utils::savePlot(m_canvases[i], fName);
   }
 }
 
@@ -204,10 +225,10 @@ void ParameterEvolutionPlotter::saveEvolutionPlots() {
 /// This only works for 1D scans for now.
 ///
 void ParameterEvolutionPlotter::plotObsScanCheck() {
-  vector<RooSlimFitResult*> results = curveResults;
+  std::vector<RooSlimFitResult*> results = curveResults;
 
-  cout << "ParameterEvolutionPlotter::plotObsScanCheck() : plotting ..." << endl;
-  TCanvas* c2 = newNoWarnTCanvas("plotObsScanCheck" + getUniqueRootName(), title, 800, 600);
+  std::cout << "ParameterEvolutionPlotter::plotObsScanCheck() : plotting ..." << std::endl;
+  TCanvas* c2 = Utils::newNoWarnTCanvas("plotObsScanCheck" + Utils::getUniqueRootName(), title, 800, 600);
   c2->SetLeftMargin(0.2);
 
   // get observable
@@ -221,11 +242,12 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
     float obsError = w->var(scanVar1)->getError();
 
     // get value of theory prediction
-    setParameters(w, parsName, results[i]);
+    Utils::setParameters(w, parsName, results[i]);
     TString thName = scanVar1;
     thName.ReplaceAll("_obs", "_th");
     if (!w->function(thName)) {
-      cout << "ParameterEvolutionPlotter::plotObsScanCheck() : ERROR : theory value not found: " << thName << endl;
+      std::cout << "ParameterEvolutionPlotter::plotObsScanCheck() : ERROR : theory value not found: " << thName
+                << std::endl;
       continue;
     }
     float thValue = w->function(thName)->getVal();
@@ -248,7 +270,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   g->Draw("lxsame");
   c2->Update();
 
-  savePlot(c2, "parEvolutionObsSanCheck_" + name + "_" + scanVar1);
+  Utils::savePlot(c2, "parEvolutionObsSanCheck_" + name + "_" + scanVar1);
 }
 
 ///
@@ -258,7 +280,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
 ///
 TCanvas* ParameterEvolutionPlotter::selectNewCanvas(TString title) {
   title.ReplaceAll(name + " ", "");
-  TCanvas* c1 = newNoWarnTCanvas(getUniqueRootName(), name + " " + title, 1200, 900);
+  TCanvas* c1 = Utils::newNoWarnTCanvas(Utils::getUniqueRootName(), name + " " + title, 1200, 900);
   c1->Divide(3, 2);
   m_canvases.push_back(c1);
   m_padId = 0;

@@ -7,6 +7,11 @@
 
 #include <PDF_CrossCor_GausA_vs_GausB.h>
 
+#include <TString.h>
+
+#include <cstdlib>
+#include <iostream>
+
 PDF_CrossCor_GausA_vs_GausB::PDF_CrossCor_GausA_vs_GausB(PDF_Abs* pdf1, PDF_Abs* pdf2, TString cCor)
     : PDF_CrossCorAbs(pdf1, pdf2) {
   name = "CrossCor_GausA_vs_GausB";
@@ -26,7 +31,7 @@ void PDF_CrossCor_GausA_vs_GausB::setCorrelations(TString c) {
     corStatMatrix[0][0 + nObs1] = c;
     corStatMatrix[0 + nObs1][0] = c;
   } else {
-    cout << "PDF_CrossCor_GausA_vs_GausB::setCorrelations() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_CrossCor_GausA_vs_GausB::setCorrelations() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }

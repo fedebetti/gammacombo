@@ -1,20 +1,18 @@
 #ifndef ParameterCache_h
 #define ParameterCache_h
 
-#include <algorithm>
-#include <iostream>
+#include "Utils.h"
+
+#include <TString.h>
+
+#include <fstream>
+#include <map>
 #include <vector>
 
-#include "Combiner.h"
-#include "MethodAbsScan.h"
-#include "RooSlimFitResult.h"
-#include "Utils.h"
-#include <RooAbsArg.h>
-#include <TDatime.h>
-#include <TString.h>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/lexical_cast.hpp>
+class Combiner;
+class MethodAbsScan;
+class OptParser;
+class RooSlimFitResult;
 
 class ParameterCache {
 
@@ -24,7 +22,7 @@ class ParameterCache {
 
   void cacheParameters(MethodAbsScan* scanner, TString fileName);
   bool loadPoints(TString fileName);
-  void printFitResultToOutStream(ofstream& out, RooSlimFitResult* slimFitResult);
+  void printFitResultToOutStream(std::ofstream& out, RooSlimFitResult* slimFitResult);
   void printPoint();
   int getNPoints();
   void setPoint(Combiner* cmb, int i);

@@ -8,18 +8,19 @@
 #ifndef OneMinusClPlot2d_h
 #define OneMinusClPlot2d_h
 
-#include <TMultiGraph.h>
-#include <TROOT.h>
-#include <TSystem.h>
-
-#include "ColorBuilder.h"
-#include "ConfidenceContours.h"
 #include "OneMinusClPlotAbs.h"
 #include "Utils.h"
 
-using namespace Utils;
-using namespace RooFit;
-using namespace std;
+#include <TString.h>
+
+#include <vector>
+
+class ConfidenceContours;
+class MethodAbsScan;
+class OptParser;
+
+class TH2F;
+class TLegend;
 
 class OneMinusClPlot2d : public OneMinusClPlotAbs {
  public:
@@ -39,29 +40,29 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   inline void setYaxisTitle(TString s) { yTitle = s; };
 
  protected:
-  vector<TH2F*> histos;
+  std::vector<TH2F*> histos;
   TString xTitle;
   TString yTitle;
   bool contoursOnly;
-  vector<vector<int>> linecolor;           ///< defines colors of 1 sigma lines and solutions of different scanners
-  vector<vector<int>> fillcolor;           ///< defines colors of 1 sigma areas of different scanners
-  vector<vector<int>> linestyle;           ///< defines the line style of 1 sigma line of different scanners
-  vector<vector<int>> fillstyle;           ///< defines the fill style of
-  vector<vector<int>> linewidth;           ///< defines the line width
-  vector<vector<float>> filltransparency;  ///< defines the fill transparency
-  vector<int> markerstyle;                 ///< defines marker styles of the solutions of different scanners
-  vector<float> markersize;
+  std::vector<std::vector<int>> linecolor;  ///< defines colors of 1 sigma lines and solutions of different scanners
+  std::vector<std::vector<int>> fillcolor;  ///< defines colors of 1 sigma areas of different scanners
+  std::vector<std::vector<int>> linestyle;  ///< defines the line style of 1 sigma line of different scanners
+  std::vector<std::vector<int>> fillstyle;  ///< defines the fill style of
+  std::vector<std::vector<int>> linewidth;  ///< defines the line width
+  std::vector<std::vector<float>> filltransparency;  ///< defines the fill transparency
+  std::vector<int> markerstyle;                      ///< defines marker styles of the solutions of different scanners
+  std::vector<float> markersize;
 
  private:
   void drawLegend();
-  bool hasHistoType(histogramType t);
+  bool hasHistoType(Utils::histogramType t);
   void makeNewPlotStyle(TString htmlColor, int ROOTColor = -1);
   void makeOneColorPlotStyle(TString htmlColor, int ROOTColor = -1);
 
-  vector<histogramType> histosType;        ///< defines if histogram is interpreted as p-value or chi2
-  vector<ConfidenceContours*> m_contours;  ///< holds the contours for each scanner
-  vector<bool> m_contours_computed;        ///< true if the contours were computed for that scanner by computeContours()
-  TLegend* m_legend;                       ///< pointer to the plot legend. Filled by drawLegend().
+  std::vector<Utils::histogramType> histosType;  ///< defines if histogram is interpreted as p-value or chi2
+  std::vector<ConfidenceContours*> m_contours;   ///< holds the contours for each scanner
+  std::vector<bool> m_contours_computed;  ///< true if the contours were computed for that scanner by computeContours()
+  TLegend* m_legend;                      ///< pointer to the plot legend. Filled by drawLegend().
 };
 
 #endif

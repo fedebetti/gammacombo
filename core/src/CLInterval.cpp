@@ -1,5 +1,7 @@
 #include <CLInterval.h>
 
+#include <iostream>
+
 CLInterval::CLInterval() {
   pvalue = -1.;
   pvalueAtCentral = -1.;
@@ -29,7 +31,8 @@ CLInterval::CLInterval(const CLInterval& other) {
 CLInterval::~CLInterval() {}
 
 void CLInterval::print() {
-  cout << "pvalue=" << pvalue << " pvalueAtCentral=" << pvalueAtCentral << " min=" << min << " max=" << max
-       << " central=" << central << " minclosed=" << minclosed << " maxclosed=" << maxclosed
-       << " minmethod=" << minmethod << " maxmethod=" << maxmethod << " centralmethod=" << centralmethod << endl;
+  std::cout << "pvalue=" << pvalue << " pvalueAtCentral=" << pvalueAtCentral << " min=" << min << " max=" << max
+            << " central=" << central << " minclosed=" << minclosed << " maxclosed=" << maxclosed
+            << " minmethod=" << minmethod << " maxmethod=" << maxmethod << " centralmethod=" << centralmethod
+            << std::endl;
 }

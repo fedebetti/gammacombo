@@ -8,10 +8,6 @@
 #ifndef ColorBuilder_h
 #define ColorBuilder_h
 
-#include <TColor.h>
-#include <TObjArray.h>
-#include <TROOT.h>
-
 class ColorBuilder {
  public:
   ColorBuilder();

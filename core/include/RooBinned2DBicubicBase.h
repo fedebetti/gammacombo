@@ -7,16 +7,17 @@
 #ifndef _ROOBINNED2DBICUBICBASE
 #define _ROOBINNED2DBICUBICBASE
 
-#include <exception>
-
 #include <RooAbsPdf.h>
 #include <RooAbsReal.h>
 #include <RooRealProxy.h>
 
 #include "SharedArray.h"
 
-class TH2;
+#include <exception>
+
 class RooArgSet;
+
+class TH2;
 
 /** @brief smoothly interpolate a TH2 for use in RooFit
  *
@@ -139,5 +140,3 @@ typedef RooBinned2DBicubicBase<RooAbsReal> RooBinned2DBicubic;
 typedef RooBinned2DBicubicBase<RooAbsPdf> RooBinned2DBicubicPdf;
 
 #endif  // _ROOBINNED2DBICUBICBASE
-
-// vim: ft=cpp:sw=4:tw=78

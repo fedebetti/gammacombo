@@ -7,6 +7,21 @@
 
 #include <PDF_Gaus.h>
 
+#include <ParametersTutorial.h>
+
+#include <PDF_Abs.h>
+
+#include <RooArgList.h>
+#include <RooArgSet.h>
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
+
+#include <TString.h>
+
+#include <cstdlib>
+#include <iostream>
+
 PDF_Gaus::PDF_Gaus(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   name = "Gaus";
   initParameters();
@@ -49,8 +64,8 @@ void PDF_Gaus::setObservables(TString c) {
     obsValSource = c;
     setObservable("a_gaus_obs", 1.5);
   } else {
-    cout << "PDF_Gaus::setObservables() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Gaus::setObservables() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -64,8 +79,8 @@ void PDF_Gaus::setUncertainties(TString c) {
     StatErr[0] = 0.5;   // a_gaus
     SystErr[0] = 0.15;  // a_gaus
   } else {
-    cout << "PDF_Gaus::setUncertainties() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Gaus::setUncertainties() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -76,8 +91,8 @@ void PDF_Gaus::setCorrelations(TString c) {
   } else if (c.EqualTo("year2014")) {
     corSource = "no correlations for 1 obs";
   } else {
-    cout << "PDF_Gaus::setCorrelations() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_Gaus::setCorrelations() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 

@@ -1,8 +1,15 @@
 #include <FileNameBuilder.h>
 
 #include <Combiner.h>
-#include <GammaComboEngine.h>
 #include <MethodAbsScan.h>
+#include <OptParser.h>
+
+#include <TString.h>
+
+#include <cassert>
+#include <vector>
+
+using namespace std;
 
 ///
 /// Constructor.

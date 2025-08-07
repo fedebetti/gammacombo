@@ -8,12 +8,13 @@
 #ifndef Fitter_h
 #define Fitter_h
 
-#include "OptParser.h"
-#include "PDF_Abs.h"
-#include "Utils.h"
+#include <RooArgSet.h>
+#include <RooFitResult.h>
+#include <RooWorkspace.h>
 
-using namespace std;
-using namespace Utils;
+#include <TString.h>
+
+class OptParser;
 
 class Fitter {
  public:

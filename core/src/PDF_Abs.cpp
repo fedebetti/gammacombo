@@ -7,6 +7,24 @@
 
 #include <PDF_Abs.h>
 
+#include <Utils.h>
+
+#include <RooFitResult.h>
+#include <RooFormulaVar.h>
+#include <RooMinimizer.h>
+#include <RooMsgService.h>
+#include <RooRandom.h>
+#include <RooRealVar.h>
+
+#include <cassert>
+#include <cstdlib>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
 PDF_Abs::PDF_Abs(int nObs) : covMatrix(nObs), corMatrix(nObs), corStatMatrix(nObs), corSystMatrix(nObs) {
   this->nObs = nObs;
   parameters = nullptr;
@@ -61,7 +79,7 @@ PDF_Abs::~PDF_Abs() {
   if (pdf != 0) delete pdf;
 
   // empty trash
-  map<string, TObject*>::iterator iter;
+  std::map<std::string, TObject*>::iterator iter;
   for (iter = trash.begin(); iter != trash.end(); ++iter) {
     if (iter->second) {
       delete iter->second;
@@ -106,8 +124,8 @@ void PDF_Abs::setObservablesTruth() {
 void PDF_Abs::setObservablesToy() {
   obsValSource = "toy";
   if (!pdf) {
-    cout << "PDF_Abs::setObservables(): ERROR: pdf not initialized." << endl;
-    exit(1);
+    std::cout << "PDF_Abs::setObservables(): ERROR: pdf not initialized." << std::endl;
+    std::exit(1);
   }
   if (toyObservables == 0 || iToyObs == nToyObs) {
     RooRandom::randomGenerator()->SetSeed(0);
@@ -143,7 +161,7 @@ void PDF_Abs::resetCorrelations() {
 /// e.g. buildPdf() more than once.
 ///
 void PDF_Abs::addToTrash(TObject* o) {
-  map<string, TObject*>::iterator iter;
+  std::map<std::string, TObject*>::iterator iter;
   for (iter = trash.begin(); iter != trash.end(); ++iter) {
     if (o->GetName() == iter->first) {
       delete iter->second;
@@ -151,7 +169,7 @@ void PDF_Abs::addToTrash(TObject* o) {
       return;
     }
   }
-  trash.insert(pair<string, TObject*>(o->GetName(), o));
+  trash.insert(std::pair<std::string, TObject*>(o->GetName(), o));
 }
 
 ///
@@ -174,8 +192,8 @@ TString PDF_Abs::getBaseName() {
 ///
 void PDF_Abs::uniquify(int uID) {
   if (uniqueID == TString("")) {
-    cout << "PDF_Abs::uniquify() : ERROR : uniqueID is the empty string!" << endl;
-    exit(1);
+    std::cout << "PDF_Abs::uniquify() : ERROR : uniqueID is the empty string!" << std::endl;
+    std::exit(1);
   }
 
   name = uniquifyThisString(name, uID);
@@ -219,7 +237,7 @@ void PDF_Abs::loadExtParameters(RooFitResult* r) {
   RooArgSet* tmp = new RooArgSet();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
-  setParameters(parameters, tmp);
+  Utils::setParameters(parameters, tmp);
   delete tmp;
 }
 
@@ -237,7 +255,7 @@ void PDF_Abs::buildCov() {
               << "       PDF name: " << name << "\n"
               << "       Correlation source: " << corr_source << "\n"
               << std::endl;
-    exit(1);
+    std::exit(1);
   };
   auto warning = [name, corr_source](std::string message) {
     std::cout << "WARNING: " << message << "\n"
@@ -247,8 +265,8 @@ void PDF_Abs::buildCov() {
   };
 
   // add diagonals, symmetrize
-  if (!buildCorMatrix(corStatMatrix)) fatal("The statistical correlation matrix is ill-formed");
-  if (!buildCorMatrix(corSystMatrix)) fatal("The systematic correlation matrix is ill-formed");
+  if (!Utils::buildCorMatrix(corStatMatrix)) fatal("The statistical correlation matrix is ill-formed");
+  if (!Utils::buildCorMatrix(corSystMatrix)) fatal("The systematic correlation matrix is ill-formed");
 
   auto n = getNobs();
   if (n > 1 && !corr_source.Contains("none", TString::kIgnoreCase) &&
@@ -278,22 +296,22 @@ void PDF_Abs::buildCov() {
   }
 
   // make total cov matrix
-  TMatrixDSym* covStat = buildCovMatrix(corStatMatrix, StatErr);
-  TMatrixDSym* covSyst = buildCovMatrix(corSystMatrix, SystErr);
+  TMatrixDSym* covStat = Utils::buildCovMatrix(corStatMatrix, StatErr);
+  TMatrixDSym* covSyst = Utils::buildCovMatrix(corSystMatrix, SystErr);
   covMatrix = *covStat + *covSyst;
 
   // check if total cov matrix is invertible
   if (covMatrix.Determinant() == 0) {
-    cout << "PDF_Abs::buildCov() : ERROR : Total covariance matrix is not invertable (det(COV)=0)." << endl;
-    cout << "PDF_Abs::buildCov() : ERROR : Check inputs! Ordering correct? Nobs correct?" << endl;
-    cout << "PDF_Abs::buildCov() : PDF: " << name << endl;
-    cout << "PDF_Abs::buildCov() : stat cov: " << endl;
+    std::cout << "PDF_Abs::buildCov() : ERROR : Total covariance matrix is not invertable (det(COV)=0)." << std::endl;
+    std::cout << "PDF_Abs::buildCov() : ERROR : Check inputs! Ordering correct? Nobs correct?" << std::endl;
+    std::cout << "PDF_Abs::buildCov() : PDF: " << name << std::endl;
+    std::cout << "PDF_Abs::buildCov() : stat cov: " << std::endl;
     covStat->Print("v");
-    cout << "PDF_Abs::buildCov() : syst cov: " << endl;
+    std::cout << "PDF_Abs::buildCov() : syst cov: " << std::endl;
     covSyst->Print("v");
-    cout << "PDF_Abs::buildCov() : full cov: " << endl;
+    std::cout << "PDF_Abs::buildCov() : full cov: " << std::endl;
     covMatrix.Print("v");
-    // exit(1);
+    // std::exit(1);
     throw TString("need help");
   }
 
@@ -304,18 +322,18 @@ void PDF_Abs::buildCov() {
     }
 
   // check if total cor matrix is positive definite
-  if (!isPosDef(&corMatrix)) {
-    cout << "PDF_Abs::buildCov() : ERROR : Total correlation matrix is not positive definite." << endl;
-    cout << "PDF_Abs::buildCov() : ERROR : Check inputs! Ordering correct?" << endl;
-    cout << "PDF_Abs::buildCov() :         Sometimes this happens when for very large correlations" << endl;
-    cout << "PDF_Abs::buildCov() :         the given precision is not enough (e.g. rho=0.98 rather than 0.978)."
-         << endl;
-    cout << "PDF_Abs::buildCov() : PDF: " << name << endl;
-    cout << "PDF_Abs::buildCov() : stat cor: " << endl;
+  if (!Utils::isPosDef(&corMatrix)) {
+    std::cout << "PDF_Abs::buildCov() : ERROR : Total correlation matrix is not positive definite." << std::endl;
+    std::cout << "PDF_Abs::buildCov() : ERROR : Check inputs! Ordering correct?" << std::endl;
+    std::cout << "PDF_Abs::buildCov() :         Sometimes this happens when for very large correlations" << std::endl;
+    std::cout << "PDF_Abs::buildCov() :         the given precision is not enough (e.g. rho=0.98 rather than 0.978)."
+              << std::endl;
+    std::cout << "PDF_Abs::buildCov() : PDF: " << name << std::endl;
+    std::cout << "PDF_Abs::buildCov() : stat cor: " << std::endl;
     corStatMatrix.Print("v");
-    cout << "PDF_Abs::buildCov() : syst cor: " << endl;
+    std::cout << "PDF_Abs::buildCov() : syst cor: " << std::endl;
     corSystMatrix.Print("v");
-    // exit(1);
+    // std::exit(1);
     throw TString("need help");
   }
 
@@ -331,11 +349,11 @@ void PDF_Abs::buildCov() {
 /// stat, syst, stat+syst
 ///
 void PDF_Abs::printCorMatrix(TString title, TString source, const TMatrixDSym& cor) const {
-  cout << "    correlation " << title << ":" << endl;
-  cout << "      cor. source: " << source << endl;
+  std::cout << "    correlation " << title << ":" << std::endl;
+  std::cout << "      cor. source: " << source << std::endl;
   printf("%30s", " ");
   for (int i = 0; i < nObs; i++) printf("%5i ", i);
-  cout << endl;
+  std::cout << std::endl;
   for (int i = 0; i < nObs; i++) {
     TString obsName = ((RooRealVar*)((RooArgList*)observables)->at(i))->GetName();
     obsName.ReplaceAll(uniqueID, "");
@@ -346,9 +364,9 @@ void PDF_Abs::printCorMatrix(TString title, TString source, const TMatrixDSym& c
       else
         printf("%6.3f ", cor[i][j]);
     }
-    cout << endl;
+    std::cout << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 ///
@@ -359,13 +377,13 @@ void PDF_Abs::printCorMatrix(TString title, TString source, const TMatrixDSym& c
 ///
 void PDF_Abs::print() const {
   TString cleanName = name;
-  cout << "PDF: " << cleanName.ReplaceAll(uniqueID, "") << " (" << uniqueID << ")" << endl << endl;
+  std::cout << "PDF: " << cleanName.ReplaceAll(uniqueID, "") << " (" << uniqueID << ")" << std::endl << std::endl;
 
   if (observables) {
-    cout << "    observables:" << endl;
-    cout << "      nObs = " << nObs << endl;
-    cout << "      values from: " << obsValSource << endl;
-    cout << "      errors from: " << obsErrSource << endl;
+    std::cout << "    observables:" << std::endl;
+    std::cout << "      nObs = " << nObs << std::endl;
+    std::cout << "      values from: " << obsValSource << std::endl;
+    std::cout << "      errors from: " << obsErrSource << std::endl;
     for (int iObs = 0; iObs < nObs; iObs++) {
       RooRealVar* v = (RooRealVar*)observables->at(iObs);
       TString obsName = v->GetName();
@@ -373,8 +391,8 @@ void PDF_Abs::print() const {
       printf("      %-20s = %8.5f +/- %7.5f +/- %7.5f\n", obsName.Data(), v->getVal(), StatErr[iObs], SystErr[iObs]);
     }
   } else
-    cout << "PDF_Abs::print() : observables not initialized. Call initObservables() first." << endl;
-  cout << endl;
+    std::cout << "PDF_Abs::print() : observables not initialized. Call initObservables() first." << std::endl;
+  std::cout << std::endl;
 
   if (nObs > 1) {
     printCorMatrix("(stat+syst)", corSource, corMatrix);
@@ -383,27 +401,27 @@ void PDF_Abs::print() const {
   }
 
   if (parameters) {
-    cout << "    parameters:" << endl;
-    cout << "      nPar = " << parameters->getSize() << endl;
-    cout << "      ";
+    std::cout << "    parameters:" << std::endl;
+    std::cout << "      nPar = " << parameters->getSize() << std::endl;
+    std::cout << "      ";
     bool first = true;
     for (const auto& v : *parameters) {
-      cout << (first ? "" : ", ") << v->GetName();
+      std::cout << (first ? "" : ", ") << v->GetName();
       first = false;
     }
-    cout << endl;
+    std::cout << std::endl;
   } else
-    cout << "PDF_Abs::print() : parameters not initialized. Call initParameters() first." << endl;
-  cout << endl;
+    std::cout << "PDF_Abs::print() : parameters not initialized. Call initParameters() first." << std::endl;
+  std::cout << std::endl;
 
   if (theory) {
-    cout << "    relations:" << endl;
+    std::cout << "    relations:" << std::endl;
     for (const auto& v : *theory) {
       // it's not easy to extract the formula from a RooFormulaVar.
       TString thName = v->GetName();
       thName.ReplaceAll(uniqueID, "");
       printf("      %-20s = ", thName.Data());
-      ostringstream stream;
+      std::ostringstream stream;
       v->printMetaArgs(stream);
       TString formula = stream.str();
       if (formula.Contains("formula=")) {  // this is a RooFormulaVar
@@ -417,41 +435,41 @@ void PDF_Abs::print() const {
       formula.ReplaceAll("formula=", "");
       formula.ReplaceAll("\"", "");
       if (formula == "") formula = v->ClassName();  // compiled custom Roo*Var classes don't have a formula
-      cout << formula << endl;
+      std::cout << formula << std::endl;
     }
   } else
-    cout << "PDF_Abs::print() : theory not initialized. Call initRelations() first." << endl;
-  cout << endl;
+    std::cout << "PDF_Abs::print() : theory not initialized. Call initRelations() first." << std::endl;
+  std::cout << std::endl;
 }
 
 void PDF_Abs::printParameters() {
   if (parameters) {
-    cout << "      parameters:  ";
+    std::cout << "      parameters:  ";
     bool first = true;
     for (const auto& v : *parameters) {
       TString vName = v->GetName();
-      cout << (first ? "" : ", ") << vName;
+      std::cout << (first ? "" : ", ") << vName;
       first = false;
     }
-    cout << "  (nPar=" << parameters->getSize() << ")" << endl;
+    std::cout << "  (nPar=" << parameters->getSize() << ")" << std::endl;
   } else
-    cout << "PDF_Abs::print() : parameters not initialized. Call initParameters() first." << endl;
+    std::cout << "PDF_Abs::print() : parameters not initialized. Call initParameters() first." << std::endl;
 }
 
 void PDF_Abs::printObservables() {
   if (observables) {
-    cout << "      observables: ";
+    std::cout << "      observables: ";
     bool first = true;
     for (const auto& v : *observables) {
       TString vName = v->GetName();
       vName.ReplaceAll("_obs", "");
       vName.ReplaceAll(uniqueID, "");
-      cout << (first ? "" : ", ") << vName;
+      std::cout << (first ? "" : ", ") << vName;
       first = false;
     }
-    cout << "  (nObs=" << observables->getSize() << ")" << endl;
+    std::cout << "  (nObs=" << observables->getSize() << ")" << std::endl;
   } else
-    cout << "PDF_Abs::print() : observables not initialized. Call initObservables() first." << endl;
+    std::cout << "PDF_Abs::print() : observables not initialized. Call initObservables() first." << std::endl;
 }
 
 ///
@@ -460,7 +478,7 @@ void PDF_Abs::printObservables() {
 ///
 void PDF_Abs::storeErrorsInObs() {
   if (covMatrix == 0) {
-    cout << "PDF_Abs::storeErrorsInObs() : ERROR : covMatrix not initialized." << endl;
+    std::cout << "PDF_Abs::storeErrorsInObs() : ERROR : covMatrix not initialized." << std::endl;
     return;
   }
 
@@ -490,8 +508,8 @@ void PDF_Abs::setSystCorrelation(TMatrixDSym& corSystMatrix) {
 void PDF_Abs::setObservable(TString obsName, float value) {
   RooRealVar* obs = (RooRealVar*)observables->find(obsName);
   if (obs == 0) {
-    cout << "PDF_Abs::setObservable() : ERROR : observable " + obsName + " not found!" << endl;
-    exit(1);
+    std::cout << "PDF_Abs::setObservable() : ERROR : observable " + obsName + " not found!" << std::endl;
+    std::exit(1);
   }
   obs->setVal(value);
 }
@@ -515,8 +533,8 @@ void PDF_Abs::setUncertainty(TString obsName, float stat, float syst) {
       return;
     }
   }
-  cout << "PDF_Abs::setUncertainty() : ERROR : observable " + name + " not found!" << endl;
-  exit(1);
+  std::cout << "PDF_Abs::setUncertainty() : ERROR : observable " + name + " not found!" << std::endl;
+  std::exit(1);
 }
 
 ///
@@ -535,8 +553,8 @@ bool PDF_Abs::checkConsistency() {
     TString pObsName = p->GetName();
     pObsName.ReplaceAll(uniqueID, "");
     if (!pObsName.EndsWith("_obs")) {
-      cout << "PDF_Abs::checkConsistency() : " << name << " : observable " << p->GetName() << " doesn't end with '_obs'"
-           << endl;
+      std::cout << "PDF_Abs::checkConsistency() : " << name << " : observable " << p->GetName()
+                << " doesn't end with '_obs'" << std::endl;
       allOk = false;
     }
   }
@@ -546,8 +564,8 @@ bool PDF_Abs::checkConsistency() {
     TString pThName = p->GetName();
     pThName.ReplaceAll(uniqueID, "");
     if (!pThName.EndsWith("_th")) {
-      cout << "PDF_Abs::checkConsistency() : " << name << " : theory " << p->GetName() << " doesn't end with '_th'"
-           << endl;
+      std::cout << "PDF_Abs::checkConsistency() : " << name << " : theory " << p->GetName() << " doesn't end with '_th'"
+                << std::endl;
       allOk = false;
     }
   }
@@ -561,11 +579,11 @@ bool PDF_Abs::checkConsistency() {
     TString pObsName = observables->at(i)->GetName();
     pObsName.ReplaceAll(uniqueID, "");
     if (pObsName != base + "_obs") {
-      cout << "PDF_Abs::checkConsistency() : " << name << " : " << pTh->GetName() << " doesn't match its observable."
-           << endl;
-      cout << "                              Expected '" << base + "_obs"
-           << "'. Found '" << pObsName << "'." << endl;
-      cout << "                              Check ordering of the 'theory' and 'observables' lists!" << endl;
+      std::cout << "PDF_Abs::checkConsistency() : " << name << " : " << pTh->GetName()
+                << " doesn't match its observable." << std::endl;
+      std::cout << "                              Expected '" << base + "_obs"
+                << "'. Found '" << pObsName << "'." << std::endl;
+      std::cout << "                              Check ordering of the 'theory' and 'observables' lists!" << std::endl;
       allOk = false;
     }
   }
@@ -579,10 +597,10 @@ bool PDF_Abs::checkConsistency() {
 ///
 bool PDF_Abs::test() {
   bool quiet = false;
-  if (quiet) RooMsgService::instance().setGlobalKillBelow(ERROR);
-  fixParameters(observables);
-  floatParameters(parameters);
-  setLimit(parameters, "free");
+  if (quiet) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+  Utils::fixParameters(observables);
+  Utils::floatParameters(parameters);
+  Utils::setLimit(parameters, "free");
   RooFormulaVar ll("ll", "ll", "-2*log(@0)", RooArgSet(*pdf));
   RooMinimizer m(ll);
   if (quiet) m.setPrintLevel(-2);
@@ -595,8 +613,8 @@ bool PDF_Abs::test() {
   bool status = !(f->edm() < 1 && f->status() == 0);
   if (!quiet) f->Print("v");
   delete f;
-  if (quiet) RooMsgService::instance().setGlobalKillBelow(INFO);
-  if (!quiet) cout << "pdf->getVal() = " << pdf->getVal() << endl;
+  if (quiet) RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
+  if (!quiet) std::cout << "pdf->getVal() = " << pdf->getVal() << std::endl;
   return status;
 }
 
@@ -630,7 +648,7 @@ bool PDF_Abs::ScaleError(TString obsname, float scale) {
   }
   // find the index of the observable - if it exists at all!
   if (!hasObservable(obsname)) {
-    cout << "PDF_Abs::ScaleError() : ERROR : observable '" << obsname << "' not found." << endl;
+    std::cout << "PDF_Abs::ScaleError() : ERROR : observable '" << obsname << "' not found." << std::endl;
     return false;
   }
   int index = -1;
@@ -642,7 +660,7 @@ bool PDF_Abs::ScaleError(TString obsname, float scale) {
   }
   if (index == -1) {
     // this should never happen...
-    cout << "PDF_Abs::ScaleError() : ERROR : internal self inconsistency discovered. Exit." << endl;
+    std::cout << "PDF_Abs::ScaleError() : ERROR : internal self inconsistency discovered. Exit." << std::endl;
     assert(0);
   }
   // scale error
@@ -663,9 +681,9 @@ bool PDF_Abs::ScaleError(TString obsname, float scale) {
 float PDF_Abs::getObservableValue(TString obsname) {
   // check if requested observable exits
   if (!hasObservable(obsname)) {
-    cout << "PDF_Abs::getObservableValue() : ERROR : Requested observable doesn't exist: " << obsname << ". Exit."
-         << endl;
-    exit(1);
+    std::cout << "PDF_Abs::getObservableValue() : ERROR : Requested observable doesn't exist: " << obsname << ". Exit."
+              << std::endl;
+    std::exit(1);
   }
   return ((RooRealVar*)observables->find(obsname))->getVal();
 }
@@ -678,21 +696,21 @@ float PDF_Abs::getObservableValue(TString obsname) {
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, vector<int>& indices) {
+void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector<int>& indices) {
   if (indices.size() == 0) {
-    cout << "PDF_Abs::getSubMatrix() : vector 'indices' can't be empty" << endl;
-    exit(1);
+    std::cout << "PDF_Abs::getSubMatrix() : vector 'indices' can't be empty" << std::endl;
+    std::exit(1);
   }
   if (target.GetNcols() != indices.size()) {
-    cout << "PDF_Abs::getSubMatrix() : 'target' matrix doesn't have size of 'indices' vector" << endl;
-    exit(1);
+    std::cout << "PDF_Abs::getSubMatrix() : 'target' matrix doesn't have size of 'indices' vector" << std::endl;
+    std::exit(1);
   }
   for (int i = 0; i < indices.size(); i++) {
     // check requested index
     if (indices[i] < 0 || indices[i] >= source.GetNcols()) {
-      cout << "PDF_Abs::getSubMatrix() : ERROR : requested index for submatrix is out of range of parent matrix"
-           << endl;
-      exit(1);
+      std::cout << "PDF_Abs::getSubMatrix() : ERROR : requested index for submatrix is out of range of parent matrix"
+                << std::endl;
+      std::exit(1);
     }
     // copy over row and column
     for (int j = 0; j < indices.size(); j++) {
@@ -709,7 +727,7 @@ void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, vector<int>
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, vector<int>& indices) {
+void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indices) {
   getSubMatrix(target, corStatMatrix, indices);
 }
 
@@ -720,6 +738,6 @@ void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, vector<int>& indices) {
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, vector<int>& indices) {
+void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, std::vector<int>& indices) {
   getSubMatrix(target, corSystMatrix, indices);
 }

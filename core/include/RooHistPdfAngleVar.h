@@ -7,10 +7,10 @@
 #ifndef ROOHISTPDFANGLEVAR
 #define ROOHISTPDFANGLEVAR
 
-#include <RooAbsCategory.h>
 #include <RooAbsReal.h>
-#include <RooCategoryProxy.h>
 #include <RooRealProxy.h>
+
+class TObject;
 
 class RooHistPdfAngleVar : public RooAbsReal {
  public:

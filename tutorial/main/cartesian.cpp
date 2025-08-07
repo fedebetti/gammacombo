@@ -6,13 +6,9 @@
  **/
 
 #include <GammaComboEngine.h>
+
 #include <PDF_Cartesian.h>
 #include <PDF_rb.h>
-#include <stdlib.h>
-
-using namespace std;
-using namespace RooFit;
-using namespace Utils;
 
 int main(int argc, char* argv[]) {
   GammaComboEngine gc("cartesian", argc, argv);

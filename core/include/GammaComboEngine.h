@@ -8,30 +8,24 @@
 #ifndef GammaComboEngine_h
 #define GammaComboEngine_h
 
-#include "BatchScriptWriter.h"
-#include "ColorBuilder.h"
-#include "Combiner.h"
-#include "FileNameBuilder.h"
-#include "Graphviz.h"
-#include "LatexMaker.h"
-#include "MethodBergerBoosScan.h"
-#include "MethodCoverageScan.h"
-#include "MethodPluginScan.h"
-#include "MethodProbScan.h"
-#include "OneMinusClPlot.h"
-#include "OneMinusClPlot2d.h"
-#include "OneMinusClPlotAbs.h"
-#include "OptParser.h"
-#include "PDF_Abs.h"
-#include "ParameterCache.h"
-#include "ParameterEvolutionPlotter.h"
-#include "Utils.h"
-#include <TApplication.h>
-#include <TColor.h>
-#include <TDatime.h>
+#include <TStopwatch.h>
+#include <TString.h>
 
-using namespace std;
-using namespace Utils;
+#include <vector>
+
+class BatchScriptWriter;
+class Combiner;
+class FileNameBuilder;
+class MethodBergerBoosScan;
+class MethodCoverageScan;
+class MethodPluginScan;
+class MethodProbScan;
+class OneMinusClPlotAbs;
+class OptParser;
+class ParameterCache;
+class PDF_Abs;
+
+class TApplication;
 
 ///
 /// The main GammaCombo scanning engine, controlling
@@ -47,7 +41,7 @@ class GammaComboEngine {
   void adjustRanges(Combiner* c, int cId);
   void setupToyVariationSets(Combiner* c, int cId);
   void addPdf(int id, PDF_Abs* pdf, TString title = "");
-  void addSubsetPdf(int id, PDF_Abs* pdf, vector<int>& indices, TString title = "");
+  void addSubsetPdf(int id, PDF_Abs* pdf, std::vector<int>& indices, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, TString title = "");
@@ -125,20 +119,20 @@ class GammaComboEngine {
   void runToys(Combiner* c);
 
   OptParser* arg;
-  vector<Combiner*> cmb;
-  vector<int> colorsLine;
-  vector<int> colorsText;
-  vector<int> fillStyles;
-  vector<int> fillColors;
-  vector<float> fillTransparencies;
-  vector<int> lineColors;
-  vector<int> lineStyles;
-  vector<int> lineWidths;
-  vector<MethodProbScan*> comparisonScanners;
+  std::vector<Combiner*> cmb;
+  std::vector<int> colorsLine;
+  std::vector<int> colorsText;
+  std::vector<int> fillStyles;
+  std::vector<int> fillColors;
+  std::vector<float> fillTransparencies;
+  std::vector<int> lineColors;
+  std::vector<int> lineStyles;
+  std::vector<int> lineWidths;
+  std::vector<MethodProbScan*> comparisonScanners;
   TString execname;
   FileNameBuilder* m_fnamebuilder;
   BatchScriptWriter* m_batchscriptwriter;
-  vector<PDF_Abs*> pdf;
+  std::vector<PDF_Abs*> pdf;
   OneMinusClPlotAbs* plot;
   TStopwatch t;
   TApplication* theApp;

@@ -7,6 +7,20 @@
 
 #include <PDF_rb.h>
 
+#include <ParametersCartesian.h>
+
+#include <PDF_Abs.h>
+
+#include <RooArgList.h>
+#include <RooArgSet.h>
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
+
+#include <TString.h>
+
+#include <iostream>
+
 PDF_rb::PDF_rb(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   name = "rb";
   initParameters();
@@ -46,8 +60,8 @@ void PDF_rb::setObservables(TString c) {
     obsValSource = c;
     setObservable("r_dk_obs", 0.1);
   } else {
-    cout << "PDF_rb::setObservables() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_rb::setObservables() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -57,8 +71,8 @@ void PDF_rb::setUncertainties(TString c) {
     StatErr[0] = 0.01;  // r_dk
     SystErr[0] = 0;     // r_dk
   } else {
-    cout << "PDF_rb::setUncertainties() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_rb::setUncertainties() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -67,8 +81,8 @@ void PDF_rb::setCorrelations(TString c) {
   if (c.EqualTo("year2013")) {
     corSource = "no correlations for 1 obs";
   } else {
-    cout << "PDF_rb::setCorrelations() : ERROR : config " + c + " not found." << endl;
-    exit(1);
+    std::cout << "PDF_rb::setCorrelations() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
 

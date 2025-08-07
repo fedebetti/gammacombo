@@ -1,5 +1,11 @@
 #include <ProgressBar.h>
 
+#include <OptParser.h>
+
+#include <cassert>
+#include <iomanip>
+#include <iostream>
+
 ProgressBar::ProgressBar(OptParser* arg, unsigned int n) {
   assert(arg);
   _arg = arg;
@@ -32,19 +38,19 @@ void ProgressBar::progressBar() {
   float ratio = _x / (float)_n;
   int c = ratio * _width;
 
-  cout << setw(3) << (int)(ratio * 100) << "% [";
-  for (int x = 0; x < c; x++) cout << "=";
-  for (int x = c; x < _width; x++) cout << " ";
-  cout << "]";
+  std::cout << std::setw(3) << (int)(ratio * 100) << "% [";
+  for (int x = 0; x < c; x++) std::cout << "=";
+  for (int x = c; x < _width; x++) std::cout << " ";
+  std::cout << "]";
   // this code leaves the progress bar in the output once the loop is done
-  // if ( _x<_n ) cout << "\r" << flush;
-  // else cout << endl;
+  // if ( _x<_n ) std::cout << "\r" << std::flush;
+  // else std::cout << std::endl;
   // and this code removes it
-  cout << "\r" << flush;
+  std::cout << "\r" << std::flush;
   if (_x == _n) {
     int offset = TString("100% []").Sizeof();
-    for (int x = 0; x < c + offset; x++) cout << " ";
-    cout << "\r" << flush;
+    for (int x = 0; x < c + offset; x++) std::cout << " ";
+    std::cout << "\r" << std::flush;
   }
 }
 
@@ -55,7 +61,7 @@ void ProgressBar::progressBar() {
 ///
 void ProgressBar::progressPercentage() {
   float ratio = _x / (float)_n;
-  cout << setw(3) << (int)(ratio * 100) << "%" << endl;
+  std::cout << std::setw(3) << (int)(ratio * 100) << "%" << std::endl;
 }
 
 ///

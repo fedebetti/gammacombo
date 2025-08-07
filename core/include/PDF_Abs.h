@@ -8,49 +8,23 @@
 #ifndef PDF_Abs_h
 #define PDF_Abs_h
 
-#include <iostream>
-#include <sstream>
-#include <stdlib.h>
+#include <TMatrixDSym.h>
+#include <TString.h>
+
+#include <map>
+#include <string>
 #include <vector>
 
-#include "RooMultiPdf.h"
-#include <RooAddition.h>
-#include <RooArgSet.h>
-#include <RooCategory.h>
-#include <RooConstVar.h>
-#include <RooDataHist.h>
-#include <RooDataSet.h>
-#include <RooFitResult.h>
-#include <RooFormulaVar.h>
-#include <RooGaussian.h>
-#include <RooGlobalFunc.h>
-#include <RooLognormal.h>
-#include <RooMultiVarGaussian.h>
-#include <RooPlot.h>
-#include <RooPoisson.h>
-#include <RooProdPdf.h>
-#include <RooRandom.h>
-#include <RooRealVar.h>
-#include <RooWorkspace.h>
+class ParametersAbs;
+class RooMultiPdf;
 
-#include <TCanvas.h>
-#include <TGaxis.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TLegend.h>
-#include <TMarker.h>
-#include <TMath.h>
-#include <TRandom3.h>
-#include <TStopwatch.h>
-#include <TStyle.h>
-#include <TTree.h>
+class RooAbsData;
+class RooAbsPdf;
+class RooArgList;
+class RooCategory;
+class RooFitResult;
 
-#include "ParametersAbs.h"
-#include "Utils.h"
-
-using namespace RooFit;
-using namespace std;
-using namespace Utils;
+class TObject;
 
 class PDF_Abs {
  public:
@@ -73,7 +47,7 @@ class PDF_Abs {
   inline TString getUniqueID() { return uniqueID; };
   inline unsigned long long getUniqueGlobalID() { return uniqueGlobalID; }
   inline RooArgList* getObservables() { return observables; };
-  inline vector<TString> getLatexObservables() { return latexObservables; };
+  inline std::vector<TString> getLatexObservables() { return latexObservables; };
   inline TString getObservableSourceString() { return obsValSource; };
   float getObservableValue(TString obsname);
   inline RooArgList* getParameters() { return parameters; };
@@ -81,8 +55,8 @@ class PDF_Abs {
   inline RooAbsPdf* getBkgPdf() { return pdfBkg; };
   inline RooMultiPdf* getMultipdf() { return multipdf; };
   inline RooMultiPdf* getBkgMultipdf() { return multipdfBkg; };
-  void getSubCorrelationStat(TMatrixDSym& target, vector<int>& indices);
-  void getSubCorrelationSyst(TMatrixDSym& target, vector<int>& indices);
+  void getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indices);
+  void getSubCorrelationSyst(TMatrixDSym& target, std::vector<int>& indices);
   inline RooArgList* getTheory() { return theory; };
   inline TString getTitle() { return title; };
   bool hasObservable(TString obsname);
@@ -119,32 +93,32 @@ class PDF_Abs {
   TMatrixDSym corMatrix;
   TMatrixDSym corStatMatrix;
   TMatrixDSym corSystMatrix;
-  vector<double> StatErr;
-  vector<double> SystErr;
+  std::vector<double> StatErr;
+  std::vector<double> SystErr;
   TString corSource;
   TString obsValSource;
   TString obsErrSource;
 
  protected:
   void addToTrash(TObject*);
-  void getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, vector<int>& indices);
+  void getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector<int>& indices);
 
   RooArgList* parameters;   // holds all fit parameters of this PDF
   RooArgList* theory;       // holds all truth relations
   RooArgList* observables;  // holds all observables
   TString name;
-  TString title;                     // to be printed in human readable summaries
-  RooAbsPdf* pdf;                    // the PDF
-  RooAbsPdf* pdfBkg;                 // Bkg PDF for building CLs teststatistic
-  RooMultiPdf* multipdf;             // the multipdf
-  RooMultiPdf* multipdfBkg;          // Bkg version of the multipdf
-  RooCategory* multipdfCat;          // the multipdf category
-  bool isBkgPdfSet;                  //> Flag deciding if Bkg PDF is set
-  bool isBkgMultipdfSet;             //> Flag deciding if Bkg MultiPDF is set
-  int nObs;                          // number of observables
-  map<string, TObject*> trash;       // trash bin, gets emptied in destructor
-  bool m_isCrossCorPdf;              // Cross correlation PDFs need some extra treatment in places, e.g. in uniquify()
-  vector<TString> latexObservables;  // holds latex labels for observables
+  TString title;                          // to be printed in human readable summaries
+  RooAbsPdf* pdf;                         // the PDF
+  RooAbsPdf* pdfBkg;                      // Bkg PDF for building CLs teststatistic
+  RooMultiPdf* multipdf;                  // the multipdf
+  RooMultiPdf* multipdfBkg;               // Bkg version of the multipdf
+  RooCategory* multipdfCat;               // the multipdf category
+  bool isBkgPdfSet;                       //> Flag deciding if Bkg PDF is set
+  bool isBkgMultipdfSet;                  //> Flag deciding if Bkg MultiPDF is set
+  int nObs;                               // number of observables
+  std::map<std::string, TObject*> trash;  // trash bin, gets emptied in destructor
+  bool m_isCrossCorPdf;  // Cross correlation PDFs need some extra treatment in places, e.g. in uniquify()
+  std::vector<TString> latexObservables;  // holds latex labels for observables
 
   // The following three members are to gain performance during
   // toy generation - generating 1000 toys is much faster than 1000 times one toy.

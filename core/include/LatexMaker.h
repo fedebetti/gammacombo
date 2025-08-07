@@ -1,16 +1,15 @@
 #ifndef LatexMaker_h
 #define LatexMaker_h
 
-#include <fstream>
-#include <iostream>
-#include <vector>
-
 #include <TMatrixDSym.h>
 #include <TString.h>
 
-#include <RooArgList.h>
+#include <fstream>
+#include <vector>
 
-#include "PDF_Abs.h"
+class PDF_Abs;
+
+class RooArgList;
 
 class LatexMaker {
 
@@ -19,7 +18,7 @@ class LatexMaker {
   ~LatexMaker();
 
   void writeFile();
-  void writeCorrMatrix(ofstream& file, TMatrixDSym mat, RooArgList* observables, std::vector<TString> labels);
+  void writeCorrMatrix(std::ofstream& file, TMatrixDSym mat, RooArgList* observables, std::vector<TString> labels);
 
   TString outfname;
   PDF_Abs* pdf;

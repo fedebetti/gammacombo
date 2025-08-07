@@ -1,5 +1,19 @@
 #include <Graphviz.h>
 
+#include <Combiner.h>
+#include <PDF_Abs.h>
+
+#include <RooArgList.h>
+
+#include <TString.h>
+
+#include <cassert>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
 Graphviz::Graphviz(OptParser* arg) {
   assert(arg);
   this->arg = arg;
@@ -24,12 +38,12 @@ bool Graphviz::isDmixingParameter(TString s) {
 ///
 /// Open a file, return the file handle.
 ///
-ofstream& Graphviz::openFile(TString name) {
-  ofstream* dotfile = new ofstream();
+std::ofstream& Graphviz::openFile(TString name) {
+  std::ofstream* dotfile = new std::ofstream();
   dotfile->open(name);
   if (!dotfile->is_open()) {
-    cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << endl;
-    exit(1);
+    std::cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << std::endl;
+    std::exit(1);
   }
   return *dotfile;
 }
@@ -43,7 +57,7 @@ ofstream& Graphviz::openFile(TString name) {
 ///
 void Graphviz::printCombiner(Combiner* cmb) {
   // open the dot file
-  ofstream& dotfile = openFile("plots/dot/circle_" + cmb->getName() + ".dot");
+  std::ofstream& dotfile = openFile("plots/dot/circle_" + cmb->getName() + ".dot");
 
   // print header
   dotfile << "graph combiner {\n";
@@ -99,7 +113,7 @@ void Graphviz::printCombiner(Combiner* cmb) {
 ///
 void Graphviz::printCombinerLayer(Combiner* cmb) {
   // open the dot file
-  ofstream& dotfile = openFile("plots/dot/layer_" + cmb->getName() + ".dot");
+  std::ofstream& dotfile = openFile("plots/dot/layer_" + cmb->getName() + ".dot");
 
   // print header
   dotfile << "graph combiner {\n";
@@ -127,7 +141,7 @@ void Graphviz::printCombinerLayer(Combiner* cmb) {
   dotfile << "node [style=filled,color=white];\n";
   dotfile << "style=filled;\n";
   dotfile << "color=lightgrey;\n";
-  vector<string>& pars = cmb->getParameterNames();
+  std::vector<std::string>& pars = cmb->getParameterNames();
   for (int i = 0; i < pars.size(); i++) { dotfile << graphvizString(pars[i]) << ";\n"; }
   dotfile << "label=\"parameters\";\n";
   dotfile << "}\n";

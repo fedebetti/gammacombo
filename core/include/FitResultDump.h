@@ -1,9 +1,10 @@
 #ifndef FitResultDump_h
 #define FitResultDump_h
 
-#include "MethodAbsScan.h"
 #include <fstream>
-#include <iostream>
+#include <string>
+
+class MethodAbsScan;
 
 class FitResultDump {
 
@@ -12,7 +13,7 @@ class FitResultDump {
   ~FitResultDump();
 
   void dumpResult(std::string ofname, MethodAbsScan* scanner);
-  ofstream outf;
+  std::ofstream outf;
 };
 
 #endif

@@ -6,6 +6,31 @@
 
 #include <MethodBergerBoosScan.h>
 
+#include <Combiner.h>
+#include <ControlPlots.h>
+#include <FitResultCache.h>
+#include <Fitter.h>
+#include <MethodPluginScan.h>
+#include <MethodProbScan.h>
+#include <OptParser.h>
+#include <ToyTree.h>
+#include <Utils.h>
+
+#include <RooAbsPdf.h>
+#include <RooRandom.h>
+#include <RooRealVar.h>
+
+#include <TCanvas.h>
+#include <TChain.h>
+#include <TFile.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TLeaf.h>
+#include <TString.h>
+#include <TTree.h>
+
+#include <iostream>
+
 ///
 /// Initialize from a previous Prob scan, setting the profile
 /// likelihood. This should
@@ -82,24 +107,24 @@ void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, 
   }
   for (int i = runMin; i <= runMax; i++) {
     TString file = Form(fileNameBase + "%i.root", i);
-    if (!FileExists(file)) {
+    if (!Utils::FileExists(file)) {
       if (arg->verbose)
-        cout << "MethodBergerBoosScan::drawBBPoints() : ERROR : File not found: " + file + " ..." << endl;
+        std::cout << "MethodBergerBoosScan::drawBBPoints() : ERROR : File not found: " + file + " ..." << std::endl;
       nFilesMissing += 1;
       continue;
     }
-    if (arg->verbose) cout << "MethodBergerBoosScan::drawBBPoints() : reading " + file + " ..." << endl;
+    if (arg->verbose) std::cout << "MethodBergerBoosScan::drawBBPoints() : reading " + file + " ..." << std::endl;
     c->Add(file);
     // Quick hack to read in Malcolm's refitted toys:
     // t->Add(Form("k3piCrosscheck/toysForPOI_rBu_dk_dkanddpi_24_TMK_refitted_gaus-run%i.root",i));
     // t->Add(Form("k3piCrosscheck/toysForPOI_rBu_dk_dkanddpi_24_TMK_refitted_gaus_force-run%i.root",i));
     nFilesRead += 1;
   }
-  cout << "MethodBergerBoosScan::drawBBPoints() : read files: " << nFilesRead << ", missing files: " << nFilesMissing
-       << endl;
-  cout << "MethodBergerBoosScan::drawBBPoints() : " << fileNameBase + "*.root" << endl;
+  std::cout << "MethodBergerBoosScan::drawBBPoints() : read files: " << nFilesRead
+            << ", missing files: " << nFilesMissing << std::endl;
+  std::cout << "MethodBergerBoosScan::drawBBPoints() : " << fileNameBase + "*.root" << std::endl;
   if (nFilesRead == 0) {
-    cout << "MethodBergerBoosScan::drawBBPoints() : no files read!" << endl;
+    std::cout << "MethodBergerBoosScan::drawBBPoints() : no files read!" << std::endl;
     return;
   }
   ToyTree TT(combiner, c);
@@ -127,9 +152,9 @@ void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, 
       hBBPoints->SetBinContent(nBinX, nBinY, (tree->GetLeaf("BergerBoos_id")->GetValue() + 1));
     }
   }
-  TCanvas* c1 = newNoWarnTCanvas("c", varY + " vs " + varX, 800, 600);
+  TCanvas* c1 = Utils::newNoWarnTCanvas("c", varY + " vs " + varX, 800, 600);
   hBBPoints->Draw("COLZTEXT");
-  if (save) { savePlot(c1, varY + "_vs_" + varX + "_BB_id"); }
+  if (save) { Utils::savePlot(c1, varY + "_vs_" + varX + "_BB_id"); }
   delete c1;
   delete hBBPoints;
 };
@@ -176,21 +201,21 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
     //   }
     // }
     TString file = Form(fileNameBase + "%i.root", i);
-    if (!FileExists(file)) {
+    if (!Utils::FileExists(file)) {
       if (arg->verbose)
-        cout << "MethodBergerBoosScan::readScan1dTrees() : ERROR : File not found: " + file + " ..." << endl;
+        std::cout << "MethodBergerBoosScan::readScan1dTrees() : ERROR : File not found: " + file + " ..." << std::endl;
       nFilesMissing += 1;
       continue;
     }
-    if (arg->verbose) cout << "MethodBergerBoosScan::readScan1dTrees() : reading " + file + " ..." << endl;
+    if (arg->verbose) std::cout << "MethodBergerBoosScan::readScan1dTrees() : reading " + file + " ..." << std::endl;
     c->Add(file);
     nFilesRead += 1;
   }
-  cout << "MethodBergerBoosScan::readScan1dTrees() : read files: " << nFilesRead << ", missing files: " << nFilesMissing
-       << endl;
-  cout << "MethodBergerBoosScan::readScan1dTrees() : " << fileNameBase + "*.root" << endl;
+  std::cout << "MethodBergerBoosScan::readScan1dTrees() : read files: " << nFilesRead
+            << ", missing files: " << nFilesMissing << std::endl;
+  std::cout << "MethodBergerBoosScan::readScan1dTrees() : " << fileNameBase + "*.root" << std::endl;
   if (nFilesRead == 0) {
-    cout << "MethodBergerBoosScan::readScan1dTrees() : no files read!" << endl;
+    std::cout << "MethodBergerBoosScan::readScan1dTrees() : no files read!" << std::endl;
     return;
   }
   ToyTree t(combiner, c);
@@ -266,17 +291,17 @@ void MethodBergerBoosScan::readScan1dTrees(int runMin, int runMax) {
   }
 
   // 1-CL construction controlplot
-  // TCanvas* c1 = newNoWarnTCanvas("asdf");
+  // TCanvas* c1 = Utils::newNoWarnTCanvas("asdf");
   // c1->Divide(2,1);
   // c1->cd(1); h_better->Draw("colz");
   // c1->cd(2); h_all->Draw("colz");
 
-  cout << "MethodBergerBoosScan::readScan1dTrees() : read an average of " << (nentries - nfailed) / nPoints1d
-       << " toys per scan point." << endl;
-  cout << "MethodBergerBoosScan::readScan1dTrees() : fraction of failed toys: "
-       << (double)nfailed / (double)nentries * 100. << "%." << endl;
-  cout << "MethodBergerBoosScan::readScan1dTrees() : fraction of background toys: "
-       << h_background->GetEntries() / (double)nentries * 100. << "%." << endl;
+  std::cout << "MethodBergerBoosScan::readScan1dTrees() : read an average of " << (nentries - nfailed) / nPoints1d
+            << " toys per scan point." << std::endl;
+  std::cout << "MethodBergerBoosScan::readScan1dTrees() : fraction of failed toys: "
+            << (double)nfailed / (double)nentries * 100. << "%." << std::endl;
+  std::cout << "MethodBergerBoosScan::readScan1dTrees() : fraction of background toys: "
+            << h_background->GetEntries() / (double)nentries * 100. << "%." << std::endl;
 
   TH2F* hCL2d = calcPValues(*h_better, *h_all, *h_background);
   getBestPValue(hCL, hCL2d);
@@ -319,18 +344,19 @@ int MethodBergerBoosScan::scan1d(int nRun) {
   float max = hCL->GetXaxis()->GetXmax();
 
   if (arg->verbose) {
-    cout << "Berger-Boos configuration:" << endl;
-    cout << "  combination : " << title << endl;
-    cout << "  scan variable : " << scanVar1 << endl;
-    cout << "  scan range : " << min << " ... " << max << endl;
-    cout << "  scan steps : " << nPoints1d << endl;
-    cout << "  par. evolution : " << (parevolPLH != profileLH ? parevolPLH->getTitle() : "same as combination") << endl;
-    cout << "  nToys : " << nToys << endl;
-    cout << endl;
+    std::cout << "Berger-Boos configuration:" << std::endl;
+    std::cout << "  combination : " << title << std::endl;
+    std::cout << "  scan variable : " << scanVar1 << std::endl;
+    std::cout << "  scan range : " << min << " ... " << max << std::endl;
+    std::cout << "  scan steps : " << nPoints1d << std::endl;
+    std::cout << "  par. evolution : " << (parevolPLH != profileLH ? parevolPLH->getTitle() : "same as combination")
+              << std::endl;
+    std::cout << "  nToys : " << nToys << std::endl;
+    std::cout << std::endl;
   }
 
   // Set up toy root tree
-  cout << pdfName << endl;
+  std::cout << pdfName << std::endl;
   ToyTree t(combiner);
   t.init();
   t.nrun = nRun;
@@ -348,7 +374,7 @@ int MethodBergerBoosScan::scan1d(int nRun) {
   int curStep = 0;
   int StepCounter = 0;
   // start scan
-  cout << "MethodBergerBoosScan::scan1d() : starting ..." << endl;
+  std::cout << "MethodBergerBoosScan::scan1d() : starting ..." << std::endl;
   for (int i = 0; i < nPoints1d; i++) {
     float scanpoint = min + (max - min) * (double)i / (double)nPoints1d + hCL->GetBinWidth(1) / 2.;
     t.scanpoint = scanpoint;
@@ -370,7 +396,7 @@ int MethodBergerBoosScan::scan1d(int nRun) {
 
       // The first Berger Boos scanpoint is equal to the best fit values (Plugin scan point)
       RooSlimFitResult* plhScan = getParevolPoint(scanpoint);
-      setParameters(w, parsName, plhScan, true);
+      Utils::setParameters(w, parsName, plhScan, true);
 
       if (ii > 0) {
         // From the second point in the nuisance parameter space onwards, new points are drawn randomly
@@ -395,12 +421,12 @@ int MethodBergerBoosScan::scan1d(int nRun) {
       t.chi2minGlobal = profileLH->getChi2minGlobal();
 
       // Draw all toy datasets in advance. This is much faster.
-      RooDataSet* toyDataSet = w->pdf(pdfName)->generate(*w->set(obsName), nToys, AutoBinned(false));
+      RooDataSet* toyDataSet = w->pdf(pdfName)->generate(*w->set(obsName), nToys, RooFit::AutoBinned(false));
 
       for (int j = 0; j < nToys; j++) {
         curStep++;
         if (curStep % (int)(allSteps / printFreq) == 0) {
-          cout << (float)curStep / (float)allSteps * 100. << "%" << endl;
+          std::cout << (float)curStep / (float)allSteps * 100. << "%" << std::endl;
         }
 
         //
@@ -408,7 +434,7 @@ int MethodBergerBoosScan::scan1d(int nRun) {
         //    (or select the right one)
         //
         const RooArgSet* toyData = toyDataSet->get(j);
-        setParameters(w, obsName, toyData);
+        Utils::setParameters(w, obsName, toyData);
         t.storeObservables();
 
         //
@@ -442,8 +468,8 @@ int MethodBergerBoosScan::scan1d(int nRun) {
       }
 
       // reset
-      setParameters(w, parsName, frCache.getParsAtFunctionCall());
-      setParameters(w, obsName, obsDataset->get(0));
+      Utils::setParameters(w, parsName, frCache.getParsAtFunctionCall());
+      Utils::setParameters(w, obsName, obsDataset->get(0));
       delete toyDataSet;
     }
   }

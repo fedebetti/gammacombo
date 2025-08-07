@@ -6,13 +6,9 @@
 
 // Your description goes here...
 
-#include <Riostream.h>
-
-#include <RooAbsCategory.h>
-#include <RooAbsReal.h>
 #include <RooPoly3Var.h>
-#include <TMath.h>
-#include <math.h>
+
+#include <RooAbsReal.h>
 
 RooPoly3Var::RooPoly3Var(const char* name, const char* title, RooAbsReal& _xobs, double& _p0, double& _p1, double& _p2,
                          double& _p3)

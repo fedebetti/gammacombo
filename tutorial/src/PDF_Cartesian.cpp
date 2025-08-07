@@ -7,6 +7,21 @@
 
 #include <PDF_Cartesian.h>
 
+#include <ParametersCartesian.h>
+
+#include <PDF_Abs.h>
+
+#include <RooArgList.h>
+#include <RooArgSet.h>
+#include <RooFormulaVar.h>
+#include <RooMultiVarGaussian.h>
+#include <RooRealVar.h>
+
+#include <TString.h>
+
+#include <cstdlib>
+#include <iostream>
+
 PDF_Cartesian::PDF_Cartesian(TString cObs, TString cErr, TString cCor)
     : PDF_Abs(4)  // <-- configure the number of observables
 {
@@ -60,8 +75,8 @@ void PDF_Cartesian::setObservables(TString c) {
     setObservable("xp_dk_obs", -7.7e-2);
     setObservable("yp_dk_obs", -2.2e-2);
   } else {
-    cout << "PDF_Cartesian::setObservables() : ERROR : config not found: " << c << endl;
-    exit(1);
+    std::cout << "PDF_Cartesian::setObservables() : ERROR : config not found: " << c << std::endl;
+    std::exit(1);
   }
 }
 
@@ -77,8 +92,8 @@ void PDF_Cartesian::setUncertainties(TString c) {
     SystErr[2] = 0.011;  // xp
     SystErr[3] = 0.011;  // yp
   } else {
-    cout << "PDF_Cartesian::setUncertainties() : ERROR : config not found: " << c << endl;
-    exit(1);
+    std::cout << "PDF_Cartesian::setUncertainties() : ERROR : config not found: " << c << std::endl;
+    std::exit(1);
   }
 }
 
@@ -103,8 +118,8 @@ void PDF_Cartesian::setCorrelations(TString c) {
     };
     corSystMatrix = TMatrixDSym(nObs, dataSyst);
   } else {
-    cout << "PDF_Cartesian::initCorrelations() : ERROR : config not found: " << c << endl;
-    exit(1);
+    std::cout << "PDF_Cartesian::initCorrelations() : ERROR : config not found: " << c << std::endl;
+    std::exit(1);
   }
 }
 
