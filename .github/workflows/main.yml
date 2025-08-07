@@ -27,17 +27,19 @@ jobs:
 
     - name: Run CMake build
       run: |
-        docker run --rm gcimage:latest /bin/bash -c "mkdir -p /code/build && cd /code/build && cmake .. && make -j$(nproc) install"
+        docker run --name gcbuilder gcimage:latest /bin/bash -c "mkdir -p /code/build && cd /code/build && cmake .. && make -j$(nproc) install"
+        docker commit gcbuilder gcimage:built
+        docker rm gcbuilder
 
     - name: Run CI Tests
       run: |
-        docker run --rm gcimage:latest /bin/bash -c "cd /code; python3 scripts/run_ci_tests.py"
+        docker run --name gcrun gcimage:built /bin/bash -c "cd /code && python3 scripts/run_ci_tests.py"
 
     - name: Copy output
+      if: always()
       run: |
-        docker create --name temp gcimage:latest
-        docker cp temp:/code/tutorial/ci_logs ./ci_logs
-        docker rm temp
+      docker cp gcrun:/code/tutorial/ci_logs ./ci_logs
+      docker rm gcrun
 
     - name: Configure ssh keys
       if: github.actor == 'gammacombo'
