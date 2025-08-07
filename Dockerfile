@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 # Upgrade pip and install Python packages
 RUN pip3 install --upgrade pip
-RUN pip3 install numpy scipy matplotlib 
+RUN pip3 install numpy scipy matplotlib
 
 WORKDIR /code
 COPY . /code
