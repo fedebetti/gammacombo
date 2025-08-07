@@ -674,43 +674,52 @@ void Utils::floatParameters(const RooAbsCollection* set) {
   for (const auto& p : *set) static_cast<RooRealVar*>(p)->setConstant(false);
 }
 
+namespace {
+  inline void setLimitHelper(RooRealVar* v, const TString limitname) {
+    if (limitname == "free")
+      v->removeRange();
+    else
+      v->setRange(v->getMin(limitname), v->getMax(limitname));
+  }
+}  // namespace
+
 ///
 /// Load a named parameter range for a certain parameter.
 ///
-/// \param v - The parameter which will get the limit set.
-/// \param limitname - Name of the limit to set.
+/// @param v         The parameter which will get the limit set.
+/// @param limitname Name of the limit to set.
 ///
 void Utils::setLimit(RooRealVar* v, TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
-  v->setRange(v->getMin(limitname), v->getMax(limitname));
+  setLimitHelper(v, limitname);
   RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
 
 ///
-/// Load a named parameter range for a certain parameter,
-/// which is found inside a workspace.
+/// Load a named parameter range for a certain parameter, which is found inside a workspace.
 ///
-/// \param w - The workspace holding the parameter.
-/// \param parname - The name of the parameter.
-/// \param limitname - Name of the limit to set.
+/// @param w         The workspace holding the parameter.
+/// @param parname   The name of the parameter.
+/// @param limitname Name of the limit to set.
 ///
 void Utils::setLimit(RooWorkspace* w, TString parname, TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
-  w->var(parname)->setRange(w->var(parname)->getMin(limitname), w->var(parname)->getMax(limitname));
+  auto v = w->var(parname);
+  setLimitHelper(v, limitname);
   RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
 
 ///
 /// Load a named parameter range for a list of parameters.
 ///
-/// \param set - The list holding the parameters.
-/// \param limitname - Name of the limit to set.
+/// @param set       The list holding the parameters.
+/// @param limitname Name of the limit to set.
 ///
 void Utils::setLimit(const RooAbsCollection* set, TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   for (const auto& pAbs : *set) {
-    const auto p = static_cast<RooRealVar*>(pAbs);
-    p->setRange(p->getMin(limitname), p->getMax(limitname));
+    auto p = static_cast<RooRealVar*>(pAbs);
+    setLimitHelper(p, limitname);
   }
   RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
