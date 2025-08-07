@@ -968,9 +968,9 @@ TH1F* MethodPluginScan::analyseToys(ToyTree* t, int id, bool quiet) {
     float bestfitpoint = hCL->GetBinCenter(iBinBestFit);
     if (getSolution()) {
       bestfitpoint = getSolution()->getFloatParFinalVal(scanVar1);
-      if (isnan(bestfitpoint)) {
+      if (std::isnan(bestfitpoint)) {
         bestfitpoint = getSolution()->getConstParVal(scanVar1);
-        if (isnan(bestfitpoint)) { bestfitpoint = hCL->GetBinCenter(iBinBestFit); }
+        if (std::isnan(bestfitpoint)) { bestfitpoint = hCL->GetBinCenter(iBinBestFit); }
       }
     } else
       std::cout << "WARNING: No solution found, will approximate to the best scan point" << std::endl;
