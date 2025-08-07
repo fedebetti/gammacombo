@@ -22,13 +22,12 @@ void ParameterCache::printFitResultToOutStream(ofstream& out, RooSlimFitResult* 
   RooArgList argList = slimFitRes->floatParsFinal();
   argList.add(slimFitRes->constPars());
   argList.sort();
-  TIterator* iter = argList.createIterator();
-  while (RooRealVar* arg = (RooRealVar*)iter->Next()) {
+  for (const auto& argAbs : argList) {
+    const auto arg = static_cast<RooRealVar*>(argAbs);
     if (TString(arg->GetName()).Contains("obs")) continue;
     out << Form("%-25s", arg->GetName()) << " " << Form("%12.6f", arg->getVal()) << " "
         << Form("%12.6f", arg->getErrorLo()) << " " << Form("%12.6f", arg->getErrorHi()) << endl;
   }
-  delete iter;
 }
 
 void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {

@@ -4,6 +4,9 @@
 #include <PDF_Datasets.h>
 #include <TLatex.h>
 
+// Needed to define GAMMACOMBO_VERSION. Header created during CMake generation
+#include <VersionConfig.h>
+
 GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) : runOnDataSet(false) {
   // time the program
   t.Start();
@@ -494,8 +497,8 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
 
   // set observables to asimov values in workspace
   RooWorkspace* w = c->getWorkspace();
-  TIterator* itObs = c->getObservables()->createIterator();
-  while (RooRealVar* pObs = (RooRealVar*)itObs->Next()) {
+  for (const auto& pAbsObs : *c->getObservables()) {
+    const auto pObs = static_cast<RooRealVar*>(pAbsObs);
     // get theory name from the observable name
     TString pThName = pObs->GetName();
     pThName.ReplaceAll("obs", "th");
@@ -509,15 +512,13 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
     // set the observable to what the theory relation predicts
     pObs->setVal(th->getVal());
   }
-  delete itObs;
 
   // write back the asimov values to the PDF object so that when
   // the PDF is printed, the asimov values show up
   for (int i = 0; i < c->getPdfs().size(); i++) {
     PDF_Abs* pdf = c->getPdfs()[i];
     pdf->setObservableSourceString("Asimov");
-    TIterator* itObs = pdf->getObservables()->createIterator();
-    while (RooRealVar* pObs = (RooRealVar*)itObs->Next()) {
+    for (const auto& pObs : *pdf->getObservables()) {
       RooAbsReal* obs = w->var(pObs->GetName());
       if (obs == 0) {
         cout << "GammaComboEngine::setAsimovObservables() : ERROR : observable not found in workspace: "
@@ -526,7 +527,6 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
       }
       pdf->setObservable(pObs->GetName(), obs->getVal());
     }
-    delete itObs;
   }
 }
 
@@ -1575,9 +1575,7 @@ void GammaComboEngine::adjustRanges(Combiner* c, int cId) {
   if (cId < arg->removeRanges.size()) {
     for (int j = 0; j < arg->removeRanges[cId].size(); j++) {
       if (arg->removeRanges[cId][j] == "all") {
-        const RooArgSet* pars = (RooArgSet*)c->getParameters();
-        TIterator* it = pars->createIterator();
-        while (RooRealVar* par = (RooRealVar*)it->Next()) { par->removeRange(); }
+        for (const auto& par : *c->getParameters()) static_cast<RooRealVar*>(par)->removeRange();
       } else {
         c->adjustPhysRange(arg->removeRanges[cId][j], -999, -999);
       }
@@ -1810,12 +1808,12 @@ void GammaComboEngine::compareCombinations() {
       int nmatch = 0;
       comparisonScanners[i]->loadSolution(0);
       comparisonScanners[j]->loadSolution(0);
-      const RooArgSet* sc1obs = comparisonScanners[i]->getObservables();
-      const RooArgSet* sc2obs = comparisonScanners[j]->getObservables();
-      TIterator* it1 = sc1obs->createIterator();
-      while (RooRealVar* pObs1 = (RooRealVar*)it1->Next()) {
-        TIterator* it2 = sc2obs->createIterator();
-        while (RooRealVar* pObs2 = (RooRealVar*)it2->Next()) {
+      const auto sc1obs = comparisonScanners[i]->getObservables();
+      const auto sc2obs = comparisonScanners[j]->getObservables();
+      for (const auto& pAbsObs1 : *sc1obs) {
+        const auto pObs1 = static_cast<RooRealVar*>(pAbsObs1);
+        for (const auto& pAbsObs2 : *sc2obs) {
+          const auto pObs2 = static_cast<RooRealVar*>(pAbsObs1);
 
           // look for matches
           TString pTh1Name = pObs1->GetName();
@@ -1927,8 +1925,8 @@ void GammaComboEngine::runToys(Combiner* c) {
   tree->Branch("ntoy", &ntoy);
   tree->Branch("chi2min", &chi2val);
   RooArgList fitPars = probscan->solutions[0]->floatParsFinal();
-  TIterator* it = fitPars.createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
+  for (const auto& pAbs : fitPars) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
     cout << "YO:: " << p->GetName() << endl;
     vals[p->GetName()] = p->getVal();
     errs[p->GetName()] = p->getError();
@@ -1951,8 +1949,8 @@ void GammaComboEngine::runToys(Combiner* c) {
     chi2val = toyscan->solutions[0]->minNll();
     ntoy = i;
     RooArgList toyFitPars = toyscan->solutions[0]->floatParsFinal();
-    TIterator* toyit = toyFitPars.createIterator();
-    while (RooRealVar* p = (RooRealVar*)toyit->Next()) {
+    for (auto const& pAbs : toyFitPars) {
+      const auto p = static_cast<RooRealVar*>(pAbs);
       // cout << p->GetName() << " " << p->getVal() << " " << p->getError() << endl;
       vals[p->GetName()] = p->getVal();
       errs[p->GetName()] = p->getError();
@@ -2320,9 +2318,8 @@ void GammaComboEngine::runApplication() {
 /// print the initial banner
 ///
 void GammaComboEngine::printBanner() {
-  const char* VTAG = "1.3";
   cout << endl
-       << "\033[1mGammaCombo v" << VTAG << " \033[0m"
+       << "\033[1mGammaCombo " << GAMMACOMBO_VERSION << " \033[0m"
        << "-- All rights reserved under GPLv3, http://www.gnu.org/licenses/gpl.txt" << endl
        << endl;
 }

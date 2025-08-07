@@ -172,8 +172,8 @@ void ToyTree::init() {
   t->Branch("statusBkgBkg", &statusBkgBkg, "statusBkgBkg/F");
   t->Branch("bestIndexScanData", &bestIndexScanData, "bestIndexScanData/I");
   if (!arg->lightfiles) {
-    TIterator* it = w->set(parsName)->createIterator();
-    while (RooRealVar* p = (RooRealVar*)it->Next()) {
+    for (const auto& pAbs : *w->set(parsName)) {
+      const auto p = static_cast<RooRealVar*>(pAbs);
       parametersScan.insert(pair<string, float>(p->GetName(), p->getVal()));
       t->Branch(TString(p->GetName()) + "_scan", &parametersScan[p->GetName()], TString(p->GetName()) + "_scan/F");
       parametersFree.insert(pair<string, float>(p->GetName(), p->getVal()));
@@ -183,38 +183,34 @@ void ToyTree::init() {
     }
     // observables
     if (this->storeObs) {
-      delete it;
-      it = w->set(obsName)->createIterator();
-      while (RooRealVar* p = (RooRealVar*)it->Next()) {
+      for (const auto& pAbs : *w->set(obsName)) {
+        const auto p = static_cast<RooRealVar*>(pAbs);
         observables.insert(pair<string, float>(p->GetName(), p->getVal()));
         t->Branch(TString(p->GetName()), &observables[p->GetName()], TString(p->GetName()) + "/F");
       }
     }
     // theory
     if (this->storeTh) {
-      delete it;
-      it = w->set(thName)->createIterator();
-      while (RooRealVar* p = (RooRealVar*)it->Next()) {
+      for (const auto& pAbs : *w->set(thName)) {
+        const auto p = static_cast<RooRealVar*>(pAbs);
         theory.insert(pair<string, float>(p->GetName(), p->getVal()));
         t->Branch(TString(p->GetName()), &theory[p->GetName()], TString(p->GetName()) + "/F");
       }
     }
     // global observables
     if (this->storeGlob) {
-      delete it;
       if (w->set(globName) == nullptr) {
         cerr << "Unable to store parameters of global constraints because no set called " + globName
              << " is defined in the workspace. " << endl;
         //\todo Implement init function in PDF_Datasets to enabe the user to set the name of this set in the workspace.
         exit(EXIT_FAILURE);
       }
-      it = w->set(globName)->createIterator();
-      while (RooRealVar* p = (RooRealVar*)it->Next()) {
+      for (const auto& pAbs : *w->set(globName)) {
+        const auto p = static_cast<RooRealVar*>(pAbs);
         constraintMeans.insert(pair<TString, float>(p->GetName(), p->getVal()));
         t->Branch(TString(p->GetName()), &constraintMeans[p->GetName()], TString(p->GetName()) + "/F");
       }
     }
-    delete it;
   }
 }
 
@@ -319,9 +315,10 @@ void ToyTree::storeParsPll() {
     w->Print("v");
     assert(0);
   }
-  TIterator* it = w->set(parsName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) parametersPll[p->GetName()] = p->getVal();
-  delete it;
+  for (const auto& pAbs : *w->set(parsName)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    parametersPll[p->GetName()] = p->getVal();
+  }
 }
 
 ///
@@ -329,9 +326,10 @@ void ToyTree::storeParsPll() {
 /// free fit result.
 ///
 void ToyTree::storeParsFree() {
-  TIterator* it = w->set(parsName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) { parametersFree[p->GetName()] = p->getVal(); }
-  delete it;
+  for (const auto& pAbs : *w->set(parsName)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    parametersFree[p->GetName()] = p->getVal();
+  }
 }
 
 ///
@@ -339,9 +337,10 @@ void ToyTree::storeParsFree() {
 /// free fit result.
 ///
 void ToyTree::storeParsGau(RooArgSet globalConstraintMeans) {
-  TIterator* it = globalConstraintMeans.createIterator();
-  while (RooRealVar* mean = (RooRealVar*)it->Next()) { constraintMeans[mean->GetName()] = mean->getVal(); }
-  delete it;
+  for (const auto& meanAbs : globalConstraintMeans) {
+    const auto mean = static_cast<RooRealVar*>(meanAbs);
+    constraintMeans[mean->GetName()] = mean->getVal();
+  }
 }
 
 ///
@@ -349,9 +348,10 @@ void ToyTree::storeParsGau(RooArgSet globalConstraintMeans) {
 /// scan fit result.
 ///
 void ToyTree::storeParsScan() {
-  TIterator* it = w->set(parsName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) parametersScan[p->GetName()] = p->getVal();
-  delete it;
+  for (const auto& pAbs : *w->set(parsName)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    parametersScan[p->GetName()] = p->getVal();
+  }
 }
 
 ///
@@ -361,27 +361,30 @@ void ToyTree::storeParsScan() {
 void ToyTree::storeParsScan(RooFitResult* values) {
   RooArgList list = values->floatParsFinal();
   list.add(values->constPars());
-  TIterator* it = list.createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) { parametersScan[p->GetName()] = p->getVal(); }
-  delete it;
+  for (const auto& pAbs : list) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    parametersScan[p->GetName()] = p->getVal();
+  }
 }
 
 ///
 /// Store the current workspace theory parameters.
 ///
 void ToyTree::storeTheory() {
-  TIterator* it = w->set(thName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) theory[p->GetName()] = p->getVal();
-  delete it;
+  for (const auto& pAbs : *w->set(thName)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    theory[p->GetName()] = p->getVal();
+  }
 }
 
 ///
 /// Store the current workspace observables.
 ///
 void ToyTree::storeObservables() {
-  TIterator* it = w->set(obsName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) observables[p->GetName()] = p->getVal();
-  delete it;
+  for (const auto& pAbs : *w->set(obsName)) {
+    const auto p = static_cast<RooRealVar*>(pAbs);
+    observables[p->GetName()] = p->getVal();
+  }
 }
 
 Long64_t ToyTree::GetEntries() {

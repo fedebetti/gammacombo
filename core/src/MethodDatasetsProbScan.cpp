@@ -333,9 +333,7 @@ RooFitResult* MethodDatasetsProbScan::loadAndFit(PDF_Datasets* pdf) {
 void MethodDatasetsProbScan::loadParameterLimits() {
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
   if (arg->debug) cout << "DEBUG in Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
-  TIterator* it = w->set(pdf->getParName())->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) setLimit(w, p->GetName(), rangeName);
-  delete it;
+  for (const auto& p : *w->set(pdf->getParName())) setLimit(w, p->GetName(), rangeName);
 }
 
 ///
@@ -893,8 +891,7 @@ void MethodDatasetsProbScan::plotFitRes(TString fName) {
       std::cerr << "ERROR::MethodDatasetsProbScan::plotFitRes(): the variable " << fitVar
                 << " is not present in the workspace." << std::endl;
       std::cerr << "Candidates are: ";
-      TIterator* it = pdf->getObservables()->createIterator();
-      while (RooRealVar* obs = dynamic_cast<RooRealVar*>(it->Next())) { std::cerr << " " << obs->GetName(); }
+      for (const auto& obs : *pdf->getObservables()) std::cerr << " " << obs->GetName();
       std::cerr << ". Will not plot." << std::endl;
       return;
     }

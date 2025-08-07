@@ -1274,10 +1274,9 @@ void MethodAbsScan::confirmSolutions() {
       allowedSigma = TMath::Max(3. * par1stepsizeInSigma, 3. * par2stepsizeInSigma);
     }
 
-    TIterator* it = 0;
     // Warn if a parameter is close to its limit
-    it = r->floatParsFinal().createIterator();
-    while (RooRealVar* p = (RooRealVar*)it->Next()) {
+    for (const auto& pAbs : r->floatParsFinal()) {
+      const auto p = static_cast<RooRealVar*>(pAbs);
       if (p->getMax() - p->getVal() < p->getError() || p->getVal() - p->getMin() < p->getError()) {
         cout << "\nMethodAbsScan::confirmSolutions() : WARNING : " << p->GetName() << " is close to its limit!" << endl;
         cout << "                                  : ";
@@ -1285,17 +1284,15 @@ void MethodAbsScan::confirmSolutions() {
         cout << endl;
       }
     }
-    delete it;
 
     // check migration of the parameters
     RooArgList listOld = solutions[i]->floatParsFinal();
     listOld.add(solutions[i]->constPars());
     RooArgList listNew = r->floatParsFinal();
     listNew.add(r->constPars());
-    it = w->set(parsName)->createIterator();
     bool isConfirmed = true;
     TString rejectReason = "";
-    while (RooRealVar* p = (RooRealVar*)it->Next()) {
+    for (const auto& p : *w->set(parsName)) {
       RooRealVar* pOld = (RooRealVar*)listOld.find(p->GetName());
       RooRealVar* pNew = (RooRealVar*)listNew.find(p->GetName());
       if (!pOld && !pNew) {
@@ -1394,8 +1391,7 @@ bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2)
   RooArgList list2 = r2->floatParsFinal();
   list2.add(r2->constPars());
   // compare each parameter
-  TIterator* it = w->set(parsName)->createIterator();
-  while (RooRealVar* p = (RooRealVar*)it->Next()) {
+  for (const auto& p : *w->set(parsName)) {
     RooRealVar* p1 = (RooRealVar*)list1.find(p->GetName());
     RooRealVar* p2 = (RooRealVar*)list2.find(p->GetName());
     if (!p1 && !p2) {
