@@ -14,7 +14,7 @@ option(BUILD_DOCUMENTATION
        "Create and install the HTML based API documentation (requires Doxygen)"
        OFF)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Set build destinations. Cannot use CMAKE_LIBRARY_OUTPUT_DIRECTORY due to
@@ -48,7 +48,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 # Find ROOT (see https://root.cern/manual/integrate_root_into_my_cmake_project/,
 # https://cliutils.gitlab.io/modern-cmake/chapters/packages/ROOT.html)
-find_package(ROOT 6.18 CONFIG REQUIRED)
+find_package(ROOT 6.30 CONFIG REQUIRED)
 message(STATUS "Found ROOT: ${ROOT_INCLUDE_DIRS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O3 ${ROOT_CXX_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")

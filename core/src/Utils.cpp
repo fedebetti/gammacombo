@@ -37,14 +37,46 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
+#include <format>
 #include <iostream>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
+namespace {
+  /// Replace all occurrences of a substring in a string.
+  std::string replaceAll(const std::string& input, const std::string& toReplace, const std::string& replaceWith) {
+    std::string output = input;
+    if (toReplace == replaceWith) return input;
+    size_t pos = 0;
+    size_t start_pos = 0;
+    do {
+      pos = output.find(toReplace, start_pos);
+      if (pos != std::string::npos) {
+        output.replace(pos, toReplace.length(), replaceWith);
+        start_pos = pos + toReplace.length();
+      }
+    } while (pos != std::string::npos);
+    return output;
+  }
+}  // namespace
+
 int Utils::countFitBringBackAngle;     ///< counts how many times an angle needed to be brought back
 int Utils::countAllFitBringBackAngle;  ///< counts how many times fitBringBackAngle() was called
+
+void Utils::errBase(const std::string& prefix, const std::string& msg, bool exit) {
+  const std::string endStringSeparator = msg.ends_with('\n') ? "" : ". ";
+  msgBase(prefix, msg + (exit ? endStringSeparator + "Exit..." : ""), std::cerr);
+  if (exit) { std::exit(1); }
+};
+
+void Utils::msgBase(const std::string& prefix, const std::string& msg, std::ostream& stream) {
+  auto prefixLength = std::ranges::count_if(prefix, [](char c) { return c != '\n'; });
+  auto msgOut = replaceAll(msg, "\n", "\n" + std::string(prefixLength, ' '));
+  stream << prefix << msgOut << std::endl;
+};
 
 ///
 /// Fit PDF to minimum.

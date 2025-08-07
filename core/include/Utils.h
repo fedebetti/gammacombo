@@ -66,6 +66,10 @@ namespace Utils {
   // drawing HFAG label
   void HFAGLabel(const TString& label = "please set label", Double_t xpos = 0, Double_t ypos = 0, Double_t scale = 1);
 
+  // Very basic logging functions
+  void errBase(const std::string& prefix, const std::string& msg, bool exit = true);
+  void msgBase(const std::string& prefix, const std::string& msg, std::ostream& stream = std::cout);
+
   enum histogramType { kChi2, kPvalue };
   inline double sq(double x) { return x * x; }
   inline double RadToDeg(double rad) { return rad / TMath::Pi() * 180.; }

@@ -35,8 +35,7 @@ session before running any executables.
 If `CVMFS` is not available or your OS is not supported,
 `scripts/setup-env-cvmfs.sh` will not work and you will have to setup a suitable
 working environment yourself (requires `CMake` 3.19 or higher, `ROOT` higher
-than v6.18 but below v34, `Boost`, and a compiler supporting the `C++17`
-standard).
+than v6.30, `Boost`, and a compiler supporting the `C++20` standard).
 
 To build the Doxygen documentation, which will create an HTML class documentation in
 the doc/html subdirectory, do:
