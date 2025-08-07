@@ -23,6 +23,9 @@ jobs:
     - uses: actions/checkout@master
 
     - name: Build Docker image
+      run: docker build -t gcimage:latest .
+
+    - name: Run CMake build
       run: |
         docker run --rm gcimage:latest /bin/bash -c "mkdir -pr /code/build && cd /code/build && cmake .. && make -j$(nproc) install"
 
