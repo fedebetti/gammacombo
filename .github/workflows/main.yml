@@ -42,13 +42,13 @@ jobs:
         docker rm gcrun
 
     - name: Configure ssh keys
-      if: ${{ github.repository_owner == 'gammacombo' }}
-      uses: webfactory/ssh-agent@v0.2.0
+      if: ${{ github.repository_owner == 'gammacombo' && (github.event.pull_request == null || github.event.pull_request.head.repo.fork == false) }}
+      uses: webfactory/ssh-agent@v0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Publish output (if not a fork PR)
-      if: ${{ github.repository_owner == 'gammacombo' && github.event.pull_request.head.repo.full_name == github.repository }}
+      if: ${{ github.repository_owner == 'gammacombo' && (github.event.pull_request == null || github.event.pull_request.head.repo.fork == false) }} 
       run: |
         git clone git@github.com:gammacombo/gammacombo.github.io.git
         cp ci_logs/* gammacombo.github.io/assets/images/ci/
@@ -58,9 +58,9 @@ jobs:
         touch ci.html
         git add ci.html
         git add assets/images/ci/*
-        git commit -m "CI test results"
+        git commit -m "CI test results" || echo "No changes to commit"
         git push origin master
 
     - name: Print Info
-      if: ${{ github.repository_owner == 'gammacombo' }}
+      if: ${{ github.repository_owner == 'gammacombo' && (github.event.pull_request == null || github.event.pull_request.head.repo.fork == false) }}
       run: echo "Success. Check your CI tests at https://gammacombo.github.io/ci.html"
