@@ -42,13 +42,13 @@ jobs:
         docker rm gcrun
 
     - name: Configure ssh keys
-      if: github.actor == 'gammacombo'
+      if: ${{ github.repository_owner == 'gammacombo' }}
       uses: webfactory/ssh-agent@v0.2.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Publish output (if not a fork PR)
-      if: github.actor == 'gammacombo'
+      if: ${{ github.repository_owner == 'gammacombo' && github.event.pull_request.head.repo.full_name == github.repository }} 
       run: |
         git clone git@github.com:gammacombo/gammacombo.github.io.git
         cp ci_logs/* gammacombo.github.io/assets/images/ci/
@@ -62,5 +62,5 @@ jobs:
         git push origin master
 
     - name: Print Info
-      if: github.actor == 'gammacombo'
+      if: ${{ github.repository_owner == 'gammacombo' }}
       run: echo "Success. Check your CI tests at https://gammacombo.github.io/ci.html"
