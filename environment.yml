@@ -1,0 +1,14 @@
+name: gc_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - numpy
+  - scipy
+  - matplotlib
+  - root>=6.34
+  - freetype
+  - cmake>=3.30
+  - boost
+  - doxygen

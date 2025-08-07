@@ -22,25 +22,24 @@ jobs:
     steps:
     - uses: actions/checkout@master
 
-    - name: Get docker image
-      run: docker pull gammacombo/gcimage
+    - name: Build Docker image
+      run: docker build -t gcimage:latest .
 
-    - name: Make docker container
+    - name: Run CMake build
       run: |
-        docker run --name gccont gammacombo/gcimage /bin/bash -c "sudo mkdir /code"
-        docker cp . gccont:/code
-        docker commit gccont gccontwfiles
-
-    - name: Compile GC and save image
-      run: |
-        docker run --name gcbuild gccontwfiles /bin/bash -c "sudo mkdir /code/build; cd /code/build; sudo cmake ..; sudo make -j8 install"
-        docker commit gcbuild gcbuiltimage
+        docker run --name gcbuilder gcimage:latest /bin/bash -c "mkdir -p /code/build && cd /code/build && cmake .. && make -j$(nproc) install"
+        docker commit gcbuilder gcimage:built
+        docker rm gcbuilder
 
     - name: Run CI Tests
-      run: docker run --name gcrun gcbuiltimage /bin/bash -c "cd /code; sudo python scripts/run_ci_tests.py"
+      run: |
+        docker run --name gcrun gcimage:built /bin/bash -c "cd /code && python3 scripts/run_ci_tests.py"
 
     - name: Copy output
-      run: docker cp gcrun:/code/tutorial/ci_logs .
+      if: always()
+      run: |
+        docker cp gcrun:/code/tutorial/ci_logs ./ci_logs
+        docker rm gcrun
 
     - name: Configure ssh keys
       if: github.actor == 'gammacombo'

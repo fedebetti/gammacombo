@@ -129,6 +129,7 @@ namespace Utils {
     lhcb_old,
     lhcb_pipi,
     lhcb_kk,
+    lhcb_r1,
     lhcb_r2,
     lhcb_3fb,
     lhcb_5fb,
