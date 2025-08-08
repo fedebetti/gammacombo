@@ -27,7 +27,7 @@
 
 class RooWorkspace;
 
-PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt) : PDF_Abs(nObs) {
+PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, const OptParser* opt) : PDF_Abs(nObs) {
   wspc = w;
   arg = opt;
 };
@@ -320,7 +320,7 @@ void PDF_Datasets::printParameters() const {
   std::cout << std::endl << std::endl;
 };
 
-OptParser* PDF_Datasets::getArg() {
+const OptParser* PDF_Datasets::getArg() {
   std::cout << "ERROR: getting the options parser from the pdf has been deprecated" << std::endl;
   std::cout << "(This is up for discussion of course)" << std::endl;
   std::exit(EXIT_FAILURE);

@@ -31,7 +31,8 @@
 #include <iostream>
 #include <vector>
 
-OneMinusClPlot::OneMinusClPlot(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
+OneMinusClPlot::OneMinusClPlot(const OptParser* arg, TString name, TString title)
+    : OneMinusClPlotAbs(arg, name, title) {
   plotSolution = true;
 }
 

@@ -32,14 +32,14 @@ class TTree;
 class ToyTree {
  public:
   ToyTree(Combiner* c, TChain* t = 0, bool _quiet = false);
-  ToyTree(PDF_Datasets* p, OptParser* opt, TChain* t = 0, bool _quiet = false);
+  ToyTree(PDF_Datasets* p, const OptParser* opt, TChain* t = 0, bool _quiet = false);
 
   void activateCoreBranchesOnly();
   void activateAllBranches();
   void activateBranch(const TString& bName);
   void fill();
   void init();
-  OptParser* getArg() { return arg; };
+  const OptParser* getArg() { return arg; };
   Long64_t GetEntries() const;
   void GetEntry(Long64_t i);
   inline TString getName() const { return name; };
@@ -112,15 +112,15 @@ class ToyTree {
 
  private:
   void computeMinMaxN();
-  Combiner* comb = nullptr;   ///< combination bringing in the arg, workspace, and names
-  OptParser* arg = nullptr;   ///< command line arguments
-  RooWorkspace* w = nullptr;  ///< holds all input pdfs, parameters, and observables, as well as the combination
-  TString name;               ///< combiner name, ending up in titles and file names
-  TString pdfName;            ///< PDF name in workspace, derived from name
-  TString obsName;            ///< dataset name of observables, derived from name
-  TString parsName;           ///< set name of physics parameters, derived from name
-  TString thName;             ///< set name of theory parameters, derived from name
-  TString globName;           ///< set name of explicit set of global observables
+  Combiner* comb = nullptr;        ///< combination bringing in the arg, workspace, and names
+  const OptParser* arg = nullptr;  ///< command line arguments
+  RooWorkspace* w = nullptr;       ///< holds all input pdfs, parameters, and observables, as well as the combination
+  TString name;                    ///< combiner name, ending up in titles and file names
+  TString pdfName;                 ///< PDF name in workspace, derived from name
+  TString obsName;                 ///< dataset name of observables, derived from name
+  TString parsName;                ///< set name of physics parameters, derived from name
+  TString thName;                  ///< set name of theory parameters, derived from name
+  TString globName;                ///< set name of explicit set of global observables
 
   std::map<std::string, float> parametersScan;  ///< fit result of the scan fit
   std::map<std::string, float> parametersFree;  ///< fit result of the free fit

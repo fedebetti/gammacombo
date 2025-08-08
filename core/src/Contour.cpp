@@ -17,7 +17,7 @@
 /// \param arg - command line options
 /// \param listOfGraphs - list of TGraphs that make up the subcontours
 ///
-Contour::Contour(OptParser* arg, TList* listOfGraphs) {
+Contour::Contour(const OptParser* arg, TList* listOfGraphs) {
   assert(arg);
   m_arg = arg;
   for (const auto& g : *listOfGraphs) m_contours.push_back(static_cast<TGraph*>(g->Clone()));

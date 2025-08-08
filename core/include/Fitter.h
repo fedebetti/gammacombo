@@ -18,7 +18,7 @@ class OptParser;
 
 class Fitter {
  public:
-  Fitter(OptParser* arg, RooWorkspace* w, TString name);
+  Fitter(const OptParser* arg, RooWorkspace* w, TString name);
 
   void fit();
   void fitForce();
@@ -32,9 +32,9 @@ class Fitter {
   inline void setStartparsFirstFit(const RooArgSet* pars) { startparsFirstFit = pars; };
   inline void setStartparsSecondFit(const RooArgSet* pars) { startparsSecondFit = pars; };
 
-  OptParser* arg = nullptr;   ///< command line arguments
-  RooWorkspace* w = nullptr;  ///< holds all input pdfs, parameters, and observables, as well as the combination
-  TString name;               ///< Name of the pdf. Call combine() first.
+  const OptParser* arg = nullptr;  ///< command line arguments
+  RooWorkspace* w = nullptr;       ///< holds all input pdfs, parameters, and observables, as well as the combination
+  TString name;                    ///< Name of the pdf. Call combine() first.
 
   /// Start parameters to be used by all fit routines that run one fit, and by the first fit of fitTwice()
   RooArgSet const* startparsFirstFit = nullptr;

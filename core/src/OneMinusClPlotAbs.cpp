@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title) {
+OneMinusClPlotAbs::OneMinusClPlotAbs(const OptParser* arg, TString name, TString title) {
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
   gStyle->SetPadTopMargin(0.05);

@@ -9,7 +9,7 @@
 
 using Utils::Round;
 
-Rounder::Rounder(OptParser* arg, float cllo, float clhi, float central)
+Rounder::Rounder(const OptParser* arg, float cllo, float clhi, float central)
     : m_cllo(cllo), m_clhi(clhi), m_central(central) {
   assert(arg);
   this->arg = arg;

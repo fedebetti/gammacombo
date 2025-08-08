@@ -25,7 +25,7 @@ class TH1F;
 
 class MethodDatasetsProbScan : public MethodProbScan {
  public:
-  MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt);
+  MethodDatasetsProbScan(PDF_Datasets* PDF, const OptParser* opt);
 
   virtual void initScan();
   void loadScanFromFile(TString fileNameBaseIn = "default");

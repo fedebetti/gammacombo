@@ -17,7 +17,7 @@ class RooSlimFitResult;
 class ParameterCache {
 
  public:
-  ParameterCache(OptParser* arg);
+  ParameterCache(const OptParser* arg);
 
   void cacheParameters(MethodAbsScan* scanner, TString fileName);
   bool loadPoints(TString fileName);
@@ -31,7 +31,7 @@ class ParameterCache {
 
  private:
   bool m_parametersLoaded = false;
-  OptParser* m_arg = nullptr;
+  const OptParser* m_arg = nullptr;
 };
 
 #endif

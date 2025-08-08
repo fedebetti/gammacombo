@@ -34,7 +34,7 @@ class RooWorkspace;
 
 class PDF_Datasets : public PDF_Abs {
  public:
-  PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt);
+  PDF_Datasets(RooWorkspace* w, int nObs, const OptParser* opt);
   PDF_Datasets(RooWorkspace* w);
   virtual ~PDF_Datasets();
   void deleteNLL();
@@ -59,7 +59,7 @@ class PDF_Datasets : public PDF_Abs {
   void initBkgPDF(const TString& name);
   inline void addFitObs(TString name) { fitObs.push_back(name); };
 
-  OptParser* getArg();
+  const OptParser* getArg();
   TString getConstraintName() const { return constraintName; };
   TString getDataName() const { return dataName; };
   RooAbsData* getData() { return this->data; };
@@ -144,7 +144,7 @@ class PDF_Datasets : public PDF_Abs {
   TString globalParsName = "default_internal_global_pars_set_name";
   /// Name of the set of global observables in the workspace.
   TString globalObsName = "default_internal_global_obs_set_name";
-  OptParser* arg = nullptr;
+  const OptParser* arg = nullptr;
   int fitStrategy = 0;
   int fitStatus = -10;
   double minNllFree = 0.;

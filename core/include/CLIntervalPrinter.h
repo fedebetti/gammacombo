@@ -21,7 +21,7 @@ class OptParser;
 ///
 class CLIntervalPrinter {
  public:
-  CLIntervalPrinter(OptParser* arg, TString name, TString var, TString unit, TString method, int CLsType = 0);
+  CLIntervalPrinter(const OptParser* arg, TString name, TString var, TString unit, TString method, int CLsType = 0);
 
   void print();
   void savePython();
@@ -31,7 +31,7 @@ class CLIntervalPrinter {
  private:
   static bool compareByMin(const CLInterval& a, const CLInterval& b);
 
-  OptParser* _arg = nullptr;                        ///< command line arguments
+  const OptParser* _arg = nullptr;                  ///< command line arguments
   TString _name;                                    ///< name of combination
   TString _var;                                     ///< name of scan variable
   TString _unit;                                    ///< unit of scan variable

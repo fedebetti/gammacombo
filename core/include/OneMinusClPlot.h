@@ -20,7 +20,7 @@ class TGraph;
 
 class OneMinusClPlot : public OneMinusClPlotAbs {
  public:
-  OneMinusClPlot(OptParser* arg, TString name = "c1", TString title = "c1");
+  OneMinusClPlot(const OptParser* arg, TString name = "c1", TString title = "c1");
 
   void drawSolutions();
   void drawCLguideLines();

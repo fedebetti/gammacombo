@@ -19,13 +19,13 @@ class OptParser;
 
 class Graphviz {
  public:
-  Graphviz(OptParser* arg);
+  Graphviz(const OptParser* arg);
 
   void printCombiner(Combiner* cmb);
   void printCombinerLayer(Combiner* cmb);
 
  private:
-  OptParser* arg = nullptr;  ///< command line arguments
+  const OptParser* arg = nullptr;  ///< command line arguments
 };
 
 #endif

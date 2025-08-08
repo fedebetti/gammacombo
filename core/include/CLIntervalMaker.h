@@ -21,7 +21,7 @@ class TH1F;
 ///
 class CLIntervalMaker {
  public:
-  CLIntervalMaker(OptParser* arg, const TH1F& pvalues);
+  CLIntervalMaker(const OptParser* arg, const TH1F& pvalues);
   void calcCLintervals();
   void findMaxima(double pValueThreshold);
   inline std::vector<CLInterval>& getClintervals1sigma() { return _clintervals1sigma; };
@@ -46,7 +46,7 @@ class CLIntervalMaker {
   void storeRawInterval(int binidLo, int binidHi, double pvalue, std::vector<CLInterval>& clis);
   int valueToBin(double val) const;
 
-  OptParser* _arg = nullptr;                   ///< command line arguments
+  const OptParser* _arg = nullptr;             ///< command line arguments
   const TH1F& _pvalues;                        ///< the pvalue histogram
   std::vector<CLInterval> _clintervals1sigma;  ///< 1 sigma intervals
   std::vector<CLInterval> _clintervals2sigma;  ///< 2 sigma intervals

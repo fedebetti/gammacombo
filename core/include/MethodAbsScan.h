@@ -37,14 +37,14 @@ class MethodAbsScan {
  public:
   MethodAbsScan() = default;
   MethodAbsScan(Combiner* c);
-  MethodAbsScan(OptParser* opt);
+  MethodAbsScan(const OptParser* opt);
 
   virtual ~MethodAbsScan();
 
   virtual void calcCLintervals(int CLsType = 0, bool calc_expected = false, bool quiet = false);
   void confirmSolutions();
   void doInitialFit(bool force = false);
-  inline OptParser* getArg() { return arg; };
+  inline const OptParser* getArg() { return arg; };
   inline const std::vector<RooSlimFitResult*>& getAllResults() { return allResults; };
   inline const std::vector<RooSlimFitResult*>& getCurveResults() { return curveResults; };
   inline float getChi2minGlobal() { return chi2minGlobal; }
@@ -212,7 +212,7 @@ class MethodAbsScan {
   ///< Default is taken from arg, unless disabled by setDrawSolution().
   bool verbose = false;
   int nWarnings = 0;                     ///< number of warnings printed in getScanVarSolution()
-  OptParser* arg = nullptr;              ///< command line options
+  const OptParser* arg = nullptr;        ///< command line options
   Combiner* combiner = nullptr;          ///< the combination
   bool m_xrangeset = false;              ///< true if the x range was set manually (setXscanRange())
   bool m_yrangeset = false;              ///< true if the y range was set manually (setYscanRange())

@@ -29,7 +29,8 @@
 #include <iostream>
 #include <vector>
 
-OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
+OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString title)
+    : OneMinusClPlotAbs(arg, name, title) {
   xTitle = arg->xtitle;
   yTitle = arg->ytitle;
   ColorBuilder cb;
@@ -887,7 +888,7 @@ void OneMinusClPlot2d::Draw() {
     cont->setStyle(transpose(linecolor)[styleId], transpose(linestyle)[i], transpose(linewidth)[i],
                    transpose(fillcolor)[styleId], transpose(fillstyle)[i]);
     if (i < arg->filltransparency.size()) cont->setTransparency(arg->filltransparency[i]);
-    cont->setContoursToPlot(arg->contourlabels[i]);
+    cont->setContoursToPlot(arg->contourlabels.at(i));
     m_contours[i] = cont;
     m_contours_computed[i] = true;
   }

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 
-CLIntervalMaker::CLIntervalMaker(OptParser* arg, const TH1F& pvalues) : _pvalues(pvalues) {
+CLIntervalMaker::CLIntervalMaker(const OptParser* arg, const TH1F& pvalues) : _pvalues(pvalues) {
   assert(arg);
   _arg = arg;
   // for ( int i=1; i<pvalues.GetNbinsX(); i++ )

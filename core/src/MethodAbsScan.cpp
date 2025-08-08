@@ -66,7 +66,7 @@ MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
 }
 
 // constructor without combiner, this is atm still needed for the datasets stuff
-MethodAbsScan::MethodAbsScan(OptParser* opt)
+MethodAbsScan::MethodAbsScan(const OptParser* opt)
     : rndm(), arg(opt), scanVar1(opt->var[0]), verbose(opt->verbose), nPoints1d(opt->npoints1d),
       nPoints2dx(opt->npoints2dx), nPoints2dy(opt->npoints2dy) {
   if (opt->var.size() > 1) scanVar2 = opt->var[1];

@@ -22,7 +22,7 @@ class TList;
 
 class Contour {
  public:
-  Contour(OptParser* arg, TList* listOfGraphs);
+  Contour(const OptParser* arg, TList* listOfGraphs);
   ~Contour();
   void Draw();
   void DrawFilled();
@@ -40,7 +40,7 @@ class Contour {
   std::vector<TGraph*> makeHoles(std::vector<TGraph*>& contours);
   void magneticBoundaries(std::vector<TGraph*>& contours, const TH2F* hCL);
 
-  OptParser* m_arg = nullptr;  ///< command line arguments
+  const OptParser* m_arg = nullptr;  ///< command line arguments
 
   /// Vector of disjoint subcontours.
   std::vector<TGraph*> m_contours;

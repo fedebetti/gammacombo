@@ -41,7 +41,8 @@
 #include <map>
 #include <vector>
 
-MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt) : MethodProbScan(opt), pdf(PDF) {
+MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, const OptParser* opt)
+    : MethodProbScan(opt), pdf(PDF) {
   // The free fit to data must be done and must be saved to the workspace before gammacombo is even called
   chi2minGlobalFound = true;
   methodName = "DatasetsProb";

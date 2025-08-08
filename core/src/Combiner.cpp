@@ -22,9 +22,9 @@
 #include <string>
 #include <vector>
 
-Combiner::Combiner(OptParser* arg, TString title) : title(title) {
+Combiner::Combiner(const OptParser* arg, TString title) : title(title) {
   std::cout << "Combiner::Combiner() : WARNING : This constructor is deprecated. "
-               "Use Combiner(OptParser *arg, TString name, TString title) instead."
+               "Use Combiner(const OptParser *arg, TString name, TString title) instead."
             << std::endl;
   if (arg->debug) std::cout << "Combiner::Combiner() : new combiner title=" << title << std::endl;
   this->arg = arg;
@@ -32,7 +32,7 @@ Combiner::Combiner(OptParser* arg, TString title) : title(title) {
   w = new RooWorkspace(wsname, wsname);
 }
 
-Combiner::Combiner(OptParser* arg, TString name, TString title) : name(name), title(title) {
+Combiner::Combiner(const OptParser* arg, TString name, TString title) : name(name), title(title) {
   if (arg->debug) std::cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << std::endl;
   this->arg = arg;
   TString wsname = "w" + Utils::getUniqueRootName();

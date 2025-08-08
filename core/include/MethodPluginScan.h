@@ -30,7 +30,7 @@ class TH1F;
 class MethodPluginScan : public MethodAbsScan {
  public:
   MethodPluginScan(MethodProbScan* s);
-  MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, OptParser* opt);
+  MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, const OptParser* opt);
   MethodPluginScan(Combiner* comb);
 
   inline void setNtoysPerPoint(int n) { nToys = n; };

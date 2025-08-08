@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <iostream>
 
-FitResultCache::FitResultCache(OptParser* arg, int roundrobinsize) {
+FitResultCache::FitResultCache(const OptParser* arg, int roundrobinsize) {
   assert(arg);
   _arg = arg;
   _roundrobinsize = roundrobinsize;

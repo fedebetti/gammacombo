@@ -20,7 +20,7 @@ class OptParser;
 
 class OneMinusClPlotAbs {
  public:
-  OneMinusClPlotAbs(OptParser* arg, TString name = "c1", TString title = "c1");
+  OneMinusClPlotAbs(const OptParser* arg, TString name = "c1", TString title = "c1");
   virtual ~OneMinusClPlotAbs();
 
   virtual void addScanner(MethodAbsScan* s, int CLsType = 0);
@@ -49,7 +49,7 @@ class OneMinusClPlotAbs {
 
   std::vector<MethodAbsScan*> scanners;
   std::vector<int> do_CLs;  ///< std::vector, which stores the cls method type to be plotted.
-  OptParser* arg = nullptr;
+  const OptParser* arg = nullptr;
   TCanvas* m_mainCanvas = nullptr;
   TString name;
   TString title;

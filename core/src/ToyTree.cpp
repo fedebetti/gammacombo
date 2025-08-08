@@ -30,7 +30,7 @@ ToyTree::ToyTree(Combiner* c, TChain* t, bool _quiet) : quiet(_quiet) {
   this->storeGlob = false;
 }
 
-ToyTree::ToyTree(PDF_Datasets* p, OptParser* opt, TChain* t, bool _quiet) : quiet(_quiet) {
+ToyTree::ToyTree(PDF_Datasets* p, const OptParser* opt, TChain* t, bool _quiet) : quiet(_quiet) {
   assert(p);
   this->comb = nullptr;
   this->w = p->getWorkspace();

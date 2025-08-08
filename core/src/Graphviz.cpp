@@ -39,7 +39,7 @@ namespace {
 
 }  // namespace
 
-Graphviz::Graphviz(OptParser* arg) {
+Graphviz::Graphviz(const OptParser* arg) {
   assert(arg);
   this->arg = arg;
 }

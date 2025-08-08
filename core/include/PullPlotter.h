@@ -31,10 +31,10 @@ class PullPlotter {
   void defineOrder();
   void plotPullsCanvas(std::vector<TString>& observables, int currentid, int maxid, int nObs);
 
-  MethodAbsScan* cmb = nullptr;   // the scanner to plot pulls for
-  OptParser* arg = nullptr;       // command line arguments
-  std::vector<TString> obsOrder;  // contains observable names in the desired plot order
-  int nSolution = 0;              // index of the solution wrt which the pulls are computed
+  MethodAbsScan* cmb = nullptr;    // the scanner to plot pulls for
+  const OptParser* arg = nullptr;  // command line arguments
+  std::vector<TString> obsOrder;   // contains observable names in the desired plot order
+  int nSolution = 0;               // index of the solution wrt which the pulls are computed
 };
 
 #endif

@@ -27,7 +27,7 @@ class TChain;
 
 class MethodDatasetsPluginScan : public MethodPluginScan {
  public:
-  MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, OptParser* opt);
+  MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, const OptParser* opt);
   void drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn = "default");
   float getParValAtIndex(int index, TString parName);
   MethodDatasetsProbScan* getProfileLH();

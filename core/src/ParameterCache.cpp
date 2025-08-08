@@ -29,7 +29,7 @@
 ///
 /// \param arg - command line options
 ///
-ParameterCache::ParameterCache(OptParser* arg) {
+ParameterCache::ParameterCache(const OptParser* arg) {
   assert(arg);
   m_arg = arg;
 }

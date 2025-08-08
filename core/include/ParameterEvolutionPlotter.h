@@ -49,7 +49,7 @@ class ParameterEvolutionPlotter {
   TVirtualPad* selectNewPad();
   void updateCurrentCanvas();
 
-  OptParser* arg = nullptr;                     ///< command line arguments
+  const OptParser* arg = nullptr;               ///< command line arguments
   RooWorkspace* w = nullptr;                    ///< a clone of the scanner's workspace
   std::vector<RooSlimFitResult*> allResults;    ///< all results of all scan points
   std::vector<RooSlimFitResult*> curveResults;  ///< only the results of scan points that were accepted into the CL

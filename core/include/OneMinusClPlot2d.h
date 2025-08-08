@@ -24,7 +24,7 @@ class TLegend;
 
 class OneMinusClPlot2d : public OneMinusClPlotAbs {
  public:
-  OneMinusClPlot2d(OptParser* arg, TString name = "c1", TString title = "c1");
+  OneMinusClPlot2d(const OptParser* arg, TString name = "c1", TString title = "c1");
 
   void addScanner(MethodAbsScan* s, int CLsType = 0);
   void addFile(TString fName);

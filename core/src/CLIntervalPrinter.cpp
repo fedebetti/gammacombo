@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 
-CLIntervalPrinter::CLIntervalPrinter(OptParser* arg, TString name, TString var, TString unit, TString method,
+CLIntervalPrinter::CLIntervalPrinter(const OptParser* arg, TString name, TString var, TString unit, TString method,
                                      int CLsType)
     : _name(name), _var(var), _unit(unit), _method(method), _clstype(CLsType) {
   assert(arg);

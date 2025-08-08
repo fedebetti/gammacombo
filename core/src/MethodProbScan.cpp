@@ -50,7 +50,7 @@ namespace {
 
 MethodProbScan::MethodProbScan(Combiner* comb) : MethodAbsScan(comb) { methodName = "Prob"; }
 
-MethodProbScan::MethodProbScan(OptParser* opt) : MethodAbsScan(opt) { methodName = "Prob"; }
+MethodProbScan::MethodProbScan(const OptParser* opt) : MethodAbsScan(opt) { methodName = "Prob"; }
 
 ///
 /// Default constructor

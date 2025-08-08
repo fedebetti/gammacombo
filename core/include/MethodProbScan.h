@@ -18,7 +18,7 @@ class TH1F;
 class MethodProbScan : public MethodAbsScan {
  public:
   MethodProbScan(Combiner* comb);
-  MethodProbScan(OptParser* opt);
+  MethodProbScan(const OptParser* opt);
   MethodProbScan();
 
   virtual int computeCLvalues();  // compute CL histograms depending on desired test statistic

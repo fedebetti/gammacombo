@@ -11,7 +11,7 @@
 #include <cassert>
 #include <iostream>
 
-Fitter::Fitter(OptParser* arg, RooWorkspace* w, TString name) {
+Fitter::Fitter(const OptParser* arg, RooWorkspace* w, TString name) {
   this->w = w;
   this->name = name;
   this->arg = arg;
