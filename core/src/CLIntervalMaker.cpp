@@ -26,9 +26,9 @@ CLIntervalMaker::CLIntervalMaker(OptParser* arg, const TH1F& pvalues) : _pvalues
 /// \param value - parameter value at the maximum
 /// \param method - details on how this maximum was found
 ///
-void CLIntervalMaker::provideMorePreciseMaximum(float value, TString method) {
+void CLIntervalMaker::provideMorePreciseMaximum(double value, TString method) {
   // std::cout << "CLIntervalMaker::provideMorePreciseMaximum() : " << value << std::endl;
-  float level = 1.;  // accept this many bin sizes deviation
+  double level = 1.;  // accept this many bin sizes deviation
   for (int i = 0; i < _clintervals1sigma.size(); i++) {
     if (fabs(_clintervals1sigma[i].central - value) < level * _pvalues.GetBinWidth(1)) {
       _clintervals1sigma[i].central = value;
@@ -54,7 +54,7 @@ void CLIntervalMaker::provideMorePreciseMaximum(float value, TString method) {
 /// \param pValueThreshold - ignore maxima under this pvalue threshold
 ///                 to reject low statistics plugin crap
 ///
-void CLIntervalMaker::findMaxima(float pValueThreshold) {
+void CLIntervalMaker::findMaxima(double pValueThreshold) {
   for (int i = 2; i < _pvalues.GetNbinsX() - 1; i++) {
     if (_pvalues.GetBinContent(i - 1) < _pvalues.GetBinContent(i) &&
         _pvalues.GetBinContent(i) > _pvalues.GetBinContent(i + 1)) {
@@ -70,7 +70,7 @@ void CLIntervalMaker::findMaxima(float pValueThreshold) {
     }
   }
 }
-// void CLIntervalMaker::findMaxima(float pValueThreshold)
+// void CLIntervalMaker::findMaxima(double pValueThreshold)
 // {
 //  for ( int i=3; i<_pvalues.GetNbinsX()-2; i++ ){
 //      if ( _pvalues.GetBinContent(i-1) < _pvalues.GetBinContent(i)
@@ -99,7 +99,7 @@ void CLIntervalMaker::findMaxima(float pValueThreshold) {
 /// \param pvalue - the p value threshold
 /// \return - true, if bin is in interval
 ///
-bool CLIntervalMaker::isInInterval(int binid, float pvalue) const { return _pvalues.GetBinContent(binid) > pvalue; }
+bool CLIntervalMaker::isInInterval(int binid, double pvalue) const { return _pvalues.GetBinContent(binid) > pvalue; }
 
 ///
 /// Stores a confidence interval found by findRawIntervalsForCentralValues().
@@ -109,7 +109,7 @@ bool CLIntervalMaker::isInInterval(int binid, float pvalue) const { return _pval
 /// \param pvalue - p-value threshold, accept points into interval if their p-value is above
 /// \param clis - vector of confidence intervals, usually _clintervals1sigma or _clintervals2sigma
 ///
-void CLIntervalMaker::storeRawInterval(int binidLo, int binidHi, float pvalue, std::vector<CLInterval>& clis) {
+void CLIntervalMaker::storeRawInterval(int binidLo, int binidHi, double pvalue, std::vector<CLInterval>& clis) {
   CLInterval c;
   c.pvalue = pvalue;
   // use the histogram border for non-closed intervals,
@@ -147,7 +147,7 @@ void CLIntervalMaker::storeRawInterval(int binidLo, int binidHi, float pvalue, s
 /// \param clis - saves intervals into this vector of confidence intervals, usually _clintervals1sigma or
 /// _clintervals2sigma
 ///
-void CLIntervalMaker::findRawIntervals(float pvalue, std::vector<CLInterval>& clis) {
+void CLIntervalMaker::findRawIntervals(double pvalue, std::vector<CLInterval>& clis) {
   bool intervalIsOpened = false;
   int intervalBinLo = 1;
   int intervalBinHi = _pvalues.GetNbinsX();
@@ -179,7 +179,7 @@ void CLIntervalMaker::findRawIntervals(float pvalue, std::vector<CLInterval>& cl
 /// \param pvalue - pvalue of the intervals to find
 /// \param clis - list of confidence intervals holding the central value
 ///
-void CLIntervalMaker::findRawIntervalsForCentralValues(float pvalue, std::vector<CLInterval>& clis) {
+void CLIntervalMaker::findRawIntervalsForCentralValues(double pvalue, std::vector<CLInterval>& clis) {
   for (int i = 0; i < clis.size(); i++) {
     if (clis[i].pvalueAtCentral < pvalue)
       continue;  // skip central values that will not going to be included in an interval at this pvalue
@@ -238,7 +238,7 @@ void CLIntervalMaker::removeBadIntervals() {
 /// \param y - y value
 /// \return - true if i and i+1 are on the same side
 ///
-bool CLIntervalMaker::binsOnSameSide(int i, float y) const {
+bool CLIntervalMaker::binsOnSameSide(int i, double y) const {
   return ((_pvalues.GetBinContent(i) > y && _pvalues.GetBinContent(i + 1) > y) ||
           (_pvalues.GetBinContent(i) < y && _pvalues.GetBinContent(i + 1) < y));
 }
@@ -253,7 +253,7 @@ bool CLIntervalMaker::binsOnSameSide(int i, float y) const {
 /// \param y - y value
 /// \return - bin ID of _pvalues histogram
 ///
-int CLIntervalMaker::checkNeighboringBins(int i, float y) const {
+int CLIntervalMaker::checkNeighboringBins(int i, double y) const {
   if (!binsOnSameSide(i, y)) return i;
   if (1 < i + 1 && i + 1 <= _pvalues.GetNbinsX() - 1 && !binsOnSameSide(i + 1, y)) return i + 1;
   if (1 < i - 1 && i - 1 <= _pvalues.GetNbinsX() - 1 && !binsOnSameSide(i - 1, y)) return i - 1;
@@ -274,17 +274,17 @@ int CLIntervalMaker::checkNeighboringBins(int i, float y) const {
 /// \param val - Return value: interpolated x position
 /// \return true if successful
 ///
-bool CLIntervalMaker::interpolateLine(const TH1F* h, int i, float y, float& val) const {
+bool CLIntervalMaker::interpolateLine(const TH1F* h, int i, double y, double& val) const {
   // std::cout << "CLIntervalMaker::interpolateLine(): i=" << i << " y=" << y << std::endl;
   if (!(1 <= i && i <= h->GetNbinsX() - 1)) return false;
   if (binsOnSameSide(i, y)) {
     std::cout << "CLIntervalMaker::interpolateLine() : ERROR : bins i and i+1 on same side of y" << std::endl;
     return false;
   }
-  float p1x = h->GetBinCenter(i);
-  float p1y = h->GetBinContent(i);
-  float p2x = h->GetBinCenter(i + 1);
-  float p2y = h->GetBinContent(i + 1);
+  double p1x = h->GetBinCenter(i);
+  double p1y = h->GetBinContent(i);
+  double p2x = h->GetBinCenter(i + 1);
+  double p2y = h->GetBinContent(i + 1);
   val = p2x + (y - p2y) / (p1y - p2y) * (p1x - p2x);
   return true;
 }
@@ -297,7 +297,7 @@ bool CLIntervalMaker::interpolateLine(const TH1F* h, int i, float y, float& val)
 void CLIntervalMaker::improveIntervalsLine(std::vector<CLInterval>& clis) const {
   for (int i = 0; i < clis.size(); i++) {
     bool wasImproved;
-    float newMin, newMax;
+    double newMin, newMax;
     int binMin, binMax;
     // improve lower boundary
     if (clis[i].minclosed) {
@@ -328,7 +328,7 @@ void CLIntervalMaker::improveIntervalsLine(std::vector<CLInterval>& clis) const 
 void CLIntervalMaker::improveIntervalsPol2fit(std::vector<CLInterval>& clis) const {
   for (int i = 0; i < clis.size(); i++) {
     bool wasImproved;
-    float newMin, newMax, newMinErr, newMaxErr;
+    double newMin, newMax, newMinErr, newMaxErr;
     int binMin, binMax;
     // improve lower boundary
     if (clis[i].minclosed) {
@@ -355,7 +355,7 @@ void CLIntervalMaker::improveIntervalsPol2fit(std::vector<CLInterval>& clis) con
 /// Solve a quadratic equation by means of a modified pq formula:
 /// @f[x^2 + \frac{p_1}{p_2} x + \frac{p_0-y}{p2} = 0@f]
 ///
-float CLIntervalMaker::pq(float p0, float p1, float p2, float y, int whichSol) const {
+double CLIntervalMaker::pq(double p0, double p1, double p2, double y, int whichSol) const {
   if (whichSol == 0)
     return -p1 / 2. / p2 + sqrt(Utils::sq(p1 / 2. / p2) - (p0 - y) / p2);
   else
@@ -378,8 +378,8 @@ float CLIntervalMaker::pq(float p0, float p1, float p2, float y, int whichSol) c
 /// \param err - Return value: estimated interpolation error
 /// \return true, if inpterpolation was performed, false, if conditions were not met
 ///
-bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float central, bool upper, float& val,
-                                         float& err) const {
+bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, double y, double central, bool upper, double& val,
+                                         double& err) const {
   // std::cout << "CLIntervalMaker::interpolatePol2fit(): i=" << i << " y=" << y << " central=" << central << std::endl;
   // check if too close to border so we don't have enough bins to fit
   if (!(2 <= i && i <= h->GetNbinsX() - 1)) return false;
@@ -438,15 +438,15 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float ce
   TF1* f1 = new TF1("f1", "pol2", h->GetBinCenter(i - 2), h->GetBinCenter(i + 2));
   g->Fit("f1", "q");    // fit linear to get decent start parameters
   g->Fit("f1", "qf+");  // refit with minuit to get more correct errors (TGraph fit errors bug)
-  float p[3], e[3];
+  double p[3], e[3];
   for (int ii = 0; ii < 3; ii++) {
     p[ii] = f1->GetParameter(ii);
     e[ii] = f1->GetParError(ii);
   }
 
   // get solution by solving the pol2 for x
-  float sol0 = pq(p[0], p[1], p[2], y, 0);
-  float sol1 = pq(p[0], p[1], p[2], y, 1);
+  double sol0 = pq(p[0], p[1], p[2], y, 0);
+  double sol1 = pq(p[0], p[1], p[2], y, 1);
 
   // decide which of both solutions to use based on the position of
   // the central value
@@ -477,9 +477,9 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float ce
     val = sol1;
 
   // try error propagation: sth is wrong in the formulae
-  // float err0 = TMath::Max(sq(val-pq(p[0]+e[0], p[1], p[2], y, useSol)), sq(val-pq(p[0]-e[0], p[1], p[2], y,
-  // useSol))); float err1 = TMath::Max(sq(val-pq(p[0], p[1]+e[1], p[2], y, useSol)), sq(val-pq(p[0], p[1]-e[1], p[2],
-  // y, useSol))); float err2 = TMath::Max(sq(val-pq(p[0], p[1], p[2]+e[2], y, useSol)), sq(val-pq(p[0], p[1],
+  // double err0 = TMath::Max(sq(val-pq(p[0]+e[0], p[1], p[2], y, useSol)), sq(val-pq(p[0]-e[0], p[1], p[2], y,
+  // useSol))); double err1 = TMath::Max(sq(val-pq(p[0], p[1]+e[1], p[2], y, useSol)), sq(val-pq(p[0], p[1]-e[1], p[2],
+  // y, useSol))); double err2 = TMath::Max(sq(val-pq(p[0], p[1], p[2]+e[2], y, useSol)), sq(val-pq(p[0], p[1],
   // p[2]-e[2], y, useSol))); err = sqrt(err0+err1+err2); printf("%f %f %f\n", val, pq(p[0]+e[0], p[1], p[2], y,
   // useSol), pq(p[0]-e[0], p[1], p[2], y, useSol)); printf("%f %f %f\n", val, pq(p[0], p[1]+e[1], p[2], y, useSol),
   // pq(p[0], p[1]-e[1], p[2], y, useSol)); printf("%f %f %f\n", val, pq(p[0], p[1], p[2]+e[2], y, useSol), pq(p[0],
@@ -489,9 +489,9 @@ bool CLIntervalMaker::interpolatePol2fit(const TH1F* h, int i, float y, float ce
   return true;
 }
 
-int CLIntervalMaker::valueToBin(float val) const { return _pvalues.GetXaxis()->FindBin(val); }
+int CLIntervalMaker::valueToBin(double val) const { return _pvalues.GetXaxis()->FindBin(val); }
 
-float CLIntervalMaker::binToValue(int bin) const { return _pvalues.GetBinCenter(bin); }
+double CLIntervalMaker::binToValue(int bin) const { return _pvalues.GetBinCenter(bin); }
 
 void CLIntervalMaker::print() {
   CLIntervalPrinter clp(_arg, "test", "var", "", "CLMaker's print()");

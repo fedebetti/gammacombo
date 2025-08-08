@@ -17,8 +17,8 @@ class Parameter {
   void Print() const;
 
   struct Range {
-    float min;
-    float max;
+    double min;
+    double max;
   };
 
  private:
