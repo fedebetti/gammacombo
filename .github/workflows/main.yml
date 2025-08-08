@@ -43,7 +43,7 @@ jobs:
 
     - name: Dummy Build Plots
       run: |
-        wget -r -np -nH --cut-dirs=2 https://www.hep.phy.cam.ac.uk/~mkenzie/files/ci_logs/
+        wget -r -np -nH --cut-dirs=2 --ignore-missing https://www.hep.phy.cam.ac.uk/~mkenzie/files/ci_logs/ || true
 
     - name: Publish CI logs & plots to gammacombo.github.io
       run: |
