@@ -79,7 +79,7 @@ def check_dsets_dat(datf):
     f = open(datf)
     for line in f.readlines():
         if line.startswith("Nbkg"):
-            assert "4990.2" in line and "-71.7" in line and "71.7" in line
+            assert "4990.2" in line and "-71.8" in line and "71.8" in line
         if line.startswith("branchingRatio"):
             assert "   0.000000    -0.000000     0.000000" in line
         if line.startswith("exponent"):

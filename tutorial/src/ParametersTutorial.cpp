@@ -9,7 +9,6 @@ ParametersTutorial::ParametersTutorial() { defineParameters(); }
 ///
 ///  scan:      defines scan range (for Prob and Plugin methods)
 ///  phys:      physically allowed range (needs to be set!)
-///  free:  range applied when no boundary is required - set this far away from any possible value
 ///
 void ParametersTutorial::defineParameters() {
   Parameter* p = 0;
@@ -21,7 +20,6 @@ void ParametersTutorial::defineParameters() {
   p->scan = range(-2.5, 2.5);
   p->phys = range(-1e4, 1e4);  // to implement a Feldman-Cousins like forbidden region, set the allowed region here and
                                // use --pr
-  p->free = range(-1e4, 1e4);
 
   p = newParameter("b_gaus");
   p->title = "b_{Gaus}";
@@ -29,5 +27,4 @@ void ParametersTutorial::defineParameters() {
   p->unit = "";
   p->scan = range(-2, 4);
   p->phys = range(-1e4, 1e4);
-  p->free = range(-1e4, 1e4);
 }

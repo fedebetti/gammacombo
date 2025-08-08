@@ -37,14 +37,46 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
+#include <format>
 #include <iostream>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
+namespace {
+  /// Replace all occurrences of a substring in a string.
+  std::string replaceAll(const std::string& input, const std::string& toReplace, const std::string& replaceWith) {
+    std::string output = input;
+    if (toReplace == replaceWith) return input;
+    size_t pos = 0;
+    size_t start_pos = 0;
+    do {
+      pos = output.find(toReplace, start_pos);
+      if (pos != std::string::npos) {
+        output.replace(pos, toReplace.length(), replaceWith);
+        start_pos = pos + toReplace.length();
+      }
+    } while (pos != std::string::npos);
+    return output;
+  }
+}  // namespace
+
 int Utils::countFitBringBackAngle;     ///< counts how many times an angle needed to be brought back
 int Utils::countAllFitBringBackAngle;  ///< counts how many times fitBringBackAngle() was called
+
+void Utils::errBase(const std::string& prefix, const std::string& msg, bool exit) {
+  const std::string endStringSeparator = msg.ends_with('\n') ? "" : ". ";
+  msgBase(prefix, msg + (exit ? endStringSeparator + "Exit..." : ""), std::cerr);
+  if (exit) { std::exit(1); }
+};
+
+void Utils::msgBase(const std::string& prefix, const std::string& msg, std::ostream& stream) {
+  auto prefixLength = std::ranges::count_if(prefix, [](char c) { return c != '\n'; });
+  auto msgOut = replaceAll(msg, "\n", "\n" + std::string(prefixLength, ' '));
+  stream << prefix << msgOut << std::endl;
+};
 
 ///
 /// Fit PDF to minimum.
@@ -642,43 +674,52 @@ void Utils::floatParameters(const RooAbsCollection* set) {
   for (const auto& p : *set) static_cast<RooRealVar*>(p)->setConstant(false);
 }
 
+namespace {
+  inline void setLimitHelper(RooRealVar* v, const TString limitname) {
+    if (limitname == "free")
+      v->removeRange();
+    else
+      v->setRange(v->getMin(limitname), v->getMax(limitname));
+  }
+}  // namespace
+
 ///
 /// Load a named parameter range for a certain parameter.
 ///
-/// \param v - The parameter which will get the limit set.
-/// \param limitname - Name of the limit to set.
+/// @param v         The parameter which will get the limit set.
+/// @param limitname Name of the limit to set.
 ///
 void Utils::setLimit(RooRealVar* v, TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
-  v->setRange(v->getMin(limitname), v->getMax(limitname));
+  setLimitHelper(v, limitname);
   RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
 
 ///
-/// Load a named parameter range for a certain parameter,
-/// which is found inside a workspace.
+/// Load a named parameter range for a certain parameter, which is found inside a workspace.
 ///
-/// \param w - The workspace holding the parameter.
-/// \param parname - The name of the parameter.
-/// \param limitname - Name of the limit to set.
+/// @param w         The workspace holding the parameter.
+/// @param parname   The name of the parameter.
+/// @param limitname Name of the limit to set.
 ///
 void Utils::setLimit(RooWorkspace* w, TString parname, TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
-  w->var(parname)->setRange(w->var(parname)->getMin(limitname), w->var(parname)->getMax(limitname));
+  auto v = w->var(parname);
+  setLimitHelper(v, limitname);
   RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }
 
 ///
 /// Load a named parameter range for a list of parameters.
 ///
-/// \param set - The list holding the parameters.
-/// \param limitname - Name of the limit to set.
+/// @param set       The list holding the parameters.
+/// @param limitname Name of the limit to set.
 ///
 void Utils::setLimit(const RooAbsCollection* set, TString limitname) {
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   for (const auto& pAbs : *set) {
-    const auto p = static_cast<RooRealVar*>(pAbs);
-    p->setRange(p->getMin(limitname), p->getMax(limitname));
+    auto p = static_cast<RooRealVar*>(pAbs);
+    setLimitHelper(p, limitname);
   }
   RooMsgService::instance().setGlobalKillBelow(RooFit::INFO);
 }

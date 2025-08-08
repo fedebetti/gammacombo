@@ -13,25 +13,29 @@
 
 class Parameter {
  public:
-  Parameter();
-  inline virtual ~Parameter(){};
+  virtual ~Parameter() = default;
+
   inline void setVal(double v) { startvalue = v; };
-  void Print();
+  void Print() const;
 
   struct Range {
     float min;
     float max;
   };
 
-  TString name;
-  TString title;
-  TString unit;
-  float startvalue;
-  Range phys;
-  Range scan;
-  Range force;
-  Range bboos;
-  Range free;
+ private:
+  const static Range default_range;
+
+ public:
+  TString name = "not initialized";
+  TString title = "not initialized";
+  TString unit = "not initialized";
+  double startvalue = 0.;
+  Range phys = default_range;
+  Range scan = default_range;
+  Range force = default_range;
+  Range bboos = default_range;
+  [[deprecated]] Range free = default_range;
 };
 
 #endif

@@ -13,8 +13,11 @@
 #include <RooSlimFitResult.h>
 #include <Utils.h>
 
+#include <RooAbsPdf.h>
+#include <RooArgSet.h>
 #include <RooDataSet.h>
 #include <RooFitResult.h>
+#include <RooFormulaVar.h>
 #include <RooRealVar.h>
 #include <RooWorkspace.h>
 
@@ -29,7 +32,21 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <format>
 #include <iostream>
+#include <limits>
+#include <memory>
+
+namespace {
+  // TODO this may stay here, or go to Utils
+  int getNFloatingParameters(const RooAbsPdf* pdf) {
+    auto allPars = std::unique_ptr<RooArgSet>(pdf->getVariables());
+    // Cast required for ROOT versions < 6.34
+    auto floatPars = std::unique_ptr<RooArgSet>(static_cast<RooArgSet*>(allPars->selectByAttrib("Constant", false)));
+    return floatPars->size();
+  }
+}  // namespace
 
 MethodProbScan::MethodProbScan(Combiner* comb) : MethodAbsScan(comb) {
   methodName = "Prob";
@@ -110,6 +127,15 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   // fix scan parameter
   par->setConstant(true);
 
+  // Check if there is at least one parameter to be fit
+  auto likelihood = w->pdf(pdfName);
+  const bool hasFreePars = getNFloatingParameters(likelihood) > 0;
+  if (!hasFreePars)
+    std::cout << "MethodProbScan::scan1d() : INFO : There are no free parameters. I will scan without fitting"
+              << std::endl;
+
+  RooFormulaVar nll("nll", "nll", "-2*log(@0)", RooArgSet(*likelihood));
+
   // j =
   // 0 : start value -> upper limit
   // 1 : upper limit -> start value
@@ -128,7 +154,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
   // Sometimes the scan doesn't find the minimum
   // that was found before. Warn if this happens.
   double bestMinOld = chi2minGlobal;
-  double bestMinFoundInScan = 100.;
+  auto bestMinFoundInScan = std::numeric_limits<double>::max();
 
   for (int jj = 0; jj < 4; jj++) {
     int j = jj;
@@ -208,31 +234,41 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
           std::cout << "MethodProbScan::scan1d() : scanning " << (float)nStep / (float)nTotalSteps * 100. << "%   \r"
                     << std::flush;
 
-      // fit!
-      RooFitResult* fr = 0;
-      if (arg->probforce)
-        fr = Utils::fitToMinForce(w, combiner->getPdfName());
-      else if (arg->probimprove)
-        fr = Utils::fitToMinImprove(w, combiner->getPdfName());
-      else
-        fr = Utils::fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
-      double chi2minScan = fr->minNll();
-      if (std::isinf(chi2minScan)) chi2minScan = 1e4;  // else the toys in PDF_testConstraint don't work
-      RooSlimFitResult* r = new RooSlimFitResult(fr);  // try to save memory by using the slim fit result
-      delete fr;
-      allResults.push_back(r);
-      bestMinFoundInScan = TMath::Min((double)chi2minScan, (double)bestMinFoundInScan);
-
-      TString warningChi2Neg;
+      RooSlimFitResult* sfr = nullptr;
+      auto chi2minScan = std::numeric_limits<double>::max();
+      bool performFit = hasFreePars;
+      if (!hasFreePars) {
+        // There are no parameters to fit, just calculate NLL
+        chi2minScan = nll.getVal();
+        // But if we found indications of a new global minimum, perform the fit to find it!
+        if (chi2minScan < chi2minGlobal) performFit = true;
+      }
+      if (performFit) {
+        if (!hasFreePars) par->setConstant(false);
+        std::unique_ptr<RooFitResult> fr;
+        if (arg->probforce)
+          fr = std::unique_ptr<RooFitResult>(Utils::fitToMinForce(w, combiner->getPdfName()));
+        else if (arg->probimprove)
+          fr = std::unique_ptr<RooFitResult>(Utils::fitToMinImprove(w, combiner->getPdfName()));
+        else
+          fr = std::unique_ptr<RooFitResult>(Utils::fitToMinBringBackAngles(likelihood, false, -1));
+        chi2minScan = fr->minNll();
+        if (std::isinf(chi2minScan))
+          chi2minScan = std::numeric_limits<double>::max();    // else the toys in PDF_testConstraint don't work
+        allResults.push_back(new RooSlimFitResult(fr.get()));  // save memory by using the slim fit result
+        sfr = allResults.back();
+        if (!hasFreePars) par->setConstant(true);
+      }
       if (chi2minScan < 0) {
+        TString warningChi2Neg;
         float newChi2minScan = chi2minGlobal + 25.;  // 5sigma more than best point
         warningChi2Neg = "MethodProbScan::scan1d() : WARNING : " + title;
         warningChi2Neg += TString(Form(" chi2 negative for scan point %i: %f", i, chi2minScan));
         warningChi2Neg += " setting to: " + TString(Form("%f", newChi2minScan));
-        // std::cout << warningChi2Neg << "\r" << std::flush;
         std::cout << warningChi2Neg << std::endl;
         chi2minScan = newChi2minScan;
       }
+      bestMinFoundInScan = std::min(chi2minScan, bestMinFoundInScan);
 
       // If we find a minimum smaller than the old "global" minimum, this means that all
       // previous 1-CL values are too high.
@@ -262,7 +298,7 @@ int MethodProbScan::scan1d(bool fast, bool reverse, bool quiet) {
         hCL->SetBinContent(hCL->FindBin(scanvalue), oneMinusCL);
         hChi2min->SetBinContent(hCL->FindBin(scanvalue), chi2minScan);
         int iRes = hCL->FindBin(scanvalue) - 1;
-        curveResults[iRes] = r;
+        if (sfr) curveResults[iRes] = sfr;
       }
       nStep++;
     }
@@ -473,11 +509,20 @@ int MethodProbScan::scan2d() {
   par1->setConstant(true);
   par2->setConstant(true);
 
+  // Check if there is at least one parameter to be fit
+  auto likelihood = w->pdf(pdfName);
+  const bool hasFreePars = getNFloatingParameters(likelihood) > 0;
+  if (!hasFreePars)
+    std::cout << "MethodProbScan::scan2d() : INFO : There are not free parameters. I will scan without fitting"
+              << std::endl;
+
+  RooFormulaVar nll("nll", "nll", "-2*log(@0)", RooArgSet(*likelihood));
+
   // Report on the smallest new minimum we come across while scanning.
   // Sometimes the scan doesn't find the minimum
   // that was found before. Warn if this happens.
-  double bestMinOld = chi2minGlobal;
-  double bestMinFoundInScan = 100.;
+  const auto bestMinOld = chi2minGlobal;
+  auto bestMinFoundInScan = std::numeric_limits<double>::max();
 
   // for the status bar
   int nSteps = 0;
@@ -566,22 +611,41 @@ int MethodProbScan::scan2d() {
         par1->setVal(scanvalue1);
         par2->setVal(scanvalue2);
 
-        // fit!
-        tFit.Start(false);
-        RooFitResult* fr;
-        if (!arg->probforce)
-          fr = Utils::fitToMinBringBackAngles(w->pdf(pdfName), false, -1);
-        else
-          fr = Utils::fitToMinForce(w, combiner->getPdfName());
-        double chi2minScan = fr->minNll();
-        tFit.Stop();
-        tSlimResult.Start(false);
-        RooSlimFitResult* r = new RooSlimFitResult(fr);  // try to save memory by using the slim fit result
-        tSlimResult.Stop();
-        delete fr;
-        allResults.push_back(r);
-        bestMinFoundInScan = TMath::Min((double)chi2minScan, (double)bestMinFoundInScan);
-        mycurveResults2d[i - 1][j - 1] = r;
+        RooSlimFitResult* sfr = nullptr;
+        auto chi2minScan = std::numeric_limits<double>::max();
+        bool performFit = hasFreePars;
+        if (!hasFreePars) {
+          // There are no parameters to fit, just calculate NLL
+          chi2minScan = nll.getVal();
+          // But if we found another minimum, perform the fit!
+          if (chi2minScan < bestMinFoundInScan) performFit = true;
+        }
+        if (performFit) {
+          if (!hasFreePars) {
+            par1->setConstant(false);
+            par2->setConstant(false);
+          }
+          tFit.Start(false);
+          std::unique_ptr<RooFitResult> fr;
+          if (arg->probforce)
+            fr = std::unique_ptr<RooFitResult>(Utils::fitToMinForce(w, combiner->getPdfName()));
+          else
+            fr = std::unique_ptr<RooFitResult>(Utils::fitToMinBringBackAngles(likelihood, false, -1));
+          chi2minScan = fr->minNll();
+          if (std::isinf(chi2minScan))
+            chi2minScan = std::numeric_limits<double>::max();  // else the toys in PDF_testConstraint don't work
+          tFit.Stop();
+          tSlimResult.Start(false);
+          allResults.push_back(new RooSlimFitResult(fr.get()));  // save memory by using the slim fit result
+          sfr = allResults.back();
+          if (sfr) mycurveResults2d[i - 1][j - 1] = sfr;
+          tSlimResult.Stop();
+          if (!hasFreePars) {
+            par1->setConstant(true);
+            par2->setConstant(true);
+          }
+        }
+        bestMinFoundInScan = std::min(chi2minScan, bestMinFoundInScan);
 
         // If we find a new global minumum, this means that all
         // previous 1-CL values are too high. We'll save the new possible solution, adjust the global
@@ -610,7 +674,7 @@ int MethodProbScan::scan2d() {
           hCL2d->SetBinContent(i, j, oneMinusCL);
           hChi2min2d->SetBinContent(i, j, chi2minScan);
           hDbgChi2min2d->SetBinContent(i, j, chi2minScan);
-          curveResults2d[i - 1][j - 1] = r;
+          curveResults2d[i - 1][j - 1] = sfr;
         }
 
         // draw/update histograms - doing only every nth update
@@ -678,7 +742,11 @@ int MethodProbScan::scan2d() {
 /// will correspond to the least chi2.
 ///
 void MethodProbScan::saveSolutions() {
-  if (arg->debug) std::cout << "MethodProbScan::saveSolutions() : searching for minima in hChi2min ..." << std::endl;
+  auto error = [](const std::string& msg) { Utils::errBase("MethodProbScan::saveSolutions() : ERROR : ", msg); };
+  auto info = [](const std::string& msg) { Utils::msgBase("MethodProbScan::saveSolutions() : ", msg); };
+  auto warning = [](const std::string& msg) { Utils::msgBase("MethodProbScan::saveSolutions() : WARNING : ", msg); };
+
+  if (arg->debug) info("Searching for minima in hChi2min...");
 
   // delete old solutions if any
   std::vector<RooSlimFitResult*> tmp;
@@ -696,14 +764,13 @@ void MethodProbScan::saveSolutions() {
     // loop over fit results to find those that produced it
     for (int j = 0; j < curveResults.size(); j++) {
       if (!curveResults[j]) {
-        if (arg->debug)
-          std::cout << "MethodProbScan::saveSolutions() : WARNING : empty solution at index " << j << std::endl;
+        if (arg->debug) warning(std::format("Empty solution at index {:d}", j));
         continue;
       }
 
       if (hChi2min->FindBin(curveResults[j]->getConstParVal(scanVar1)) == i) {
         if (arg->debug) {
-          std::cout << "MethodProbScan::saveSolutions() : saving solution " << j << ":" << std::endl;
+          info(std::format("Saving solution {:d}:", j));
           curveResults[j]->Print();
         }
         solutions.push_back(curveResults[j]);
@@ -711,11 +778,16 @@ void MethodProbScan::saveSolutions() {
     }
   }
 
-  if (solutions.size() == 0) {
-    std::cout << "MethodProbScan::saveSolutions() : ERROR : No solutions found." << std::endl;
-  }
+  if (solutions.empty())
+    warning("No solutions found during the scan\n"
+            "This is normal if there are only 1(2) free parameters in the baseline fit and the scan is 1d (2d)");
 
-  sortSolutions();
+  if (solutions.empty()) {
+    if (!globalMin) error("No solution was found at all");
+    solutions.emplace_back(new RooSlimFitResult(globalMin));
+  } else {
+    sortSolutions();
+  }
 }
 
 ///
@@ -730,8 +802,13 @@ void MethodProbScan::saveSolutions() {
 /// ones.
 ///
 void MethodProbScan::saveSolutions2d() {
-  if (arg->debug)
-    std::cout << "MethodProbScan::saveSolutions2d() : searching for minima in hChi2min2d ..." << std::endl;
+  auto error = [](const std::string& msg, bool exit = true) {
+    Utils::errBase("MethodProbScan::saveSolutions2d() : ERROR : ", msg, exit);
+  };
+  auto info = [](const std::string& msg) { Utils::msgBase("MethodProbScan::saveSolutions2d() : ", msg); };
+  auto warning = [](const std::string& msg) { Utils::msgBase("MethodProbScan::saveSolutions2d() : WARNING : ", msg); };
+
+  if (arg->debug) info("Searching for minima in hChi2min2d...");
 
   // delete old solutions if any
   for (int j = 0; j < solutions.size(); j++)
@@ -753,29 +830,24 @@ void MethodProbScan::saveSolutions2d() {
 
       RooSlimFitResult* r = curveResults2d[i - 1][j - 1];  // -1 because it starts counting at 0, but histograms at 1
       if (!r) {
-        std::cout << "MethodProbScan::saveSolutions2d() : ERROR : No corresponding RooFitResult found! Skipping (i,j)="
-                  << Form("(%i,%i)", i, j) << std::endl;
+        error(std::format("No corresponding RooFitResult found! Skipping (i,j)=({:d},{:d})", i, j), false);
         continue;
       }
-      if (arg->debug)
-        std::cout << "MethodProbScan::saveSolutions2d() : saving solution of bin " << Form("(%i,%i)", i, j) << " ..."
-                  << std::endl;
+      if (arg->debug) info(std::format("Saving solution of bin ({:d},{:d})...", i, j));
       solutions.push_back((RooSlimFitResult*)curveResults2d[i - 1][j - 1]->Clone());
     }
   }
 
-  if (solutions.size() == 0) {
-    std::cout << "MethodProbScan::saveSolutions2d() : WARNING : No solutions found in 2D scan!" << std::endl;
-    std::cout << std::endl;
-    std::cout << "  This can happen when a solution is too close" << std::endl;
-    std::cout << "  to the plot boundary. In this case, either change" << std::endl;
-    std::cout << "  the scan range using --scanrange and --scanrangey," << std::endl;
-    std::cout << "  or increase the number of scan points, using" << std::endl;
-    std::cout << "  --npoints or --npoints2dx, --npoints2dy" << std::endl;
-    std::cout << std::endl;
-    return;
+  if (solutions.empty()) {
+    warning("MethodProbScan::saveSolutions2d() : WARNING : No solutions found in 2D scan!\n"
+            "  This can happen when a solution is too close to the plot boundary.\n"
+            "  In this case, either change the scan range using --scanrange and --scanrangey,\n"
+            "  or increase the number of scan points, using --npoints or --npoints2dx, --npoints2dy");
+    if (!globalMin) error("No solution was found at all");
+    solutions.emplace_back(new RooSlimFitResult(globalMin));
+  } else {
+    sortSolutions();
   }
-  sortSolutions();
 }
 
 ///

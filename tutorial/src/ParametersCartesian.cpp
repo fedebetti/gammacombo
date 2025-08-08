@@ -10,7 +10,6 @@ ParametersCartesian::ParametersCartesian() { defineParameters(); }
 ///
 ///  scan:      defines scan range (for Prob and Plugin methods)
 ///  phys:      physically allowed range (needs to be set!)
-///  free:  range applied when no boundary is required - set this far away from any possible value
 ///
 void ParametersCartesian::defineParameters() {
   using Utils::DegToRad;
