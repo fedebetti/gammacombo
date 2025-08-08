@@ -832,7 +832,6 @@ void OneMinusClPlot::drawCLguideLine(float pvalue) {
   if (arg->isQuickhack(31)) labelPos = xmin + (xmax - xmin) * 0.01;
 
   if (arg->CL.size() > 1) {
-    std::sort(arg->CL.begin(), arg->CL.end());
     for (int i = 0; i < arg->CL.size(); i++) {
       if (abs((1 - pvalue) - arg->CL[i] / 100.) < 0.0001 && abs(arg->CL[i] - arg->CL[i - 1]) < 8) {
         if (!arg->isQuickhack(23))

@@ -10,6 +10,7 @@
 #include <TRegexp.h>
 #include <TString.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
@@ -1192,6 +1193,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   asimov = asimovArg.getValue();
   cls = clsArg.getValue();
   CL = CLArg.getValue();
+  std::ranges::sort(CL);
   color = colorArg.getValue();
   controlplot = controlplotArg.getValue();
   confirmsols = !noconfsolsArg.getValue();
