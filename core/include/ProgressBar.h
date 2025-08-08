@@ -15,22 +15,20 @@ class OptParser;
 ///
 class ProgressBar {
  public:
-  ProgressBar(OptParser* arg, unsigned int n);
-  ~ProgressBar();
+  ProgressBar(const OptParser* arg, int n);
 
   void progress();
-  void skipSteps(unsigned int n);
+  void skipSteps(int n);
 
  private:
-  void progressBar();
-  void progressPercentage();
+  void progressBar() const;
+  void progressPercentage() const;
 
-  OptParser* _arg;  ///< command line arguments
-  unsigned int _n;  ///< maximum number of steps, "100%"
-  unsigned int _x;  ///< current step, "78%"
-  int _width;       ///< width of the progress bar
-  int _resolution;  ///< update the display this many times
-  bool _batch;      ///< display progress in a log-file compatible way
+  int _n = 100;                ///< maximum number of steps, "100%"
+  int _x = 0;                  ///< current step, "78%"
+  const int _width = 50;       ///< width of the progress bar
+  const int _resolution = 50;  ///< update the display this many times
+  bool _batch = false;         ///< display progress in a log-file compatible way
 };
 
 #endif

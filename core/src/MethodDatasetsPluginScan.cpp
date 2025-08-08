@@ -56,9 +56,9 @@
 /// The default constructor for the dataset plugin scan
 ///
 MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, OptParser* opt)
-    : MethodPluginScan(probScan, PDF, opt), pdf(PDF), explicitInputFile(false) {
-  chi2minGlobalFound =
-      true;  // the free fit to data must be done and must be saved to the workspace before gammacombo is even called
+    : MethodPluginScan(probScan, PDF, opt), pdf(PDF) {
+  // the free fit to data must be done and must be saved to the workspace before gammacombo is even called
+  chi2minGlobalFound = true;
   methodName = "DatasetsPlugin";
   w = PDF->getWorkspace();
   title = PDF->getTitle();

@@ -19,8 +19,8 @@ class RooRealVar;
 
 class ParametersAbs {
  public:
-  inline ParametersAbs(){};
-  inline virtual ~ParametersAbs(){};
+  virtual ~ParametersAbs() = default;
+
   Parameter* var(TString name);
   RooRealVar* get(TString name);
   Parameter* newParameter(TString name);

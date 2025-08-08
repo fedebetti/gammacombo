@@ -10,9 +10,6 @@
 #include <string>
 #include <vector>
 
-FitResultDump::FitResultDump() {}
-FitResultDump::~FitResultDump() {}
-
 void FitResultDump::dumpResult(std::string ofname, MethodAbsScan* scanner) {
 
   ofname = "plots/par/" + ofname + ".dat";

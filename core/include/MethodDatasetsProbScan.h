@@ -31,7 +31,7 @@ class MethodDatasetsProbScan : public MethodProbScan {
   void loadScanFromFile(TString fileNameBaseIn = "default");
   void loadFitResults(TString file);
   void loadParameterLimits();
-  virtual void print();
+  void print() override;
   virtual int scan1d(bool fast = false, bool reverse = false, bool quiet = false);
   virtual int scan2d();
   virtual bool loadScanner(TString fName);
@@ -43,18 +43,16 @@ class MethodDatasetsProbScan : public MethodProbScan {
   void plotFitRes(TString fName);
   int computeCLvalues();
 
-  PDF_Datasets* pdf;
-  TH1F* probPValues;
-  bool drawPlots;
-  bool explicitInputFile;
+  PDF_Datasets* pdf = nullptr;
+  TH1F* probPValues = nullptr;
+  bool drawPlots = false;
+  bool explicitInputFile = false;
   std::vector<TString> inputFiles;
   std::vector<double> bootstrapPVals;
-  TChain* chain;
-  // RooFitResult*        dataFreeFitResult;
-  RooFitResult* bkgOnlyFitResult;
-  ToyTree* probScanTree;
+  TChain* chain = nullptr;
+  RooFitResult* bkgOnlyFitResult = nullptr;
+  ToyTree* probScanTree = nullptr;
 
- protected:
  private:
   TChain* readFiles(TString fileNameBaseIn = "default");
   void readScan1dTrees(TString fileNameBaseIn = "default");

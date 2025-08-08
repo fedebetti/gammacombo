@@ -30,11 +30,8 @@ PullPlotter::PullPlotter(MethodAbsScan* cmb) {
   assert(cmb);
   this->cmb = cmb;
   this->arg = cmb->getArg();
-  nSolution = 0;
   defineOrder();
 }
-
-PullPlotter::~PullPlotter() {}
 
 void PullPlotter::loadParsFromSolution(int n) {
   cmb->loadSolution(n);

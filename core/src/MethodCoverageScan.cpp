@@ -12,6 +12,7 @@
 #include <ToyTree.h>
 #include <Utils.h>
 
+#include <RooFitResult.h>
 #include <RooWorkspace.h>
 
 #include <TCanvas.h>
@@ -31,10 +32,6 @@
 #include <vector>
 
 MethodCoverageScan::MethodCoverageScan(Combiner* comb) : MethodAbsScan(comb) { methodName = "Coverage"; }
-
-MethodCoverageScan::MethodCoverageScan() { std::exit(1); }
-
-MethodCoverageScan::~MethodCoverageScan() {}
 
 int MethodCoverageScan::scan1d(int nRun) {
   if (!pCache) {

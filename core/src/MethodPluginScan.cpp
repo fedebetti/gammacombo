@@ -41,11 +41,7 @@
 #include <map>
 #include <vector>
 
-///
-/// Initialize from a previous Prob scan, setting the profile
-/// likelihood. This should be the default.
-///
-MethodPluginScan::MethodPluginScan(MethodProbScan* s) : MethodAbsScan(s->getCombiner()) {
+void MethodPluginScan::constructorHelper(MethodProbScan* s) {
   methodName = "Plugin";
   title = s->getTitle();
   scanVar1 = s->getScanVar1Name();
@@ -58,32 +54,26 @@ MethodPluginScan::MethodPluginScan(MethodProbScan* s) : MethodAbsScan(s->getComb
   obsDataset = new RooDataSet("obsDataset", "obsDataset", *w->set(obsName));
   obsDataset->add(*w->set(obsName));
   nToys = arg->ntoys;
+}
+
+///
+/// Initialize from a previous Prob scan, setting the profile
+/// likelihood. This should be the default.
+///
+MethodPluginScan::MethodPluginScan(MethodProbScan* s) : MethodAbsScan(s->getCombiner()) {
+  constructorHelper(s);
   nPoints1d = arg->npointstoy;
   nPoints2dx = arg->npointstoy;
   nPoints2dy = arg->npointstoy;
-  BkgToys = nullptr;
 }
 
 ///
 /// Constructor, mainly to ensure compatibility with MethodDatasetsPluginScan
 ///
-MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, OptParser* opt)
-    : MethodAbsScan(opt), nToys(opt->ntoys) {
-  methodName = "Plugin";
+MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, OptParser* opt) : MethodAbsScan(opt) {
+  constructorHelper(s);
   obsName = pdf->getObsName();
   w = pdf->getWorkspace();
-  title = s->getTitle();
-  scanVar1 = s->getScanVar1Name();
-  scanVar2 = s->getScanVar2Name();
-  profileLH = s;
-  parevolPLH = profileLH;
-  setSolutions(s->getSolutions());
-  setChi2minGlobal(s->getChi2minGlobal());
-  chi2minBkg = s->getChi2minBkg();
-  obsDataset = new RooDataSet("obsDataset", "obsDataset", *w->set(obsName));
-  obsDataset->add(*w->set(obsName));
-  nToys = opt->ntoys;
-  BkgToys = nullptr;
 };
 
 ///
@@ -96,15 +86,12 @@ MethodPluginScan::MethodPluginScan(MethodProbScan* s, PDF_Datasets* pdf, OptPars
 MethodPluginScan::MethodPluginScan(Combiner* comb) : MethodAbsScan(comb) {
   methodName = "Plugin";
   title = comb->getTitle();
-  profileLH = 0;
-  parevolPLH = 0;
   obsDataset = new RooDataSet("obsDataset", "obsDataset", *comb->getWorkspace()->set(obsName));
   obsDataset->add(*comb->getWorkspace()->set(obsName));
   nToys = arg->ntoys;
   nPoints1d = arg->npointstoy;
   nPoints2dx = arg->npointstoy;
   nPoints2dy = arg->npointstoy;
-  BkgToys = nullptr;
 }
 
 ///

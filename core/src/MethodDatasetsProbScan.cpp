@@ -41,26 +41,17 @@
 #include <map>
 #include <vector>
 
-MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt)
-    : MethodProbScan(opt), pdf(PDF), probPValues(nullptr), drawPlots(false), explicitInputFile(false),
-      bkgOnlyFitResult(nullptr), probScanTree(nullptr) {
-  chi2minGlobalFound =
-      true;  // the free fit to data must be done and must be saved to the workspace before gammacombo is even called
+MethodDatasetsProbScan::MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt) : MethodProbScan(opt), pdf(PDF) {
+  // The free fit to data must be done and must be saved to the workspace before gammacombo is even called
+  chi2minGlobalFound = true;
   methodName = "DatasetsProb";
 
-  /////////////////////////////
-  // Titus: add these variable initializations for compatibility
-  // scanDisableDragMode = false; //Titus: Not needed at the moment
-  nScansDone = 0;
   parsName = PDF->getParName();
-  ////////////////////////////
 
   w = PDF->getWorkspace();
   title = PDF->getTitle();
   name = PDF->getName();
   pdfName = name;
-
-  inputFiles.clear();
 
   if (!w->set(pdf->getObsName())) {
     std::cerr << "MethodDatasetsProbScan::MethodDatasetsProbScan() : ERROR : no '" + pdf->getObsName() +

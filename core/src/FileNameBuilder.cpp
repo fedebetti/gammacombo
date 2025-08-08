@@ -21,10 +21,7 @@ FileNameBuilder::FileNameBuilder(OptParser* arg, TString name) {
   assert(arg);
   m_arg = arg;
   m_basename = name;
-  m_asimov = "Asimov";
 }
-
-FileNameBuilder::~FileNameBuilder() {}
 
 ///
 /// Get base name, e.g. "gammacombo". The base name is set
@@ -32,7 +29,7 @@ FileNameBuilder::~FileNameBuilder() {}
 ///
 /// \return - the base name
 ///
-TString FileNameBuilder::getBaseName() { return m_basename; }
+TString FileNameBuilder::getBaseName() const { return m_basename; }
 
 ///
 /// Compute the file base name of individual combinations.

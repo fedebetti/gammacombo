@@ -18,11 +18,7 @@
 ConfidenceContours::ConfidenceContours(OptParser* arg) {
   assert(arg);
   m_arg = arg;
-  m_transparency = 0.;
-  m_nMaxContours = 9;
 }
-
-ConfidenceContours::~ConfidenceContours() {}
 
 ///
 /// Helper function for computeContours():
@@ -293,8 +289,9 @@ void ConfidenceContours::DrawDashedLine() {
 ///
 /// Set the contour style.
 ///
-void ConfidenceContours::setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth,
-                                  std::vector<int>& fillcolor, std::vector<int>& fillstyle) {
+void ConfidenceContours::setStyle(const std::vector<int>& linecolor, const std::vector<int>& linestyle,
+                                  const std::vector<int>& linewidth, const std::vector<int>& fillcolor,
+                                  const std::vector<int>& fillstyle) {
   m_linecolor = linecolor;
   m_linestyle = linestyle;
   m_fillcolor = fillcolor;

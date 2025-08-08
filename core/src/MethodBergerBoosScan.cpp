@@ -43,7 +43,6 @@ MethodBergerBoosScan::MethodBergerBoosScan(MethodProbScan* s, TString d) : Metho
   } else {
     this->dir = d;
   }
-  nBBPoints = 1;
   // std::cout << "open the file" << std::endl;
   TString fName;
   if (this->dir == "XX") {

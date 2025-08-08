@@ -54,11 +54,11 @@ class PDF_Datasets : public PDF_Abs {
   void initConstraints(const TString& setName);
   void initData(const TString& name);
   void initObservables(const TString& setName);
-  virtual void initObservables();  // overriding the inherited virtual method
+  void initObservables() override;
   void initGlobalObservables(const TString& setName);
   void initParameters(const TString& setName);
   void initParameters(const std::vector<TString>& parNames);
-  virtual void initParameters();  // overriding the inherited virtual method
+  void initParameters() override;
   void initMultipdfCat(const TString& name);
   void initPDF(const TString& name);
   void initBkgPDF(const TString& name);
@@ -98,7 +98,7 @@ class PDF_Datasets : public PDF_Abs {
   inline void setBestIndexBkg(int index) { bestIndexBkg = index; };
   inline void setBestIndexScan(int index) { bestIndexScan = index; };
   void setNCPU(int n) { NCPU = n; };
-  void setVarRange(const TString& varName, const TString& rangeName, const double& rangeMin, const double& rangeMax);
+  void setVarRange(const TString& varName, const TString& rangeName, double rangeMin, double rangeMax);
   void setToyData(RooAbsData* ds);
   void setBkgToyData(RooAbsData* ds);
 
@@ -123,7 +123,7 @@ class PDF_Datasets : public PDF_Abs {
   const TString globalObsDataSnapshotName = "globalObsDataSnapshotName";
   //> name of a snapshot that stores the values of the global observables in data
   const TString globalObsToySnapshotName = "globalObsToySnapshotName";
-  //> name of a snapshot that stores the latest simulated values for the global observables
+  /// Name of a snapshot that stores the latest simulated values for the global observables of the bkg-only toy
   TString globalObsBkgToySnapshotName = "globalObsBkgToySnapshotName";
   //> name of a snapshot that stores the latest simulated values for the global observables of the bkg-only toy
 

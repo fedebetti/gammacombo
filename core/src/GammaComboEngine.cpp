@@ -55,7 +55,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) : runOnDataSet(false) {
+GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
   // time the program
   t.Start();
 
@@ -84,9 +84,6 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) : runOn
     theApp = new TApplication("App", &argc, argv);
   } else
     gROOT->SetBatch(false);
-
-  // initialize members
-  plot = 0;
 
   // reconfigure RooFormulaVar output
   RooMsgService::instance().getStream(1).removeTopic(RooFit::InputArguments);
@@ -395,7 +392,7 @@ void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString
 /// Get a combiner.
 /// \param id - combiner ID, set when defining the combiner using addCombiner(), cloneCombiner(), or newCombiner()
 ///
-Combiner* GammaComboEngine::getCombiner(int id) const {
+Combiner* GammaComboEngine::getCombiner(int id) {
   if (!combinerExists(id)) {
     std::cout << "GammaComboEngine::getCombiner() : ERROR : Requested Combiner id " << id
               << " doesn't exist in GammaComboEngine. Exit." << std::endl;
@@ -731,7 +728,7 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId) {
 ///
 /// print usage and exit
 ///
-void GammaComboEngine::usage() {
+void GammaComboEngine::usage() const {
   if (runOnDataSet) {
     std::cout << "USAGE\n\n"
                  "  # Compute limit on parameter a:\n"
@@ -783,7 +780,7 @@ void GammaComboEngine::usage() {
 ///
 /// Print the available PDFs.
 ///
-void GammaComboEngine::printPdfs() {
+void GammaComboEngine::printPdfs() const {
   std::cout << "AVAILABLE MEASUREMENTS" << std::endl;
   std::cout << std::endl;
   for (int i = 0; i < pdf.size(); i++) {
@@ -801,7 +798,7 @@ void GammaComboEngine::printPdfs() {
 ///
 /// Print the availabe Combinations.
 ///
-void GammaComboEngine::printCombinations() {
+void GammaComboEngine::printCombinations() const {
   std::cout << "AVAILABLE COMBINATIONS" << std::endl;
   std::cout << std::endl;
   for (int i = 0; i < cmb.size(); i++) {
@@ -819,7 +816,7 @@ void GammaComboEngine::printCombinations() {
 ///
 /// Print the content of this engine.
 ///
-void GammaComboEngine::print() {
+void GammaComboEngine::print() const {
   printPdfs();
   printCombinations();
 }
@@ -962,7 +959,7 @@ void GammaComboEngine::makeAddDelCombinations() {
 /// print parameter structure of the combinations into
 /// .dot file
 ///
-void GammaComboEngine::printCombinerStructure(Combiner* c) {
+void GammaComboEngine::printCombinerStructure(Combiner* c) const {
   Graphviz gviz(arg);
   gviz.printCombiner(c);
   gviz.printCombinerLayer(c);
@@ -1672,7 +1669,7 @@ void GammaComboEngine::setupToyVariationSets(Combiner* c, int cId) {
 /// configured (-l) argument. If so, it is returned, else the default
 /// name is returned.
 ///
-TString GammaComboEngine::getStartParFileName(int cId) {
+TString GammaComboEngine::getStartParFileName(int cId) const {
   if (arg->loadParamsFile.size() <= cId) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
   if (arg->loadParamsFile[cId].EqualTo("default")) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
   return arg->loadParamsFile[cId];
@@ -1687,7 +1684,7 @@ TString GammaComboEngine::getStartParFileName(int cId) {
 /// \param scanVar  - the scan variable name
 /// \return true if included, else false
 ///
-bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) {
+bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) const {
   std::vector<std::string> obs = c->getObservableNames();
   for (int i = 0; i < obs.size(); i++) {
     if (scanVar.Contains(obs[i])) return true;
@@ -2390,7 +2387,7 @@ void GammaComboEngine::runApplication() {
 ///
 /// print the initial banner
 ///
-void GammaComboEngine::printBanner() {
+void GammaComboEngine::printBanner() const {
   std::cout << std::endl
             << "\033[1mGammaCombo " << GAMMACOMBO_VERSION << " \033[0m"
             << "-- All rights reserved under GPLv3, http://www.gnu.org/licenses/gpl.txt" << std::endl

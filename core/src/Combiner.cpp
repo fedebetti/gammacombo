@@ -27,24 +27,21 @@ Combiner::Combiner(OptParser* arg, TString title) : title(title) {
                "Use Combiner(OptParser *arg, TString name, TString title) instead."
             << std::endl;
   if (arg->debug) std::cout << "Combiner::Combiner() : new combiner title=" << title << std::endl;
-  name = "";
-  pdfName = "";
   this->arg = arg;
   TString wsname = "w" + Utils::getUniqueRootName();
   w = new RooWorkspace(wsname, wsname);
-  _isCombined = false;
 }
 
 Combiner::Combiner(OptParser* arg, TString name, TString title) : name(name), title(title) {
   if (arg->debug) std::cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << std::endl;
-  pdfName = "";
   this->arg = arg;
   TString wsname = "w" + Utils::getUniqueRootName();
   w = new RooWorkspace(wsname, wsname);
-  _isCombined = false;
 }
 
-Combiner::~Combiner() { delete w; }
+Combiner::~Combiner() {
+  if (w) delete w;
+}
 
 ///
 /// Clone an existing combiner.

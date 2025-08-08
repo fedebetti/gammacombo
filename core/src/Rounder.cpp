@@ -15,9 +15,7 @@ Rounder::Rounder(OptParser* arg, float cllo, float clhi, float central)
   this->arg = arg;
 }
 
-Rounder::~Rounder() {}
-
-int Rounder::getNsubdigits() {
+int Rounder::getNsubdigits() const {
   if (arg->digits > -1) return arg->digits;
   using Utils::calcNsubdigits;
   return std::max(calcNsubdigits(std::abs(m_central - m_cllo)), calcNsubdigits(std::abs(m_central - m_clhi)));

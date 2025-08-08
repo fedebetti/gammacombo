@@ -31,6 +31,9 @@ class ParameterEvolutionPlotter {
   ParameterEvolutionPlotter(MethodProbScan* scanner);
   ~ParameterEvolutionPlotter();
 
+  ParameterEvolutionPlotter(ParameterEvolutionPlotter&) = delete;
+  ParameterEvolutionPlotter& operator=(const ParameterEvolutionPlotter&) = delete;
+
   void plotParEvolution();
   void plotObsScanCheck();
 
@@ -46,8 +49,8 @@ class ParameterEvolutionPlotter {
   TVirtualPad* selectNewPad();
   void updateCurrentCanvas();
 
-  OptParser* arg;                               ///< command line arguments
-  RooWorkspace* w;                              ///< a clone of the scanner's workspace
+  OptParser* arg = nullptr;                     ///< command line arguments
+  RooWorkspace* w = nullptr;                    ///< a clone of the scanner's workspace
   std::vector<RooSlimFitResult*> allResults;    ///< all results of all scan points
   std::vector<RooSlimFitResult*> curveResults;  ///< only the results of scan points that were accepted into the CL
                                                 ///< curve
@@ -58,7 +61,7 @@ class ParameterEvolutionPlotter {
   TString scanVar1;                             ///< name of the can variable
   std::vector<float> m_localMinPositions;       ///< positions of the local minima in scan steps
   std::vector<TCanvas*> m_canvases;             ///< Pointers to the canvases of the plots, see selectNewCanvas().
-  int m_padId;                                  ///< ID of currently selected pad, see selectNewPad().
+  int m_padId = 0;                              ///< ID of currently selected pad, see selectNewPad().
 };
 
 #endif

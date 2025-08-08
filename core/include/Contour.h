@@ -12,6 +12,8 @@
 
 #include <vector>
 
+#include <TAttLine.h>
+
 class OptParser;
 
 class TH2F;
@@ -38,17 +40,21 @@ class Contour {
   std::vector<TGraph*> makeHoles(std::vector<TGraph*>& contours);
   void magneticBoundaries(std::vector<TGraph*>& contours, const TH2F* hCL);
 
-  OptParser* m_arg;                      ///< command line arguments
-  std::vector<TGraph*> m_contours;       ///< container for the several disjoint subcontours. Used by DrawLine().
-  std::vector<TGraph*> m_contoursHoles;  ///< container for contours with holes. Filled by makeHoles(). Used by
-                                         ///< DrawFilled().
-  int m_sigma;                           ///< sigma level of the contour
-  int m_linecolor;                       ///< style for the contour
-  int m_linestyle;
-  int m_fillcolor;
-  int m_fillstyle;
-  int m_linewidth;
-  float m_alpha;
+  OptParser* m_arg = nullptr;  ///< command line arguments
+
+  /// Vector of disjoint subcontours.
+  std::vector<TGraph*> m_contours;
+
+  /// Vector of contours with holes.
+  std::vector<TGraph*> m_contoursHoles;
+
+  int m_sigma = -1;
+  int m_linecolor = 2;
+  int m_linestyle = kSolid;
+  int m_fillcolor = 2;
+  int m_fillstyle = 1001;
+  int m_linewidth = 1;
+  float m_alpha = 1.;
 };
 
 #endif

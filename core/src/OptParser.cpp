@@ -379,12 +379,12 @@ void OptParser::bookOption(TString opt) {
 ///
 /// Check the --action argument. Was action 's' given?
 ///
-bool OptParser::isAction(TString s) { return Utils::isIn<TString>(action, s); }
+bool OptParser::isAction(TString s) const { return Utils::isIn<TString>(action, s); }
 
 ///
 /// Check the --quickhack argument. Was hack 'id' given?
 ///
-bool OptParser::isQuickhack(int id) { return Utils::isIn<int>(qh, id); }
+bool OptParser::isQuickhack(int id) const { return Utils::isIn<int>(qh, id); }
 
 ///
 /// Parse the command line for booked options. Then apply some
@@ -1809,4 +1809,4 @@ void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, std::vect
 ///
 /// \param id - position of -c argument
 ///
-bool OptParser::isAsimovCombiner(int id) { return id < asimov.size() && asimov[id] > 0; }
+bool OptParser::isAsimovCombiner(int id) const { return id < asimov.size() && asimov[id] > 0; }

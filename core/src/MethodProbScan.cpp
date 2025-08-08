@@ -48,28 +48,14 @@ namespace {
   }
 }  // namespace
 
-MethodProbScan::MethodProbScan(Combiner* comb) : MethodAbsScan(comb) {
-  methodName = "Prob";
-  scanDisableDragMode = false;
-  nScansDone = 0;
-}
+MethodProbScan::MethodProbScan(Combiner* comb) : MethodAbsScan(comb) { methodName = "Prob"; }
 
-MethodProbScan::MethodProbScan(OptParser* opt) : MethodAbsScan(opt) {
-  methodName = "Prob";
-  scanDisableDragMode = false;
-  nScansDone = 0;
-}
+MethodProbScan::MethodProbScan(OptParser* opt) : MethodAbsScan(opt) { methodName = "Prob"; }
 
 ///
 /// Default constructor
 ///
-MethodProbScan::MethodProbScan() {
-  methodName = "Prob";
-  scanDisableDragMode = false;
-  nScansDone = 0;
-}
-
-MethodProbScan::~MethodProbScan() {}
+MethodProbScan::MethodProbScan() { methodName = "Prob"; }
 
 ///
 /// Perform 1d Prob scan.

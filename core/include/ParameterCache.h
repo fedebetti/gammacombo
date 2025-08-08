@@ -18,7 +18,6 @@ class ParameterCache {
 
  public:
   ParameterCache(OptParser* arg);
-  ~ParameterCache();
 
   void cacheParameters(MethodAbsScan* scanner, TString fileName);
   bool loadPoints(TString fileName);
@@ -31,8 +30,8 @@ class ParameterCache {
   std::vector<std::map<TString, double>> startingValues;
 
  private:
-  bool m_parametersLoaded;
-  OptParser* m_arg;
+  bool m_parametersLoaded = false;
+  OptParser* m_arg = nullptr;
 };
 
 #endif

@@ -33,8 +33,6 @@ PDF_rb::PDF_rb(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   buildPdf();
 }
 
-PDF_rb::~PDF_rb() {}
-
 void PDF_rb::initParameters() {
   ParametersCartesian p;
   parameters = new RooArgList("parameters");

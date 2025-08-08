@@ -281,8 +281,8 @@ void PDF_Datasets::initBkgPDF(const TString& name) {
   return;
 };
 
-void PDF_Datasets::setVarRange(const TString& varName, const TString& rangeName, const double& rangeMin,
-                               const double& rangeMax) {
+void PDF_Datasets::setVarRange(const TString& varName, const TString& rangeName, const double rangeMin,
+                               const double rangeMax) {
   RooRealVar* var = wspc->var(varName);
   if (!var) {
     std::cout << "ERROR in PDF_Datasets::setVarRange -- No Var with Name: " << varName << " found!!" << std::endl;

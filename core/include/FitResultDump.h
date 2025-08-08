@@ -6,12 +6,10 @@
 
 class MethodAbsScan;
 
+// TODO this class should rather be a utility function
 class FitResultDump {
 
  public:
-  FitResultDump();
-  ~FitResultDump();
-
   void dumpResult(std::string ofname, MethodAbsScan* scanner);
   std::ofstream outf;
 };

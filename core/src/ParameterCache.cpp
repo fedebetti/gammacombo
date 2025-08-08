@@ -29,12 +29,10 @@
 ///
 /// \param arg - command line options
 ///
-ParameterCache::ParameterCache(OptParser* arg) : m_parametersLoaded(false) {
+ParameterCache::ParameterCache(OptParser* arg) {
   assert(arg);
   m_arg = arg;
 }
-
-ParameterCache::~ParameterCache() {}
 
 void ParameterCache::printFitResultToOutStream(std::ofstream& out, RooSlimFitResult* slimFitRes) {
 

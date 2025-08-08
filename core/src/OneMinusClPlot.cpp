@@ -32,7 +32,6 @@
 #include <vector>
 
 OneMinusClPlot::OneMinusClPlot(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
-  plotPluginMarkers = true;
   plotSolution = true;
 }
 

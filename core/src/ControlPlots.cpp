@@ -35,7 +35,6 @@ ControlPlots::ControlPlots(ToyTree* tt) {
   arg = tt->getArg();
   t = tt->t;
   name = tt->getName();
-  ctrlPadId = 0;
   ctrlPlotCuts = "statusFree==0 && statusScan==0";
   // if ( arg->id!=-1 ) ctrlPlotCuts = ctrlPlotCuts && Form("BergerBoos_id==%i", arg->id);
   if (arg->id != -1) ctrlPlotCuts = ctrlPlotCuts && Form("id==%i", arg->id);
@@ -46,8 +45,6 @@ ControlPlots::ControlPlots(ToyTree* tt) {
     std::exit(1);
   }
 }
-
-ControlPlots::~ControlPlots() {}
 
 ///
 /// Make p-value control plots.

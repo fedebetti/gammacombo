@@ -43,7 +43,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   std::vector<TH2F*> histos;
   TString xTitle;
   TString yTitle;
-  bool contoursOnly;
+  bool contoursOnly = false;
   std::vector<std::vector<int>> linecolor;  ///< defines colors of 1 sigma lines and solutions of different scanners
   std::vector<std::vector<int>> fillcolor;  ///< defines colors of 1 sigma areas of different scanners
   std::vector<std::vector<int>> linestyle;  ///< defines the line style of 1 sigma line of different scanners
@@ -62,7 +62,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   std::vector<Utils::histogramType> histosType;  ///< defines if histogram is interpreted as p-value or chi2
   std::vector<ConfidenceContours*> m_contours;   ///< holds the contours for each scanner
   std::vector<bool> m_contours_computed;  ///< true if the contours were computed for that scanner by computeContours()
-  TLegend* m_legend;                      ///< pointer to the plot legend. Filled by drawLegend().
+  TLegend* m_legend = nullptr;            ///< pointer to the plot legend. Filled by drawLegend().
 };
 
 #endif

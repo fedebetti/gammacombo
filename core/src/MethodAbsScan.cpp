@@ -45,16 +45,7 @@
 #include <string>
 #include <vector>
 
-MethodAbsScan::MethodAbsScan() : rndm() {
-  methodName = "Abs";
-  drawFilled = true;
-};
-
-MethodAbsScan::MethodAbsScan(Combiner* c)
-    : MethodAbsScan(c->getArg())
-// C++11 onwards, one can delegate constructors,
-// but then, there can be no other initializers
-{
+MethodAbsScan::MethodAbsScan(Combiner* c) : MethodAbsScan(c->getArg()) {
   combiner = c;
   w = c->getWorkspace();
   name = c->getName();
@@ -65,33 +56,19 @@ MethodAbsScan::MethodAbsScan(Combiner* c)
   thName = "th_" + combiner->getPdfName();
 
   // check workspace content
-  if (!w->pdf(pdfName)) {
-    std::cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << pdfName << std::endl;
-    std::exit(1);
-  }
-  if (!w->set(obsName)) {
-    std::cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << obsName << std::endl;
-    std::exit(1);
-  }
-  if (!w->set(parsName)) {
-    std::cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << parsName << std::endl;
-    std::exit(1);
-  }
-  if (!w->set(thName)) {
-    std::cout << "MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : " << thName << std::endl;
-    std::exit(1);
-  }
+  auto error = [](const TString& name) {
+    Utils::errBase("MethodAbsScan::MethodAbsScan() : ERROR : not found in workspace : ", std::string(name));
+  };
+  if (!w->pdf(pdfName)) error(pdfName);
+  if (!w->set(obsName)) error(obsName);
+  if (!w->set(parsName)) error(parsName);
+  if (!w->set(thName)) error(thName);
 }
 
 // constructor without combiner, this is atm still needed for the datasets stuff
 MethodAbsScan::MethodAbsScan(OptParser* opt)
-    : rndm(), methodName("Abs"), combiner(nullptr), w(nullptr), arg(opt), scanVar1(opt->var[0]), verbose(opt->verbose),
-      drawSolution(0), nPoints1d(opt->npoints1d), nPoints2dx(opt->npoints2dx), nPoints2dy(opt->npoints2dy),
-      pvalueCorrectorSet(false), chi2minGlobal(0.0), chi2minBkg(0.0), chi2minGlobalFound(false), lineStyle(0),
-      lineColor(kBlue - 8), lineWidth(2), textColor(kBlack), fillStyle(1001), fillColor(kBlue - 8), hCL(0), hCLs(0),
-      hCLsFreq(0), hCLsExp(0), hCLsErr1Up(0), hCLsErr1Dn(0), hCLsErr2Up(0), hCLsErr2Dn(0), hCL2d(0), hCLs2d(0),
-      hChi2min(0), hChi2min2d(0), obsDataset(nullptr), startPars(0), globalMin(0), nWarnings(0), drawFilled(true),
-      m_xrangeset(false), m_yrangeset(false), m_initialized(false) {
+    : rndm(), arg(opt), scanVar1(opt->var[0]), verbose(opt->verbose), nPoints1d(opt->npoints1d),
+      nPoints2dx(opt->npoints2dx), nPoints2dy(opt->npoints2dy) {
   if (opt->var.size() > 1) scanVar2 = opt->var[1];
   if (opt->CL.size() > 0) {
     for (auto level : opt->CL) { ConfidenceLevels.push_back(level / 100.); }

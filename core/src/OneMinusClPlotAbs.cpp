@@ -17,11 +17,6 @@
 #include <iostream>
 
 OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title) {
-  font = 133;
-  labelsize = 35;   ///< axis labels, numeric solutions, CL guide lines
-  titlesize = 45;   ///< axis titles, group label, "Preliminary" is x0.75
-  legendsize = 29;  ///< legends in 1d and 2d plots
-
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
   gStyle->SetPadTopMargin(0.05);
@@ -34,16 +29,10 @@ OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title
   this->arg = arg;
   this->name = name;
   this->title = title;
-  m_mainCanvas = 0;
-
-  plotLegend = true;
-  plotSolution = true;
-  plotLogYMin = 1.e-3;
-  plotLogYMax = 1;
 }
 
 OneMinusClPlotAbs::~OneMinusClPlotAbs() {
-  if (m_mainCanvas != 0) delete m_mainCanvas;
+  if (m_mainCanvas) delete m_mainCanvas;
 }
 
 ///

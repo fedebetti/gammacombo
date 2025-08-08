@@ -13,6 +13,7 @@
 
 #include <TString.h>
 
+#include <limits>
 #include <map>
 #include <vector>
 
@@ -33,7 +34,7 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
   virtual void initScan();
   void loadParameterLimits();
   void performBootstrapTest(int nSamples = 1000, const TString& ext = "");
-  virtual void print();
+  void print() override;
   void printDebug(const RooFitResult& r);
   TChain* readFiles(int runMin, int runMax, int& nFilesRead, int& nFilesMissing, TString fileNameBaseIn = "default");
   virtual void readScan1dTrees(int runMin, int runMax, TString fileNameBaseIn = "default");
@@ -44,18 +45,17 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
   };
   inline void addFile(TString name) { inputFiles.push_back(name); };
 
-  PDF_Datasets* pdf;
-  bool explicitInputFile;
+  PDF_Datasets* pdf = nullptr;
+  bool explicitInputFile = false;
   std::vector<TString> inputFiles;
   std::vector<double> bootstrapPVals;
-  TChain* chain;
-  // RooFitResult*           dataFreeFitResult;
-  RooFitResult* dataBkgFitResult;
+  TChain* chain = nullptr;
+  RooFitResult* dataBkgFitResult = nullptr;
 
  protected:
   RooSlimFitResult* getParevolPoint(float scanpoint);
   void setParevolPointByIndex(int index);
-  double bestfitpoint;
+  double bestfitpoint = std::numeric_limits<double>::quiet_NaN();
 
  private:
   RooFitResult* loadAndFit(PDF_Datasets* pdf);     // in this Plugin class, this fits to toy!!

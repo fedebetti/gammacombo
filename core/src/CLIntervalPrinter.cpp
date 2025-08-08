@@ -13,18 +13,11 @@
 #include <vector>
 
 CLIntervalPrinter::CLIntervalPrinter(OptParser* arg, TString name, TString var, TString unit, TString method,
-                                     int CLsType) {
+                                     int CLsType)
+    : _name(name), _var(var), _unit(unit), _method(method), _clstype(CLsType) {
   assert(arg);
   _arg = arg;
-  _name = name;
-  _var = var;
-  _unit = unit;
-  _method = method;
-  _clstype = CLsType;
-  _degrees = false;
 }
-
-CLIntervalPrinter::~CLIntervalPrinter() {}
 
 ///
 /// Set the intervals. If more vectors of intervals are added, each of them will
@@ -49,7 +42,7 @@ void CLIntervalPrinter::print() {
       CLInterval i = sortedIntervals[j];
 
       // convert to degrees if necessary
-      if (_degrees) {
+      if (convertToDegrees) {
         using Utils::RadToDeg;
         i.central = RadToDeg(i.central);
         i.min = RadToDeg(i.min);
@@ -103,7 +96,7 @@ void CLIntervalPrinter::savePython() {
       CLInterval i = _intervals[k][j];
 
       // convert to degrees if necessary
-      if (_degrees) {
+      if (convertToDegrees) {
         using Utils::RadToDeg;
         i.central = RadToDeg(i.central);
         i.min = RadToDeg(i.min);

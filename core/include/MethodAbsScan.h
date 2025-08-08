@@ -10,6 +10,7 @@
 
 #include "CLInterval.h"
 
+#include <TAttLine.h>
 #include <TRandom3.h>
 #include <TString.h>
 
@@ -34,10 +35,11 @@ class TH2F;
 
 class MethodAbsScan {
  public:
-  MethodAbsScan();
+  MethodAbsScan() = default;
   MethodAbsScan(Combiner* c);
   MethodAbsScan(OptParser* opt);
-  ~MethodAbsScan();
+
+  virtual ~MethodAbsScan();
 
   virtual void calcCLintervals(int CLsType = 0, bool calc_expected = false, bool quiet = false);
   void confirmSolutions();
@@ -52,7 +54,7 @@ class MethodAbsScan {
   CLInterval getCLinterval(int iSol = 0, int sigma = 1, bool quiet = false);
   inline Combiner* getCombiner() const { return combiner; };
   int getDrawSolution();
-  inline bool getFilled() { return drawFilled; };
+  inline bool getFilled() const { return drawFilled; };
   inline TH1F* getHCL() { return hCL; };
   inline TH1F* getHCLs() { return hCLs; };
   inline TH1F* getHCLsFreq() { return hCLsFreq; };
@@ -156,65 +158,65 @@ class MethodAbsScan {
   std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
   std::vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by
                                               ///< calcCLintervals()
-  RooFitResult* globalMin;                    ///< parameter values at a global minimum
+  RooFitResult* globalMin = nullptr;          ///< parameter values at a global minimum
 
  protected:
   void sortSolutions();
 
-  TString name;        ///< basename, e.g. ggsz
-  TString title;       ///< nice string for the legends
-  TString methodName;  ///< Prob, ...
-  TString pdfName;     ///< PDF name in workspace, derived from name
-  TString obsName;     ///< dataset name of observables, derived from name
-  TString parsName;    ///< set name of physics parameters, derived from name
-  TString thName;      ///< set name of theory parameters, derived from name
-  TString toysName;    ///< set name of parameters to vary in toys
-  TString scanVar1;    ///< scan parameter
-  TString scanVar2;    ///< second scan parameter if we're scanning 2d
-  int nPoints1d;       ///< number of scan points used by 1d scan
-  int nPoints2dx;      ///< number of scan points used by 2d scan, x axis
-  int nPoints2dy;      ///< number of scan points used by 2d scan, y axis
+  TString name;                ///< basename, e.g. ggsz
+  TString title;               ///< nice string for the legends
+  TString methodName = "Abs";  ///< Prob, ...
+  TString pdfName;             ///< PDF name in workspace, derived from name
+  TString obsName;             ///< dataset name of observables, derived from name
+  TString parsName;            ///< set name of physics parameters, derived from name
+  TString thName;              ///< set name of theory parameters, derived from name
+  TString toysName;            ///< set name of parameters to vary in toys
+  TString scanVar1;            ///< scan parameter
+  TString scanVar2;            ///< second scan parameter if we're scanning 2d
+  int nPoints1d = -1;          ///< number of scan points used by 1d scan
+  int nPoints2dx = -1;         ///< number of scan points used by 2d scan, x axis
+  int nPoints2dy = -1;         ///< number of scan points used by 2d scan, y axis
 
-  PValueCorrection* pvalueCorrector;  // object which can correct the pvalue for undercoverage if required
-  bool pvalueCorrectorSet;
+  PValueCorrection* pvalueCorrector = nullptr;  // object which can correct the pvalue for undercoverage if required
+  bool pvalueCorrectorSet = false;
 
   TRandom3 rndm;
-  RooWorkspace* w;
-  RooDataSet* obsDataset;   ///< save the nominal observables so we can restore them after we have fitted toys
-  RooDataSet* startPars;    ///< save the start parameter values before any scan
-  TH1F* hCL;                ///< 1-CL curve
-  TH1F* hCLs;               ///< 1-CL curve
-  TH1F* hCLsFreq;           ///< 1-CL curve
-  TH1F* hCLsExp;            ///< 1-CL curve
-  TH1F* hCLsErr1Up;         ///< 1-CL curve
-  TH1F* hCLsErr1Dn;         ///< 1-CL curve
-  TH1F* hCLsErr2Up;         ///< 1-CL curve
-  TH1F* hCLsErr2Dn;         ///< 1-CL curve
-  TH2F* hCL2d;              ///< 1-CL curve
-  TH2F* hCLs2d;             ///< 1-CL curve
-  TH1F* hChi2min;           ///< histogram for the chi2min values before Prob()
-  TH2F* hChi2min2d;         ///< histogram for the chi2min values before Prob()
-  double chi2minGlobal;     ///< chi2 value at global minimum
-  double chi2minBkg;        ///< chi2 value at global minimum
-  bool chi2minGlobalFound;  ///< flag to avoid finding minimum twice
-  int lineColor;
-  int textColor;  ///< color used for plotted central values
-  int lineStyle;
-  int lineWidth;
-  int fillStyle;
-  int fillColor;
-  float fillTransparency;
-  bool drawFilled;   ///< choose if Histogram is drawn filled or not
-  int drawSolution;  ///< Configure how to draw solutions on the plots.
+  RooWorkspace* w = nullptr;
+  RooDataSet* obsDataset = nullptr;  ///< save the nominal observables so we can restore them after we have fitted toys
+  RooDataSet* startPars = nullptr;   ///< save the start parameter values before any scan
+  TH1F* hCL = nullptr;               ///< 1-CL curve
+  TH1F* hCLs = nullptr;              ///< 1-CL curve
+  TH1F* hCLsFreq = nullptr;          ///< 1-CL curve
+  TH1F* hCLsExp = nullptr;           ///< 1-CL curve
+  TH1F* hCLsErr1Up = nullptr;        ///< 1-CL curve
+  TH1F* hCLsErr1Dn = nullptr;        ///< 1-CL curve
+  TH1F* hCLsErr2Up = nullptr;        ///< 1-CL curve
+  TH1F* hCLsErr2Dn = nullptr;        ///< 1-CL curve
+  TH2F* hCL2d = nullptr;             ///< 1-CL curve
+  TH2F* hCLs2d = nullptr;            ///< 1-CL curve
+  TH1F* hChi2min = nullptr;          ///< histogram for the chi2min values before Prob()
+  TH2F* hChi2min2d = nullptr;        ///< histogram for the chi2min values before Prob()
+  double chi2minGlobal = std::numeric_limits<double>::max();  ///< chi2 value at global minimum
+  double chi2minBkg = std::numeric_limits<double>::max();     ///< chi2 value at global minimum
+  bool chi2minGlobalFound = false;                            ///< flag to avoid finding minimum twice
+  int lineColor = kBlue - 8;
+  int textColor = kBlack;  ///< color used for plotted central values
+  int lineStyle = 0;
+  int lineWidth = 2;
+  int fillStyle = 1001;
+  int fillColor = kBlue - 8;
+  float fillTransparency = 0.f;
+  bool drawFilled = true;  ///< choose if Histogram is drawn filled or not
+  int drawSolution = 0;    ///< Configure how to draw solutions on the plots.
   ///< 0=don't plot, 1=plot at central value (1d) or markers (2d)
   ///< Default is taken from arg, unless disabled by setDrawSolution().
-  bool verbose;
-  int nWarnings;                         ///< number of warnings printed in getScanVarSolution()
-  OptParser* arg;                        ///< command line options
-  Combiner* combiner;                    ///< the combination
-  bool m_xrangeset;                      ///< true if the x range was set manually (setXscanRange())
-  bool m_yrangeset;                      ///< true if the y range was set manually (setYscanRange())
-  bool m_initialized;                    ///< true if initScan() was called
+  bool verbose = false;
+  int nWarnings = 0;                     ///< number of warnings printed in getScanVarSolution()
+  OptParser* arg = nullptr;              ///< command line options
+  Combiner* combiner = nullptr;          ///< the combination
+  bool m_xrangeset = false;              ///< true if the x range was set manually (setXscanRange())
+  bool m_yrangeset = false;              ///< true if the y range was set manually (setYscanRange())
+  bool m_initialized = false;            ///< true if initScan() was called
   std::vector<double> ConfidenceLevels;  ///< container of the confidence levels to be computed
 
  private:

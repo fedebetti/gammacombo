@@ -29,9 +29,9 @@ class OptParser {
   void bookProbOptions();
   void bookFlowcontrolOptions();
   void parseArguments(int argc, char* argv[]);
-  bool isAction(TString s);
-  bool isAsimovCombiner(int id);
-  bool isQuickhack(int id);
+  bool isAction(TString s) const;
+  bool isAsimovCombiner(int id) const;
+  bool isQuickhack(int id) const;
 
   std::vector<TString> action;
   std::vector<int> asimov;

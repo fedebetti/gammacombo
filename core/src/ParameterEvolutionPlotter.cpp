@@ -44,12 +44,11 @@ ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
 
   // get the chi2 values at the local minima
   getLocalMinPositions();
-
-  // canvas handling
-  m_padId = 0;
 }
 
-ParameterEvolutionPlotter::~ParameterEvolutionPlotter() { delete w; }
+ParameterEvolutionPlotter::~ParameterEvolutionPlotter() {
+  if (w) delete w;
+}
 
 ///
 /// Compute the positions of the local minima, in terms of scan steps, store it in

@@ -21,12 +21,6 @@ Contour::Contour(OptParser* arg, TList* listOfGraphs) {
   assert(arg);
   m_arg = arg;
   for (const auto& g : *listOfGraphs) m_contours.push_back(static_cast<TGraph*>(g->Clone()));
-  m_linecolor = 2;
-  m_linestyle = kSolid;
-  m_fillcolor = 2;
-  m_fillstyle = 1001;
-  m_linewidth = 1;
-  m_alpha = 1.;
 
   // compute holes in the contours
   m_contoursHoles = makeHoles(m_contours);

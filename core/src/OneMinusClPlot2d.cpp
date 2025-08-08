@@ -30,11 +30,9 @@
 #include <vector>
 
 OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
-  contoursOnly = false;
   xTitle = arg->xtitle;
   yTitle = arg->ytitle;
   ColorBuilder cb;
-  m_legend = 0;
 
   // ==== define style ====
   for (int i = 0; i < 9; i++) {

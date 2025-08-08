@@ -56,14 +56,14 @@ void PValueCorrection::setFitParam(int i, double val) {
     fitParams[i] = val;
 }
 
-void PValueCorrection::checkValid() {
+void PValueCorrection::checkValid() const {
   if (find(allowedFuncs.begin(), allowedFuncs.end(), transFunc) == allowedFuncs.end()) {
     std::cout << "ERROR -- " << transFunc << " is not a valid transform function" << std::endl;
     std::exit(1);
   }
 }
 
-void PValueCorrection::checkParams() {
+void PValueCorrection::checkParams() const {
   if (transFunc == "none") assert(fitParams.size() == 0);
   if (transFunc == "p1") assert(fitParams.size() == 2);
   if (transFunc == "p1+exp") assert(fitParams.size() == 4);
@@ -113,7 +113,7 @@ double PValueCorrection::transform(double x) {
   return y;
 }
 
-void PValueCorrection::printCoverage(float n68, float n95, float n99, float n, TString name) {
+void PValueCorrection::printCoverage(float n68, float n95, float n99, float n, TString name) const {
   std::cout << "PValueCorrection::printCoverage(): " << name << std::endl;
   std::cout << "  eta=68.27%: alpha=" << Form("%.4f", 1. * n68 / n) << " +/- "
             << Form("%.4f", sqrt(n68 * (n - n68) / n) / n) << "  alpha-eta=" << Form("%.4f", 1. * n68 / n - 0.6827)

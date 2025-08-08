@@ -12,10 +12,7 @@ FitResultCache::FitResultCache(OptParser* arg, int roundrobinsize) {
   assert(arg);
   _arg = arg;
   _roundrobinsize = roundrobinsize;
-  _parsAtFunctionCall = 0;
-  _parsAtGlobalMin = 0;
-  _roundrobinid = 0;
-  for (int i = 0; i < _roundrobinsize; i++) _parsRoundRobin.push_back(0);
+  _parsRoundRobin.resize(_roundrobinsize, 0);
 }
 
 FitResultCache::~FitResultCache() {

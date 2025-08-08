@@ -24,9 +24,12 @@ class RooWorkspace;
 
 class Combiner {
  public:
-  Combiner(OptParser* arg, TString title);
+  [[deprecated]] Combiner(OptParser* arg, TString title);
   Combiner(OptParser* arg, TString name, TString title);
   ~Combiner();
+
+  Combiner(const Combiner&) = delete;
+  Combiner& operator=(const Combiner&) = delete;
 
   void addPdf(PDF_Abs* p);
   void addPdf(PDF_Abs* p1, PDF_Abs* p2);
@@ -53,13 +56,12 @@ class Combiner {
   std::vector<std::string>& getObservableNames();
   inline TString getTitle() const { return title; };
   inline TString getName() const { return name; };
-  inline TString getPdfName() const { return pdfName; };  ///< Returns name of combined pdf. Call combine() first.
-  inline TString getParsName() const {
-    return parsName;
-  };  ///< Returns name of combined parameter set. Call combine() first.
-  inline TString getObsName() const {
-    return obsName;
-  };  ///< Returns name of combined observables set. Call combine() first.
+  /// Returns the name of the combined pdf. Call combine() first.
+  inline TString getPdfName() const { return pdfName; };
+  /// Returns the name of the combined parameters set. Call combine() first.
+  inline TString getParsName() const { return parsName; };
+  /// Returns the name of the combined observables set. Call combine() first.
+  inline TString getObsName() const { return obsName; };
   RooAbsPdf* getPdf();
   inline std::vector<PDF_Abs*>& getPdfs() { return pdfs; };
   inline RooWorkspace* getWorkspace() { return w; };
@@ -80,10 +82,10 @@ class Combiner {
   TString pdfName;                    // Name of combined pdf. Call combine() first.
   TString parsName;                   // Name of combined parameter set. Call combine() first.
   TString obsName;                    // Name of combined observables set. Call combine() first.
-  OptParser* arg;                     // command line arguments
-  RooWorkspace* w;                    // holds all input pdfs, parameters, and observables, as well as the combination
+  OptParser* arg = nullptr;           // command line arguments
+  RooWorkspace* w = nullptr;          // holds all input pdfs, parameters, and observables, as well as the combination
   std::vector<std::string> pdfNames;  // hold all unique names of the pdfs to be combined
-  bool _isCombined;                   // make sure we'll only combine once - else all PDFs get double counted!
+  bool _isCombined = false;           // make sure we'll only combine once - else all PDFs get double counted!
   std::vector<Utils::FixPar> constVars;  // hold variables that will be set constant (filled by fixParameter())
 };
 

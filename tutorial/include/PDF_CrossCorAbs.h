@@ -14,7 +14,6 @@
 class PDF_CrossCorAbs : public PDF_Abs {
  public:
   PDF_CrossCorAbs(PDF_Abs* pdf1, PDF_Abs* pdf2);
-  ~PDF_CrossCorAbs();
   void buildPdf();
   void initObservables();
   virtual void initParameters();

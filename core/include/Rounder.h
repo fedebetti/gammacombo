@@ -10,14 +10,15 @@
 #ifndef Rounder_h
 #define Rounder_h
 
+#include <limits>
+
 class OptParser;
 
 class Rounder {
  public:
   Rounder(OptParser* arg, float cllo, float clhi, float central);
-  ~Rounder();
 
-  int getNsubdigits();
+  int getNsubdigits() const;
   float CLlo();
   float CLhi();
   float central();
@@ -25,10 +26,10 @@ class Rounder {
   float errPos();
 
  private:
-  OptParser* arg;  ///< command line arguments
-  float m_cllo;
-  float m_clhi;
-  float m_central;
+  OptParser* arg = nullptr;
+  float m_cllo = std::numeric_limits<float>::quiet_NaN();
+  float m_clhi = std::numeric_limits<float>::quiet_NaN();
+  float m_central = std::numeric_limits<float>::quiet_NaN();
 };
 
 #endif

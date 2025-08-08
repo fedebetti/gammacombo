@@ -38,6 +38,9 @@ class GammaComboEngine {
   GammaComboEngine(TString name, int argc, char* argv[], bool _runOnDataSet);
   ~GammaComboEngine();
 
+  GammaComboEngine(GammaComboEngine&) = delete;
+  GammaComboEngine& operator=(GammaComboEngine&) = delete;
+
   void adjustRanges(Combiner* c, int cId);
   void setupToyVariationSets(Combiner* c, int cId);
   void addPdf(int id, PDF_Abs* pdf, TString title = "");
@@ -54,15 +57,15 @@ class GammaComboEngine {
   void setPdf(PDF_Abs* pdf);
   void addCombiner(int id, Combiner* cmb);
   void cloneCombiner(int newId, int oldId, TString name, TString title);
-  Combiner* getCombiner(int id) const;
+  Combiner* getCombiner(int id);
   PDF_Abs* getPdf(int id);
   inline OptParser* getArg() { return arg; };
   void newCombiner(int id, TString name, TString title, int pdf1 = -1, int pdf2 = -1, int pdf3 = -1, int pdf4 = -1,
                    int pdf5 = -1, int pdf6 = -1, int pdf7 = -1, int pdf8 = -1, int pdf9 = -1, int pdf10 = -1,
                    int pdf11 = -1, int pdf12 = -1, int pdf13 = -1, int pdf14 = -1, int pdf15 = -1);
-  void print();
-  void printPdfs();
-  void printCombinations();
+  void print() const;
+  void printPdfs() const;
+  void printCombinations() const;
   void run();
   void runApplication();
   void scanStrategy1d(MethodProbScan* scanner, ParameterCache* pCache);
@@ -82,8 +85,8 @@ class GammaComboEngine {
   void defineColors();
   void disableSystematics();
   void fixParameters(Combiner* c, int cId);
-  TString getStartParFileName(int cId);
-  bool isScanVarObservable(Combiner* c, TString scanVar);
+  TString getStartParFileName(int cId) const;
+  bool isScanVarObservable(Combiner* c, TString scanVar) const;
   void loadStartParameters(MethodProbScan* s, ParameterCache* pCache, int cId);
   void make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId);
   void make1dPluginPlot(MethodPluginScan* sPlugin, MethodProbScan* sProb, int cId);
@@ -98,8 +101,8 @@ class GammaComboEngine {
   void make2dPluginScan(MethodPluginScan* scannerPlugin, int cId);
   void make2dProbPlot(MethodProbScan* scanner, int cId);
   void make2dProbScan(MethodProbScan* scanner, int cId);
-  void printCombinerStructure(Combiner* c);
-  void printBanner();
+  void printCombinerStructure(Combiner* c) const;
+  void printBanner() const;
   bool pdfExists(int id);
   void savePlot();
   void scaleStatErrors();
@@ -112,13 +115,13 @@ class GammaComboEngine {
   void loadAsimovPoint(Combiner* c, int cId);
   void setUpPlot();
   void tightenChi2Constraint(Combiner* c, TString scanVar);
-  void usage();
+  void usage() const;
   void writebatchscripts();
   void makeLatex(Combiner* c);
   void saveWorkspace(Combiner* c, int i);
   void runToys(Combiner* c);
 
-  OptParser* arg;
+  OptParser* arg = nullptr;
   std::vector<Combiner*> cmb;
   std::vector<int> colorsLine;
   std::vector<int> colorsText;
@@ -130,13 +133,13 @@ class GammaComboEngine {
   std::vector<int> lineWidths;
   std::vector<MethodProbScan*> comparisonScanners;
   TString execname;
-  FileNameBuilder* m_fnamebuilder;
-  BatchScriptWriter* m_batchscriptwriter;
+  FileNameBuilder* m_fnamebuilder = nullptr;
+  BatchScriptWriter* m_batchscriptwriter = nullptr;
   std::vector<PDF_Abs*> pdf;
-  OneMinusClPlotAbs* plot;
+  OneMinusClPlotAbs* plot = nullptr;
   TStopwatch t;
-  TApplication* theApp;
-  bool runOnDataSet;
+  TApplication* theApp = nullptr;
+  bool runOnDataSet = false;
 };
 
 #endif

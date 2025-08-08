@@ -20,7 +20,6 @@ class MethodProbScan : public MethodAbsScan {
   MethodProbScan(Combiner* comb);
   MethodProbScan(OptParser* opt);
   MethodProbScan();
-  ~MethodProbScan();
 
   virtual int computeCLvalues();  // compute CL histograms depending on desired test statistic
   float getChi2min(float scanpoint);
@@ -36,8 +35,8 @@ class MethodProbScan : public MethodAbsScan {
                               int nTurn);
   bool deleteIfNotInCurveResults2d(RooSlimFitResult* r);
   void sanityChecks();
-  bool scanDisableDragMode;
-  int nScansDone;  // count the number of times a scan was done
+  bool scanDisableDragMode = false;
+  int nScansDone = 0;  // count the number of times a scan was done
 };
 
 #endif

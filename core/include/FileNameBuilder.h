@@ -23,8 +23,8 @@ class OptParser;
 class FileNameBuilder {
  public:
   FileNameBuilder(OptParser* arg, TString name = "gammacombo");
-  ~FileNameBuilder();
-  TString getBaseName();
+
+  TString getBaseName() const;
   TString getFileBaseName(const Combiner* c);
   TString getFileBaseName(const MethodAbsScan* s);
   TString getFileNameScanner(const MethodAbsScan* s);
@@ -44,9 +44,9 @@ class FileNameBuilder {
   TString getCLsNameAddition();
 
  private:
-  OptParser* m_arg;    ///< command line arguments
-  TString m_basename;  ///< the base name, e.g. "gammacombo"
-  TString m_asimov;    ///< literal naming Asimov combiners
+  OptParser* m_arg = nullptr;   ///< command line arguments
+  TString m_basename;           ///< the base name, e.g. "gammacombo"
+  TString m_asimov = "Asimov";  ///< literal naming Asimov combiners
 };
 
 #endif

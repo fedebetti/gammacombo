@@ -13,8 +13,6 @@
 
 class Parameter {
  public:
-  virtual ~Parameter() = default;
-
   inline void setVal(double v) { startvalue = v; };
   void Print() const;
 
