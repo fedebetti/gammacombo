@@ -44,12 +44,12 @@ jobs:
     - name: Publish output (if not a fork PR)
       if: ${{ github.repository_owner == 'gammacombo' && (github.event.pull_request == null || github.event.pull_request.head.repo.fork == false) }}
       env:
-        GH_PAT: ${{ secrets.GH_PAT }}
+        GC_PAT: ${{ secrets.GC_PAT }}
       run: |
         git config --global user.email "gcci@cern.ch"
         git config --global user.name "gammacombo"
 
-        git clone https://gammacombo:${GH_PAT}@github.com/gammacombo/gammacombo.github.io.git
+        git clone https://gammacombo:${GC_PAT}@github.com/gammacombo/gammacombo.github.io.git
         cp ci_logs/* gammacombo.github.io/assets/images/ci/
         cd gammacombo.github.io
         touch ci.html
