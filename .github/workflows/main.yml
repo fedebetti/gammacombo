@@ -22,28 +22,24 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # - name: Build Docker image
-    #   run: docker build -t gcimage:latest .
-    #
-    # - name: Run CMake build
-    #   run: |
-    #     docker run --name gcbuilder gcimage:latest /bin/bash -c "mkdir -p /code/build && cd /code/build && cmake .. && make -j$(nproc) install"
-    #     docker commit gcbuilder gcimage:built
-    #     docker rm gcbuilder
-    #
-    # - name: Run CI Tests
-    #   run: |
-    #     docker run --name gcrun gcimage:built /bin/bash -c "cd /code && python3 scripts/run_ci_tests.py"
-    #
-    # - name: Copy output
-    #   if: always()
-    #   run: |
-    #     docker cp gcrun:/code/tutorial/ci_logs ./ci_logs
-    #     docker rm gcrun
+    - name: Build Docker image
+      run: docker build -t gcimage:latest .
 
-    - name: Dummy Build Plots
+    - name: Run CMake build
       run: |
-        wget -r -np -nH --cut-dirs=2 --ignore-missing https://www.hep.phy.cam.ac.uk/~mkenzie/files/ci_logs/ || true
+        docker run --name gcbuilder gcimage:latest /bin/bash -c "mkdir -p /code/build && cd /code/build && cmake .. && make -j$(nproc) install"
+        docker commit gcbuilder gcimage:built
+        docker rm gcbuilder
+
+    - name: Run CI Tests
+      run: |
+        docker run --name gcrun gcimage:built /bin/bash -c "cd /code && python3 scripts/run_ci_tests.py"
+
+    - name: Copy output
+      if: always()
+      run: |
+        docker cp gcrun:/code/tutorial/ci_logs ./ci_logs
+        docker rm gcrun
 
     - name: Publish CI logs & plots to gammacombo.github.io
       run: |
@@ -60,21 +56,5 @@ jobs:
         git commit -m "CI test results [skip ci]" || echo "No changes to commit"
         git push origin master
 
-    # - name: Publish output (if not a fork PR)
-    #   if: ${{ github.repository_owner == 'gammacombo' && (github.event.pull_request == null || github.event.pull_request.head.repo.fork == false) }}
-    #   env:
-    #     GC_PAT: ${{ secrets.GC_PAT }}
-    #   run: |
-    #     git config --global user.email "gcci@cern.ch"
-    #     git config --global user.name "gammacombo"
-    #
-    #     git clone https://gammacombo:${GC_PAT}@github.com/gammacombo/gammacombo.github.io.git
-    #     cp ci_logs/* gammacombo.github.io/assets/images/ci/
-    #     cd gammacombo.github.io
-    #     touch ci.html
-    #     git add ci.html assets/images/ci/*
-    #     git commit -m "CI test results" || echo "No changes to commit"
-    #     git push origin master
-    #
     - name: Print Info
       run: echo "Success. Check your CI tests at https://gammacombo.github.io/ci.html"
