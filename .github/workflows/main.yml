@@ -49,11 +49,11 @@ jobs:
       run: |
         git config --global user.email "gcci@cern.ch"
         git config --global user.name "gammacombo-bot"
-        
+
         git clone https://x-access-token:${{ secrets.ORG_REPO_PAT }}@github.com/gammacombo/gammacombo.github.io.git
-        
+
         cp ci_logs/* gammacombo.github.io/assets/images/ci/ || true
-        
+
         cd gammacombo.github.io
         touch ci.html
         git add ci.html assets/images/ci/*
