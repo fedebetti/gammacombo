@@ -25,32 +25,11 @@
 #include <utility>
 #include <vector>
 
-PDF_Abs::PDF_Abs(int nObs) : covMatrix(nObs), corMatrix(nObs), corStatMatrix(nObs), corSystMatrix(nObs) {
-  this->nObs = nObs;
-  parameters = nullptr;
-  theory = nullptr;
-  observables = nullptr;
-  pdf = nullptr;
-  pdfBkg = nullptr;
-  multipdf = nullptr;
-  isBkgPdfSet = false;
-  isBkgMultipdfSet = false;
-  toyObservables = nullptr;
-  nToyObs = 1000;
-  iToyObs = 0;
-  for (int i = 0; i < nObs; i++) {
-    StatErr.push_back(0.0);
-    SystErr.push_back(0.0);
-  }
-  title = "(no title)";
-  corSource = "n/a";
-  obsValSource = "n/a";
-  obsErrSource = "n/a";
-  uniqueID = "UID0";
+PDF_Abs::PDF_Abs(int nObs) : nObs(nObs), covMatrix(nObs), corMatrix(nObs), corStatMatrix(nObs), corSystMatrix(nObs) {
+  StatErr.resize(nObs, 0.);
+  SystErr.resize(nObs, 0.);
   counter++;
   uniqueGlobalID = counter;
-  m_isCrossCorPdf = false;
-  gcId = -1;
 }
 
 unsigned long long PDF_Abs::counter = 0;
@@ -73,19 +52,23 @@ PDF_Abs::~PDF_Abs() {
   delete observables;
 
   // clean pregenerated toys
-  if (toyObservables != 0) delete toyObservables;
+  if (toyObservables) delete toyObservables;
 
   // clean pdf
-  if (pdf != 0) delete pdf;
+  if (pdf) delete pdf;
 
   // empty trash
   std::map<std::string, TObject*>::iterator iter;
   for (iter = trash.begin(); iter != trash.end(); ++iter) {
     if (iter->second) {
       delete iter->second;
-      iter->second = 0;
+      iter->second = nullptr;
     }
   }
+}
+
+void PDF_Abs::deleteToys() {
+  if (toyObservables) delete toyObservables;
 }
 
 void PDF_Abs::initParameters() { assert(0); };
@@ -146,8 +129,7 @@ void PDF_Abs::setObservablesToy() {
 void PDF_Abs::resetCorrelations() {
   for (int i = 0; i < nObs; i++)
     for (int j = 0; j < nObs; j++) {
-      float c = 0.0;
-      if (i == j) c = 1.0;
+      double c = (i == j) ? 1. : 0.;
       corStatMatrix[i][j] = c;
       corSystMatrix[i][j] = c;
     }
@@ -176,7 +158,7 @@ void PDF_Abs::addToTrash(TObject* o) {
 /// Return the base name, which is the name without any
 /// unique ID.
 ///
-TString PDF_Abs::getBaseName() {
+TString PDF_Abs::getBaseName() const {
   TString baseName = name;
   baseName.ReplaceAll(uniqueID, "");
   return baseName;
@@ -505,7 +487,7 @@ void PDF_Abs::setSystCorrelation(TMatrixDSym& corSystMatrix) {
 /// \param obsName - observable name
 /// \param value - central value
 ///
-void PDF_Abs::setObservable(TString obsName, float value) {
+void PDF_Abs::setObservable(TString obsName, double value) {
   RooRealVar* obs = (RooRealVar*)observables->find(obsName);
   if (obs == 0) {
     std::cout << "PDF_Abs::setObservable() : ERROR : observable " + obsName + " not found!" << std::endl;
@@ -524,7 +506,7 @@ void PDF_Abs::setObservable(TString obsName, float value) {
 /// \param stat - statistical error
 /// \param syst - systematic error
 ///
-void PDF_Abs::setUncertainty(TString obsName, float stat, float syst) {
+void PDF_Abs::setUncertainty(TString obsName, double stat, double syst) {
   for (int i = 0; i < nObs; i++) {
     RooRealVar* obs = (RooRealVar*)observables->at(i);
     if (TString(obs->GetName()).EqualTo(obsName)) {
@@ -639,12 +621,12 @@ bool PDF_Abs::hasObservable(TString obsname) {
 /// \param scale    - the scale factor the current error is being multiplied with
 /// \return     - true if successful
 ///
-bool PDF_Abs::ScaleError(TString obsname, float scale) {
+bool PDF_Abs::ScaleError(TString obsname, double scale) {
   // remove unique ID if necessary
   TString UID = "UID";
   if (obsname.Contains(UID)) {
-    obsname.Replace(obsname.Index(UID), obsname.Length(),
-                    "");  // delete the unique ID. That should leave just the observable name.
+    // delete the unique ID. That should leave just the observable name.
+    obsname.Replace(obsname.Index(UID), obsname.Length(), "");
   }
   // find the index of the observable - if it exists at all!
   if (!hasObservable(obsname)) {
@@ -678,7 +660,7 @@ bool PDF_Abs::ScaleError(TString obsname, float scale) {
 /// calling uniquify(), it has to include the unique ID string.
 /// \return         - the value
 ///
-float PDF_Abs::getObservableValue(TString obsname) {
+double PDF_Abs::getObservableValue(TString obsname) {
   // check if requested observable exits
   if (!hasObservable(obsname)) {
     std::cout << "PDF_Abs::getObservableValue() : ERROR : Requested observable doesn't exist: " << obsname << ". Exit."
