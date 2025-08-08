@@ -14,38 +14,34 @@
 #include <string>
 #include <vector>
 
+namespace {
+  /// Convert a string so that it compatible with the graphviz syntax for element names such as nodes or edges.
+  TString graphvizString(TString s) {
+    s.ReplaceAll("-", "_");
+    return s;
+  }
+
+  bool isDmixingParameter(const TString s) {
+    if (s == TString("xD") || s == TString("yD")) return true;
+    return false;
+  }
+
+  /// Open a file, return the ofstream object.
+  std::ofstream openFile(const TString name) {
+    std::ofstream f;
+    f.open(name);
+    if (!f.is_open()) {
+      std::cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << std::endl;
+      std::exit(1);
+    }
+    return f;
+  }
+
+}  // namespace
+
 Graphviz::Graphviz(OptParser* arg) {
   assert(arg);
   this->arg = arg;
-}
-
-Graphviz::~Graphviz() {}
-
-///
-/// Convert a string so that it compatible with the graphviz
-/// syntax for element names such as nodes or edges.
-///
-TString Graphviz::graphvizString(TString s) {
-  s.ReplaceAll("-", "_");
-  return s;
-}
-
-bool Graphviz::isDmixingParameter(TString s) {
-  if (s == TString("xD") || s == TString("yD")) return true;
-  return false;
-}
-
-///
-/// Open a file, return the file handle.
-///
-std::ofstream& Graphviz::openFile(TString name) {
-  std::ofstream* dotfile = new std::ofstream();
-  dotfile->open(name);
-  if (!dotfile->is_open()) {
-    std::cout << "Graphviz::openFile() : ERROR : Could not open file. " << name << std::endl;
-    std::exit(1);
-  }
-  return *dotfile;
 }
 
 ///
@@ -57,7 +53,7 @@ std::ofstream& Graphviz::openFile(TString name) {
 ///
 void Graphviz::printCombiner(Combiner* cmb) {
   // open the dot file
-  std::ofstream& dotfile = openFile("plots/dot/circle_" + cmb->getName() + ".dot");
+  std::ofstream dotfile = openFile("plots/dot/circle_" + cmb->getName() + ".dot");
 
   // print header
   dotfile << "graph combiner {\n";
@@ -113,7 +109,7 @@ void Graphviz::printCombiner(Combiner* cmb) {
 ///
 void Graphviz::printCombinerLayer(Combiner* cmb) {
   // open the dot file
-  std::ofstream& dotfile = openFile("plots/dot/layer_" + cmb->getName() + ".dot");
+  std::ofstream dotfile = openFile("plots/dot/layer_" + cmb->getName() + ".dot");
 
   // print header
   dotfile << "graph combiner {\n";

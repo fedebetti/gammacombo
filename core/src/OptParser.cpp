@@ -16,6 +16,235 @@
 #include <string>
 #include <vector>
 
+namespace {
+  /// Checks if a string is a digit (positive integer), if not, exits with printing the usage.
+  int convertToDigitWithCheck(TString parseMe, TString usage) {
+    if (!parseMe.IsDigit()) {
+      std::cout << "ERROR : could not parse argument. This string is not a positive integer: '" << parseMe << "'\n"
+                << usage << std::endl;
+      std::exit(1);
+    }
+    return parseMe.Atoi();
+  }
+
+  /// Checks if a string is an integer (pos or neg), if not, exits with printing the usage.
+  int convertToIntWithCheck(TString parseMe, TString usage) {
+    if (!(!parseMe.Contains(".") && !parseMe.Contains(",") && parseMe.IsFloat())) {
+      std::cout << "ERROR : could not parse argument. This string is not a positive or negative integer: '" << parseMe
+                << "'\n"
+                << usage << std::endl;
+      std::exit(1);
+    }
+    return parseMe.Atoi();
+  }
+
+  /**
+   * Parse the position arguments, which define the position of the legend and logo in the plots.
+   *
+   * The position needs to be given as x:y, where x and y are floating point numbers between 0.0 and 1.0.
+   * To use the default position for either one, use "def".
+   * @param parseMe  Parse this string. Example formats:
+   *                     0.1:0.5, .1:.5, def:0.6, .75:def
+   * @param x        Return value x
+   * @param y        Return value y
+   * @param usage    String containing some usage information which is printed when there is an error.
+   */
+  void parsePosition(TString parseMe, float& x, float& y, TString usage) {
+    if (parseMe == TString("default")) {
+      x = -1.;
+      y = -1.;
+      return;
+    }
+    if (parseMe == TString("off")) { return; }
+    TRegexp format1("^0?\\.[0-9]+:0?\\.[0-9]+$");
+    TRegexp format2("^def:0?\\.[0-9]+$");
+    TRegexp format3("^0?\\.[0-9]+:def$");
+    if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3))) {
+      std::cout << "position parse error: could not parse " << parseMe << std::endl;
+      std::cout << usage << std::endl;
+      std::exit(1);
+    }
+    TString xStr = parseMe;
+    TString yStr = parseMe;
+    xStr.Replace(xStr.Index(":"), xStr.Sizeof(), "");
+    yStr.Replace(0, yStr.Index(":") + 1, "");
+    if (xStr.EqualTo("def")) {
+      x = -1;
+    } else {
+      x = xStr.Atof();
+    }
+    if (yStr.EqualTo("def")) {
+      y = -1;
+    } else {
+      y = yStr.Atof();
+    }
+    if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
+      // should never be reached
+      std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
+      std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
+      std::exit(1);
+    }
+  }
+
+  void parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y, Double_t& scale, TString usage) {
+    if (parseMe == TString("default")) {
+      x = 0;
+      y = 0;
+      scale = 0;
+      return;
+    }
+    if (parseMe == TString("off")) { return; }
+    TRegexp format1("^0?\\.[0-9]+:0?\\.[0-9]+:[0-9]+\\.[0-9]+$");
+    TRegexp format2("^0?\\.[0-9]+:0?\\.[0-9]+:def$");
+    TRegexp format3("def:0?\\.[0-9]+:[0-9]+\\.[0-9]+$");
+    TRegexp format4("def:0?\\.[0-9]+:def$");
+    TRegexp format5("^0?\\.[0-9]+:def:[0-9]+\\.[0-9]+$");
+    TRegexp format6("^0?\\.[0-9]+:def:def$");
+    if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3) ||
+          parseMe.Contains(format4) || parseMe.Contains(format5) || parseMe.Contains(format6))) {
+      std::cout << "position parse error: could not parse " << parseMe << std::endl;
+      std::cout << usage << std::endl;
+      std::exit(1);
+    }
+    TString xStr = parseMe;
+    TString sStr = parseMe;
+    xStr.Replace(xStr.Index(":"), xStr.Sizeof(), "");
+    sStr.Replace(0, sStr.Index(":") + 1, "");
+    TString yStr = sStr;
+    TString zStr = sStr;
+    yStr.Replace(yStr.Index(":"), yStr.Sizeof(), "");
+    zStr.Replace(0, zStr.Index(":") + 1, "");
+    if (xStr.EqualTo("def")) {
+      x = 0;
+    } else {
+      x = xStr.Atof();
+    }
+    if (yStr.EqualTo("def")) {
+      y = 0;
+    } else {
+      y = yStr.Atof();
+    }
+    if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
+      // should never be reached
+      std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
+      std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
+      std::exit(1);
+    }
+    if (zStr.EqualTo("def")) {
+      scale = 1;
+    } else {
+      scale = zStr.Atof();
+    }
+  }
+
+  /**
+   * Parse the range arguments.
+   *
+   * @param parseMe Format: "min-max", e.g. "3.28:7.34"
+   * @param min     Return value
+   * @param max     Return value
+   */
+  bool parseRange(TString parseMe, float& min, float& max) {
+    if (parseMe == TString("default")) {
+      min = -104;
+      max = -104;
+    } else {
+      TString minStr = parseMe;
+      TString maxStr = parseMe;
+      minStr.Replace(minStr.Index(":"), minStr.Sizeof(), "");
+      maxStr.Replace(0, maxStr.Index(":") + 1, "");
+      min = minStr.Atof();
+      max = maxStr.Atof();
+    }
+    if (min > max) { return false; }
+    return true;
+  }
+
+  /**
+   * Parse a variable assignment string.
+   *
+   * @param parseMe Format: "foovar=3.14"
+   * @param name    Return string
+   * @param value   Return value
+   */
+  bool parseAssignment(TString parseMe, TString& name, TString& value) {
+    TString nameStr = parseMe;
+    TString valueStr = parseMe;
+    if (parseMe.Index("=") == -1) return false;  // parse error: '=' not found
+    nameStr.Replace(nameStr.Index("="), nameStr.Sizeof(), "");
+    valueStr.Replace(0, valueStr.Index("=") + 1, "");
+    name = nameStr;
+    value = valueStr;
+    return true;
+  }
+
+  /**
+   * Parse a variable assignment string.
+   *
+   * @param parseMe Format: "foovar=3.14"
+   * @param name    Return string
+   * @param value   Return value
+   */
+  bool parseAssignment(TString parseMe, TString& name, float& value) {
+    TString valueStr;
+    parseAssignment(parseMe, name, valueStr);
+    value = valueStr.Atof();
+    return true;
+  }
+
+  /**
+   * Parse -c string (combiner ID with add/del PDF modification requests).
+   *
+   * The string to parse looks sth like "combinerId:+pdfId1,-pdfId2" Examples:
+   *   -c 26
+   *   -c 26:+12,+23
+   *   -c 26:+12,-3
+   *
+   * @param parseMe          The string provided to -c
+   * @param resultCmbId      Resulting combiner ID
+   * @param resultAddDelPdf  Vector of all PDF IDs, that are requested to be added or deleted to/from the combiner.
+   *                         If it is supposed to be added (deleted), a positive (negative) PDF ID is stored.
+   */
+  void parseCombinerString(TString parseMe, int& resultCmbId, std::vector<int>& resultAddDelPdf) {
+    resultCmbId = 0;
+    resultAddDelPdf.clear();
+    TString usage = "";
+    usage += "Required format: '-c combinerId[:+pdfId1[,-pdfId2,...]]'\n";
+    usage += "  Examples:\n";
+    usage += "  -c 26\n";
+    usage += "  -c 26:+12\n";
+    usage += "  -c 26:+12,-3\n";
+    // simplest case, no modification
+    if (!parseMe.Contains(":")) {
+      resultCmbId = convertToDigitWithCheck(parseMe, usage);
+      return;
+    }
+    // advanced case, there are PDF modifications
+    // 1. parse leading combiner ID
+    TObjArray* array = parseMe.Tokenize(":");  // split string at ":"
+    if (array->GetEntries() != 2) {
+      std::cout << "-c parse error: too many ':'. " << usage << std::endl;
+      std::exit(1);
+    }
+    TString combinerIdStr = ((TObjString*)array->At(0))->GetString();  // gets the part before the colon
+    resultCmbId = convertToDigitWithCheck(combinerIdStr, usage);
+    // 2. parse list of PDF IDs
+    TString pdfIdsListStr = ((TObjString*)array->At(1))->GetString();  // gets the part after the colon
+    TObjArray* arrayCommaList = pdfIdsListStr.Tokenize(",");           // split string at ","
+    for (int j = 0; j < arrayCommaList->GetEntries(); j++) {
+      TString pdfId = ((TObjString*)arrayCommaList->At(j))->GetString();
+      if (!(pdfId.BeginsWith("+") || pdfId.BeginsWith("-"))) {
+        std::cout << "-c parse error: first character not a + or -. " << usage << std::endl;
+        std::exit(1);
+      }
+      resultAddDelPdf.push_back(convertToIntWithCheck(pdfId, usage));
+    }
+    delete array;
+    delete arrayCommaList;
+  }
+
+}  // namespace
+
 ///
 /// Organize command line options.
 /// The strategy is to have one object of this class present in the
@@ -31,7 +260,7 @@
 /// - add its name to defineOptions()
 /// - add its definition and parsing to parseArguments()
 ///
-OptParser::OptParser() : cmd("", ' ', "") {
+OptParser::OptParser() {
   defineOptions();
 
   // always book these options
@@ -40,105 +269,6 @@ OptParser::OptParser() : cmd("", ' ', "") {
   bookedOptions.push_back("usage");
   bookedOptions.push_back("var");
   bookedOptions.push_back("verbose");
-
-  // Initialize the variables.
-  // For more complex arguments these are also the default values.
-  compare = false;
-  controlplot = false;
-  coverageCorrectionID = 0;
-  coverageCorrectionPoint = 0;
-  debug = false;
-  digits = -99;
-  enforcePhysRange = false;
-  filenamechange = "";
-  grid = false;
-  group = "GammaCombo";
-  groupPos = "";
-  hfagLabel = "";
-  hfagLabelPos = "";
-  id = -99;
-  importance = false;
-  info = false;
-  interactive = false;
-  jobdir = ".";
-  largest = false;
-  latex = false;
-  plotlegstyle = "default";
-  lightfiles = false;
-  batchstartn = 1;
-  nbatchjobs = -99;
-  batcheos = false;
-  batchsubmit = false;
-  batchout = "";
-  batchreqs = "";
-  nBBpoints = -99;
-  ndiv = 407;
-  ndivy = 407;
-  nosyst = false;
-  confirmsols = true;
-  npoints1d = -99;
-  npoints2dx = -99;
-  npoints2dy = -99;
-  npointstoy = -99;
-  ncoveragetoys = -99;
-  nrun = -99;
-  ntoys = -99;
-  nsmooth = 1;
-  parevol = false;
-  plotdate = "";
-  plotext = "";
-  plotid = -99;
-  plotlegend = true;
-  plotlegx = -99;
-  plotlegy = -99;
-  plotlegsizex = -99;
-  plotlegsizey = -99;
-  plotlegcols = 1;
-  plotlegbox = false;
-  plotlegboxx = -99;
-  plotlegboxy = -99;
-  plotgroupx = -99;
-  plotgroupy = -99;
-  plotHFAGLabelPosX = 0;
-  plotHFAGLabelPosY = 0;
-  plotHFAGLabelScale = 1;
-  plotlog = false;
-  plotmagnetic = false;
-  plotnsigmacont = 2;
-  plotpluginonly = false;
-  plotprelim = false;
-  plotpulls = false;
-  plotoriginx = -99.;
-  plotoriginy = -99.;
-  plotunoff = false;
-  plotymin = -99.;
-  plotymax = -99.;
-  pluginPlotRangeMax = -100;
-  pluginPlotRangeMin = -100;
-  intprob = false;
-  probforce = false;
-  probimprove = false;
-  probScanResult = "notSet";
-  printcor = false;
-  printSolX = -999.;
-  printSolY = -999.;
-  /// queue = "";
-  save = "";
-  saveAtMin = false;
-  scanforce = false;
-  scanrangeMax = -101;
-  scanrangeMin = -101;
-  scanrangeyMax = -102;
-  scanrangeyMin = -102;
-  scaleerr = -999.;
-  scalestaterr = -999.;
-  smooth2d = false;
-  square = false;
-  teststatistic = 2;
-  toyFiles = "";
-  updateFreq = 10;
-  usage = false;
-  verbose = false;
 }
 
 ///
@@ -1568,239 +1698,6 @@ void OptParser::parseArguments(int argc, char* argv[]) {
     std::cout << "ERROR: User specific confidence levels are only available for 1D option." << std::endl;
     std::exit(1);
   }
-}
-
-///
-/// Parse the position arguments, which define the position of
-/// the legend and logo in the plots. The position needs to be
-/// given as x:y, where x and y are floating point numbers between
-/// 0.0 and 1.0. To use the default position for either one, use
-/// "def".
-/// \param parseMe  - parse this string. Example formats:
-///                       0.1:0.5, .1:.5, def:0.6, .75:def
-/// \param x        - return value x
-/// \param y        - return value y
-/// \param usage    - string containing some usage information which is
-///           printed when there is an error.
-///
-void OptParser::parsePosition(TString parseMe, float& x, float& y, TString usage) {
-  if (parseMe == TString("default")) {
-    x = -1.;
-    y = -1.;
-    return;
-  }
-  if (parseMe == TString("off")) { return; }
-  TRegexp format1("^0?\\.[0-9]+:0?\\.[0-9]+$");
-  TRegexp format2("^def:0?\\.[0-9]+$");
-  TRegexp format3("^0?\\.[0-9]+:def$");
-  if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3))) {
-    std::cout << "position parse error: could not parse " << parseMe << std::endl;
-    std::cout << usage << std::endl;
-    std::exit(1);
-  }
-  TString xStr = parseMe;
-  TString yStr = parseMe;
-  xStr.Replace(xStr.Index(":"), xStr.Sizeof(), "");
-  yStr.Replace(0, yStr.Index(":") + 1, "");
-  if (xStr.EqualTo("def")) {
-    x = -1;
-  } else {
-    x = xStr.Atof();
-  }
-  if (yStr.EqualTo("def")) {
-    y = -1;
-  } else {
-    y = yStr.Atof();
-  }
-  if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
-    // should never be reached
-    std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
-    std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
-    std::exit(1);
-  }
-}
-
-void OptParser::parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y, Double_t& scale, TString usage) {
-  if (parseMe == TString("default")) {
-    x = 0;
-    y = 0;
-    scale = 0;
-    return;
-  }
-  if (parseMe == TString("off")) { return; }
-  TRegexp format1("^0?\\.[0-9]+:0?\\.[0-9]+:[0-9]+\\.[0-9]+$");
-  TRegexp format2("^0?\\.[0-9]+:0?\\.[0-9]+:def$");
-  TRegexp format3("def:0?\\.[0-9]+:[0-9]+\\.[0-9]+$");
-  TRegexp format4("def:0?\\.[0-9]+:def$");
-  TRegexp format5("^0?\\.[0-9]+:def:[0-9]+\\.[0-9]+$");
-  TRegexp format6("^0?\\.[0-9]+:def:def$");
-  if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3) ||
-        parseMe.Contains(format4) || parseMe.Contains(format5) || parseMe.Contains(format6))) {
-    std::cout << "position parse error: could not parse " << parseMe << std::endl;
-    std::cout << usage << std::endl;
-    std::exit(1);
-  }
-  TString xStr = parseMe;
-  TString sStr = parseMe;
-  xStr.Replace(xStr.Index(":"), xStr.Sizeof(), "");
-  sStr.Replace(0, sStr.Index(":") + 1, "");
-  TString yStr = sStr;
-  TString zStr = sStr;
-  yStr.Replace(yStr.Index(":"), yStr.Sizeof(), "");
-  zStr.Replace(0, zStr.Index(":") + 1, "");
-  if (xStr.EqualTo("def")) {
-    x = 0;
-  } else {
-    x = xStr.Atof();
-  }
-  if (yStr.EqualTo("def")) {
-    y = 0;
-  } else {
-    y = yStr.Atof();
-  }
-  if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
-    // should never be reached
-    std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
-    std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
-    std::exit(1);
-  }
-  if (zStr.EqualTo("def")) {
-    scale = 1;
-  } else {
-    scale = zStr.Atof();
-  }
-}
-
-///
-/// Parse the range arguments.
-/// \param parseMe Format: "min-max", e.g. "3.28:7.34"
-/// \param min return value
-/// \param max return value
-///
-bool OptParser::parseRange(TString parseMe, float& min, float& max) {
-  if (parseMe == TString("default")) {
-    min = -104;
-    max = -104;
-  } else {
-    TString minStr = parseMe;
-    TString maxStr = parseMe;
-    minStr.Replace(minStr.Index(":"), minStr.Sizeof(), "");
-    maxStr.Replace(0, maxStr.Index(":") + 1, "");
-    min = minStr.Atof();
-    max = maxStr.Atof();
-  }
-  if (min > max) { return false; }
-  return true;
-}
-
-///
-/// Parse a variable assignment string.
-/// \param parseMe Format: "foovar=3.14"
-/// \param name return string
-/// \param value return value
-///
-bool OptParser::parseAssignment(TString parseMe, TString& name, TString& value) {
-  TString nameStr = parseMe;
-  TString valueStr = parseMe;
-  if (parseMe.Index("=") == -1) return false;  // parse error: '=' not found
-  nameStr.Replace(nameStr.Index("="), nameStr.Sizeof(), "");
-  valueStr.Replace(0, valueStr.Index("=") + 1, "");
-  name = nameStr;
-  value = valueStr;
-  return true;
-}
-
-///
-/// Parse a variable assignment string.
-/// \param parseMe Format: "foovar=3.14"
-/// \param name return string
-/// \param value return value
-///
-bool OptParser::parseAssignment(TString parseMe, TString& name, float& value) {
-  TString valueStr;
-  parseAssignment(parseMe, name, valueStr);
-  value = valueStr.Atof();
-  return true;
-}
-
-///
-/// Helper function for parseCombinerString().
-/// Checks if a string is an integer (pos or neg), if not, exits with printing the usage.
-///
-int OptParser::convertToIntWithCheck(TString parseMe, TString usage) {
-  if (!(!parseMe.Contains(".") && !parseMe.Contains(",") && parseMe.IsFloat())) {
-    std::cout << "ERROR : could not parse argument. This string is not a positive or negative integer: '" << parseMe
-              << "'" << std::endl;
-    std::cout << usage << std::endl;
-    std::exit(1);
-  }
-  return parseMe.Atoi();
-}
-
-///
-/// Helper function for parseCombinerString().
-/// Checks if a string is a digit (positive integer), if not, exits with printing the usage.
-///
-int OptParser::convertToDigitWithCheck(TString parseMe, TString usage) {
-  if (!parseMe.IsDigit()) {
-    std::cout << "ERROR : could not parse argument. This string is not a positive integer: '" << parseMe << "'"
-              << std::endl;
-    std::cout << usage << std::endl;
-    std::exit(1);
-  }
-  return parseMe.Atoi();
-}
-
-///
-/// Parse -c string (combiner ID with add/del PDF modification requests).
-/// The string to parse looks sth like "combinerId:+pdfId1,-pdfId2"
-/// Examples:
-/// -c 26
-/// -c 26:+12,+23
-/// -c 26:+12,-3
-///
-/// \param parseMe      - the string provided to -c
-/// \param resultCmbId      - resulting combiner ID
-/// \param resultAddDelPdf  - vector of all PDF IDs, that are requested to be added or deleted
-///                     to/from the combiner. If it is supposed to be added, a positive PDF ID
-///                 is stored, if it is supposed to be deleted, a negative PDF ID is stored
-///
-void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, std::vector<int>& resultAddDelPdf) {
-  resultCmbId = 0;
-  resultAddDelPdf.clear();
-  TString usage = "";
-  usage += "Required format: '-c combinerId[:+pdfId1[,-pdfId2,...]]'\n";
-  usage += "  Examples:\n";
-  usage += "  -c 26\n";
-  usage += "  -c 26:+12\n";
-  usage += "  -c 26:+12,-3\n";
-  // simplest case, no modification
-  if (!parseMe.Contains(":")) {
-    resultCmbId = convertToDigitWithCheck(parseMe, usage);
-    return;
-  }
-  // advanced case, there are PDF modifications
-  // 1. parse leading combiner ID
-  TObjArray* array = parseMe.Tokenize(":");  // split string at ":"
-  if (array->GetEntries() != 2) {
-    std::cout << "-c parse error: too many ':'. " << usage << std::endl;
-    std::exit(1);
-  }
-  TString combinerIdStr = ((TObjString*)array->At(0))->GetString();  // gets the part before the colon
-  resultCmbId = convertToDigitWithCheck(combinerIdStr, usage);
-  // 2. parse list of PDF IDs
-  TString pdfIdsListStr = ((TObjString*)array->At(1))->GetString();  // gets the part after the colon
-  TObjArray* arrayCommaList = pdfIdsListStr.Tokenize(",");           // split string at ","
-  for (int j = 0; j < arrayCommaList->GetEntries(); j++) {
-    TString pdfId = ((TObjString*)arrayCommaList->At(j))->GetString();
-    if (!(pdfId.BeginsWith("+") || pdfId.BeginsWith("-"))) {
-      std::cout << "-c parse error: first character not a + or -. " << usage << std::endl;
-      std::exit(1);
-    }
-    resultAddDelPdf.push_back(convertToIntWithCheck(pdfId, usage));
-  }
-  delete array;
-  delete arrayCommaList;
 }
 
 ///
