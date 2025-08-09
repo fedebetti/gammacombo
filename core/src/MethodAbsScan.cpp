@@ -40,6 +40,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -303,6 +304,48 @@ void MethodAbsScan::initScan() {
   m_initialized = true;
 }
 
+void MethodAbsScan::dumpResult(const std::string& ofname) {
+
+  system("mkdir -p plots/par");
+  const auto ofpath = std::format("plots/par/{:s}.dat", ofname);
+  std::cout << "MethodAbsScan::dumpResult() : saving " << ofpath << std::endl;
+
+  bool angle = Utils::isAngle(getWorkspace()->var(getScanVar1Name()));
+
+  std::ofstream outf;
+  outf.open(ofpath);
+  outf << std::format("# Fit Result Summary\n"
+                      "nSolutions={:d}\n"
+                      "# pvalue central min max\n",
+                      getNSolutions());
+
+  for (const auto& ci : clintervals1sigma) {
+    float central = ci.central;
+    float min = ci.min;
+    float max = ci.max;
+    if (angle) {
+      using Utils::RadToDeg;
+      central = RadToDeg(central);
+      min = RadToDeg(min);
+      max = RadToDeg(max);
+    }
+    outf << std::format("{:f} {:f} {:f} {:f}\n", ci.pvalue, central, min, max);
+  }
+  for (const auto& ci : clintervals2sigma) {
+    float central = ci.central;
+    float min = ci.min;
+    float max = ci.max;
+    if (angle) {
+      using Utils::RadToDeg;
+      central = RadToDeg(central);
+      min = RadToDeg(min);
+      max = RadToDeg(max);
+    }
+    outf << std::format("{:f} {:f} {:f} {:f}\n", ci.pvalue, central, min, max);
+  }
+
+  outf.close();
+}
 ///
 /// Save this scanner to a root file placed into plots/scanner.
 /// It contains the 1-CL histograms and the solutions.

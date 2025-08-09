@@ -90,6 +90,7 @@ class MethodAbsScan {
   TString getScanVar2Name();
   float getScanVar2Solution(int i = 0);
   inline std::vector<RooSlimFitResult*> getSolutions() { return solutions; };
+  inline int getNSolutions() const { return solutions.size(); };
   RooSlimFitResult* getSolution(int i = 0);
   const RooArgSet* getTheory();
   inline int getTextColor() { return textColor; };
@@ -106,6 +107,9 @@ class MethodAbsScan {
   virtual void print();
   void printCLintervals(int CLsType, bool calc_expected = false);
   void printLocalMinima();
+
+  // Save/dump results
+  void dumpResult(const std::string& ofname);
   void saveLocalMinima(TString fName = "");
   void saveScanner(TString fName = "");
   virtual int scan1d();

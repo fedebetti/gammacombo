@@ -77,7 +77,6 @@ set(CORE_LIB_SOURCES
     ./core/src/ControlPlots.cpp
     ./core/src/FileNameBuilder.cpp
     ./core/src/FitResultCache.cpp
-    ./core/src/FitResultDump.cpp
     ./core/src/Fitter.cpp
     ./core/src/GammaComboEngine.cpp
     ./core/src/Graphviz.cpp
