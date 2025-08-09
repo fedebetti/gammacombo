@@ -81,16 +81,21 @@ namespace Utils {
   double angularDifference(double angle1, double angle2);
   bool isPosDef(TMatrixDSym* c);
   bool isAngle(RooRealVar* v);
+
+  // TColor makers
   int makeNewColor(std::string hex);
 
+  // Fit functions
   RooFitResult* fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel);
   RooFitResult* fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel);
   RooFitResult* fitToMinForce(RooWorkspace* w, TString name, TString forceVariables = "", bool debug = true);
   RooFitResult* fitToMinImprove(RooWorkspace* w, TString name);
   double getChi2(RooAbsPdf* pdf);
+
+  // Functions to manage histograms, graphs, and datasets
+  TGraph* addPointToGraphAtFirstMatchingX(const TGraph* g, double xNew, double yNew);
   TH1F* histHardCopy(const TH1F* h, bool copyContent = true, bool uniqueName = true, TString specName = "");
   TH2F* histHardCopy(const TH2F* h, bool copyContent = true, bool uniqueName = true, TString specName = "");
-
   TTree* convertRooDatasetToTTree(RooDataSet* d);
   TGraph* convertTH1ToTGraph(TH1* h, bool withErrors = false);
   TGraph* smoothGraph(TGraph* g, int option = 0);
@@ -121,6 +126,7 @@ namespace Utils {
   void setLimit(const RooAbsCollection* set, TString limitname);
   double getCorrelationFactor(const std::vector<double>& a, const std::vector<double>& b);
 
+  // Utility functions for combiners implementations
   template <typename T>
   TMatrixDSym buildCorMatrix(const int n, std::vector<T> data);
   bool buildCorMatrix(TMatrixDSym& cor);

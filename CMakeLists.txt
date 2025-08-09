@@ -113,7 +113,6 @@ set(CORE_LIB_SOURCES
     ./core/src/RooSlimFitResult.cpp
     ./core/src/Rounder.cpp
     ./core/src/SharedArray.cpp
-    ./core/src/TGraphTools.cpp
     ./core/src/ToyTree.cpp
     ./core/src/UtilsConfig.cpp
     ./core/src/Utils.cpp)

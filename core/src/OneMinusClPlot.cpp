@@ -10,7 +10,6 @@
 #include <OneMinusClPlotAbs.h>
 #include <OptParser.h>
 #include <Rounder.h>
-#include <TGraphTools.h>
 #include <Utils.h>
 
 #include <RooRealVar.h>
@@ -104,8 +103,7 @@ TGraph* OneMinusClPlot::scan1dPlot(MethodAbsScan* s, bool first, bool last, bool
   // mu > muhat
   if (arg->teststatistic != 1) {
     if (!s->getSolutions().empty()) {
-      TGraphTools t;
-      TGraph* gNew = t.addPointToGraphAtFirstMatchingX(g, s->getScanVar1Solution(0), 1.0);
+      TGraph* gNew = Utils::addPointToGraphAtFirstMatchingX(g, s->getScanVar1Solution(0), 1.);
       delete g;
       g = gNew;
     }

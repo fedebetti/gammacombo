@@ -21,6 +21,7 @@
 #include <TCanvas.h>
 #include <TColor.h>
 #include <TError.h>
+#include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphSmooth.h>
 #include <TH1.h>
@@ -1061,6 +1062,44 @@ TGraph* Utils::smoothGraph(TGraph* g, int option) {
 TGraph* Utils::smoothHist(TH1* h, int option) {
   TGraph* g = convertTH1ToTGraph(h);
   return smoothGraph(g);
+}
+
+/**
+ * Adds a point to a TGraph at the first position where the x value is larger than the new x value.
+ *
+ * If no such position is found, the point is added at the end. Creator takes ownership of the TGraph.
+ */
+TGraph* Utils::addPointToGraphAtFirstMatchingX(const TGraph* g, const double xNew, const double yNew) {
+  std::vector<double> xVec;
+  std::vector<double> yVec;
+  for (int i = 0; i < g->GetN(); ++i) {
+    double xOld, yOld;
+    g->GetPoint(i, xOld, yOld);
+    xVec.push_back(xOld);
+    yVec.push_back(yOld);
+  }
+
+  const auto it = std::ranges::find_if(xVec, [xNew](auto x) { return x >= xNew; });
+  const auto iPos = it - xVec.begin();
+  xVec.insert(xVec.begin() + iPos, xNew);
+  yVec.insert(yVec.begin() + iPos, yNew);
+
+  // create a new graph of the right kind
+  const bool isTGraphErrors = TString(g->ClassName()).EqualTo("TGraphErrors");
+  TGraph* gNew;
+  if (isTGraphErrors)
+    gNew = new TGraphErrors(g->GetN() + 1);
+  else
+    gNew = new TGraph(g->GetN() + 1);
+  gNew->SetName(getUniqueRootName());
+  for (int i = 0; i < xVec.size(); ++i) { gNew->SetPoint(i, xVec[i], yVec[i]); }
+  if (isTGraphErrors) {
+    for (int i = 0; i < xVec.size(); ++i) {
+      double yErr = (i == iPos) ? 0. : g->GetErrorY(i - (i < iPos ? 0 : 1));
+      static_cast<TGraphErrors*>(gNew)->SetPointError(i, 0., yErr);
+    }
+  }
+  return gNew;
 }
 
 ///
