@@ -7,7 +7,6 @@
 
 #include <OneMinusClPlot2d.h>
 
-#include <ColorBuilder.h>
 #include <ConfidenceContours.h>
 #include <MethodAbsScan.h>
 #include <OptParser.h>
@@ -33,7 +32,6 @@ OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString t
     : OneMinusClPlotAbs(arg, name, title) {
   xTitle = arg->xtitle;
   yTitle = arg->ytitle;
-  ColorBuilder cb;
 
   // ==== define style ====
   for (int i = 0; i < 9; i++) {
@@ -60,6 +58,7 @@ OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString t
   }
 
   // otherwise use some defaults
+  using Utils::TColorNS::lightcolor;
 
   // 1st scanner
   if (arg->plotsolutions[0] == 2) {
@@ -82,45 +81,45 @@ OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString t
   fillstyle[1].push_back(1001);
   linewidth[1].push_back(2);
   // 3 sigma
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][0]));
+  linecolor[2].push_back(lightcolor(linecolor[1][0]));
   linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.lightcolor(fillcolor[1][0]));
+  fillcolor[2].push_back(lightcolor(fillcolor[1][0]));
   fillstyle[2].push_back(1001);
   linewidth[2].push_back(2);
   // 4 sigma
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][0]));
+  linecolor[3].push_back(lightcolor(linecolor[2][0]));
   linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][0]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][0]));
   fillstyle[3].push_back(1001);
   linewidth[3].push_back(2);
   // 5 sigma
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][0]));
+  linecolor[4].push_back(lightcolor(linecolor[3][0]));
   linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][0]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][0]));
   fillstyle[4].push_back(1001);
   linewidth[4].push_back(2);
   // 6 sigma
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][0]));
+  linecolor[5].push_back(lightcolor(linecolor[4][0]));
   linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][0]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][0]));
   fillstyle[5].push_back(1001);
   linewidth[5].push_back(2);
   // 7 sigma
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][0]));
+  linecolor[6].push_back(lightcolor(linecolor[5][0]));
   linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][0]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][0]));
   fillstyle[6].push_back(1001);
   linewidth[6].push_back(2);
   // 8 sigma
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][0]));
+  linecolor[7].push_back(lightcolor(linecolor[6][0]));
   linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][0]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][0]));
   fillstyle[7].push_back(1001);
   linewidth[7].push_back(2);
   // 9 sigma
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][0]));
+  linecolor[8].push_back(lightcolor(linecolor[7][0]));
   linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][0]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][0]));
   fillstyle[8].push_back(1001);
   linewidth[8].push_back(2);
 
@@ -142,45 +141,45 @@ OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString t
   fillstyle[1].push_back(1001);
   linewidth[1].push_back(2);
 
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][1]));
+  linecolor[2].push_back(lightcolor(linecolor[1][1]));
   linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.lightcolor(fillcolor[1][1]));
+  fillcolor[2].push_back(lightcolor(fillcolor[1][1]));
   fillstyle[2].push_back(1001);
   linewidth[2].push_back(2);
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][1]));
+  linecolor[3].push_back(lightcolor(linecolor[2][1]));
   linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][1]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][1]));
   fillstyle[3].push_back(1001);
   linewidth[3].push_back(2);
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][1]));
+  linecolor[4].push_back(lightcolor(linecolor[3][1]));
   linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][1]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][1]));
   fillstyle[4].push_back(1001);
   linewidth[4].push_back(2);
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][1]));
+  linecolor[5].push_back(lightcolor(linecolor[4][1]));
   linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][1]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][1]));
   fillstyle[5].push_back(1001);
   linewidth[5].push_back(2);
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][1]));
+  linecolor[6].push_back(lightcolor(linecolor[5][1]));
   linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][1]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][1]));
   fillstyle[6].push_back(1001);
   linewidth[6].push_back(2);
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][1]));
+  linecolor[7].push_back(lightcolor(linecolor[6][1]));
   linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][1]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][1]));
   fillstyle[7].push_back(1001);
   linewidth[7].push_back(2);
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][1]));
+  linecolor[8].push_back(lightcolor(linecolor[7][1]));
   linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][1]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][1]));
   fillstyle[8].push_back(1001);
   linewidth[8].push_back(2);
 
@@ -200,45 +199,45 @@ OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString t
   fillstyle[1].push_back(1001);
   linewidth[1].push_back(2);
 
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][2]));
+  linecolor[2].push_back(lightcolor(linecolor[1][2]));
   linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.lightcolor(fillcolor[1][2]));
+  fillcolor[2].push_back(lightcolor(fillcolor[1][2]));
   fillstyle[2].push_back(1001);
   linewidth[2].push_back(2);
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][2]));
+  linecolor[3].push_back(lightcolor(linecolor[2][2]));
   linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][2]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][2]));
   fillstyle[3].push_back(1001);
   linewidth[3].push_back(2);
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][2]));
+  linecolor[4].push_back(lightcolor(linecolor[3][2]));
   linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][2]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][2]));
   fillstyle[4].push_back(1001);
   linewidth[4].push_back(2);
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][2]));
+  linecolor[5].push_back(lightcolor(linecolor[4][2]));
   linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][2]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][2]));
   fillstyle[5].push_back(1001);
   linewidth[5].push_back(2);
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][2]));
+  linecolor[6].push_back(lightcolor(linecolor[5][2]));
   linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][2]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][2]));
   fillstyle[6].push_back(1001);
   linewidth[6].push_back(2);
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][2]));
+  linecolor[7].push_back(lightcolor(linecolor[6][2]));
   linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][2]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][2]));
   fillstyle[7].push_back(1001);
   linewidth[7].push_back(2);
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][2]));
+  linecolor[8].push_back(lightcolor(linecolor[7][2]));
   linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][2]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][2]));
   fillstyle[8].push_back(1001);
   linewidth[8].push_back(2);
 
@@ -258,45 +257,45 @@ OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString t
   fillstyle[1].push_back(1001);
   linewidth[1].push_back(2);
 
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][3]));
+  linecolor[2].push_back(lightcolor(linecolor[1][3]));
   linestyle[2].push_back(kSolid);
   fillcolor[2].push_back(kGreen - 9);
   fillstyle[2].push_back(1001);
   linewidth[2].push_back(2);
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][3]));
+  linecolor[3].push_back(lightcolor(linecolor[2][3]));
   linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][3]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][3]));
   fillstyle[3].push_back(1001);
   linewidth[3].push_back(2);
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][3]));
+  linecolor[4].push_back(lightcolor(linecolor[3][3]));
   linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][3]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][3]));
   fillstyle[4].push_back(1001);
   linewidth[4].push_back(2);
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][3]));
+  linecolor[5].push_back(lightcolor(linecolor[4][3]));
   linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][3]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][3]));
   fillstyle[5].push_back(1001);
   linewidth[5].push_back(2);
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][3]));
+  linecolor[6].push_back(lightcolor(linecolor[5][3]));
   linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][3]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][3]));
   fillstyle[6].push_back(1001);
   linewidth[6].push_back(2);
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][3]));
+  linecolor[7].push_back(lightcolor(linecolor[6][3]));
   linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][3]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][3]));
   fillstyle[7].push_back(1001);
   linewidth[7].push_back(2);
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][3]));
+  linecolor[8].push_back(lightcolor(linecolor[7][3]));
   linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][3]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][3]));
   fillstyle[8].push_back(1001);
   linewidth[8].push_back(2);
 
@@ -322,39 +321,39 @@ OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString t
   fillstyle[2].push_back(1001);
   linewidth[2].push_back(2);
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][4]));
+  linecolor[3].push_back(lightcolor(linecolor[2][4]));
   linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][4]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][4]));
   fillstyle[3].push_back(1001);
   linewidth[3].push_back(2);
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][4]));
+  linecolor[4].push_back(lightcolor(linecolor[3][4]));
   linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][4]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][4]));
   fillstyle[4].push_back(1001);
   linewidth[4].push_back(2);
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][4]));
+  linecolor[5].push_back(lightcolor(linecolor[4][4]));
   linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][4]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][4]));
   fillstyle[5].push_back(1001);
   linewidth[5].push_back(2);
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][4]));
+  linecolor[6].push_back(lightcolor(linecolor[5][4]));
   linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][4]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][4]));
   fillstyle[6].push_back(1001);
   linewidth[6].push_back(2);
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][4]));
+  linecolor[7].push_back(lightcolor(linecolor[6][4]));
   linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][4]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][4]));
   fillstyle[7].push_back(1001);
   linewidth[7].push_back(2);
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][4]));
+  linecolor[8].push_back(lightcolor(linecolor[7][4]));
   linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][4]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][4]));
   fillstyle[8].push_back(1001);
   linewidth[8].push_back(2);
 
@@ -455,51 +454,52 @@ void OneMinusClPlot2d::makeNewPlotStyle(TString htmlColor, int ROOTColor) {
     newColor = TColor::GetColor(htmlColor);
   markerstyle.push_back(20);
   markersize.push_back(1.1);
-  ColorBuilder cb;
   float thisMuchDarker = 1.1;
-  linecolor[0].push_back(cb.darklightcolor(newColor, 0.7));
+  using Utils::TColorNS::darklightcolor;
+
+  linecolor[0].push_back(darklightcolor(newColor, 0.7));
   linestyle[0].push_back(kSolid);
   fillcolor[0].push_back(newColor);
   fillstyle[0].push_back(3005);
   linewidth[0].push_back(2);
-  linecolor[1].push_back(cb.darklightcolor(linecolor[0][currentNumberOfStyles], thisMuchDarker));
+  linecolor[1].push_back(darklightcolor(linecolor[0][currentNumberOfStyles], thisMuchDarker));
   linestyle[1].push_back(kSolid);
-  fillcolor[1].push_back(cb.darklightcolor(fillcolor[0][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[1].push_back(darklightcolor(fillcolor[0][currentNumberOfStyles], thisMuchDarker));
   fillstyle[1].push_back(1001);
   linewidth[1].push_back(2);
-  linecolor[2].push_back(cb.darklightcolor(linecolor[1][currentNumberOfStyles], thisMuchDarker));
+  linecolor[2].push_back(darklightcolor(linecolor[1][currentNumberOfStyles], thisMuchDarker));
   linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.darklightcolor(fillcolor[1][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[2].push_back(darklightcolor(fillcolor[1][currentNumberOfStyles], thisMuchDarker));
   fillstyle[2].push_back(1001);
   linewidth[2].push_back(2);
-  linecolor[3].push_back(cb.darklightcolor(linecolor[2][currentNumberOfStyles], thisMuchDarker));
+  linecolor[3].push_back(darklightcolor(linecolor[2][currentNumberOfStyles], thisMuchDarker));
   linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.darklightcolor(fillcolor[2][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[3].push_back(darklightcolor(fillcolor[2][currentNumberOfStyles], thisMuchDarker));
   fillstyle[3].push_back(1001);
   linewidth[3].push_back(2);
-  linecolor[4].push_back(cb.darklightcolor(linecolor[3][currentNumberOfStyles], thisMuchDarker));
+  linecolor[4].push_back(darklightcolor(linecolor[3][currentNumberOfStyles], thisMuchDarker));
   linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.darklightcolor(fillcolor[3][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[4].push_back(darklightcolor(fillcolor[3][currentNumberOfStyles], thisMuchDarker));
   fillstyle[4].push_back(1001);
   linewidth[4].push_back(2);
-  linecolor[5].push_back(cb.darklightcolor(linecolor[4][currentNumberOfStyles], thisMuchDarker));
+  linecolor[5].push_back(darklightcolor(linecolor[4][currentNumberOfStyles], thisMuchDarker));
   linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.darklightcolor(fillcolor[4][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[5].push_back(darklightcolor(fillcolor[4][currentNumberOfStyles], thisMuchDarker));
   fillstyle[5].push_back(1001);
   linewidth[5].push_back(2);
-  linecolor[6].push_back(cb.darklightcolor(linecolor[5][currentNumberOfStyles], thisMuchDarker));
+  linecolor[6].push_back(darklightcolor(linecolor[5][currentNumberOfStyles], thisMuchDarker));
   linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.darklightcolor(fillcolor[5][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[6].push_back(darklightcolor(fillcolor[5][currentNumberOfStyles], thisMuchDarker));
   fillstyle[6].push_back(1001);
   linewidth[6].push_back(2);
-  linecolor[7].push_back(cb.darklightcolor(linecolor[6][currentNumberOfStyles], thisMuchDarker));
+  linecolor[7].push_back(darklightcolor(linecolor[6][currentNumberOfStyles], thisMuchDarker));
   linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.darklightcolor(fillcolor[6][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[7].push_back(darklightcolor(fillcolor[6][currentNumberOfStyles], thisMuchDarker));
   fillstyle[7].push_back(1001);
   linewidth[7].push_back(2);
-  linecolor[8].push_back(cb.darklightcolor(linecolor[7][currentNumberOfStyles], thisMuchDarker));
+  linecolor[8].push_back(darklightcolor(linecolor[7][currentNumberOfStyles], thisMuchDarker));
   linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.darklightcolor(fillcolor[7][currentNumberOfStyles], thisMuchDarker));
+  fillcolor[8].push_back(darklightcolor(fillcolor[7][currentNumberOfStyles], thisMuchDarker));
   fillstyle[8].push_back(1001);
   linewidth[8].push_back(2);
 }
@@ -515,53 +515,54 @@ void OneMinusClPlot2d::makeOneColorPlotStyle(TString htmlColor, int ROOTColor) {
     newColor = ROOTColor;
   else
     newColor = TColor::GetColor(htmlColor);
-  ColorBuilder cb;
   float thisMuchLighter = 1.2;
   markerstyle.push_back(20);
   markersize.push_back(1.1);
+  using Utils::TColorNS::darklightcolor;
+
   linecolor[0].push_back(newColor);
   linestyle[0].push_back(kSolid);
-  fillcolor[0].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[0].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[0].push_back(3005);
   linewidth[0].push_back(2);
   linecolor[1].push_back(newColor);
   linestyle[1].push_back(kSolid);
-  fillcolor[1].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[1].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[1].push_back(1001);
   linewidth[1].push_back(2);
   linecolor[2].push_back(newColor);
   linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[2].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[2].push_back(1001);
   linewidth[2].push_back(2);
   linecolor[3].push_back(newColor);
   linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[3].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[3].push_back(1001);
   linewidth[3].push_back(2);
   linecolor[4].push_back(newColor);
   linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[4].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[4].push_back(1001);
   linewidth[4].push_back(2);
   linecolor[5].push_back(newColor);
   linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[5].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[5].push_back(1001);
   linewidth[5].push_back(2);
   linecolor[6].push_back(newColor);
   linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[6].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[6].push_back(1001);
   linewidth[6].push_back(2);
   linecolor[7].push_back(newColor);
   linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[7].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[7].push_back(1001);
   linewidth[7].push_back(2);
   linecolor[8].push_back(newColor);
   linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.darklightcolor(newColor, thisMuchLighter));
+  fillcolor[8].push_back(darklightcolor(newColor, thisMuchLighter));
   fillstyle[8].push_back(1001);
   linewidth[8].push_back(2);
 }

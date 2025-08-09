@@ -71,7 +71,6 @@ set(CORE_LIB_SOURCES
     ./core/src/CLInterval.cpp
     ./core/src/CLIntervalMaker.cpp
     ./core/src/CLIntervalPrinter.cpp
-    ./core/src/ColorBuilder.cpp
     ./core/src/Combiner.cpp
     ./core/src/ConfidenceContours.cpp
     ./core/src/Contour.cpp

@@ -1,7 +1,6 @@
 #include <GammaComboEngine.h>
 
 #include <BatchScriptWriter.h>
-#include <ColorBuilder.h>
 #include <Combiner.h>
 #include <FileNameBuilder.h>
 #include <Graphviz.h>
@@ -1048,12 +1047,7 @@ void GammaComboEngine::defineColors() {
   //   nature of data:         qualitative
   //   second colour scheme
 
-  ColorBuilder cb;
-
-  for (int i = 4; i < colorsLine.size(); i++) {
-    // colorsText.push_back(cb.darklightcolor(colorsLine[i], 0.5));
-    colorsText.push_back(colorsLine[i]);
-  }
+  for (int i = 4; i < colorsLine.size(); i++) { colorsText.push_back(colorsLine[i]); }
   //}
 
   // default for any additional scanner

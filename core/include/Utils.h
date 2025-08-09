@@ -83,7 +83,12 @@ namespace Utils {
   bool isAngle(RooRealVar* v);
 
   // TColor makers
-  int makeNewColor(std::string hex);
+  namespace TColorNS {
+    int darkcolor(int n);
+    int darklightcolor(int n, float scale);
+    int lightcolor(int n);
+    int makeNewColor(std::string hex);
+  }  // namespace TColorNS
 
   // Fit functions
   RooFitResult* fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel);

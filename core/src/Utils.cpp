@@ -29,7 +29,9 @@
 #include <TH2F.h>
 #include <TMath.h>
 #include <TMatrixDSymEigen.h>
+#include <TObjArray.h>
 #include <TPaveText.h>
+#include <TROOT.h>
 #include <TTree.h>
 #include <TVectorD.h>
 
@@ -1166,17 +1168,59 @@ bool Utils::isPosDef(TMatrixDSym* c) {
 ///
 bool Utils::isAngle(RooRealVar* v) { return v->getUnit() == TString("Rad") || v->getUnit() == TString("rad"); }
 
-int Utils::makeNewColor(std::string hex) {
-  int ci = TColor::GetFreeColorIndex();
-  int ri, gi, bi;
-  sscanf(hex.c_str(), "#%02x%02x%02x", &ri, &gi, &bi);
-  float r = ri / 255.f;
-  float g = gi / 255.f;
-  float b = bi / 255.f;
-  TColor* col = new TColor(ci, r, g, b);
-  std::cout << ci << " " << hex << " " << r << " " << g << " " << b << std::endl;
-  return col->GetNumber();
-}
+namespace Utils::TColorNS {
+
+  // TODO The first three functions are only used in OneMinusClPlot2d.cpp, move them there to reduce clutter?
+
+  /// Make a given TColor darker.
+  int darkcolor(int n) { return darklightcolor(n, 0.95); }
+
+  /// Make a given TColor lighter.
+  int lightcolor(int n) { return darklightcolor(n, 1.04); }
+
+  /// Copied from TColor::GetColorDark(Int_t n), but customized the darkness.
+  int darklightcolor(int n, float scale) {
+    if (n < 0) return -1;
+
+    // Get list of all defined colors
+    auto colors = (TObjArray*)gROOT->GetListOfColors();
+    Int_t ncolors = colors->GetSize();
+    // Get existing color at index n
+    TColor* color = nullptr;
+    if (n < ncolors) color = (TColor*)colors->At(n);
+    if (!color) return -1;
+
+    // Get the rgb of the the new dark color corresponding to color n
+    Float_t r, g, b;
+    TColor::HLStoRGB(color->GetHue(), scale * color->GetLight(), color->GetSaturation(), r, g, b);
+
+    // Build the dark color (unless the slot nd is already used)
+    Int_t nd = scale < 1. ? n + 100 : n + 150;
+    TColor* colord = nullptr;
+    if (nd < ncolors) colord = (TColor*)colors->At(nd);
+    if (colord) return nd;
+    colord = new TColor(nd, r, g, b);
+    colord->SetName(scale < 1. ? Form("%s_dark", color->GetName()) : Form("%s_light", color->GetName()));
+    colors->AddAtAndExpand(colord, nd);
+    return nd;
+  }
+
+  /// Create a new TColor from a hex identifier string.
+  int makeNewColor(std::string hex) {
+    // TODO This function is not currently used anywhere, remove?
+    const int ci = TColor::GetFreeColorIndex();
+    int ri, gi, bi;
+    std::sscanf(hex.c_str(), "#%02x%02x%02x", &ri, &gi, &bi);
+    float r = ri / 255.f;
+    float g = gi / 255.f;
+    float b = bi / 255.f;
+    TColor* col = new TColor(ci, r, g, b);
+    std::cout << std::format("New TColor created: id = {:d}, hex = {:s}, rgb = ({:.5f}, {:.5f}, {:.5f})", ci, hex, r, g,
+                             b)
+              << std::endl;
+    return col->GetNumber();
+  }
+}  // namespace Utils::TColorNS
 
 ///
 /// function filling a RooArgList with parameters within a Workspace
