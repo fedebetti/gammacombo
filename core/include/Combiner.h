@@ -31,23 +31,32 @@ class Combiner {
   Combiner(const Combiner&) = delete;
   Combiner& operator=(const Combiner&) = delete;
 
+  /// Add a PDF to the combiner.
   void addPdf(PDF_Abs* p);
-  void addPdf(PDF_Abs* p1, PDF_Abs* p2);
-  void addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3);
-  void addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4);
-  void addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5);
-  void addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5, PDF_Abs* p6);
+
+  /// Add an arbitrary number of PDFs to the combiner.
+  template <typename... Args>
+  void addPdf(PDF_Abs* p, Args... args) {
+    addPdf(p);
+    addPdf(args...);
+  }
+
   void adjustPhysRange(TString varName, double min, double max);
   Combiner* Clone(TString name, TString title);
   void combine();
   void fixParameter(TString var, double value);
   void fixParameters(TString vars);
+
+  /// Remove a PDF from the combiner.
   void delPdf(PDF_Abs* p);
-  void delPdf(PDF_Abs* p1, PDF_Abs* p2);
-  void delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3);
-  void delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4);
-  void delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5);
-  void delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5, PDF_Abs* p6);
+
+  /// Remove an arbitrary number of PDFs from the combiner.
+  template <typename... Args>
+  void delPdf(PDF_Abs* p, Args... args) {
+    delPdf(p);
+    delPdf(args...);
+  }
+
   inline const OptParser* getArg() { return arg; };
   const RooArgSet* getParameters();
   std::vector<std::string>& getParameterNames();

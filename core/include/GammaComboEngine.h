@@ -54,15 +54,25 @@ class GammaComboEngine {
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, int i6, int i7, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8,
                     TString title = "");
+
   void setPdf(PDF_Abs* pdf);
   void addCombiner(int id, Combiner* cmb);
   void cloneCombiner(int newId, int oldId, TString name, TString title);
+  void newCombiner(const int id, const TString name, const TString title, const std::vector<int>& pdfIds = {});
+
+  /**
+   * This method is deprecated and is maintained only for legacy reasons.
+   *
+   * Add a new Combiner, consisting of the specified PDFs. The pdf arguments refer to the GammaComboEngine ID of the
+   * PDFs that should be combined (add them before using `addPdf()`).
+   */
+  void newCombiner(const int id, const TString name, const TString title, std::convertible_to<int> auto&&... pdfIds) {
+    newCombiner(id, name, title, std::vector<int>{pdfIds...});
+  }
+
   Combiner* getCombiner(int id);
   PDF_Abs* getPdf(int id);
-  inline OptParser* getArg() { return arg; };
-  void newCombiner(int id, TString name, TString title, int pdf1 = -1, int pdf2 = -1, int pdf3 = -1, int pdf4 = -1,
-                   int pdf5 = -1, int pdf6 = -1, int pdf7 = -1, int pdf8 = -1, int pdf9 = -1, int pdf10 = -1,
-                   int pdf11 = -1, int pdf12 = -1, int pdf13 = -1, int pdf14 = -1, int pdf15 = -1);
+  inline OptParser* getArg() const { return arg; };
   void print() const;
   void printPdfs() const;
   void printCombinations() const;

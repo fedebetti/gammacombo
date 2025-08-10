@@ -422,38 +422,17 @@ PDF_Abs* GammaComboEngine::operator[](int idx) { return getPdf(idx); }
 // }
 
 ///
-/// Add a new Combiner, consisting of the specified PDFs.
-/// The pdf arguments refer to the GammaComboEngine ID of the PDFs
-/// that should be combined. Add them before using addPdf().
-/// Also an empty combiner is possible, that has no PDFs, so it can be filled
-/// later. In that case, leave all pdf arguments at -1.
+/// Add a new Combiner, consisting of the PDFs specified by the vector of their GammaComboEngine IDs.
 ///
-void GammaComboEngine::newCombiner(int id, TString name, TString title, int pdf1, int pdf2, int pdf3, int pdf4,
-                                   int pdf5, int pdf6, int pdf7, int pdf8, int pdf9, int pdf10, int pdf11, int pdf12,
-                                   int pdf13, int pdf14, int pdf15) {
-  if (combinerExists(id)) {
-    std::cout
-        << "GammaComboEngine::newCombiner() : ERROR : Requested new Combiner id exists already in GammaComboEngine. "
-           "Exit."
-        << std::endl;
-    std::exit(1);
-  }
-  Combiner* c = new Combiner(arg, name, title);
-  if (pdf1 > -1) c->addPdf(getPdf(pdf1));
-  if (pdf2 > -1) c->addPdf(getPdf(pdf2));
-  if (pdf3 > -1) c->addPdf(getPdf(pdf3));
-  if (pdf4 > -1) c->addPdf(getPdf(pdf4));
-  if (pdf5 > -1) c->addPdf(getPdf(pdf5));
-  if (pdf6 > -1) c->addPdf(getPdf(pdf6));
-  if (pdf7 > -1) c->addPdf(getPdf(pdf7));
-  if (pdf8 > -1) c->addPdf(getPdf(pdf8));
-  if (pdf9 > -1) c->addPdf(getPdf(pdf9));
-  if (pdf10 > -1) c->addPdf(getPdf(pdf10));
-  if (pdf11 > -1) c->addPdf(getPdf(pdf11));
-  if (pdf12 > -1) c->addPdf(getPdf(pdf12));
-  if (pdf13 > -1) c->addPdf(getPdf(pdf13));
-  if (pdf14 > -1) c->addPdf(getPdf(pdf14));
-  if (pdf15 > -1) c->addPdf(getPdf(pdf15));
+/// The PDFs must be added to GammaComboEngine before calling this function.
+/// An empty combiner is possible, too, so that it can be filled later.
+///
+void GammaComboEngine::newCombiner(const int id, const TString name, const TString title,
+                                   const std::vector<int>& pdfs) {
+  auto error = [](std::string msg) { return Utils::errBase("GammaComboEngine::newCombiner() : ERROR : ", msg); };
+  if (combinerExists(id)) error(std::format("Requested new Combiner id {:d} exists already in GammaComboEngine", id));
+  auto c = new Combiner(arg, name, title);
+  for (auto pdf : pdfs) { c->addPdf(getPdf(pdf)); }
   addCombiner(id, c);
 }
 

@@ -59,31 +59,6 @@ void Combiner::addPdf(PDF_Abs* p) {
   pdfs.push_back(p);
 }
 
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2) {
-  addPdf(p1);
-  addPdf(p2);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3) {
-  addPdf(p1, p2);
-  addPdf(p3);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4) {
-  addPdf(p1, p2, p3);
-  addPdf(p4);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5) {
-  addPdf(p1, p2, p3, p4);
-  addPdf(p5);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5, PDF_Abs* p6) {
-  addPdf(p1, p2, p3, p4, p5);
-  addPdf(p6);
-}
-
 void Combiner::delPdf(PDF_Abs* p) {
   if (_isCombined) {
     std::cout << "Combiner::delPdf() : ERROR : Can't delete pdf after the Combiner was combined!" << std::endl;
@@ -95,31 +70,6 @@ void Combiner::delPdf(PDF_Abs* p) {
     pdfsNew.push_back(pdfs[i]);
   }
   pdfs = pdfsNew;
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2) {
-  delPdf(p1);
-  delPdf(p2);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3) {
-  delPdf(p1, p2);
-  delPdf(p3);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4) {
-  delPdf(p1, p2, p3);
-  delPdf(p4);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5) {
-  delPdf(p1, p2, p3, p4);
-  delPdf(p5);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5, PDF_Abs* p6) {
-  delPdf(p1, p2, p3, p4, p5);
-  delPdf(p6);
 }
 
 void Combiner::replacePdf(PDF_Abs* from, PDF_Abs* to) {
