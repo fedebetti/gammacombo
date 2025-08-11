@@ -17,10 +17,9 @@ using namespace std;
 /// \param arg - command line parsing object
 /// \param name - the base name, e.g. "gammacombo"
 ///
-FileNameBuilder::FileNameBuilder(const OptParser* arg, TString name) {
+FileNameBuilder::FileNameBuilder(const OptParser* arg, TString name) : m_basename{name} {
   assert(arg);
   m_arg = arg;
-  m_basename = name;
 }
 
 ///
@@ -40,14 +39,14 @@ TString FileNameBuilder::getBaseName() const { return m_basename; }
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileBaseName(const Combiner* c) {
+TString FileNameBuilder::getFileBaseName(const Combiner* c) const {
   TString name = m_basename;
   name += "_" + c->getName();
   name += "_" + m_arg->var[0];
   if (m_arg->var.size() == 2) name += "_" + m_arg->var[1];
   return name;
 }
-TString FileNameBuilder::getFileBaseName(const MethodAbsScan* s) { return getFileBaseName(s->getCombiner()); }
+TString FileNameBuilder::getFileBaseName(const MethodAbsScan* s) const { return getFileBaseName(s->getCombiner()); }
 
 ///
 /// Compute the file name of the start parameter file.
@@ -58,13 +57,15 @@ TString FileNameBuilder::getFileBaseName(const MethodAbsScan* s) { return getFil
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameStartPar(const Combiner* c) {
+TString FileNameBuilder::getFileNameStartPar(const Combiner* c) const {
   TString name = "plots/par/";
   name += getFileBaseName(c);
   name += "_start.dat";
   return name;
 }
-TString FileNameBuilder::getFileNameStartPar(const MethodAbsScan* s) { return getFileNameStartPar(s->getCombiner()); }
+TString FileNameBuilder::getFileNameStartPar(const MethodAbsScan* s) const {
+  return getFileNameStartPar(s->getCombiner());
+}
 
 ///
 /// Compute the file name of the parameter file defining the Asimov
@@ -78,7 +79,7 @@ TString FileNameBuilder::getFileNameStartPar(const MethodAbsScan* s) { return ge
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameAsimovPar(const Combiner* c) {
+TString FileNameBuilder::getFileNameAsimovPar(const Combiner* c) const {
   TString name = "plots/par/";
   name += getFileBaseName(c);
   // remove any string after the "Asimov" token and the first "_" after that
@@ -90,7 +91,9 @@ TString FileNameBuilder::getFileNameAsimovPar(const Combiner* c) {
   name += "_genpoints.dat";
   return name;
 }
-TString FileNameBuilder::getFileNameAsimovPar(const MethodAbsScan* s) { return getFileNameStartPar(s->getCombiner()); }
+TString FileNameBuilder::getFileNameAsimovPar(const MethodAbsScan* s) const {
+  return getFileNameStartPar(s->getCombiner());
+}
 
 ///
 /// Compute the file name of the parameter file.
@@ -101,7 +104,7 @@ TString FileNameBuilder::getFileNameAsimovPar(const MethodAbsScan* s) { return g
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNamePar(const Combiner* c) {
+TString FileNameBuilder::getFileNamePar(const Combiner* c) const {
   TString name = "plots/par/";
   if (m_arg->filenamechange != "") {
     name += m_arg->filenamechange;
@@ -121,7 +124,7 @@ TString FileNameBuilder::getFileNamePar(const Combiner* c) {
 /// \param s - Scanner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNamePar(const MethodAbsScan* s) { return getFileNamePar(s->getCombiner()); }
+TString FileNameBuilder::getFileNamePar(const MethodAbsScan* s) const { return getFileNamePar(s->getCombiner()); }
 
 ///
 /// Compute the file name of the file to which a scanner gets saved.
@@ -131,7 +134,7 @@ TString FileNameBuilder::getFileNamePar(const MethodAbsScan* s) { return getFile
 ///
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameScanner(const MethodAbsScan* c) {
+TString FileNameBuilder::getFileNameScanner(const MethodAbsScan* c) const {
   TString name = "plots/scanner/" + m_basename + "_scanner_" + c->getName();
   if (c->getMethodName() != TString("Prob")) name += "_" + c->getMethodName();
   name += "_" + m_arg->var[0];
@@ -148,7 +151,7 @@ TString FileNameBuilder::getFileNameScanner(const MethodAbsScan* c) {
 ///
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameSolution(const MethodAbsScan* c) {
+TString FileNameBuilder::getFileNameSolution(const MethodAbsScan* c) const {
   TString name = "plots/latex/" + m_basename + "_solution_" + c->getName();
   if (c->getMethodName() != TString("Prob")) name += "_" + c->getMethodName();
   name += "_" + m_arg->var[0];
@@ -165,7 +168,7 @@ TString FileNameBuilder::getFileNameSolution(const MethodAbsScan* c) {
 ///
 /// \return - the filename
 ///
-TString FileNameBuilder::getFileNamePlot(const vector<Combiner*>& cmb) {
+TString FileNameBuilder::getFileNamePlot(const vector<Combiner*>& cmb) const {
   TString name = m_basename;
   if (m_arg->filenamechange != "") {
     name += "_" + m_arg->filenamechange;
@@ -196,7 +199,7 @@ TString FileNameBuilder::getFileNamePlot(const vector<Combiner*>& cmb) {
 ///
 /// \return - the filename
 ///
-TString FileNameBuilder::getFileNamePlotSingle(const vector<Combiner*>& cmb, int cId) {
+TString FileNameBuilder::getFileNamePlotSingle(const vector<Combiner*>& cmb, int cId) const {
   TString name = m_basename;
   name += "_" + cmb[m_arg->combid[cId]]->getName();
   name += "_" + m_arg->var[0];
@@ -212,24 +215,24 @@ TString FileNameBuilder::getFileNamePlotSingle(const vector<Combiner*>& cmb, int
 ///
 /// Define the addition to combiner names for Asimov combiners.
 ///
-TString FileNameBuilder::getAsimovCombinerNameAddition(int id) { return m_asimov + Form("%i", id); }
+TString FileNameBuilder::getAsimovCombinerNameAddition(int id) const { return m_asimov + Form("%i", id); }
 
 ///
 /// Define the addition for plugin plots.
 ///
-TString FileNameBuilder::getPluginNameAddition() { return "plugin"; }
+TString FileNameBuilder::getPluginNameAddition() const { return "plugin"; }
 
 ///
 /// Define the addition for plugin-only plots.
 ///
-TString FileNameBuilder::getPluginOnlyNameAddition() { return "pluginonly"; }
+TString FileNameBuilder::getPluginOnlyNameAddition() const { return "pluginonly"; }
 
 ///
 /// Define the addition for preliminary plots.
 ///
-TString FileNameBuilder::getPreliminaryNameAddition() { return "prelim"; }
+TString FileNameBuilder::getPreliminaryNameAddition() const { return "prelim"; }
 
 ///
 /// Define the addition for cls plots.
 ///
-TString FileNameBuilder::getCLsNameAddition() { return "cls"; }
+TString FileNameBuilder::getCLsNameAddition() const { return "cls"; }

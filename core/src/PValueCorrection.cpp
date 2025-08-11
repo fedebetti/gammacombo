@@ -86,7 +86,7 @@ void PValueCorrection::fitHist(TH1* h) {
   checkParams();
 }
 
-double PValueCorrection::transform(double x) {
+double PValueCorrection::transform(const double x) const {
   double y = -999.;  // this should be getting return in the range [0,1]
   checkValid();
   checkParams();

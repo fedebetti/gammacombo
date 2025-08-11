@@ -23,9 +23,10 @@ class PValueCorrection {
   void setTransFunc(TString tf) { transFunc = tf; }
   void setFitParams(std::vector<double> fP) { fitParams = fP; }
   void setFitParam(int i, double val);
+
   void readFiles(TString name, int id = 0, bool isPlugin = false);
   void fitHist(TH1* h);
-  double transform(double x);
+  double transform(double x) const;
 
   void checkValid() const;
   void checkParams() const;

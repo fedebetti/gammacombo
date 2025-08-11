@@ -44,7 +44,9 @@ class GammaComboEngine {
   void adjustRanges(Combiner* c, int cId);
   void setupToyVariationSets(Combiner* c, int cId);
   void addPdf(int id, PDF_Abs* pdf, TString title = "");
-  void addSubsetPdf(int id, PDF_Abs* pdf, std::vector<int>& indices, TString title = "");
+  void addSubsetPdf(int id, PDF_Abs* pdf, const std::vector<int>& indices, TString title = "");
+
+  // The following methods are deprecated and maintained only to preserve backward-compatibility.
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, TString title = "");
@@ -85,9 +87,9 @@ class GammaComboEngine {
 
  private:
   void makeAddDelCombinations();
-  void checkAsimovArg();
-  void checkColorArg();
-  void checkCombinationArg();
+  void checkAsimovArg() const;
+  void checkColorArg() const;
+  void checkCombinationArg() const;
   void configureAsimovCombinerNames(Combiner* c, int i);
   bool combinerExists(int id) const;
   void compareCombinations();
@@ -113,7 +115,7 @@ class GammaComboEngine {
   void make2dProbScan(MethodProbScan* scanner, int cId);
   void printCombinerStructure(Combiner* c) const;
   void printBanner() const;
-  bool pdfExists(int id);
+  bool pdfExists(int id) const;
   void savePlot();
   void scaleStatErrors();
   void scaleStatAndSystErrors();

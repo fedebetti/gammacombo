@@ -18,6 +18,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <format>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -215,7 +216,7 @@ TString PDF_Abs::uniquifyThisString(TString s, int uID) {
 /// Set all parameters to values found in
 /// a provided fit result.
 ///
-void PDF_Abs::loadExtParameters(RooFitResult* r) {
+void PDF_Abs::loadExtParameters(const RooFitResult* r) {
   RooArgSet* tmp = new RooArgSet();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
@@ -424,7 +425,7 @@ void PDF_Abs::print() const {
   std::cout << std::endl;
 }
 
-void PDF_Abs::printParameters() {
+void PDF_Abs::printParameters() const {
   if (parameters) {
     std::cout << "      parameters:  ";
     bool first = true;
@@ -438,7 +439,7 @@ void PDF_Abs::printParameters() {
     std::cout << "PDF_Abs::print() : parameters not initialized. Call initParameters() first." << std::endl;
 }
 
-void PDF_Abs::printObservables() {
+void PDF_Abs::printObservables() const {
   if (observables) {
     std::cout << "      observables: ";
     bool first = true;
@@ -526,7 +527,7 @@ void PDF_Abs::setUncertainty(TString obsName, double stat, double syst) {
 /// - check if all predicted observables end with '_th'
 /// - check if the 'observables' and 'theory' lists are correctly ordered
 ///
-bool PDF_Abs::checkConsistency() {
+bool PDF_Abs::checkConsistency() const {
   if (m_isCrossCorPdf) return true;
   bool allOk = true;
 
@@ -605,10 +606,9 @@ bool PDF_Abs::test() {
 /// \param obsname  - observable name
 /// \return true if found
 ///
-bool PDF_Abs::hasObservable(TString obsname) {
+bool PDF_Abs::hasObservable(TString obsname) const {
   RooRealVar* obs = (RooRealVar*)observables->find(obsname);
-  if (obs == 0) return false;
-  return true;
+  return obs ? true : false;
 }
 
 ///
@@ -660,8 +660,7 @@ bool PDF_Abs::ScaleError(TString obsname, double scale) {
 /// calling uniquify(), it has to include the unique ID string.
 /// \return         - the value
 ///
-double PDF_Abs::getObservableValue(TString obsname) {
-  // check if requested observable exits
+double PDF_Abs::getObservableValue(TString obsname) const {
   if (!hasObservable(obsname)) {
     std::cout << "PDF_Abs::getObservableValue() : ERROR : Requested observable doesn't exist: " << obsname << ". Exit."
               << std::endl;
@@ -678,22 +677,15 @@ double PDF_Abs::getObservableValue(TString obsname) {
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector<int>& indices) {
-  if (indices.size() == 0) {
-    std::cout << "PDF_Abs::getSubMatrix() : vector 'indices' can't be empty" << std::endl;
-    std::exit(1);
-  }
-  if (target.GetNcols() != indices.size()) {
-    std::cout << "PDF_Abs::getSubMatrix() : 'target' matrix doesn't have size of 'indices' vector" << std::endl;
-    std::exit(1);
-  }
+void PDF_Abs::getSubMatrix(TMatrixDSym& target, const TMatrixDSym& source, const std::vector<int>& indices) const {
+  auto error = [](std::string msg) { return Utils::errBase("PDF_Abs::getSubMatrix() : ERROR : ", msg); };
+
+  if (indices.empty()) error("vector 'indices' can't be empty");
+  if (target.GetNcols() != indices.size()) error("'target' matrix doesn't have size of 'indices' vector");
   for (int i = 0; i < indices.size(); i++) {
     // check requested index
-    if (indices[i] < 0 || indices[i] >= source.GetNcols()) {
-      std::cout << "PDF_Abs::getSubMatrix() : ERROR : requested index for submatrix is out of range of parent matrix"
-                << std::endl;
-      std::exit(1);
-    }
+    if (indices[i] < 0 || indices[i] >= source.GetNcols())
+      error(std::format("Requested index {:d} for submatrix is out of range of parent matrix", indices[i]));
     // copy over row and column
     for (int j = 0; j < indices.size(); j++) {
       target[i][j] = source[indices[i]][indices[j]];
@@ -709,7 +701,7 @@ void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indices) {
+void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, const std::vector<int>& indices) const {
   getSubMatrix(target, corStatMatrix, indices);
 }
 
@@ -720,6 +712,6 @@ void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indic
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, std::vector<int>& indices) {
+void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, const std::vector<int>& indices) const {
   getSubMatrix(target, corSystMatrix, indices);
 }

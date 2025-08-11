@@ -24,6 +24,7 @@ class ParametersAbs {
   Parameter* var(TString name);
   RooRealVar* get(TString name);
   Parameter* newParameter(TString name);
+
   Parameter::Range range(float min, float max);
 
  protected:

@@ -47,7 +47,7 @@ class MethodPluginScan : public MethodAbsScan {
   TH1F* analyseToys(ToyTree* t, int id = -1, bool quiet = false);
   void computePvalue1d(RooSlimFitResult* plhScan, double chi2minGlobal, ToyTree* t, int id, Fitter* f, ProgressBar* pb);
   RooDataSet* generateToys(int nToys);
-  double importance(double pvalue);
+  double importance(double pvalue) const;
   RooSlimFitResult* getParevolPoint(float scanpoint);
 
   int nToys = -1;  ///< number of toys to be generated at each scan point

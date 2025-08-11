@@ -25,23 +25,23 @@ class FileNameBuilder {
   FileNameBuilder(const OptParser* arg, TString name = "gammacombo");
 
   TString getBaseName() const;
-  TString getFileBaseName(const Combiner* c);
-  TString getFileBaseName(const MethodAbsScan* s);
-  TString getFileNameScanner(const MethodAbsScan* s);
-  TString getFileNameSolution(const MethodAbsScan* s);
-  TString getFileNamePar(const Combiner* c);
-  TString getFileNamePar(const MethodAbsScan* s);
-  TString getFileNamePlot(const std::vector<Combiner*>& cmb);
-  TString getFileNamePlotSingle(const std::vector<Combiner*>& cmb, int cId);
-  TString getFileNameStartPar(const Combiner* c);
-  TString getFileNameStartPar(const MethodAbsScan* s);
-  TString getFileNameAsimovPar(const Combiner* c);
-  TString getFileNameAsimovPar(const MethodAbsScan* s);
-  TString getAsimovCombinerNameAddition(int id);
-  TString getPluginNameAddition();
-  TString getPluginOnlyNameAddition();
-  TString getPreliminaryNameAddition();
-  TString getCLsNameAddition();
+  TString getFileBaseName(const Combiner* c) const;
+  TString getFileBaseName(const MethodAbsScan* s) const;
+  TString getFileNameScanner(const MethodAbsScan* s) const;
+  TString getFileNameSolution(const MethodAbsScan* s) const;
+  TString getFileNamePar(const Combiner* c) const;
+  TString getFileNamePar(const MethodAbsScan* s) const;
+  TString getFileNamePlot(const std::vector<Combiner*>& cmb) const;
+  TString getFileNamePlotSingle(const std::vector<Combiner*>& cmb, int cId) const;
+  TString getFileNameStartPar(const Combiner* c) const;
+  TString getFileNameStartPar(const MethodAbsScan* s) const;
+  TString getFileNameAsimovPar(const Combiner* c) const;
+  TString getFileNameAsimovPar(const MethodAbsScan* s) const;
+  TString getAsimovCombinerNameAddition(int id) const;
+  TString getPluginNameAddition() const;
+  TString getPluginOnlyNameAddition() const;
+  TString getPreliminaryNameAddition() const;
+  TString getCLsNameAddition() const;
 
  private:
   const OptParser* m_arg = nullptr;  ///< command line arguments

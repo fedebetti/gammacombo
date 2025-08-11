@@ -44,16 +44,21 @@ class MethodAbsScan {
   virtual void calcCLintervals(int CLsType = 0, bool calc_expected = false, bool quiet = false);
   void confirmSolutions();
   void doInitialFit(bool force = false);
-  inline const OptParser* getArg() { return arg; };
+
+  // Getters
+  inline const OptParser* getArg() const { return arg; };
   inline const std::vector<RooSlimFitResult*>& getAllResults() { return allResults; };
+  std::pair<double, double> getBorders(const TGraph& graph, double confidence_level, bool qubic = false) const;
+  std::pair<double, double> getBorders_CLs(const TGraph& graph, double confidence_level, bool qubic = false) const;
   inline const std::vector<RooSlimFitResult*>& getCurveResults() { return curveResults; };
-  inline float getChi2minGlobal() { return chi2minGlobal; }
-  inline float getChi2minBkg() { return chi2minBkg; }
-  float getCL(double val);
+  inline double getChi2minGlobal() const { return chi2minGlobal; }
+  inline double getChi2minBkg() const { return chi2minBkg; }
+  double getCL(double val) const;
   CLInterval getCLintervalCentral(int sigma = 1, bool quiet = false);
   CLInterval getCLinterval(int iSol = 0, int sigma = 1, bool quiet = false);
-  inline Combiner* getCombiner() const { return combiner; };
-  int getDrawSolution();
+  inline Combiner* getCombiner() { return combiner; };
+  inline const Combiner* getCombiner() const { return combiner; };
+  inline int getDrawSolution() const { return drawSolution; }
   inline bool getFilled() const { return drawFilled; };
   inline TH1F* getHCL() { return hCL; };
   inline TH1F* getHCLs() { return hCLs; };
@@ -67,35 +72,40 @@ class MethodAbsScan {
   inline TH2F* getHCLs2d() { return hCLs2d; };
   inline TH1F* getHchisq() { return hChi2min; };
   inline TH2F* getHchisq2d() { return hChi2min2d; };
-  inline int getLineColor() { return lineColor; };
-  inline int getLineStyle() { return lineStyle; };
-  inline int getLineWidth() { return lineWidth; };
-  inline int getFillStyle() { return fillStyle; };
-  inline int getFillColor() { return fillColor; };
-  inline float getFillTransparency() { return fillTransparency; };
+  inline int getLineColor() const { return lineColor; };
+  inline int getLineStyle() const { return lineStyle; };
+  inline int getLineWidth() const { return lineWidth; };
+  inline int getFillStyle() const { return fillStyle; };
+  inline int getFillColor() const { return fillColor; };
+  inline float getFillTransparency() const { return fillTransparency; };
+  inline int getTextColor() const { return textColor; };
   inline TString getMethodName() const { return methodName; };
   inline TString getName() const { return name; };
-  int getNObservables();
-  inline int getNPoints1d() { return nPoints1d; }
-  inline int getNPoints2dx() { return nPoints2dx; }
-  inline int getNPoints2dy() { return nPoints2dy; }
-  const RooArgSet* getObservables();
-  inline TString getObsName() { return obsName; };
-  inline TString getParsName() { return parsName; };
-  float getScanVarSolution(int iVar, int iSol);
+  int getNObservables() const;
+  inline int getNPoints1d() const { return nPoints1d; }
+  inline int getNPoints2dx() const { return nPoints2dx; }
+  inline int getNPoints2dy() const { return nPoints2dy; }
+  const RooArgSet* getObservables() const;
+  inline TString getObsName() const { return obsName; };
+  inline TString getParsName() const { return parsName; };
   RooRealVar* getScanVar1();
-  TString getScanVar1Name();
-  float getScanVar1Solution(int i = 0);
   RooRealVar* getScanVar2();
-  TString getScanVar2Name();
-  float getScanVar2Solution(int i = 0);
+  const RooRealVar* getScanVar1() const;
+  const RooRealVar* getScanVar2() const;
+  inline TString getScanVar1Name() const { return scanVar1; };
+  inline TString getScanVar2Name() const { return scanVar2; };
+  double getScanVarSolution(int iVar, int iSol) const;
+  double getScanVar1Solution(int i = 0) const;
+  double getScanVar2Solution(int i = 0) const;
   inline std::vector<RooSlimFitResult*> getSolutions() { return solutions; };
   inline int getNSolutions() const { return solutions.size(); };
   RooSlimFitResult* getSolution(int i = 0);
-  const RooArgSet* getTheory();
-  inline int getTextColor() { return textColor; };
-  inline TString getTitle() { return title; };
+  const RooSlimFitResult* getSolution(int i = 0) const;
+  const RooArgSet* getTheory() const;
+  inline TString getTitle() const { return title; };
   inline RooWorkspace* getWorkspace() { return w; };
+  inline const RooWorkspace* getWorkspace() const { return w; };
+
   virtual void initScan();
   void loadParameters(RooSlimFitResult* r);
   bool loadSolution(int i = 0);
@@ -104,16 +114,19 @@ class MethodAbsScan {
   void plot1d(TString var);
   void plotOn(OneMinusClPlotAbs* plot, int CLsType = 0);  // CLsType: 0 (off), 1 (naive CLs t_s+b - t_b), 2 (freq CLs)
   void plotPulls(int nSolution = 0);
-  virtual void print();
+  virtual void print() const;
   void printCLintervals(int CLsType, bool calc_expected = false);
-  void printLocalMinima();
+  void printLocalMinima() const;
 
   // Save/dump results
-  void dumpResult(const std::string& ofname);
-  void saveLocalMinima(TString fName = "");
-  void saveScanner(TString fName = "");
+  void dumpResult(const std::string& ofname) const;
+  void saveLocalMinima(TString fName = "") const;
+  void saveScanner(TString fName = "") const;
+
   virtual int scan1d();
   virtual int scan2d();
+
+  // Setters
   inline void setDrawSolution(int code = 0) { drawSolution = code; };
   inline void setPValueCorrector(PValueCorrection* pvalCor) {
     pvalueCorrector = pvalCor;
@@ -140,10 +153,8 @@ class MethodAbsScan {
   inline void setHchisq(TH1F* h) { hChi2min = h; };
   void setXscanRange(float min, float max);
   void setYscanRange(float min, float max);
+
   void calcCLintervalsSimple(int CLsType = 0, bool calc_expected = false);
-  const std::pair<double, double> getBorders(const TGraph& graph, const double confidence_level, bool qubic = false);
-  const std::pair<double, double> getBorders_CLs(const TGraph& graph, const double confidence_level,
-                                                 bool qubic = false);
   virtual bool checkCLs();
 
   /// All fit results we encounter along the scan.
@@ -215,7 +226,7 @@ class MethodAbsScan {
   ///< 0=don't plot, 1=plot at central value (1d) or markers (2d)
   ///< Default is taken from arg, unless disabled by setDrawSolution().
   bool verbose = false;
-  int nWarnings = 0;                     ///< number of warnings printed in getScanVarSolution()
+  mutable int nWarnings = 0;             ///< number of warnings printed in getScanVarSolution()
   const OptParser* arg = nullptr;        ///< command line options
   Combiner* combiner = nullptr;          ///< the combination
   bool m_xrangeset = false;              ///< true if the x range was set manually (setXscanRange())

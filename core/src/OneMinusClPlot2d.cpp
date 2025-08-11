@@ -444,7 +444,7 @@ void OneMinusClPlot2d::drawGroup() { OneMinusClPlotAbs::drawGroup(0.775); }
 ///
 /// t - histogram type: kChi2 or kPvalue
 ///
-bool OneMinusClPlot2d::hasHistoType(Utils::histogramType t) {
+bool OneMinusClPlot2d::hasHistoType(Utils::histogramType t) const {
   for (int i = 0; i < histosType.size(); i++) {
     if (histosType[i] == t) return true;
   }

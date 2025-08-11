@@ -304,7 +304,7 @@ void MethodAbsScan::initScan() {
   m_initialized = true;
 }
 
-void MethodAbsScan::dumpResult(const std::string& ofname) {
+void MethodAbsScan::dumpResult(const std::string& ofname) const {
 
   system("mkdir -p plots/par");
   const auto ofpath = std::format("plots/par/{:s}.dat", ofname);
@@ -350,7 +350,7 @@ void MethodAbsScan::dumpResult(const std::string& ofname) {
 /// Save this scanner to a root file placed into plots/scanner.
 /// It contains the 1-CL histograms and the solutions.
 ///
-void MethodAbsScan::saveScanner(TString fName) {
+void MethodAbsScan::saveScanner(TString fName) const {
   if (fName == "") {
     FileNameBuilder fb(arg);
     fName = fb.getFileNameScanner(this);
@@ -1063,21 +1063,22 @@ CLInterval MethodAbsScan::getCLinterval(int iSol, int sigma, bool quiet) {
   return intervals[iSol];
 }
 
-float MethodAbsScan::getCL(double val) { return 1. - hCL->Interpolate(val); }
-
 void MethodAbsScan::plotOn(OneMinusClPlotAbs* plot, int CLsType) { plot->addScanner(this, CLsType); }
 
+// Definitions of short getters
+double MethodAbsScan::getCL(double val) const { return 1. - hCL->Interpolate(val); }
 RooRealVar* MethodAbsScan::getScanVar1() { return w->var(scanVar1); }
-
-TString MethodAbsScan::getScanVar1Name() { return scanVar1; }
-
 RooRealVar* MethodAbsScan::getScanVar2() { return w->var(scanVar2); }
+const RooRealVar* MethodAbsScan::getScanVar1() const { return w->var(scanVar1); }
+const RooRealVar* MethodAbsScan::getScanVar2() const { return w->var(scanVar2); }
+int MethodAbsScan::getNObservables() const { return w->set(obsName)->getSize(); }
+const RooArgSet* MethodAbsScan::getObservables() const { return w->set(obsName); }
+const RooArgSet* MethodAbsScan::getTheory() const { return w->set(thName); }
 
-TString MethodAbsScan::getScanVar2Name() { return scanVar2; }
-
-void MethodAbsScan::print() {
-  std::cout << "MethodAbsScan::print() : Method: " << methodName;
-  std::cout << ", Scanner: " << name << std::endl;
+void MethodAbsScan::print() const {
+  std::cout << std::format("MethodAbsScan::print() : Method: {:s}, Scanner: {:s}", std::string(methodName),
+                           std::string(name))
+            << std::endl;
   w->set(parsName)->Print("v");
 }
 
@@ -1184,12 +1185,9 @@ void MethodAbsScan::loadParameters(RooSlimFitResult* r) {
 ///
 /// Print local minima solutions.
 ///
-void MethodAbsScan::printLocalMinima() {
-  TDatime date;  // lets also print the current date
-  if (arg->debug) {
-    std::cout << "MethodAbsScan::printLocalMinima() : LOCAL MINIMA for " << title << std::endl;
-    std::cout << std::endl;
-  }
+void MethodAbsScan::printLocalMinima() const {
+  if (arg->debug) std::cout << "MethodAbsScan::printLocalMinima() : LOCAL MINIMA for " << title << "\n" << std::endl;
+  TDatime date;
   for (int i = 0; i < solutions.size(); i++) {
     std::cout << "SOLUTION " << i << ":\n" << std::endl;
     std::cout << "  combination: " << name << std::endl;
@@ -1202,12 +1200,9 @@ void MethodAbsScan::printLocalMinima() {
 ///
 /// Save local minima solutions.
 ///
-void MethodAbsScan::saveLocalMinima(TString fName) {
-  TDatime date;  // lets also print the current date
-  if (arg->debug) {
-    std::cout << "MethodAbsScan::saveLocalMinima() : LOCAL MINIMA for " << title << std::endl;
-    std::cout << std::endl;
-  }
+void MethodAbsScan::saveLocalMinima(TString fName) const {
+  if (arg->debug) std::cout << "MethodAbsScan::saveLocalMinima() : LOCAL MINIMA for " << title << "\n" << std::endl;
+  TDatime date;
   std::ofstream outfile;
   outfile.open(fName.Data());
 
@@ -1231,29 +1226,30 @@ void MethodAbsScan::saveLocalMinima(TString fName) {
 /// \return -99 solution not found
 /// \return -9999 no such variable
 ///
-float MethodAbsScan::getScanVarSolution(int iVar, int iSol) {
-  if (solutions.size() == 0) { return -999; }
-  if (iSol >= solutions.size()) {
-    std::cout << "MethodAbsScan::getScanVarSolution() : ERROR : no solution with id " << iSol << std::endl;
-    return -99.;
-  }
-  RooSlimFitResult* r = getSolution(iSol);
+double MethodAbsScan::getScanVarSolution(int iVar, int iSol) const {
+  auto error = [](const std::string& msg, const double val) {
+    Utils::errBase("MethodAbsScan::getScanVarSolution() : ERROR : ", msg, false);
+    return val;
+  };
+
+  if (solutions.empty()) error("There are no solutions", -999);
+  if (iSol >= solutions.size()) error(std::format("No solution with id {:d}", iSol), -99.);
+  const RooSlimFitResult* r = getSolution(iSol);
   assert(r);
   TString varName;
   if (iVar == 1)
     varName = getScanVar1Name();
   else if (iVar == 2)
     varName = getScanVar2Name();
-  else {
-    std::cout << "MethodAbsScan::getScanVarSolution() : WARNING : no such variable " << iVar << std::endl;
-    return -9999.;
-  }
+  else
+    error(std::format("No such variable {:d}", iVar), -9999.);
+
   if (r->isConfirmed()) {
     return r->getFloatParFinalVal(varName);
   } else {
     if (nWarnings == 0)
       std::cout << "MethodAbsScan::getScanVarSolution() : WARNING : Using unconfirmed solution." << std::endl;
-    nWarnings += 1;
+    ++nWarnings;
     return r->getConstParVal(varName);
   }
 }
@@ -1263,7 +1259,7 @@ float MethodAbsScan::getScanVarSolution(int iVar, int iSol) {
 /// \param iSol Index of solution. 0 corresponds to the best one,
 /// indices increase in order of chi2.
 ///
-float MethodAbsScan::getScanVar1Solution(int iSol) { return getScanVarSolution(1, iSol); }
+double MethodAbsScan::getScanVar1Solution(int iSol) const { return getScanVarSolution(1, iSol); }
 
 ///
 /// Get value of scan parameter 2 a certain solution
@@ -1271,7 +1267,7 @@ float MethodAbsScan::getScanVar1Solution(int iSol) { return getScanVarSolution(1
 /// \param iSol Index of solution. 0 corresponds to the best one,
 /// indices increase in order of chi2.
 ///
-float MethodAbsScan::getScanVar2Solution(int iSol) { return getScanVarSolution(2, iSol); }
+double MethodAbsScan::getScanVar2Solution(int iSol) const { return getScanVarSolution(2, iSol); }
 
 ///
 /// Sort solutions in order of increasing chi2.
@@ -1490,12 +1486,16 @@ bool MethodAbsScan::compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2)
 /// \param i Index of the solution, they are orderd after increasing chi2,
 ///         i=0 is that with the smallest chi2.
 ///
-RooSlimFitResult* MethodAbsScan::getSolution(int i) {
+const RooSlimFitResult* MethodAbsScan::getSolution(int i) const {
   if (i >= solutions.size()) {
-    std::cout << Form("MethodAbsScan::getSolution() : ERROR : No solution with id %i.", i) << std::endl;
-    return 0;
+    std::cerr << std::format("MethodAbsScan::getSolution() : ERROR : No solution with id {:d}", i) << std::endl;
+    return nullptr;
   }
   return solutions[i];
+}
+
+RooSlimFitResult* MethodAbsScan::getSolution(int i) {
+  return const_cast<RooSlimFitResult*>(static_cast<const MethodAbsScan*>(this)->getSolution(i));
 }
 
 ///
@@ -1507,8 +1507,6 @@ void MethodAbsScan::setSolutions(std::vector<RooSlimFitResult*> s) {
   solutions.clear();
   for (int i = 0; i < s.size(); i++) { solutions.push_back(s[i]); }
 }
-
-int MethodAbsScan::getDrawSolution() { return drawSolution; }
 
 ///
 /// Make a pull plot of observables corresponding
@@ -1619,18 +1617,17 @@ void MethodAbsScan::calcCLintervalsSimple(int CLsType, bool calc_expected) {
 \param confidence_level The confidence level at which the interval is to be determined.
 \param qubic Optional parameter. False by default. If true, qubic interpolation is used.
 */
-const std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, const double confidence_level,
-                                                          bool qubic) {
+std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, const double confidence_level,
+                                                    bool qubic) const {
 
   const double p_val = 1 - confidence_level;
   TSpline* splines = nullptr;
   if (qubic) splines = new TSpline3();
 
+  // will never return lower (higher) edge than min_edge (max_edge)
   double min_edge = graph.GetX()[0];
-  // will never return smaller edge than min_edge
   double max_edge = graph.GetX()[graph.GetN() - 1];
-  // will never return higher edge than max_edge
-  int scan_steps = 1000;
+  const int scan_steps = 1000;
   double lower_edge = min_edge;
   double upper_edge = max_edge;
 
@@ -1657,8 +1654,8 @@ const std::pair<double, double> MethodAbsScan::getBorders(const TGraph& graph, c
 /// pValue of the lowest bin. / \todo Do it properly from the very start by introducing a bkg model and propagate it to
 /// the entire framework.
 
-const std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& graph, const double confidence_level,
-                                                              bool qubic) {
+std::pair<double, double> MethodAbsScan::getBorders_CLs(const TGraph& graph, const double confidence_level,
+                                                        bool qubic) const {
 
   const double p_val = 1 - confidence_level;
   TSpline* splines = nullptr;
@@ -1732,7 +1729,3 @@ bool MethodAbsScan::checkCLs() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// end of CL_s part
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int MethodAbsScan::getNObservables() { return w->set(obsName)->getSize(); }
-const RooArgSet* MethodAbsScan::getObservables() { return w->set(obsName); }
-const RooArgSet* MethodAbsScan::getTheory() { return w->set(thName); }

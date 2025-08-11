@@ -31,14 +31,20 @@ class PDF_Abs {
   PDF_Abs(int nObs);
   PDF_Abs(int nObs, ParametersAbs& pars);
   virtual ~PDF_Abs();
+
+  PDF_Abs(const PDF_Abs&) = delete;
+  PDF_Abs& operator=(const PDF_Abs&) = delete;
+
   virtual void build();
   virtual void buildPdf();
   virtual void buildCov();
-  bool bkgpdfset() { return isBkgPdfSet; };
-  bool bkgmultipdfset() { return isBkgMultipdfSet; };
-  virtual bool checkConsistency();
+  bool bkgpdfset() const { return isBkgPdfSet; };
+  bool bkgmultipdfset() const { return isBkgMultipdfSet; };
+  virtual bool checkConsistency() const;
   void deleteToys();
-  inline TString getCorrelationSourceString() { return corSource; };
+
+  // Getters.
+  inline TString getCorrelationSourceString() const { return corSource; };
   TString getBaseName() const;
   inline TString getErrorSourceString() const { return obsErrSource; };
   inline int getGcId() const { return gcId; }
@@ -47,28 +53,31 @@ class PDF_Abs {
   inline TString getUniqueID() const { return uniqueID; };
   inline unsigned long long getUniqueGlobalID() const { return uniqueGlobalID; }
   inline RooArgList* getObservables() { return observables; };
-  inline std::vector<TString> getLatexObservables() { return latexObservables; };
-  inline TString getObservableSourceString() { return obsValSource; };
-  double getObservableValue(TString obsname);
+  inline std::vector<TString> getLatexObservables() const { return latexObservables; };
+  inline TString getObservableSourceString() const { return obsValSource; };
+  double getObservableValue(TString obsname) const;
   inline RooArgList* getParameters() { return parameters; };
   inline RooAbsPdf* getPdf() { return pdf; };
   inline RooAbsPdf* getBkgPdf() { return pdfBkg; };
   inline RooMultiPdf* getMultipdf() { return multipdf; };
   inline RooMultiPdf* getBkgMultipdf() { return multipdfBkg; };
-  void getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indices);
-  void getSubCorrelationSyst(TMatrixDSym& target, std::vector<int>& indices);
+  void getSubCorrelationStat(TMatrixDSym& target, const std::vector<int>& indices) const;
+  void getSubCorrelationSyst(TMatrixDSym& target, const std::vector<int>& indices) const;
   inline RooArgList* getTheory() { return theory; };
-  inline TString getTitle() { return title; };
-  bool hasObservable(TString obsname);
-  inline bool isCrossCorPdf() { return m_isCrossCorPdf; }
+  inline TString getTitle() const { return title; };
+
+  bool hasObservable(TString obsname) const;
+  inline bool isCrossCorPdf() const { return m_isCrossCorPdf; }
   virtual void initParameters();
   virtual void initRelations();
   virtual void initObservables();
-  void loadExtParameters(RooFitResult* r);
+  void loadExtParameters(const RooFitResult* r);
   void print() const;
-  void printParameters();
-  void printObservables();
+  void printParameters() const;
+  void printObservables() const;
   bool ScaleError(TString obsname, double scale);
+
+  // Setters.
   virtual void setCorrelations(TString c);
   inline void setErrorSourceString(TString source) { obsErrSource = source; };
   inline void setGcId(int id) { gcId = id; };
@@ -83,6 +92,7 @@ class PDF_Abs {
   void setUncertainty(TString obsName, double stat, double syst);
   virtual void setUncertainties(TString c);
   void setSystCorrelation(TMatrixDSym& corSystMatrix);
+
   void storeErrorsInObs();
   void resetCorrelations();
   virtual bool test();
@@ -101,7 +111,7 @@ class PDF_Abs {
 
  protected:
   void addToTrash(TObject*);
-  void getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector<int>& indices);
+  void getSubMatrix(TMatrixDSym& target, const TMatrixDSym& source, const std::vector<int>& indices) const;
 
   RooArgList* parameters = nullptr;   // holds all fit parameters of this PDF
   RooArgList* theory = nullptr;       // holds all truth relations

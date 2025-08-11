@@ -369,7 +369,7 @@ void PullPlotter::plotPulls() {
 /// \param nsigma - threshold value
 /// \return - True, if one pull is above N sigma.
 ///
-bool PullPlotter::hasPullsAboveNsigma(float nsigma) {
+bool PullPlotter::hasPullsAboveNsigma(float nsigma) const {
   for (const auto& pObsAbs : *cmb->getObservables()) {
     const auto pObs = static_cast<RooRealVar*>(pObsAbs);
     // find associated theory value
@@ -383,7 +383,7 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma) {
     }
     // compute pull
     float pull = (pTh->getVal() - pObs->getVal()) / pObs->getError();
-    if (fabs(pull) > nsigma) return true;
+    if (std::abs(pull) > nsigma) return true;
   }
   return false;
 }
@@ -392,7 +392,7 @@ bool PullPlotter::hasPullsAboveNsigma(float nsigma) {
 /// Print pulls using the current values of the parameters.
 /// \param aboveNsigma Only print pulls above (or equal) N sigma.
 ///
-void PullPlotter::printPulls(float aboveNsigma) {
+void PullPlotter::printPulls(double aboveNsigma) const {
   for (const auto& pObsAbs : *cmb->getObservables()) {
     const auto pObs = static_cast<RooRealVar*>(pObsAbs);
     // find associated theory value

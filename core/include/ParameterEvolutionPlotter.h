@@ -41,9 +41,9 @@ class ParameterEvolutionPlotter {
   void getLocalMinPositions();
   void drawLinesAtMinima(TVirtualPad* pad);
   void drawVerticalRedLine(TVirtualPad* pad, float xpos);
-  TGraph* makeChi2Graph(std::vector<RooSlimFitResult*> results);
-  TGraph* makeEvolutionGraph(std::vector<RooSlimFitResult*> results, TString parName);
-  TGraphErrors* makeEvolutionGraphErrors(std::vector<RooSlimFitResult*> results, TString parName);
+  TGraph* makeChi2Graph(const std::vector<RooSlimFitResult*>& results) const;
+  TGraph* makeEvolutionGraph(const std::vector<RooSlimFitResult*>& results, TString parName) const;
+  TGraphErrors* makeEvolutionGraphErrors(const std::vector<RooSlimFitResult*>& results, TString parName) const;
   void saveEvolutionPlots();
   TCanvas* selectNewCanvas(TString title);
   TVirtualPad* selectNewPad();

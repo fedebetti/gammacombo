@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <vector>
 
-BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]) : exec("") {
+BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]) {
   for (int i = 0; i < argc; i++) {
     // skip arguments we dont need
     if (std::string(argv[i]) == std::string("--nbatchjobs") ||

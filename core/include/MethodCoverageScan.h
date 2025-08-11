@@ -40,8 +40,6 @@ class MethodCoverageScan : public MethodAbsScan {
 
   // functions
   std::vector<double> fitHist(TH1* h, TString fitfunc = "p1+exp", bool draw = true);
-  double transform(std::vector<double> fitParams, TString transFunc, double x);
-  void printLatexLine(float eta, float finProb, float finProbErr, float finPlug, float finPlugErr);
 
   // result histograms
   TH1F* h_sol = nullptr;

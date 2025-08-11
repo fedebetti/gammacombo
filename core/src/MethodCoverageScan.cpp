@@ -31,6 +31,50 @@
 #include <iostream>
 #include <vector>
 
+namespace {
+  ///
+  /// apply the appropriate transformation
+  ///
+  double transform(std::vector<double> fitParams, TString transFunc, double x) {
+    double y = -999.;  // this should be getting returned
+
+    if (transFunc != "p1" && transFunc != "p1+exp" && transFunc != "p1+1/x") {
+      std::cout << "ERROR -- " << transFunc << " is not a valid function" << std::endl;
+      std::exit(1);
+    }
+    if (transFunc == "p1") assert(fitParams.size() == 2);
+    if (transFunc == "p1+exp") assert(fitParams.size() == 4);
+    if (transFunc == "p1+1/x") assert(fitParams.size() == 4);
+
+    if (transFunc == "p1") {
+      double a = fitParams[1] / fitParams[0];
+      y = (x + 0.5 * a * x * x) / (1. + 0.5 * a);
+    }
+    if (transFunc == "p1+exp") {
+      double a = fitParams[1] / fitParams[0];
+      double b = fitParams[2] / fitParams[0];
+      double c = fitParams[3];
+      y = (x + 0.5 * a * x * x + (b / c) * (1. - exp(-1. * c * x))) / (1. + 0.5 * a + (b / c) * (1. - exp(-1. * c)));
+    }
+    if (transFunc == "p1+1/x") {
+      double a = fitParams[1] / fitParams[0];
+      double b = fitParams[2] / fitParams[0];
+      double c = fitParams[3];
+      y = (x + 0.5 * a * x * x + b * log((x + c) / c)) / (1. + 0.5 * a + b * log((x + c) / c));
+    }
+
+    assert(y >= 0. && y <= 1.);
+    return y;
+  }
+
+  /// Print the results as Latex table line
+  void printLatexLine(float eta, float finProb, float finProbErr, float finPlug, float finPlugErr) {
+    printf("$\\eta=%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.2f$ \\\\\n", eta, finProb,
+           finProbErr, finProb - eta, finPlug, finPlugErr, finPlug - eta, eta / finPlug);
+  }
+}  // namespace
+
+///
 MethodCoverageScan::MethodCoverageScan(Combiner* comb) : MethodAbsScan(comb) { methodName = "Coverage"; }
 
 int MethodCoverageScan::scan1d(int nRun) {
@@ -630,48 +674,4 @@ std::vector<double> MethodCoverageScan::fitHist(TH1* h, TString fitfunc, bool dr
     fitFunc->Draw("Fsame");
   }
   return fitParams;
-}
-
-///
-/// apply the appropriate transformation
-///
-
-double MethodCoverageScan::transform(std::vector<double> fitParams, TString transFunc, double x) {
-  double y = -999.;  // this should be getting returned
-
-  if (transFunc != "p1" && transFunc != "p1+exp" && transFunc != "p1+1/x") {
-    std::cout << "ERROR -- " << transFunc << " is not a valid function" << std::endl;
-    std::exit(1);
-  }
-  if (transFunc == "p1") assert(fitParams.size() == 2);
-  if (transFunc == "p1+exp") assert(fitParams.size() == 4);
-  if (transFunc == "p1+1/x") assert(fitParams.size() == 4);
-
-  if (transFunc == "p1") {
-    double a = fitParams[1] / fitParams[0];
-    y = (x + 0.5 * a * x * x) / (1. + 0.5 * a);
-  }
-  if (transFunc == "p1+exp") {
-    double a = fitParams[1] / fitParams[0];
-    double b = fitParams[2] / fitParams[0];
-    double c = fitParams[3];
-    y = (x + 0.5 * a * x * x + (b / c) * (1. - exp(-1. * c * x))) / (1. + 0.5 * a + (b / c) * (1. - exp(-1. * c)));
-  }
-  if (transFunc == "p1+1/x") {
-    double a = fitParams[1] / fitParams[0];
-    double b = fitParams[2] / fitParams[0];
-    double c = fitParams[3];
-    y = (x + 0.5 * a * x * x + b * log((x + c) / c)) / (1. + 0.5 * a + b * log((x + c) / c));
-  }
-
-  assert(y >= 0. && y <= 1.);
-  return y;
-}
-
-///
-/// Print the results as Latex table line
-///
-void MethodCoverageScan::printLatexLine(float eta, float finProb, float finProbErr, float finPlug, float finPlugErr) {
-  printf("$\\eta=%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.4f \\pm %.4f$ & $%.4f$ & $%.2f$ \\\\\n", eta, finProb,
-         finProbErr, finProb - eta, finPlug, finPlugErr, finPlug - eta, eta / finPlug);
 }

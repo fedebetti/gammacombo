@@ -24,20 +24,16 @@ class Contour {
  public:
   Contour(const OptParser* arg, TList* listOfGraphs);
   ~Contour();
-  void Draw();
-  void DrawFilled();
-  void DrawLine();
-  inline int getSigma() { return m_sigma; };
+  void Draw() const;
+  void DrawFilled() const;
+  void DrawLine() const;
+  inline int getSigma() const { return m_sigma; };
   void magneticBoundaries(const TH2F* hCL);
   inline void setSigma(int s) { m_sigma = s; };
   void setStyle(int linecolor, int linestyle, int linewidth, int fillcolor, int fillstyle);
   void setTransparency(float percent);
 
  private:
-  TGraph* changePointOrder(TGraph* g, int pointId);
-  void findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2);
-  TGraph* joinIfInside(TGraph* g1, TGraph* g2);
-  std::vector<TGraph*> makeHoles(std::vector<TGraph*>& contours);
   void magneticBoundaries(std::vector<TGraph*>& contours, const TH2F* hCL);
 
   const OptParser* m_arg = nullptr;  ///< command line arguments
@@ -46,6 +42,9 @@ class Contour {
   std::vector<TGraph*> m_contours;
 
   /// Vector of contours with holes.
+  /// The reason this is kept separate from the m_contours container, which holds the contours without holes, is the
+  /// plotting: one can't plot the just-lines version from the contours with holes, else one sees where the contour
+  /// is artificially closed to be able to fill the inside.
   std::vector<TGraph*> m_contoursHoles;
 
   int m_sigma = -1;

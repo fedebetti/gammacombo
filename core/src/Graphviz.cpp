@@ -137,7 +137,7 @@ void Graphviz::printCombinerLayer(Combiner* cmb) {
   dotfile << "node [style=filled,color=white];\n";
   dotfile << "style=filled;\n";
   dotfile << "color=lightgrey;\n";
-  std::vector<std::string>& pars = cmb->getParameterNames();
+  std::vector<std::string> pars = cmb->getParameterNames();
   for (int i = 0; i < pars.size(); i++) { dotfile << graphvizString(pars[i]) << ";\n"; }
   dotfile << "label=\"parameters\";\n";
   dotfile << "}\n";

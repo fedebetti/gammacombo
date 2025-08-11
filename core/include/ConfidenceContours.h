@@ -32,9 +32,7 @@ class ConfidenceContours {
   inline void setContoursToPlot(const std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
 
  private:
-  TH2F* addBoundaryBins(TH2F* hist);
   void addFilledPlotArea(TH2F* hist);
-  TH2F* transformChi2valleyToHill(TH2F* hist, float offset);
   const OptParser* m_arg = nullptr;  ///< command line arguments
   std::vector<Contour*> m_contours;  ///< container for the 1,...,N sigma contours
   std::vector<int> m_linecolor;      ///< style for the 1,...,N sigma contours

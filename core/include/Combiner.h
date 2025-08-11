@@ -58,11 +58,11 @@ class Combiner {
   }
 
   inline const OptParser* getArg() { return arg; };
-  const RooArgSet* getParameters();
-  std::vector<std::string>& getParameterNames();
+  const RooArgSet* getParameters() const;
+  std::vector<std::string> getParameterNames() const;
   PDF_Abs* getPdfProvidingObservable(TString obsname);
   const RooArgSet* getObservables();
-  std::vector<std::string>& getObservableNames();
+  std::vector<std::string> getObservableNames() const;
   inline TString getTitle() const { return title; };
   inline TString getName() const { return name; };
   /// Returns the name of the combined pdf. Call combine() first.

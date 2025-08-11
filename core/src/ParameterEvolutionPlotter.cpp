@@ -90,8 +90,8 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(std::vector<RooSlimFitResult*> results,
-                                                                  TString parName) {
+TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(const std::vector<RooSlimFitResult*>& results,
+                                                                  TString parName) const {
   TGraphErrors* g = new TGraphErrors(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -107,7 +107,8 @@ TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(std::vector<Ro
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(std::vector<RooSlimFitResult*> results, TString parName) {
+TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(const std::vector<RooSlimFitResult*>& results,
+                                                      TString parName) const {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -122,7 +123,7 @@ TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(std::vector<RooSlimFitResu
 ///
 /// Make a chi2 graph.
 ///
-TGraph* ParameterEvolutionPlotter::makeChi2Graph(std::vector<RooSlimFitResult*> results) {
+TGraph* ParameterEvolutionPlotter::makeChi2Graph(const std::vector<RooSlimFitResult*>& results) const {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {

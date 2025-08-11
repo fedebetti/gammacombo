@@ -27,21 +27,21 @@ class MethodDatasetsProbScan : public MethodProbScan {
  public:
   MethodDatasetsProbScan(PDF_Datasets* PDF, const OptParser* opt);
 
-  virtual void initScan();
+  void initScan() override;
   void loadScanFromFile(TString fileNameBaseIn = "default");
   void loadFitResults(TString file);
   void loadParameterLimits();
-  void print() override;
-  virtual int scan1d(bool fast = false, bool reverse = false, bool quiet = false);
-  virtual int scan2d();
-  virtual bool loadScanner(TString fName);
+  void print() const override;
+  int scan1d(bool fast = false, bool reverse = false, bool quiet = false) override;
+  int scan2d() override;
+  bool loadScanner(TString fName) override;
   inline void setInputFile(TString name) {
     inputFiles.push_back(name);
     explicitInputFile = true;
   };
   inline void addFile(TString name) { inputFiles.push_back(name); };
   void plotFitRes(TString fName);
-  int computeCLvalues();
+  int computeCLvalues() override;
 
   PDF_Datasets* pdf = nullptr;
   TH1F* probPValues = nullptr;
@@ -58,7 +58,7 @@ class MethodDatasetsProbScan : public MethodProbScan {
   void readScan1dTrees(TString fileNameBaseIn = "default");
   RooFitResult* loadAndFit(PDF_Datasets* pdf);
   double getPValueTTestStatistic(double test_statistic_value, bool isCLs = false);
-  void sanityChecks();
+  void sanityChecks() const;
   void setAndPrintFitStatusConstrainedToys(const ToyTree& toyTree);
   void setAndPrintFitStatusFreeToys(const ToyTree& toyTree);
   void sethCLFromProbScanTree();

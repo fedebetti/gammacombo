@@ -16,20 +16,20 @@ class OptParser;
 
 class Rounder {
  public:
-  Rounder(const OptParser* arg, float cllo, float clhi, float central);
+  Rounder(const OptParser* arg, double cllo, double clhi, double central);
 
   int getNsubdigits() const;
-  float CLlo();
-  float CLhi();
-  float central();
-  float errNeg();
-  float errPos();
+  double CLlo() const;
+  double CLhi() const;
+  double central() const;
+  double errNeg() const;
+  double errPos() const;
 
  private:
   const OptParser* arg = nullptr;
-  float m_cllo = std::numeric_limits<float>::quiet_NaN();
-  float m_clhi = std::numeric_limits<float>::quiet_NaN();
-  float m_central = std::numeric_limits<float>::quiet_NaN();
+  double m_cllo = std::numeric_limits<double>::quiet_NaN();
+  double m_clhi = std::numeric_limits<double>::quiet_NaN();
+  double m_central = std::numeric_limits<double>::quiet_NaN();
 };
 
 #endif

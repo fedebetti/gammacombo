@@ -37,6 +37,7 @@
 #include <TStyle.h>
 
 #include <cassert>
+#include <format>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -365,33 +366,20 @@ void MethodDatasetsProbScan::loadParameterLimits() {
 ///
 /// Print settings member of MethodDatasetsProbScan
 ///
-void MethodDatasetsProbScan::print() {
+void MethodDatasetsProbScan::print() const {
   std::cout << "########################## Print MethodDatasetsProbScan Class ##########################" << std::endl;
-  std::cout << "\t --- "
-            << "Method Name: \t\t\t" << methodName << std::endl;
-  std::cout << "\t --- "
-            << "Instance Name: \t\t\t" << name << std::endl;
-  std::cout << "\t --- "
-            << "Instance Title: \t\t\t" << title << std::endl;
-  std::cout << "\t --- "
-            << "Scan Var Name: \t\t\t" << scanVar1 << std::endl;
-  if (arg->var.size() > 1)
-    std::cout << "\t --- "
-              << "2nd Scan Var Name: \t\t" << scanVar2 << std::endl;
-  std::cout << "\t --- "
-            << "Number of Scanpoints 1D: \t\t" << nPoints1d << std::endl;
-  std::cout << "\t --- "
-            << "Number of Scanpoints x 2D: \t" << nPoints2dx << std::endl;
-  std::cout << "\t --- "
-            << "Number of Scanpoints y 2D: \t" << nPoints2dy << std::endl;
-  std::cout << "\t --- "
-            << "PDF Name: \t\t\t\t" << pdf->getPdfName() << std::endl;
-  std::cout << "\t --- "
-            << "Observables Name: \t\t\t" << pdf->getObsName() << std::endl;
-  std::cout << "\t --- "
-            << "Parameters Name: \t\t\t" << pdf->getParName() << std::endl;
-  std::cout << "\t --- "
-            << "Global minimum Chi2: \t\t" << chi2minGlobal << std::endl;
+  std::cout << "\t --- Method Name: \t\t\t" << methodName << std::endl;
+  std::cout << "\t --- Instance Name: \t\t\t" << name << std::endl;
+  std::cout << "\t --- Instance Title: \t\t\t" << title << std::endl;
+  std::cout << "\t --- Scan Var Name: \t\t\t" << scanVar1 << std::endl;
+  if (arg->var.size() > 1) std::cout << "\t --- 2nd Scan Var Name: \t\t" << scanVar2 << std::endl;
+  std::cout << "\t --- Number of Scanpoints 1D: \t\t" << nPoints1d << std::endl;
+  std::cout << "\t --- Number of Scanpoints x 2D: \t" << nPoints2dx << std::endl;
+  std::cout << "\t --- Number of Scanpoints y 2D: \t" << nPoints2dy << std::endl;
+  std::cout << "\t --- PDF Name: \t\t\t\t" << pdf->getPdfName() << std::endl;
+  std::cout << "\t --- Observables Name: \t\t\t" << pdf->getObsName() << std::endl;
+  std::cout << "\t --- Parameters Name: \t\t\t" << pdf->getParName() << std::endl;
+  std::cout << "\t --- Global minimum Chi2: \t\t" << chi2minGlobal << std::endl;
   std::cout << "---------------------------------" << std::endl;
   std::cout << "\t --- Scan Var " << scanVar1 << " from " << getScanVar1()->getMin("scan") << " to "
             << getScanVar1()->getMax("scan") << std::endl;
@@ -589,19 +577,12 @@ int MethodDatasetsProbScan::computeCLvalues() {
 }
 
 // sanity Checks for 2D scan \TODO: Idea: enlargen this function to be used for all scans
-void MethodDatasetsProbScan::sanityChecks() {
-  // if ( !w->set(parsName) ){
-  //     std::cout << "MethodDatasetsProbScan::sanityChecks() : ERROR : parsName not found: " << parsName << std::endl;
-  //     std::exit(1);
-  // }
-  if (!w->var(scanVar1)) {
-    std::cout << "MethodDatasetsProbScan::sanityChecks() : ERROR : scanVar1 not found: " << scanVar1 << std::endl;
-    std::exit(1);
-  }
-  if (!w->var(scanVar2)) {
-    std::cout << "MethodDatasetsProbScan::sanityChecks() : ERROR : scanVar2 not found: " << scanVar2 << std::endl;
-    std::exit(1);
-  }
+void MethodDatasetsProbScan::sanityChecks() const {
+  auto error = [](const std::string& msg) { Utils::errBase("MethodDatasetsProbScan::sanityChecks() : ERROR : ", msg); };
+
+  // if (!w->set(parsName)) error(std::format("parsName not found: {:s}", std::string(parsName)));
+  if (!w->var(scanVar1)) error(std::format("scanVar1 not found: {:s}", std::string(scanVar1)));
+  if (!w->var(scanVar2)) error(std::format("scanVar2 not found: {:s}", std::string(scanVar2)));
 }
 
 // Working at 2D scan by first copying the original ProbScan

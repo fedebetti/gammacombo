@@ -433,19 +433,12 @@ bool MethodProbScan::computeInnerTurnCoords(const int iStart, const int jStart, 
   return true;
 }
 
-void MethodProbScan::sanityChecks() {
-  if (!w->set(parsName)) {
-    std::cout << "MethodProbScan::sanityChecks() : ERROR : parsName not found: " << parsName << std::endl;
-    std::exit(1);
-  }
-  if (!w->var(scanVar1)) {
-    std::cout << "MethodProbScan::sanityChecks() : ERROR : scanVar1 not found: " << scanVar1 << std::endl;
-    std::exit(1);
-  }
-  if (!w->var(scanVar2)) {
-    std::cout << "MethodProbScan::sanityChecks() : ERROR : scanVar2 not found: " << scanVar2 << std::endl;
-    std::exit(1);
-  }
+void MethodProbScan::sanityChecks() const {
+  auto error = [](const std::string& msg) { Utils::errBase("MethodProbScan::sanityChecks() : ERROR : ", msg); };
+
+  if (!w->set(parsName)) error(std::format("parsName not found: {:s}", std::string(parsName)));
+  if (!w->var(scanVar1)) error(std::format("scanVar1 not found: {:s}", std::string(scanVar1)));
+  if (!w->var(scanVar2)) error(std::format("scanVar2 not found: {:s}", std::string(scanVar2)));
 }
 
 ///
@@ -841,7 +834,7 @@ void MethodProbScan::saveSolutions2d() {
 /// scan point. Requires that the scan was performed before
 /// by scan1d().
 ///
-float MethodProbScan::getChi2min(float scanpoint) {
+float MethodProbScan::getChi2min(float scanpoint) const {
   assert(hChi2min);
   int iBin = hChi2min->FindBin(scanpoint);
   return hChi2min->GetBinContent(iBin);

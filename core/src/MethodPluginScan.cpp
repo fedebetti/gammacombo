@@ -1496,7 +1496,7 @@ void MethodPluginScan::readScan2dTrees(int runMin, int runMax) {
 /// \param pvalue The expected p-value, e.g. from the profile likelihood
 /// \return Fraction between 0.1 and 1
 ///
-double MethodPluginScan::importance(double pvalue) {
+double MethodPluginScan::importance(double pvalue) const {
   double f1 = 0.05;  ///< the minimum fraction we allow
   double co = 1e-5;  ///< the p-value for which we don't generate toys anymore.
   if (pvalue < co) return 0.0;

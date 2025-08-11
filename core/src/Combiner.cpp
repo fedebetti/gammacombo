@@ -238,9 +238,9 @@ RooAbsPdf* Combiner::getPdf() {
 /// in this combination. This works already before
 /// combine() was called (unline Combiner::getParameters()).
 ///
-std::vector<std::string>& Combiner::getParameterNames() {
-  std::vector<std::string>* vars = new std::vector<std::string>();
-  if (pdfs.size() == 0) return *vars;
+std::vector<std::string> Combiner::getParameterNames() const {
+  std::vector<std::string> vars;
+  if (pdfs.empty()) return vars;
 
   // 1. make a list of all parameters from the pdfs
   std::vector<std::string> varsAll;
@@ -249,14 +249,14 @@ std::vector<std::string>& Combiner::getParameterNames() {
   }
   // 2. remove duplicates
   std::sort(varsAll.begin(), varsAll.end());
-  vars->push_back(varsAll[0]);
+  vars.push_back(varsAll[0]);
   std::string previous = varsAll[0];
   for (int i = 1; i < varsAll.size(); i++) {
     if (previous == varsAll[i]) continue;
-    vars->push_back(varsAll[i]);
+    vars.push_back(varsAll[i]);
     previous = varsAll[i];
   }
-  return *vars;
+  return vars;
 }
 
 ///
@@ -272,12 +272,12 @@ std::vector<std::string>& Combiner::getParameterNames() {
 ///
 /// \return a vector of observable names
 ///
-std::vector<std::string>& Combiner::getObservableNames() {
-  std::vector<std::string>* vars = new std::vector<std::string>();
+std::vector<std::string> Combiner::getObservableNames() const {
+  std::vector<std::string> vars;
   if (!_isCombined) {
     // collect observables from all PDFs
     for (int i = 0; i < pdfs.size(); i++) {
-      for (const auto& obs : *pdfs[i]->getObservables()) vars->push_back(obs->GetName());
+      for (const auto& obs : *pdfs[i]->getObservables()) vars.push_back(obs->GetName());
     }
   } else {
     // get observables from the combined workspace
@@ -287,15 +287,15 @@ std::vector<std::string>& Combiner::getObservableNames() {
                 << "obs_" + pdfName << std::endl;
       assert(0);
     }
-    for (const auto& obs : *observables) vars->push_back(obs->GetName());
+    for (const auto& obs : *observables) vars.push_back(obs->GetName());
   }
-  return *vars;
+  return vars;
 }
 
 ///
 /// Return a (new?) RooArgSet that contains all parameters.
 ///
-const RooArgSet* Combiner::getParameters() {
+const RooArgSet* Combiner::getParameters() const {
   if (!_isCombined) {
     std::cout << "Combiner::getParameters() : ERROR : Combiner needs to be combined first!" << std::endl;
     assert(0);
@@ -318,7 +318,7 @@ const RooArgSet* Combiner::getObservables() {
 /// Print the combination setup.
 ///
 void Combiner::print() {
-  if (pdfs.size() == 0) return;
+  if (pdfs.empty()) return;
   std::cout << "\nCombiner Configuration: " << title << std::endl;
   std::cout << "=======================" << std::endl;
   // consice summary
@@ -327,12 +327,10 @@ void Combiner::print() {
     name.ReplaceAll(pdfs[i]->getUniqueID(), "");
     printf("%2i. [measurement %3i] %-65s\n", i + 1, pdfs[i]->getGcId(), (pdfs[i]->getTitle()).Data());
   }
-  // if ( arg->verbose ) {
   std::cout << "=======================" << std::endl;
   // print observables of the combination
-  std::vector<std::string>& olist = getObservableNames();
-  TString obslist = "";
-  obslist += Form("%4d input observables: (", int(olist.size()));
+  std::vector<std::string> olist = getObservableNames();
+  TString obslist = Form("%4d input observables: (", int(olist.size()));
   int indent_length = obslist.Length();
   int cur_length = obslist.Length();
   for (int o = 0; o < olist.size() - 1; o++) {
@@ -348,9 +346,8 @@ void Combiner::print() {
   std::cout << obslist << std::endl;
 
   // print free parameters of the combination
-  std::vector<std::string>& plist = getParameterNames();
-  TString parlist = "";
-  parlist += Form("%4d free parameters:   (", int(plist.size()));
+  auto plist = getParameterNames();
+  TString parlist = Form("%4d free parameters:   (", int(plist.size()));
   indent_length = parlist.Length();
   cur_length = parlist.Length();
   for (int p = 0; p < plist.size() - 1; p++) {

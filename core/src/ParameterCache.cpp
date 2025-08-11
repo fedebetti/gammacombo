@@ -34,7 +34,7 @@ ParameterCache::ParameterCache(const OptParser* arg) {
   m_arg = arg;
 }
 
-void ParameterCache::printFitResultToOutStream(std::ofstream& out, RooSlimFitResult* slimFitRes) {
+void ParameterCache::printFitResultToOutStream(std::ofstream& out, const RooSlimFitResult* slimFitRes) const {
 
   out << "### FCN: " << slimFitRes->minNll() << ", EDM: " << slimFitRes->edm() << std::endl;
   out << "### COV quality: " << slimFitRes->covQual() << ", status: " << slimFitRes->status()
@@ -187,22 +187,22 @@ bool ParameterCache::loadPoints(TString fileName) {
   return successfullyLoaded;
 }
 
-void ParameterCache::printPoint() {
+void ParameterCache::printPoint() const {
 
   std::cout << "ParameterCache::printPoint() -- There are " << startingValues.size()
             << " solutions with values: " << std::endl;
 
   for (unsigned int i = 0; i < startingValues.size(); i++) {
     std::cout << "SOLUTION " << i << std::endl;
-    for (std::map<TString, double>::iterator it = startingValues[i].begin(); it != startingValues[i].end(); it++) {
-      std::cout << Form("%-25s", it->first.Data()) << " " << Form("%12.6f", it->second) << std::endl;
+    for (const auto& [name, val] : startingValues[i]) {
+      std::cout << Form("%-25s", name.Data()) << " " << Form("%12.6f", val) << std::endl;
     }
   }
 }
 
-int ParameterCache::getNPoints() { return startingValues.size(); }
+int ParameterCache::getNPoints() const { return startingValues.size(); }
 
-std::vector<TString> ParameterCache::getFixedNames(std::vector<Utils::FixPar> fixPar) {
+std::vector<TString> ParameterCache::getFixedNames(std::vector<Utils::FixPar> fixPar) const {
   std::vector<TString> names;
   for (unsigned int i = 0; i < fixPar.size(); i++) { names.push_back(fixPar[i].name); }
   return names;

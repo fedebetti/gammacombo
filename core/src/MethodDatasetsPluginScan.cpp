@@ -339,38 +339,23 @@ void MethodDatasetsPluginScan::loadParameterLimits() {
 ///
 /// Print settings member of MethodDatasetsPluginScan
 ///
-void MethodDatasetsPluginScan::print() {
+void MethodDatasetsPluginScan::print() const {
   std::cout << "########################## Print MethodDatasetsPluginScan Class ##########################"
             << std::endl;
-  std::cout << "\t --- "
-            << "Method Name: \t\t\t" << methodName << std::endl;
-  std::cout << "\t --- "
-            << "Instance Name: \t\t\t" << name << std::endl;
-  std::cout << "\t --- "
-            << "Instance Title: \t\t\t" << title << std::endl;
-  std::cout << "\t --- "
-            << "Scan Var Name: \t\t\t" << scanVar1 << std::endl;
-  if (arg->var.size() > 1)
-    std::cout << "\t --- "
-              << "2nd Scan Var Name: \t\t" << scanVar2 << std::endl;
-  std::cout << "\t --- "
-            << "Number of Scanpoints 1D: \t\t" << nPoints1d << std::endl;
-  std::cout << "\t --- "
-            << "Number of Scanpoints x 2D: \t" << nPoints2dx << std::endl;
-  std::cout << "\t --- "
-            << "Number of Scanpoints y 2D: \t" << nPoints2dy << std::endl;
-  std::cout << "\t --- "
-            << "Number of Toys per scanpoint: \t" << nToys << std::endl;
-  std::cout << "\t --- "
-            << "PDF Name: \t\t\t\t" << pdf->getPdfName() << std::endl;
-  std::cout << "\t --- "
-            << "Observables Name: \t\t\t" << pdf->getObsName() << std::endl;
-  std::cout << "\t --- "
-            << "Parameters Name: \t\t\t" << pdf->getParName() << std::endl;
-  std::cout << "\t --- "
-            << "Global minimum Chi2: \t\t" << chi2minGlobal << std::endl;
-  std::cout << "\t --- "
-            << "nrun: \t\t\t\t" << arg->nrun << std::endl;
+  std::cout << "\t --- Method Name: \t\t\t" << methodName << std::endl;
+  std::cout << "\t --- Instance Name: \t\t\t" << name << std::endl;
+  std::cout << "\t --- Instance Title: \t\t\t" << title << std::endl;
+  std::cout << "\t --- Scan Var Name: \t\t\t" << scanVar1 << std::endl;
+  if (arg->var.size() > 1) std::cout << "\t --- 2nd Scan Var Name: \t\t" << scanVar2 << std::endl;
+  std::cout << "\t --- Number of Scanpoints 1D: \t\t" << nPoints1d << std::endl;
+  std::cout << "\t --- Number of Scanpoints x 2D: \t" << nPoints2dx << std::endl;
+  std::cout << "\t --- Number of Scanpoints y 2D: \t" << nPoints2dy << std::endl;
+  std::cout << "\t --- Number of Toys per scanpoint: \t" << nToys << std::endl;
+  std::cout << "\t --- PDF Name: \t\t\t\t" << pdf->getPdfName() << std::endl;
+  std::cout << "\t --- Observables Name: \t\t\t" << pdf->getObsName() << std::endl;
+  std::cout << "\t --- Parameters Name: \t\t\t" << pdf->getParName() << std::endl;
+  std::cout << "\t --- Global minimum Chi2: \t\t" << chi2minGlobal << std::endl;
+  std::cout << "\t --- nrun: \t\t\t\t" << arg->nrun << std::endl;
   std::cout << "---------------------------------" << std::endl;
   std::cout << "\t --- Scan Var " << scanVar1 << " from " << getScanVar1()->getMin("scan") << " to "
             << getScanVar1()->getMax("scan") << std::endl;

@@ -34,7 +34,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   void drawMarker(float x, float y, int color = 0, int style = 3, float size = 2.0);
   void drawGroup();
   void drawSolutions();
-  inline int getNumberOfDefinedColors() { return linecolor[0].size(); }
+  inline int getNumberOfDefinedColors() const { return linecolor[0].size(); }
   inline void setContoursOnly() { contoursOnly = true; };
   inline void setXaxisTitle(TString s) { xTitle = s; };
   inline void setYaxisTitle(TString s) { yTitle = s; };
@@ -55,7 +55,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
 
  private:
   void drawLegend();
-  bool hasHistoType(Utils::histogramType t);
+  bool hasHistoType(Utils::histogramType t) const;
   void makeNewPlotStyle(TString htmlColor, int ROOTColor = -1);
   void makeOneColorPlotStyle(TString htmlColor, int ROOTColor = -1);
 
