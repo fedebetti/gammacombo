@@ -43,7 +43,10 @@ endif()
 
 find_package(Freetype REQUIRED)
 
-find_package(Boost REQUIRED)
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+find_package(Boost 1.70 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # Find ROOT (see https://root.cern/manual/integrate_root_into_my_cmake_project/,
