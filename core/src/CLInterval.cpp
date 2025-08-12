@@ -1,5 +1,7 @@
 #include <CLInterval.h>
 
+#include <TMath.h>
+
 #include <cmath>
 #include <compare>
 #include <format>
@@ -35,6 +37,28 @@ std::strong_ordering CLInterval::operator<=>(const CLInterval& rhs) const noexce
   if (auto cmp = double_approx_three_way(this->min, rhs.min); cmp != 0) { return cmp; }
   if (auto cmp = double_approx_three_way(this->max, rhs.max); cmp != 0) { return cmp; }
   return std::strong_ordering::equal;
+}
+
+/**
+ * Check that the borders of the confidence interval are known with relative precision better than a given value.
+ *
+ * The precision is normalised to a 1 sigma interval, e.g. if x% relative precision is required for a 1 sigma
+ * interval, a (x/3)% precision is required for a 3 sigma interval (this means that if the distribution is Gaussian,
+ * the required absolute precision is the same for all intervals).
+ *
+ * @param precRel     Maximum tolerance on the relative precision.
+ * @param returnOnNaN Value to return in case some of the members are NaN.
+ *
+ * @return            Whether the test passed or not.
+ */
+bool CLInterval::checkPrecision(const double precRel, const bool returnOnNaN) const {
+  if (std::isnan(central) || std::isnan(min) || std::isnan(max) || std::isnan(minerr) || std::isnan(maxerr))
+    return returnOnNaN;
+  const auto nsigma = TMath::NormQuantile(1 - pvalue / 2.);
+  const auto scale = precRel / nsigma;
+  if (minerr / (central - min) > scale) return false;
+  if (maxerr / (max - central) > scale) return false;
+  return true;
 }
 
 void CLInterval::print() const {

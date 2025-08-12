@@ -950,6 +950,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
       cli->minclosed = CLminClosed;
       cli->maxclosed = CLmaxClosed;
       if (arg->debug) cli->print();
+      if (!cli->checkPrecision(arg->errtol)) error(std::format("Precision of the CI #{:d} is too low", c));
 
       clintervals[c].push_back(std::move(cli));
     }

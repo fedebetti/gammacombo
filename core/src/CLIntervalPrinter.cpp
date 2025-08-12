@@ -120,6 +120,8 @@ void CLIntervalPrinter::savePython() const {
       i.central = RadToDeg(i.central);
       i.min = RadToDeg(i.min);
       i.max = RadToDeg(i.max);
+      i.minerr = RadToDeg(i.minerr);
+      i.maxerr = RadToDeg(i.maxerr);
       unit = "Deg";
     }
 
@@ -131,17 +133,19 @@ void CLIntervalPrinter::savePython() const {
 
     Rounder rounder(_arg, i.min, i.max, i.central);
     const auto float_format = std::format("{{:.{:d}f}}", rounder.getNsubdigits());
+    const auto float_format2 = std::format("{{:.{:d}f}}", rounder.getNsubdigits() + 1);
     const auto format_str =
-        std::format("    {{{{'var': '{{:s}}', 'min': '{0}', 'max': '{0}', 'central': '{0}', "
-                    "'neg': '{0}', 'pos': '{0}', 'cl': '{{:.4f}}', 'unit': '{{:s}}', 'method': '{{:s}}'}}}},\n",
-                    float_format);
+        std::format("    {{{{'var': '{{:s}}', 'min': '{0}', 'max': '{0}', 'central': '{0}', 'neg': '{0}', "
+                    "'pos': '{0}', 'minerr': '{1}', 'maxerr': {1}:, 'cl': '{{:.4f}}', 'unit': '{{:s}}', "
+                    "'method': '{{:s}}'}}}},\n",
+                    float_format, float_format2);
     const auto CLlo = rounder.CLlo();
     const auto CLhi = rounder.CLhi();
     const auto central = rounder.central();
     const auto errNeg = rounder.errNeg();
     const auto errPos = rounder.errPos();
-    outf << std::vformat(format_str,
-                         std::make_format_args(_var, CLlo, CLhi, central, errNeg, errPos, thisCL, unit, _method));
+    outf << std::vformat(format_str, std::make_format_args(_var, CLlo, CLhi, central, errNeg, errPos, i.minerr,
+                                                           i.maxerr, thisCL, unit, _method));
     previousCL = thisCL;
   }
   if (previousCL != -1.) { outf << "  ]\n"; }

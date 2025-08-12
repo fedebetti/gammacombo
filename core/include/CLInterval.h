@@ -24,6 +24,8 @@ struct CLInterval {
   bool operator==(const CLInterval& rhs) const noexcept;
   std::strong_ordering operator<=>(const CLInterval& rhs) const noexcept;
 
+  bool checkPrecision(double precRel, bool returnOnNaN = true) const;
+
   /// Print the details of the CL interval.
   void print() const;
 
