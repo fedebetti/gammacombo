@@ -17,22 +17,22 @@ class RooSlimFitResult;
 class ParameterCache {
 
  public:
-  ParameterCache(OptParser* arg);
-  ~ParameterCache();
+  ParameterCache(const OptParser* arg);
 
   void cacheParameters(MethodAbsScan* scanner, TString fileName);
   bool loadPoints(TString fileName);
-  void printFitResultToOutStream(std::ofstream& out, RooSlimFitResult* slimFitResult);
-  void printPoint();
-  int getNPoints();
+  void printFitResultToOutStream(std::ofstream& out, const RooSlimFitResult* slimFitResult) const;
+  void printPoint() const;
+  int getNPoints() const;
   void setPoint(Combiner* cmb, int i);
   void setPoint(MethodAbsScan* scanner, int i);
-  std::vector<TString> getFixedNames(std::vector<Utils::FixPar> fixPar);
+  std::vector<TString> getFixedNames(std::vector<Utils::FixPar> fixPar) const;
+
   std::vector<std::map<TString, double>> startingValues;
 
  private:
-  bool m_parametersLoaded;
-  OptParser* m_arg;
+  bool m_parametersLoaded = false;
+  const OptParser* m_arg = nullptr;
 };
 
 #endif

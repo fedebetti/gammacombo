@@ -22,29 +22,26 @@
 #include <string>
 #include <vector>
 
-Combiner::Combiner(OptParser* arg, TString title) : title(title) {
+Combiner::Combiner(const OptParser* arg, TString title) : title(title) {
   std::cout << "Combiner::Combiner() : WARNING : This constructor is deprecated. "
-               "Use Combiner(OptParser *arg, TString name, TString title) instead."
+               "Use Combiner(const OptParser *arg, TString name, TString title) instead."
             << std::endl;
   if (arg->debug) std::cout << "Combiner::Combiner() : new combiner title=" << title << std::endl;
-  name = "";
-  pdfName = "";
   this->arg = arg;
   TString wsname = "w" + Utils::getUniqueRootName();
   w = new RooWorkspace(wsname, wsname);
-  _isCombined = false;
 }
 
-Combiner::Combiner(OptParser* arg, TString name, TString title) : name(name), title(title) {
+Combiner::Combiner(const OptParser* arg, TString name, TString title) : name(name), title(title) {
   if (arg->debug) std::cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << std::endl;
-  pdfName = "";
   this->arg = arg;
   TString wsname = "w" + Utils::getUniqueRootName();
   w = new RooWorkspace(wsname, wsname);
-  _isCombined = false;
 }
 
-Combiner::~Combiner() { delete w; }
+Combiner::~Combiner() {
+  if (w) delete w;
+}
 
 ///
 /// Clone an existing combiner.
@@ -62,31 +59,6 @@ void Combiner::addPdf(PDF_Abs* p) {
   pdfs.push_back(p);
 }
 
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2) {
-  addPdf(p1);
-  addPdf(p2);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3) {
-  addPdf(p1, p2);
-  addPdf(p3);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4) {
-  addPdf(p1, p2, p3);
-  addPdf(p4);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5) {
-  addPdf(p1, p2, p3, p4);
-  addPdf(p5);
-}
-
-void Combiner::addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5, PDF_Abs* p6) {
-  addPdf(p1, p2, p3, p4, p5);
-  addPdf(p6);
-}
-
 void Combiner::delPdf(PDF_Abs* p) {
   if (_isCombined) {
     std::cout << "Combiner::delPdf() : ERROR : Can't delete pdf after the Combiner was combined!" << std::endl;
@@ -98,31 +70,6 @@ void Combiner::delPdf(PDF_Abs* p) {
     pdfsNew.push_back(pdfs[i]);
   }
   pdfs = pdfsNew;
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2) {
-  delPdf(p1);
-  delPdf(p2);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3) {
-  delPdf(p1, p2);
-  delPdf(p3);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4) {
-  delPdf(p1, p2, p3);
-  delPdf(p4);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5) {
-  delPdf(p1, p2, p3, p4);
-  delPdf(p5);
-}
-
-void Combiner::delPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5, PDF_Abs* p6) {
-  delPdf(p1, p2, p3, p4, p5);
-  delPdf(p6);
 }
 
 void Combiner::replacePdf(PDF_Abs* from, PDF_Abs* to) {
@@ -291,9 +238,9 @@ RooAbsPdf* Combiner::getPdf() {
 /// in this combination. This works already before
 /// combine() was called (unline Combiner::getParameters()).
 ///
-std::vector<std::string>& Combiner::getParameterNames() {
-  std::vector<std::string>* vars = new std::vector<std::string>();
-  if (pdfs.size() == 0) return *vars;
+std::vector<std::string> Combiner::getParameterNames() const {
+  std::vector<std::string> vars;
+  if (pdfs.empty()) return vars;
 
   // 1. make a list of all parameters from the pdfs
   std::vector<std::string> varsAll;
@@ -302,14 +249,14 @@ std::vector<std::string>& Combiner::getParameterNames() {
   }
   // 2. remove duplicates
   std::sort(varsAll.begin(), varsAll.end());
-  vars->push_back(varsAll[0]);
+  vars.push_back(varsAll[0]);
   std::string previous = varsAll[0];
   for (int i = 1; i < varsAll.size(); i++) {
     if (previous == varsAll[i]) continue;
-    vars->push_back(varsAll[i]);
+    vars.push_back(varsAll[i]);
     previous = varsAll[i];
   }
-  return *vars;
+  return vars;
 }
 
 ///
@@ -325,12 +272,12 @@ std::vector<std::string>& Combiner::getParameterNames() {
 ///
 /// \return a vector of observable names
 ///
-std::vector<std::string>& Combiner::getObservableNames() {
-  std::vector<std::string>* vars = new std::vector<std::string>();
+std::vector<std::string> Combiner::getObservableNames() const {
+  std::vector<std::string> vars;
   if (!_isCombined) {
     // collect observables from all PDFs
     for (int i = 0; i < pdfs.size(); i++) {
-      for (const auto& obs : *pdfs[i]->getObservables()) vars->push_back(obs->GetName());
+      for (const auto& obs : *pdfs[i]->getObservables()) vars.push_back(obs->GetName());
     }
   } else {
     // get observables from the combined workspace
@@ -340,15 +287,15 @@ std::vector<std::string>& Combiner::getObservableNames() {
                 << "obs_" + pdfName << std::endl;
       assert(0);
     }
-    for (const auto& obs : *observables) vars->push_back(obs->GetName());
+    for (const auto& obs : *observables) vars.push_back(obs->GetName());
   }
-  return *vars;
+  return vars;
 }
 
 ///
 /// Return a (new?) RooArgSet that contains all parameters.
 ///
-const RooArgSet* Combiner::getParameters() {
+const RooArgSet* Combiner::getParameters() const {
   if (!_isCombined) {
     std::cout << "Combiner::getParameters() : ERROR : Combiner needs to be combined first!" << std::endl;
     assert(0);
@@ -371,7 +318,7 @@ const RooArgSet* Combiner::getObservables() {
 /// Print the combination setup.
 ///
 void Combiner::print() {
-  if (pdfs.size() == 0) return;
+  if (pdfs.empty()) return;
   std::cout << "\nCombiner Configuration: " << title << std::endl;
   std::cout << "=======================" << std::endl;
   // consice summary
@@ -380,12 +327,10 @@ void Combiner::print() {
     name.ReplaceAll(pdfs[i]->getUniqueID(), "");
     printf("%2i. [measurement %3i] %-65s\n", i + 1, pdfs[i]->getGcId(), (pdfs[i]->getTitle()).Data());
   }
-  // if ( arg->verbose ) {
   std::cout << "=======================" << std::endl;
   // print observables of the combination
-  std::vector<std::string>& olist = getObservableNames();
-  TString obslist = "";
-  obslist += Form("%4d input observables: (", int(olist.size()));
+  std::vector<std::string> olist = getObservableNames();
+  TString obslist = Form("%4d input observables: (", int(olist.size()));
   int indent_length = obslist.Length();
   int cur_length = obslist.Length();
   for (int o = 0; o < olist.size() - 1; o++) {
@@ -401,9 +346,8 @@ void Combiner::print() {
   std::cout << obslist << std::endl;
 
   // print free parameters of the combination
-  std::vector<std::string>& plist = getParameterNames();
-  TString parlist = "";
-  parlist += Form("%4d free parameters:   (", int(plist.size()));
+  auto plist = getParameterNames();
+  TString parlist = Form("%4d free parameters:   (", int(plist.size()));
   indent_length = parlist.Length();
   cur_length = parlist.Length();
   for (int p = 0; p < plist.size() - 1; p++) {
@@ -436,7 +380,7 @@ void Combiner::print() {
 /// Adjust the physical range of a parameter as requested. Only possible
 /// after combining.
 ///
-void Combiner::adjustPhysRange(TString varName, float min, float max) {
+void Combiner::adjustPhysRange(TString varName, double min, double max) {
   if (!_isCombined) {
     std::cout << "Combiner::adjustPhysRange() : ERROR : Can't adjust parameters range before ";
     std::cout << "combine() was called. Skipping." << std::endl;
@@ -448,7 +392,7 @@ void Combiner::adjustPhysRange(TString varName, float min, float max) {
     std::cout << varName << ". Skipping." << std::endl;
     return;
   }
-  if (min <= -999 && max <= -999) {
+  if (min <= -999. && max <= -999.) {
     w->var(varName)->removeRange();
   } else {
     w->var(varName)->setRange("phys", min, max);
@@ -462,7 +406,7 @@ void Combiner::adjustPhysRange(TString varName, float min, float max) {
 /// \param var - the parameter name
 /// \param value - the value to fix the parameter to
 ///
-void Combiner::fixParameter(TString var, float value) {
+void Combiner::fixParameter(TString var, double value) {
   if (_isCombined) {
     std::cout << "Combiner::fixParameter() : WARNING : Can't set parameters constant "
                  "after combine() was called. Skipping."

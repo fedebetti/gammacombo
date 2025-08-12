@@ -39,17 +39,17 @@ class RooSlimFitResult : public TObject {
   ~RooSlimFitResult();
 
   RooSlimFitResult* Clone();
-  RooArgList& constPars() const;
   inline TMatrixDSym correlationMatrix() const { return _correlationMatrix; };
   inline Int_t covQual() const { return _covQual; };
   inline Double_t edm() const { return _edm; };
-  RooArgList& floatParsFinal() const;
+  const RooArgList& constPars() const;
+  const RooArgList& floatParsFinal() const;
   float getParVal(TString name) const;
   float getParErr(TString name) const;
   float getConstParVal(TString name) const;
   float getFloatParFinalVal(TString name) const;
   bool hasParameter(TString name) const;
-  inline bool isConfirmed() { return _isConfirmed; };
+  inline bool isConfirmed() const { return _isConfirmed; };
   inline Double_t minNll() const { return _minNLL; };
   void Print(bool verbose = false, bool printcor = false);
   void SaveLatex(std::ofstream& outfile, bool verbose = false, bool printcor = false);
@@ -74,14 +74,15 @@ class RooSlimFitResult : public TObject {
   Int_t _status;
   TMatrixDSym _correlationMatrix;
 
-  // dummy variables only needed for constPars() and floatParsFinal():
-  mutable RooArgList _constParsDummy;  //! <- The exlcamation mark turns off storing in a root file (marks the member
-                                       //! transient)
-  mutable RooArgList _floatParsFinalDummy;  //! mutables can be changed in const methods
+ private:
+  // Dummy auxiliary variables to speed up constPars() and floatParsFinal()
+  mutable RooArgList _constParsDummy;
+  mutable RooArgList _floatParsFinalDummy;
 
+  bool _isConfirmed;
+
+ public:
   ClassDef(RooSlimFitResult, 1)  // defines version number, ClassDef is a macro
-
-      private : bool _isConfirmed;
 };
 
 //

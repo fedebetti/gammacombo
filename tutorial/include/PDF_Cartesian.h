@@ -15,7 +15,6 @@
 class PDF_Cartesian : public PDF_Abs {
  public:
   PDF_Cartesian(TString cObs, TString cErr, TString cCor);
-  ~PDF_Cartesian();
   void buildPdf();
   void initObservables();
   virtual void initParameters();

@@ -14,25 +14,18 @@
 
 #include <TString.h>
 
-#include <fstream>
-
 class Combiner;
 class OptParser;
 
 class Graphviz {
  public:
-  Graphviz(OptParser* arg);
-  ~Graphviz();
+  Graphviz(const OptParser* arg);
 
   void printCombiner(Combiner* cmb);
   void printCombinerLayer(Combiner* cmb);
 
  private:
-  TString graphvizString(TString s);
-  // TString   graphvizString(string s);
-  bool isDmixingParameter(TString s);
-  std::ofstream& openFile(TString name);
-  OptParser* arg;  ///< command line arguments
+  const OptParser* arg = nullptr;  ///< command line arguments
 };
 
 #endif

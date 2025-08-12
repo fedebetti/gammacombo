@@ -27,7 +27,6 @@ class TVirtualPad;
 class ControlPlots {
  public:
   ControlPlots(ToyTree* tt);
-  ~ControlPlots();
 
   void ctrlPlotChi2Distribution();
   void ctrlPlotChi2Parabola();
@@ -45,11 +44,11 @@ class ControlPlots {
   void updateCurrentCanvas();
 
   TString name;                            ///< combiner name, ending up in titles and file names
-  ToyTree* tt;                             ///< the toy tree
-  TTree* t;                                ///< the tree
-  OptParser* arg;                          ///< command line arguments
+  ToyTree* tt = nullptr;                   ///< the toy tree
+  TTree* t = nullptr;                      ///< the tree
+  const OptParser* arg = nullptr;          ///< command line arguments
   std::vector<TCanvas*> ctrlPlotCanvases;  ///< Pointers to the canvases of the control plots, see selectNewCanvas().
-  int ctrlPadId;                           ///< ID of currently selected pad, see selectNewPad().
+  int ctrlPadId = 0;                       ///< ID of currently selected pad, see selectNewPad().
   TCut ctrlPlotCuts;                       ///< Cuts that are applied to all control plots.
 };
 

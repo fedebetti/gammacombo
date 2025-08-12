@@ -1,7 +1,6 @@
 #include <GammaComboEngine.h>
 
 #include <BatchScriptWriter.h>
-#include <ColorBuilder.h>
 #include <Combiner.h>
 #include <FileNameBuilder.h>
 #include <Graphviz.h>
@@ -45,6 +44,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -55,7 +55,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) : runOnDataSet(false) {
+GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) {
   // time the program
   t.Start();
 
@@ -85,9 +85,6 @@ GammaComboEngine::GammaComboEngine(TString name, int argc, char* argv[]) : runOn
   } else
     gROOT->SetBatch(false);
 
-  // initialize members
-  plot = 0;
-
   // reconfigure RooFormulaVar output
   RooMsgService::instance().getStream(1).removeTopic(RooFit::InputArguments);
   RooMsgService::instance().getStream(0).addTopic(RooFit::InputArguments);
@@ -106,10 +103,8 @@ GammaComboEngine::~GammaComboEngine() {
 ///
 /// Check if a PDF with a certain ID exits.
 ///
-bool GammaComboEngine::pdfExists(int id) {
-  if (id < 0) return false;
-  if (id >= this->pdf.size()) return false;
-  if (this->pdf[id] == 0) return false;
+bool GammaComboEngine::pdfExists(const int id) const {
+  if (id < 0 || id >= this->pdf.size() || !this->pdf[id]) return false;
   return true;
 }
 
@@ -155,23 +150,15 @@ void GammaComboEngine::setPdf(PDF_Abs* pdf) {
 /// Add a PDF to the GammaComboEngine object.
 ///
 void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
-  if (arg->debug) {
-    std::cout << "GammaComboEngine::addPdf() : INFO  : Adding pdf " << id << " = " << title << std::endl;
-  }
-  if (pdf == 0) {
-    std::cout << "GammaComboEngine::addPdf() : ERROR : Trying to add zero pointer as the PDF. Exit." << std::endl;
-    std::exit(1);
-  }
-  // check if requested id exists already
-  if (pdfExists(id)) {
-    std::cout << "GammaComboEngine::addPdf() : ERROR : Requested PDF id " << id
-              << " exists already in GammaComboEngine. Exit." << std::endl;
-    std::exit(1);
-  }
-  // check if storage is large enough, enlarge if necessary
-  if (id >= this->pdf.size()) {
-    for (int i = this->pdf.size(); i <= id; i++) this->pdf.push_back(0);
-  }
+  auto info = [](std::string msg) { return Utils::msgBase("GammaComboEngine::addPdf() : INFO : ", msg); };
+  auto error = [](std::string msg) { return Utils::errBase("GammaComboEngine::addPdf() : ERROR : ", msg); };
+
+  if (arg->debug) info(std::format("Adding pdf {:d} = {:s}", id, std::string(title)));
+  if (!pdf) error("Trying to add null pointer as the PDF");
+  if (pdfExists(id)) error(std::format("Requested PDF id {:d} exists already in GammaComboEngine", id));
+
+  // Enlarge storage if necessary and add the pdf
+  if (id >= this->pdf.size()) this->pdf.resize(id + 1, nullptr);
   this->pdf[id] = pdf;
   if (title != "") this->pdf[id]->setTitle(title);
   this->pdf[id]->setGcId(id);
@@ -180,49 +167,44 @@ void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
 ///
 /// Add a pdf with a subset of the observables to the GammaComboEngine
 ///
-void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, std::vector<int>& indices, TString title) {
+void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const std::vector<int>& indices, const TString title) {
+  auto error = [](std::string msg) { return Utils::errBase("addSubsetPdf()", msg); };
   if (indices.size() > pdf->getObservables()->getSize()) {
-    std::cout << "GammaComboEngine::addSubsetPdf() : ERROR - the subset size " << indices.size()
-              << " is bigger than the observables size " << pdf->getObservables()->getSize() << std::endl;
-    std::exit(1);
+    error(std::format("The subset size {:d} is bigger than the observables size {:d}", indices.size(),
+                      pdf->getObservables()->getSize()));
   }
-  for (int i = 0; i < indices.size(); i++) {
-    int index = indices[i];
-    if (index > pdf->getObservables()->getSize() - 1 || index < 0) {
-      std::cout << "GammaComboEngine::addSubsetPdf() : ERROR - one of the subset index values " << index
-                << " is larger than the total number of of observables " << pdf->getObservables()->getSize()
-                << " or it's less than zero" << std::endl;
-      std::exit(1);
-    }
+  for (const auto index : indices) {
+    if (index > pdf->getObservables()->getSize() - 1 || index < 0)
+      error(std::format(
+          "One of the subset index values {:d} is larger than the total number of of observables {:d} or it's less "
+          "than zero",
+          index, pdf->getObservables()->getSize()));
   }
-  RooArgList* obsToRemove = new RooArgList();
-  RooArgList* theoryToRemove = new RooArgList();
 
-  // loop over all observables and remove the ones that aren't in indices
+  // Loop over all observables and remove the ones that aren't in indices
+  RooArgList obsToRemove;
+  RooArgList theoryToRemove;
   for (int i = 0; i < pdf->getObservables()->getSize(); i++) {
-    if (std::find(indices.begin(), indices.end(), i) == indices.end()) {
-      obsToRemove->add(*(pdf->getObservables()->at(i)));
-      theoryToRemove->add(*(pdf->getTheory()->at(i)));
+    if (std::ranges::find(indices, i) == indices.end()) {
+      obsToRemove.add(*(pdf->getObservables()->at(i)));
+      theoryToRemove.add(*(pdf->getTheory()->at(i)));
     }
   }
-  pdf->getObservables()->remove(*obsToRemove);
-  pdf->getTheory()->remove(*theoryToRemove);
-  delete obsToRemove;
-  delete theoryToRemove;
+  pdf->getObservables()->remove(obsToRemove);
+  pdf->getTheory()->remove(theoryToRemove);
 
-  // now sort out parameters
-  RooArgList* paramsToRemove = new RooArgList();
+  // Sort out parameters
+  RooArgList paramsToRemove;
   for (int i = 0; i < pdf->getParameters()->getSize(); i++) {
     bool paramFoundInTheory = false;
     for (int j = 0; j < pdf->getTheory()->getSize(); j++) {
       if (pdf->getTheory()->at(j)->dependsOn(*(pdf->getParameters()->at(i)))) { paramFoundInTheory = true; }
     }
-    if (!paramFoundInTheory) paramsToRemove->add(*(pdf->getParameters()->at(i)));
+    if (!paramFoundInTheory) paramsToRemove.add(*(pdf->getParameters()->at(i)));
   }
-  pdf->getParameters()->remove(*paramsToRemove);
-  delete paramsToRemove;
+  pdf->getParameters()->remove(paramsToRemove);
 
-  // now sort out uncertainties
+  // Sort out uncertainties
   std::vector<double> oldStatErrs = pdf->StatErr;
   std::vector<double> oldSystErrs = pdf->SystErr;
   pdf->StatErr.clear();
@@ -255,82 +237,38 @@ void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, std::vector<int>& indi
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, std::vector<int>{i1}, title);
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  indices.push_back(i2);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, {i1, i2}, title);
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  indices.push_back(i2);
-  indices.push_back(i3);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, {i1, i2, i3}, title);
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  indices.push_back(i2);
-  indices.push_back(i3);
-  indices.push_back(i4);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, {i1, i2, i3, i4}, title);
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  indices.push_back(i2);
-  indices.push_back(i3);
-  indices.push_back(i4);
-  indices.push_back(i5);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, {i1, i2, i3, i4, i5}, title);
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, int i6,
                                     TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  indices.push_back(i2);
-  indices.push_back(i3);
-  indices.push_back(i4);
-  indices.push_back(i5);
-  indices.push_back(i6);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, {i1, i2, i3, i4, i5, i6}, title);
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, int i6, int i7,
                                     TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  indices.push_back(i2);
-  indices.push_back(i3);
-  indices.push_back(i4);
-  indices.push_back(i5);
-  indices.push_back(i6);
-  indices.push_back(i7);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, {i1, i2, i3, i4, i5, i6, i7}, title);
 }
 
 void GammaComboEngine::addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, int i6, int i7,
                                     int i8, TString title) {
-  std::vector<int> indices;
-  indices.push_back(i1);
-  indices.push_back(i2);
-  indices.push_back(i3);
-  indices.push_back(i4);
-  indices.push_back(i5);
-  indices.push_back(i6);
-  indices.push_back(i7);
-  indices.push_back(i8);
-  addSubsetPdf(id, pdf, indices, title);
+  addSubsetPdf(id, pdf, {i1, i2, i3, i4, i5, i6, i7, i8}, title);
 }
 
 ///
@@ -370,24 +308,16 @@ void GammaComboEngine::addCombiner(int id, Combiner* cmb) {
 /// using, e.g., getCombiner(newId)->addPdf(...)
 ///
 void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString title) {
-  if (runOnDataSet) {
-    std::cout
-        << "GammaComboEngine::cloneCombiner() : ERROR : You're trying to clone a combiner but the runOnDataSet flag "
-           "is true. You can't have combiners when using the dataset option."
-        << std::endl;
-    std::exit(1);
-  }
+  auto error = [](std::string msg) { return Utils::errBase("GammaComboEngine::cloneCombiner() : ERROR : ", msg); };
 
-  if (combinerExists(newId)) {
-    std::cout << "GammaComboEngine::cloneCombiner() : ERROR : Requested new Combiner id " << newId
-              << " exists already in GammaComboEngine. Exit." << std::endl;
-    std::exit(1);
-  }
-  if (!combinerExists(oldId)) {
-    std::cout << "GammaComboEngine::cloneCombiner() : ERROR : Requested old Combiner id " << oldId
-              << " doesn't exists in GammaComboEngine. Exit." << std::endl;
-    std::exit(1);
-  }
+  if (runOnDataSet)
+    error("You're trying to clone a combiner but the runOnDataSet flag is true.\n"
+          "You can't have combiners when using the dataset option.");
+  if (combinerExists(newId))
+    error(std::format("Requested new Combiner id {:d} exists already in GammaComboEngine", newId));
+  if (!combinerExists(oldId))
+    error(std::format("Requested old Combiner id {:d} doesn't exist in GammaComboEngine", oldId));
+
   addCombiner(newId, getCombiner(oldId)->Clone(name, title));
 }
 
@@ -395,7 +325,7 @@ void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString
 /// Get a combiner.
 /// \param id - combiner ID, set when defining the combiner using addCombiner(), cloneCombiner(), or newCombiner()
 ///
-Combiner* GammaComboEngine::getCombiner(int id) const {
+Combiner* GammaComboEngine::getCombiner(int id) {
   if (!combinerExists(id)) {
     std::cout << "GammaComboEngine::getCombiner() : ERROR : Requested Combiner id " << id
               << " doesn't exist in GammaComboEngine. Exit." << std::endl;
@@ -426,38 +356,17 @@ PDF_Abs* GammaComboEngine::operator[](int idx) { return getPdf(idx); }
 // }
 
 ///
-/// Add a new Combiner, consisting of the specified PDFs.
-/// The pdf arguments refer to the GammaComboEngine ID of the PDFs
-/// that should be combined. Add them before using addPdf().
-/// Also an empty combiner is possible, that has no PDFs, so it can be filled
-/// later. In that case, leave all pdf arguments at -1.
+/// Add a new Combiner, consisting of the PDFs specified by the vector of their GammaComboEngine IDs.
 ///
-void GammaComboEngine::newCombiner(int id, TString name, TString title, int pdf1, int pdf2, int pdf3, int pdf4,
-                                   int pdf5, int pdf6, int pdf7, int pdf8, int pdf9, int pdf10, int pdf11, int pdf12,
-                                   int pdf13, int pdf14, int pdf15) {
-  if (combinerExists(id)) {
-    std::cout
-        << "GammaComboEngine::newCombiner() : ERROR : Requested new Combiner id exists already in GammaComboEngine. "
-           "Exit."
-        << std::endl;
-    std::exit(1);
-  }
-  Combiner* c = new Combiner(arg, name, title);
-  if (pdf1 > -1) c->addPdf(getPdf(pdf1));
-  if (pdf2 > -1) c->addPdf(getPdf(pdf2));
-  if (pdf3 > -1) c->addPdf(getPdf(pdf3));
-  if (pdf4 > -1) c->addPdf(getPdf(pdf4));
-  if (pdf5 > -1) c->addPdf(getPdf(pdf5));
-  if (pdf6 > -1) c->addPdf(getPdf(pdf6));
-  if (pdf7 > -1) c->addPdf(getPdf(pdf7));
-  if (pdf8 > -1) c->addPdf(getPdf(pdf8));
-  if (pdf9 > -1) c->addPdf(getPdf(pdf9));
-  if (pdf10 > -1) c->addPdf(getPdf(pdf10));
-  if (pdf11 > -1) c->addPdf(getPdf(pdf11));
-  if (pdf12 > -1) c->addPdf(getPdf(pdf12));
-  if (pdf13 > -1) c->addPdf(getPdf(pdf13));
-  if (pdf14 > -1) c->addPdf(getPdf(pdf14));
-  if (pdf15 > -1) c->addPdf(getPdf(pdf15));
+/// The PDFs must be added to GammaComboEngine before calling this function.
+/// An empty combiner is possible, too, so that it can be filled later.
+///
+void GammaComboEngine::newCombiner(const int id, const TString name, const TString title,
+                                   const std::vector<int>& pdfs) {
+  auto error = [](std::string msg) { return Utils::errBase("GammaComboEngine::newCombiner() : ERROR : ", msg); };
+  if (combinerExists(id)) error(std::format("Requested new Combiner id {:d} exists already in GammaComboEngine", id));
+  auto c = new Combiner(arg, name, title);
+  for (auto pdf : pdfs) { c->addPdf(getPdf(pdf)); }
   addCombiner(id, c);
 }
 
@@ -470,7 +379,7 @@ void GammaComboEngine::scaleDownErrors() {
   for (int i = 0; i < pdf.size(); i++) {
     // these are the PDFs for the full combination:
     // if (! (i==61 || i==58 || i==60 || i==56 || i==54 || i==40 || i==43) ) continue;
-    float scale = 1.;
+    double scale = 1.;
     if (i == 25) scale = sqrt(5. * 50. / 3.);
     if (i == 60) scale = sqrt(50. / 3.);
     // if ( i==23 ) scale = sqrt(50.);
@@ -731,7 +640,7 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId) {
 ///
 /// print usage and exit
 ///
-void GammaComboEngine::usage() {
+void GammaComboEngine::usage() const {
   if (runOnDataSet) {
     std::cout << "USAGE\n\n"
                  "  # Compute limit on parameter a:\n"
@@ -783,7 +692,7 @@ void GammaComboEngine::usage() {
 ///
 /// Print the available PDFs.
 ///
-void GammaComboEngine::printPdfs() {
+void GammaComboEngine::printPdfs() const {
   std::cout << "AVAILABLE MEASUREMENTS" << std::endl;
   std::cout << std::endl;
   for (int i = 0; i < pdf.size(); i++) {
@@ -801,7 +710,7 @@ void GammaComboEngine::printPdfs() {
 ///
 /// Print the availabe Combinations.
 ///
-void GammaComboEngine::printCombinations() {
+void GammaComboEngine::printCombinations() const {
   std::cout << "AVAILABLE COMBINATIONS" << std::endl;
   std::cout << std::endl;
   for (int i = 0; i < cmb.size(); i++) {
@@ -819,7 +728,7 @@ void GammaComboEngine::printCombinations() {
 ///
 /// Print the content of this engine.
 ///
-void GammaComboEngine::print() {
+void GammaComboEngine::print() const {
   printPdfs();
   printCombinations();
 }
@@ -827,28 +736,26 @@ void GammaComboEngine::print() {
 ///
 /// Check the combination argument (-c), exit if it is bad.
 ///
-void GammaComboEngine::checkCombinationArg() {
-  if (runOnDataSet && arg->combid.size() > 0) {
-    std::cout << "When running on a dataset do not pass a combination argument (it makes no sense for this use case)"
-              << std::endl;
-    std::exit(1);
-  }
-  if (arg->combid.size() == 0 && !runOnDataSet) {
-    std::cout << "Please chose a combination ID (-c).\n" << std::endl;
+void GammaComboEngine::checkCombinationArg() const {
+  auto error = [](std::string msg, bool exit = true) {
+    return Utils::errBase("GammaComboEngine::checkCombinationArg() : ERROR : ", msg, exit);
+  };
+
+  if (runOnDataSet && !arg->combid.empty())
+    error("When running on a dataset do not pass a combination argument (it makes no sense for this use case)");
+  if (arg->combid.empty() && !runOnDataSet) {
+    error("Please chose a combination ID (-c).\n", false);
     printCombinations();
     std::exit(1);
   }
   for (int i = 0; i < arg->combid.size(); i++) {
-    if (arg->combid[i] >= cmb.size()) {
-      std::cout << "Please chose a combination ID (-c) less than " << cmb.size()
-                << ".\nUse the -u option to print a list of available combinations." << std::endl;
-      std::exit(1);
-    }
-    if (cmb[arg->combid[i]] == 0) {
-      std::cout << "You selected an empty combination.\n"
-                << "Use the -u option to print a list of available combinations." << std::endl;
-      std::exit(1);
-    }
+    if (arg->combid[i] >= cmb.size())
+      error(std::format("Please chose a combination ID (-c) less than {:d}.\n"
+                        "Use the -u option to print a list of available combinations.",
+                        cmb.size()));
+    if (!cmb[arg->combid[i]])
+      error("You selected an empty combination.\n"
+            "Use the -u option to print a list of available combinations.");
   }
 }
 
@@ -857,7 +764,7 @@ void GammaComboEngine::checkCombinationArg() {
 /// with the ID 0, it won't do anything. Print a warning in that
 /// case.
 ///
-void GammaComboEngine::checkAsimovArg() {
+void GammaComboEngine::checkAsimovArg() const {
   if (arg->asimov.size() == 1 && arg->asimov[0] == 0) {
     std::cout << "WARNING : --asimov 0 found, this won't do anything." << std::endl;
     std::cout << "          To run an Asimov toy, the generation point ID" << std::endl;
@@ -872,27 +779,25 @@ void GammaComboEngine::checkAsimovArg() {
 /// GammaComboEngine::defineColors(). Colors for two-dimensional pltos are
 /// defined in OneMinusClPlot2d::OneMinusClPlot2d().
 ///
-void GammaComboEngine::checkColorArg() {
+void GammaComboEngine::checkColorArg() const {
+  auto error = [](std::string msg) { return Utils::errBase("GammaComboEngine::checkColorArg() : ERROR : ", msg); };
+
   for (int i = 0; i < arg->color.size(); i++) {
     // colors for one-dimensional plots
     if (arg->var.size() == 1) {
-      if (colorsLine.size() <= arg->color[i]) {
-        std::cout
-            << "Argument error --color: No such color for one-dimensional plots. Please choose a color between 0 and "
-            << colorsLine.size() - 1 << std::endl;
-        std::exit(1);
-      }
+      if (colorsLine.size() <= arg->color[i])
+        error(std::format("Argument error --color: No such color for one-dimensional plots.\n"
+                          "Please choose a color between 0 and {:d}",
+                          colorsLine.size() - 1));
     }
     // colors for two-dimensional plots
     else if (arg->var.size() == 2) {
       OneMinusClPlot2d p(arg);
       int nMaxColors = p.getNumberOfDefinedColors();
-      if (nMaxColors <= arg->color[i]) {
-        std::cout
-            << "Argument error --color: No such color for two-dimensional plots. Please choose a color between 0 and "
-            << nMaxColors - 1 << std::endl;
-        std::exit(1);
-      }
+      if (nMaxColors <= arg->color[i])
+        error(std::format("Argument error --color: No such color for two-dimensional plots.\n"
+                          "Please choose a color between 0 and {:d}",
+                          nMaxColors - 1));
     }
   }
 }
@@ -962,7 +867,7 @@ void GammaComboEngine::makeAddDelCombinations() {
 /// print parameter structure of the combinations into
 /// .dot file
 ///
-void GammaComboEngine::printCombinerStructure(Combiner* c) {
+void GammaComboEngine::printCombinerStructure(Combiner* c) const {
   Graphviz gviz(arg);
   gviz.printCombiner(c);
   gviz.printCombinerLayer(c);
@@ -1051,12 +956,7 @@ void GammaComboEngine::defineColors() {
   //   nature of data:         qualitative
   //   second colour scheme
 
-  ColorBuilder cb;
-
-  for (int i = 4; i < colorsLine.size(); i++) {
-    // colorsText.push_back(cb.darklightcolor(colorsLine[i], 0.5));
-    colorsText.push_back(colorsLine[i]);
-  }
+  for (int i = 4; i < colorsLine.size(); i++) { colorsText.push_back(colorsLine[i]); }
   //}
 
   // default for any additional scanner
@@ -1672,7 +1572,7 @@ void GammaComboEngine::setupToyVariationSets(Combiner* c, int cId) {
 /// configured (-l) argument. If so, it is returned, else the default
 /// name is returned.
 ///
-TString GammaComboEngine::getStartParFileName(int cId) {
+TString GammaComboEngine::getStartParFileName(int cId) const {
   if (arg->loadParamsFile.size() <= cId) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
   if (arg->loadParamsFile[cId].EqualTo("default")) return m_fnamebuilder->getFileNameStartPar(cmb[cId]);
   return arg->loadParamsFile[cId];
@@ -1687,7 +1587,7 @@ TString GammaComboEngine::getStartParFileName(int cId) {
 /// \param scanVar  - the scan variable name
 /// \return true if included, else false
 ///
-bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) {
+bool GammaComboEngine::isScanVarObservable(Combiner* c, TString scanVar) const {
   std::vector<std::string> obs = c->getObservableNames();
   for (int i = 0; i < obs.size(); i++) {
     if (scanVar.Contains(obs[i])) return true;
@@ -1710,7 +1610,7 @@ void GammaComboEngine::tightenChi2Constraint(Combiner* c, TString scanVar) {
               << scanVar << "'. Exit." << std::endl;
     std::exit(1);
   }
-  float scale = 0.1;
+  double scale = 0.1;
   std::cout << "... observable error is multiplied by a factor " << scale << std::endl;
   pdf->ScaleError(scanVar, scale);
   pdf->buildCov();
@@ -2390,7 +2290,7 @@ void GammaComboEngine::runApplication() {
 ///
 /// print the initial banner
 ///
-void GammaComboEngine::printBanner() {
+void GammaComboEngine::printBanner() const {
   std::cout << std::endl
             << "\033[1mGammaCombo " << GAMMACOMBO_VERSION << " \033[0m"
             << "-- All rights reserved under GPLv3, http://www.gnu.org/licenses/gpl.txt" << std::endl

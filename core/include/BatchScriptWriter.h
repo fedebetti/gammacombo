@@ -20,12 +20,11 @@ class PDF_Abs;
 class BatchScriptWriter {
  public:
   BatchScriptWriter(int argc, char* argv[]);
-  ~BatchScriptWriter();
 
-  void writeScripts(OptParser* arg, std::vector<Combiner*>* cmb);
-  void writeScripts_datasets(OptParser* arg, PDF_Abs* pdf);
-  void writeScript(TString fname, TString outfloc, int jobn, OptParser* arg);
-  void writeCondorScript(TString fname, OptParser* arg);
+  void writeScripts(const OptParser* arg, std::vector<Combiner*>* cmb);
+  void writeScripts_datasets(const OptParser* arg, PDF_Abs* pdf);
+  void writeScript(TString fname, TString outfloc, int jobn, const OptParser* arg);
+  void writeCondorScript(TString fname, const OptParser* arg);
   std::string exec;
   std::string subpkg;
 };

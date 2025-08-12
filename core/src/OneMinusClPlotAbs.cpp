@@ -16,12 +16,7 @@
 
 #include <iostream>
 
-OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title) {
-  font = 133;
-  labelsize = 35;   ///< axis labels, numeric solutions, CL guide lines
-  titlesize = 45;   ///< axis titles, group label, "Preliminary" is x0.75
-  legendsize = 29;  ///< legends in 1d and 2d plots
-
+OneMinusClPlotAbs::OneMinusClPlotAbs(const OptParser* arg, TString name, TString title) {
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
   gStyle->SetPadTopMargin(0.05);
@@ -34,16 +29,10 @@ OneMinusClPlotAbs::OneMinusClPlotAbs(OptParser* arg, TString name, TString title
   this->arg = arg;
   this->name = name;
   this->title = title;
-  m_mainCanvas = 0;
-
-  plotLegend = true;
-  plotSolution = true;
-  plotLogYMin = 1.e-3;
-  plotLogYMax = 1;
 }
 
 OneMinusClPlotAbs::~OneMinusClPlotAbs() {
-  if (m_mainCanvas != 0) delete m_mainCanvas;
+  if (m_mainCanvas) delete m_mainCanvas;
 }
 
 ///
@@ -82,11 +71,11 @@ void OneMinusClPlotAbs::save() {
 /// The command line arguments --prelim and --unoff add "Preliminary"
 /// and "Unofficial" strings, respectively.
 ///
-void OneMinusClPlotAbs::drawGroup(float yPos) {
+void OneMinusClPlotAbs::drawGroup(double yPos) {
   if (arg->group == TString("off")) return;
   m_mainCanvas->cd();
-  float xPos = 0.65;
-  float xLow, yLow;
+  double xPos = 0.65;
+  double xLow, yLow;
   if (arg->plotgroupx == -1)
     xLow = xPos;
   else
@@ -115,7 +104,7 @@ void OneMinusClPlotAbs::drawGroup(float yPos) {
     t2->Draw();
   }
   if (arg->plotdate != "") {
-    float yExt = 0.;
+    double yExt = 0.;
     if (arg->plotprelim || arg->plotunoff) yExt += 0.035;
     TPaveText* t3 = new TPaveText(xLow, yLow - yExt - 0.025, xLow + 0.225, yLow - yExt, "BRNDC");
     t3->SetBorderSize(0);

@@ -21,6 +21,7 @@
 #include <TCanvas.h>
 #include <TColor.h>
 #include <TError.h>
+#include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphSmooth.h>
 #include <TH1.h>
@@ -28,7 +29,9 @@
 #include <TH2F.h>
 #include <TMath.h>
 #include <TMatrixDSymEigen.h>
+#include <TObjArray.h>
 #include <TPaveText.h>
+#include <TROOT.h>
 #include <TTree.h>
 #include <TVectorD.h>
 
@@ -160,10 +163,10 @@ double Utils::bringBackAngle(double angle) {
 /// \return difference
 ///
 double Utils::angularDifference(double angle1, double angle2) {
-  float angleSmaller = std::max(bringBackAngle(angle1), bringBackAngle(angle2));
-  float angleLarger = std::min(bringBackAngle(angle1), bringBackAngle(angle2));
-  float diff1 = angleLarger - angleSmaller;
-  float diff2 = (2. * TMath::Pi() - angleLarger) + angleSmaller;
+  const auto angleSmaller = std::max(bringBackAngle(angle1), bringBackAngle(angle2));
+  const auto angleLarger = std::min(bringBackAngle(angle1), bringBackAngle(angle2));
+  const auto diff1 = angleLarger - angleSmaller;
+  const auto diff2 = (2. * TMath::Pi() - angleLarger) + angleSmaller;
   return std::min(diff1, diff2);
 }
 
@@ -267,8 +270,8 @@ RooFitResult* Utils::fitToMinForce(RooWorkspace* w, TString name, TString forceV
 
     for (int ip = 0; ip < nPars; ip++) {
       RooRealVar* p = (RooRealVar*)varyPars->at(ip);
-      float oldMin = p->getMin();
-      float oldMax = p->getMax();
+      const auto oldMin = p->getMin();
+      const auto oldMax = p->getMax();
       setLimit(w, p->GetName(), "force");
       if (i / (int)pow(2., ip) % 2 == 0) { p->setVal(p->getMin()); }
       if (i / (int)pow(2., ip) % 2 == 1) { p->setVal(p->getMax()); }
@@ -350,16 +353,16 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     //   std::cout << "step 1" << std::endl;
     //   r1->Print("v");
     //   gStyle->SetPalette(1);
-    //   float xmin = 0.;
-    //   float xmax = 3.14;
-    //   float ymin = 0.;
-    //   float ymax = 0.2;
+    //   double xmin = 0.;
+    //   double xmax = 3.14;
+    //   double ymin = 0.;
+    //   double ymax = 0.2;
     //   TH2F* histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
     //   for ( int ix=0; ix<100; ix++ )
     //   for ( int iy=0; iy<100; iy++ )
     //   {
-    //     float x = xmin + (xmax-xmin)*(double)ix/(double)100;
-    //     float y = ymin + (ymax-ymin)*(double)iy/(double)100;
+    //     double x = xmin + (xmax-xmin)*(double)ix/(double)100;
+    //     double y = ymin + (ymax-ymin)*(double)iy/(double)100;
     //     w->var("d_dk")->setVal(x);
     //     w->var("r_dk")->setVal(y);
     //     histo->SetBinContent(ix+1,iy+1,ll.getVal());
@@ -399,16 +402,16 @@ RooFitResult* Utils::fitToMinImprove(RooWorkspace* w, TString name) {
     //   r2->Print("v");
     //
     //   gStyle->SetPalette(1);
-    //   float xmin = 0.;
-    //   float xmax = 3.14;
-    //   float ymin = 0.;
-    //   float ymax = 0.2;
+    //   double xmin = 0.;
+    //   double xmax = 3.14;
+    //   double ymin = 0.;
+    //   double ymax = 0.2;
     //   TH2F* histo = new TH2F("histo", "histo", 100, xmin, xmax, 100, ymin, ymax);
     //   for ( int ix=0; ix<100; ix++ )
     //   for ( int iy=0; iy<100; iy++ )
     //   {
-    //     float x = xmin + (xmax-xmin)*(double)ix/(double)100;
-    //     float y = ymin + (ymax-ymin)*(double)iy/(double)100;
+    //     double x = xmin + (xmax-xmin)*(double)ix/(double)100;
+    //     double y = ymin + (ymax-ymin)*(double)iy/(double)100;
     //     wImprove->var("d_dk")->setVal(x);
     //     wImprove->var("r_dk")->setVal(y);
     //     histo->SetBinContent(ix+1,iy+1,ll.getVal());
@@ -832,7 +835,7 @@ bool Utils::buildCorMatrix(TMatrixDSym& cor) {
 /// Build a covariance matrix
 /// from a correlation matrix and error vectors.
 ///
-TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, float* err) {
+TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, double* err) {
   int n = cor.GetNcols();
   TMatrixDSym cov(n);
   for (int i = 0; i < n; i++)
@@ -965,7 +968,7 @@ void Utils::savePlot(TCanvas* c1, TString name) {
 /// Round a number to a certain number of
 /// decimal points.
 ///
-float Utils::Round(double value, int digits) { return TString(Form("%.*f", digits, value)).Atof(); }
+double Utils::Round(double value, int digits) { return TString(Form("%.*f", digits, value)).Atof(); }
 
 ///
 /// Compute number of digits needed behind the decimal
@@ -1063,6 +1066,44 @@ TGraph* Utils::smoothHist(TH1* h, int option) {
   return smoothGraph(g);
 }
 
+/**
+ * Adds a point to a TGraph at the first position where the x value is larger than the new x value.
+ *
+ * If no such position is found, the point is added at the end. Creator takes ownership of the TGraph.
+ */
+TGraph* Utils::addPointToGraphAtFirstMatchingX(const TGraph* g, const double xNew, const double yNew) {
+  std::vector<double> xVec;
+  std::vector<double> yVec;
+  for (int i = 0; i < g->GetN(); ++i) {
+    double xOld, yOld;
+    g->GetPoint(i, xOld, yOld);
+    xVec.push_back(xOld);
+    yVec.push_back(yOld);
+  }
+
+  const auto it = std::ranges::find_if(xVec, [xNew](auto x) { return x >= xNew; });
+  const auto iPos = it - xVec.begin();
+  xVec.insert(xVec.begin() + iPos, xNew);
+  yVec.insert(yVec.begin() + iPos, yNew);
+
+  // create a new graph of the right kind
+  const bool isTGraphErrors = TString(g->ClassName()).EqualTo("TGraphErrors");
+  TGraph* gNew;
+  if (isTGraphErrors)
+    gNew = new TGraphErrors(g->GetN() + 1);
+  else
+    gNew = new TGraph(g->GetN() + 1);
+  gNew->SetName(getUniqueRootName());
+  for (int i = 0; i < xVec.size(); ++i) { gNew->SetPoint(i, xVec[i], yVec[i]); }
+  if (isTGraphErrors) {
+    for (int i = 0; i < xVec.size(); ++i) {
+      double yErr = (i == iPos) ? 0. : g->GetErrorY(i - (i < iPos ? 0 : 1));
+      static_cast<TGraphErrors*>(gNew)->SetPointError(i, 0., yErr);
+    }
+  }
+  return gNew;
+}
+
 ///
 /// Creates a fresh, independent copy of the input histogram.
 /// We cannot use Root's Clone() or the like, because that
@@ -1127,17 +1168,59 @@ bool Utils::isPosDef(TMatrixDSym* c) {
 ///
 bool Utils::isAngle(RooRealVar* v) { return v->getUnit() == TString("Rad") || v->getUnit() == TString("rad"); }
 
-int Utils::makeNewColor(std::string hex) {
-  int ci = TColor::GetFreeColorIndex();
-  int ri, gi, bi;
-  sscanf(hex.c_str(), "#%02x%02x%02x", &ri, &gi, &bi);
-  float r = float(ri) / 255.;
-  float g = float(gi) / 255.;
-  float b = float(bi) / 255.;
-  TColor* col = new TColor(ci, r, g, b);
-  std::cout << ci << " " << hex << " " << r << " " << g << " " << b << std::endl;
-  return col->GetNumber();
-}
+namespace Utils::TColorNS {
+
+  // TODO The first three functions are only used in OneMinusClPlot2d.cpp, move them there to reduce clutter?
+
+  /// Make a given TColor darker.
+  int darkcolor(int n) { return darklightcolor(n, 0.95); }
+
+  /// Make a given TColor lighter.
+  int lightcolor(int n) { return darklightcolor(n, 1.04); }
+
+  /// Copied from TColor::GetColorDark(Int_t n), but customized the darkness.
+  int darklightcolor(int n, float scale) {
+    if (n < 0) return -1;
+
+    // Get list of all defined colors
+    auto colors = (TObjArray*)gROOT->GetListOfColors();
+    Int_t ncolors = colors->GetSize();
+    // Get existing color at index n
+    TColor* color = nullptr;
+    if (n < ncolors) color = (TColor*)colors->At(n);
+    if (!color) return -1;
+
+    // Get the rgb of the the new dark color corresponding to color n
+    Float_t r, g, b;
+    TColor::HLStoRGB(color->GetHue(), scale * color->GetLight(), color->GetSaturation(), r, g, b);
+
+    // Build the dark color (unless the slot nd is already used)
+    Int_t nd = scale < 1. ? n + 100 : n + 150;
+    TColor* colord = nullptr;
+    if (nd < ncolors) colord = (TColor*)colors->At(nd);
+    if (colord) return nd;
+    colord = new TColor(nd, r, g, b);
+    colord->SetName(scale < 1. ? Form("%s_dark", color->GetName()) : Form("%s_light", color->GetName()));
+    colors->AddAtAndExpand(colord, nd);
+    return nd;
+  }
+
+  /// Create a new TColor from a hex identifier string.
+  int makeNewColor(std::string hex) {
+    // TODO This function is not currently used anywhere, remove?
+    const int ci = TColor::GetFreeColorIndex();
+    int ri, gi, bi;
+    std::sscanf(hex.c_str(), "#%02x%02x%02x", &ri, &gi, &bi);
+    float r = ri / 255.f;
+    float g = gi / 255.f;
+    float b = bi / 255.f;
+    TColor* col = new TColor(ci, r, g, b);
+    std::cout << std::format("New TColor created: id = {:d}, hex = {:s}, rgb = ({:.5f}, {:.5f}, {:.5f})", ci, hex, r, g,
+                             b)
+              << std::endl;
+    return col->GetNumber();
+  }
+}  // namespace Utils::TColorNS
 
 ///
 /// function filling a RooArgList with parameters within a Workspace
@@ -1222,8 +1305,8 @@ void Utils::setParametersFloating(RooWorkspace* w, std::vector<TString> names) {
 void Utils::dump_vector(const std::vector<int>& l) {
   for (std::vector<int>::const_iterator it = l.begin(); it != l.end(); it++) { std::cout << *it << std::endl; }
 }
-void Utils::dump_vector(const std::vector<float>& l) {
-  for (std::vector<float>::const_iterator it = l.begin(); it != l.end(); it++) { std::cout << *it << std::endl; }
+void Utils::dump_vector(const std::vector<double>& l) {
+  for (std::vector<double>::const_iterator it = l.begin(); it != l.end(); it++) { std::cout << *it << std::endl; }
 }
 void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {
   for (int ix = 0; ix < l.size(); ix++) {

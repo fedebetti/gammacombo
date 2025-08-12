@@ -18,6 +18,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <format>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -25,32 +26,11 @@
 #include <utility>
 #include <vector>
 
-PDF_Abs::PDF_Abs(int nObs) : covMatrix(nObs), corMatrix(nObs), corStatMatrix(nObs), corSystMatrix(nObs) {
-  this->nObs = nObs;
-  parameters = nullptr;
-  theory = nullptr;
-  observables = nullptr;
-  pdf = nullptr;
-  pdfBkg = nullptr;
-  multipdf = nullptr;
-  isBkgPdfSet = false;
-  isBkgMultipdfSet = false;
-  toyObservables = nullptr;
-  nToyObs = 1000;
-  iToyObs = 0;
-  for (int i = 0; i < nObs; i++) {
-    StatErr.push_back(0.0);
-    SystErr.push_back(0.0);
-  }
-  title = "(no title)";
-  corSource = "n/a";
-  obsValSource = "n/a";
-  obsErrSource = "n/a";
-  uniqueID = "UID0";
+PDF_Abs::PDF_Abs(int nObs) : nObs(nObs), covMatrix(nObs), corMatrix(nObs), corStatMatrix(nObs), corSystMatrix(nObs) {
+  StatErr.resize(nObs, 0.);
+  SystErr.resize(nObs, 0.);
   counter++;
   uniqueGlobalID = counter;
-  m_isCrossCorPdf = false;
-  gcId = -1;
 }
 
 unsigned long long PDF_Abs::counter = 0;
@@ -73,19 +53,23 @@ PDF_Abs::~PDF_Abs() {
   delete observables;
 
   // clean pregenerated toys
-  if (toyObservables != 0) delete toyObservables;
+  if (toyObservables) delete toyObservables;
 
   // clean pdf
-  if (pdf != 0) delete pdf;
+  if (pdf) delete pdf;
 
   // empty trash
   std::map<std::string, TObject*>::iterator iter;
   for (iter = trash.begin(); iter != trash.end(); ++iter) {
     if (iter->second) {
       delete iter->second;
-      iter->second = 0;
+      iter->second = nullptr;
     }
   }
+}
+
+void PDF_Abs::deleteToys() {
+  if (toyObservables) delete toyObservables;
 }
 
 void PDF_Abs::initParameters() { assert(0); };
@@ -146,8 +130,7 @@ void PDF_Abs::setObservablesToy() {
 void PDF_Abs::resetCorrelations() {
   for (int i = 0; i < nObs; i++)
     for (int j = 0; j < nObs; j++) {
-      float c = 0.0;
-      if (i == j) c = 1.0;
+      double c = (i == j) ? 1. : 0.;
       corStatMatrix[i][j] = c;
       corSystMatrix[i][j] = c;
     }
@@ -176,7 +159,7 @@ void PDF_Abs::addToTrash(TObject* o) {
 /// Return the base name, which is the name without any
 /// unique ID.
 ///
-TString PDF_Abs::getBaseName() {
+TString PDF_Abs::getBaseName() const {
   TString baseName = name;
   baseName.ReplaceAll(uniqueID, "");
   return baseName;
@@ -233,7 +216,7 @@ TString PDF_Abs::uniquifyThisString(TString s, int uID) {
 /// Set all parameters to values found in
 /// a provided fit result.
 ///
-void PDF_Abs::loadExtParameters(RooFitResult* r) {
+void PDF_Abs::loadExtParameters(const RooFitResult* r) {
   RooArgSet* tmp = new RooArgSet();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
@@ -442,7 +425,7 @@ void PDF_Abs::print() const {
   std::cout << std::endl;
 }
 
-void PDF_Abs::printParameters() {
+void PDF_Abs::printParameters() const {
   if (parameters) {
     std::cout << "      parameters:  ";
     bool first = true;
@@ -456,7 +439,7 @@ void PDF_Abs::printParameters() {
     std::cout << "PDF_Abs::print() : parameters not initialized. Call initParameters() first." << std::endl;
 }
 
-void PDF_Abs::printObservables() {
+void PDF_Abs::printObservables() const {
   if (observables) {
     std::cout << "      observables: ";
     bool first = true;
@@ -505,7 +488,7 @@ void PDF_Abs::setSystCorrelation(TMatrixDSym& corSystMatrix) {
 /// \param obsName - observable name
 /// \param value - central value
 ///
-void PDF_Abs::setObservable(TString obsName, float value) {
+void PDF_Abs::setObservable(TString obsName, double value) {
   RooRealVar* obs = (RooRealVar*)observables->find(obsName);
   if (obs == 0) {
     std::cout << "PDF_Abs::setObservable() : ERROR : observable " + obsName + " not found!" << std::endl;
@@ -524,7 +507,7 @@ void PDF_Abs::setObservable(TString obsName, float value) {
 /// \param stat - statistical error
 /// \param syst - systematic error
 ///
-void PDF_Abs::setUncertainty(TString obsName, float stat, float syst) {
+void PDF_Abs::setUncertainty(TString obsName, double stat, double syst) {
   for (int i = 0; i < nObs; i++) {
     RooRealVar* obs = (RooRealVar*)observables->at(i);
     if (TString(obs->GetName()).EqualTo(obsName)) {
@@ -544,7 +527,7 @@ void PDF_Abs::setUncertainty(TString obsName, float stat, float syst) {
 /// - check if all predicted observables end with '_th'
 /// - check if the 'observables' and 'theory' lists are correctly ordered
 ///
-bool PDF_Abs::checkConsistency() {
+bool PDF_Abs::checkConsistency() const {
   if (m_isCrossCorPdf) return true;
   bool allOk = true;
 
@@ -623,10 +606,9 @@ bool PDF_Abs::test() {
 /// \param obsname  - observable name
 /// \return true if found
 ///
-bool PDF_Abs::hasObservable(TString obsname) {
+bool PDF_Abs::hasObservable(TString obsname) const {
   RooRealVar* obs = (RooRealVar*)observables->find(obsname);
-  if (obs == 0) return false;
-  return true;
+  return obs ? true : false;
 }
 
 ///
@@ -639,12 +621,12 @@ bool PDF_Abs::hasObservable(TString obsname) {
 /// \param scale    - the scale factor the current error is being multiplied with
 /// \return     - true if successful
 ///
-bool PDF_Abs::ScaleError(TString obsname, float scale) {
+bool PDF_Abs::ScaleError(TString obsname, double scale) {
   // remove unique ID if necessary
   TString UID = "UID";
   if (obsname.Contains(UID)) {
-    obsname.Replace(obsname.Index(UID), obsname.Length(),
-                    "");  // delete the unique ID. That should leave just the observable name.
+    // delete the unique ID. That should leave just the observable name.
+    obsname.Replace(obsname.Index(UID), obsname.Length(), "");
   }
   // find the index of the observable - if it exists at all!
   if (!hasObservable(obsname)) {
@@ -678,8 +660,7 @@ bool PDF_Abs::ScaleError(TString obsname, float scale) {
 /// calling uniquify(), it has to include the unique ID string.
 /// \return         - the value
 ///
-float PDF_Abs::getObservableValue(TString obsname) {
-  // check if requested observable exits
+double PDF_Abs::getObservableValue(TString obsname) const {
   if (!hasObservable(obsname)) {
     std::cout << "PDF_Abs::getObservableValue() : ERROR : Requested observable doesn't exist: " << obsname << ". Exit."
               << std::endl;
@@ -696,22 +677,15 @@ float PDF_Abs::getObservableValue(TString obsname) {
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector<int>& indices) {
-  if (indices.size() == 0) {
-    std::cout << "PDF_Abs::getSubMatrix() : vector 'indices' can't be empty" << std::endl;
-    std::exit(1);
-  }
-  if (target.GetNcols() != indices.size()) {
-    std::cout << "PDF_Abs::getSubMatrix() : 'target' matrix doesn't have size of 'indices' vector" << std::endl;
-    std::exit(1);
-  }
+void PDF_Abs::getSubMatrix(TMatrixDSym& target, const TMatrixDSym& source, const std::vector<int>& indices) const {
+  auto error = [](std::string msg) { return Utils::errBase("PDF_Abs::getSubMatrix() : ERROR : ", msg); };
+
+  if (indices.empty()) error("vector 'indices' can't be empty");
+  if (target.GetNcols() != indices.size()) error("'target' matrix doesn't have size of 'indices' vector");
   for (int i = 0; i < indices.size(); i++) {
     // check requested index
-    if (indices[i] < 0 || indices[i] >= source.GetNcols()) {
-      std::cout << "PDF_Abs::getSubMatrix() : ERROR : requested index for submatrix is out of range of parent matrix"
-                << std::endl;
-      std::exit(1);
-    }
+    if (indices[i] < 0 || indices[i] >= source.GetNcols())
+      error(std::format("Requested index {:d} for submatrix is out of range of parent matrix", indices[i]));
     // copy over row and column
     for (int j = 0; j < indices.size(); j++) {
       target[i][j] = source[indices[i]][indices[j]];
@@ -727,7 +701,7 @@ void PDF_Abs::getSubMatrix(TMatrixDSym& target, TMatrixDSym& source, std::vector
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indices) {
+void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, const std::vector<int>& indices) const {
   getSubMatrix(target, corStatMatrix, indices);
 }
 
@@ -738,6 +712,6 @@ void PDF_Abs::getSubCorrelationStat(TMatrixDSym& target, std::vector<int>& indic
 /// \param target - the output matrix
 /// \param indices - vector of the row/column indices that should make up the submatrix
 ///
-void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, std::vector<int>& indices) {
+void PDF_Abs::getSubCorrelationSyst(TMatrixDSym& target, const std::vector<int>& indices) const {
   getSubMatrix(target, corSystMatrix, indices);
 }

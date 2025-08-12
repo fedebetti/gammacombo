@@ -45,22 +45,22 @@ namespace Utils {
   // used to fix parameters in the combination, see e.g. Combiner::fixParameter()
   struct FixPar {
     TString name;
-    float value;
+    double value;
     bool useValue;
   };
 
   // used to set starting values in the combination, see e.g. Combiner::setValue()
   struct StartPar {
     TString name;
-    float value;
+    double value;
     bool useValue;
   };
 
   // used to adjust ranges in the combination, see e.g. Combiner::adjustRange()
   struct RangePar {
     TString name;
-    float min;
-    float max;
+    double min;
+    double max;
   };
 
   // drawing HFAG label
@@ -76,21 +76,31 @@ namespace Utils {
   inline double DegToRad(double deg) { return deg / 180. * TMath::Pi(); }
   inline double Max(double v1, double v2) { return v1 > v2 ? v1 : v2; }
   int calcNsubdigits(double value, int sigdigits = 2);
-  float Round(double value, int digits);
+  double Round(double value, int digits);
   double bringBackAngle(double angle);
   double angularDifference(double angle1, double angle2);
   bool isPosDef(TMatrixDSym* c);
   bool isAngle(RooRealVar* v);
-  int makeNewColor(std::string hex);
 
+  // TColor makers
+  namespace TColorNS {
+    int darkcolor(int n);
+    int darklightcolor(int n, float scale);
+    int lightcolor(int n);
+    int makeNewColor(std::string hex);
+  }  // namespace TColorNS
+
+  // Fit functions
   RooFitResult* fitToMin(RooAbsPdf* pdf, bool thorough, int printLevel);
   RooFitResult* fitToMinBringBackAngles(RooAbsPdf* pdf, bool thorough, int printLevel);
   RooFitResult* fitToMinForce(RooWorkspace* w, TString name, TString forceVariables = "", bool debug = true);
   RooFitResult* fitToMinImprove(RooWorkspace* w, TString name);
   double getChi2(RooAbsPdf* pdf);
+
+  // Functions to manage histograms, graphs, and datasets
+  TGraph* addPointToGraphAtFirstMatchingX(const TGraph* g, double xNew, double yNew);
   TH1F* histHardCopy(const TH1F* h, bool copyContent = true, bool uniqueName = true, TString specName = "");
   TH2F* histHardCopy(const TH2F* h, bool copyContent = true, bool uniqueName = true, TString specName = "");
-
   TTree* convertRooDatasetToTTree(RooDataSet* d);
   TGraph* convertTH1ToTGraph(TH1* h, bool withErrors = false);
   TGraph* smoothGraph(TGraph* g, int option = 0);
@@ -121,10 +131,11 @@ namespace Utils {
   void setLimit(const RooAbsCollection* set, TString limitname);
   double getCorrelationFactor(const std::vector<double>& a, const std::vector<double>& b);
 
+  // Utility functions for combiners implementations
   template <typename T>
   TMatrixDSym buildCorMatrix(const int n, std::vector<T> data);
   bool buildCorMatrix(TMatrixDSym& cor);
-  TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, float* err);
+  TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, double* err);
   TMatrixDSym* buildCovMatrix(TMatrixDSym& cor, std::vector<double>& err);
 
   RooFormulaVar* makeTheoryVar(TString name, TString title, TString formula, RooArgList* pars);
@@ -171,7 +182,7 @@ namespace Utils {
   static inline double normal_cdf(double x);
 
   void dump_vector(const std::vector<int>& l);
-  void dump_vector(const std::vector<float>& l);
+  void dump_vector(const std::vector<double>& l);
   void dump_map(const std::map<int, std::vector<int>>& map);
   void dump_matrix(const std::vector<std::vector<int>>& l);
 

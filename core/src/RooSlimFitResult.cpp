@@ -37,11 +37,11 @@ RooSlimFitResult::~RooSlimFitResult() {}
 RooSlimFitResult* RooSlimFitResult::Clone() { return new RooSlimFitResult(this); }
 
 ///
-/// Return a RooArgList of RooRealVars that constitute the
-/// constant fit parameters. Ownership belongs to this class,
-/// this is what we need the dummy variable for.
+/// Return a RooArgList of RooRealVars that constitute the constant fit parameters.
 ///
-RooArgList& RooSlimFitResult::constPars() const {
+/// Ownership of the RooArgList belongs to this class.
+///
+const RooArgList& RooSlimFitResult::constPars() const {
   // return if filled already - else it's a performance nightmare when this gets called in a loop
   if (_constParsDummy.getSize() > 0) return _constParsDummy;
   // create a RooArgList out of the content in the map
@@ -59,12 +59,13 @@ RooArgList& RooSlimFitResult::constPars() const {
 }
 
 ///
-/// Return a RooArgList of RooRealVars that constitute the
-/// floating fit parameters. Ownership belongs to this class.
+/// Return a RooArgList of RooRealVars that constitute the floating fit parameters.
 ///
-RooArgList& RooSlimFitResult::floatParsFinal() const {
+/// Ownership of the RooArgList belongs to this class.
+///
+const RooArgList& RooSlimFitResult::floatParsFinal() const {
   // return if filled already - else it's a performance nightmare when this gets called in a loop
-  if (_floatParsFinalDummy.getSize() > 0) return _floatParsFinalDummy;
+  if (!_floatParsFinalDummy.empty()) return _floatParsFinalDummy;
   // create a RooArgList out of the content in the map
   _floatParsFinalDummy.removeAll();
   for (int i = 0; i < _parsNames.size(); i++) {

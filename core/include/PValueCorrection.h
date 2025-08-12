@@ -17,29 +17,33 @@ class PValueCorrection {
   PValueCorrection(int id, bool _verbose = false);
   ~PValueCorrection();
 
+  PValueCorrection(PValueCorrection&) = delete;
+  PValueCorrection& operator=(const PValueCorrection&) = delete;
+
   void setTransFunc(TString tf) { transFunc = tf; }
   void setFitParams(std::vector<double> fP) { fitParams = fP; }
   void setFitParam(int i, double val);
+
   void readFiles(TString name, int id = 0, bool isPlugin = false);
   void fitHist(TH1* h);
-  double transform(double x);
+  double transform(double x) const;
 
-  void checkValid();
-  void checkParams();
-  void printCoverage(float, float, float, float, TString name = "");
+  void checkValid() const;
+  void checkParams() const;
+  void printCoverage(double, double, double, double, TString name = "") const;
 
   void write(TString fname);
   void write(TFile* f);
 
  private:
   TString transFunc;
-  bool verbose;
+  bool verbose = false;
   TString fitString;
   TF1 fitFunc;
   std::vector<double> fitParams;
   std::vector<TString> allowedFuncs;
-  TH1F* h_pvalue_before;
-  TH1F* h_pvalue_after;
+  TH1F* h_pvalue_before = nullptr;
+  TH1F* h_pvalue_after = nullptr;
 };
 
 #endif

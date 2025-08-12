@@ -21,25 +21,24 @@ class OptParser;
 ///
 class CLIntervalPrinter {
  public:
-  CLIntervalPrinter(OptParser* arg, TString name, TString var, TString unit, TString method, int CLsType = 0);
-  ~CLIntervalPrinter();
+  CLIntervalPrinter(const OptParser* arg, TString name, TString var, TString unit, TString method, int CLsType = 0);
 
   void print();
   void savePython();
-  inline void setDegrees(bool yesno = true) { _degrees = yesno; };
+  inline void setDegrees(bool yesno = true) { convertToDegrees = yesno; };
   void addIntervals(std::vector<CLInterval>& intervals);
 
  private:
   static bool compareByMin(const CLInterval& a, const CLInterval& b);
 
-  OptParser* _arg;                                  ///< command line arguments
+  const OptParser* _arg = nullptr;                  ///< command line arguments
   TString _name;                                    ///< name of combination
   TString _var;                                     ///< name of scan variable
   TString _unit;                                    ///< unit of scan variable
   TString _method;                                  ///< method name (e.g. Prob)
-  bool _degrees;                                    ///< convert values into degrees
+  bool convertToDegrees = false;                    ///< convert values into degrees
   std::vector<std::vector<CLInterval>> _intervals;  ///< container of intervals
-  int _clstype;                                     ///< Type of CLs intervals, 0 means no CLs method
+  int _clstype = 0;                                 ///< Type of CLs intervals, 0 means no CLs method
 };
 
 #endif

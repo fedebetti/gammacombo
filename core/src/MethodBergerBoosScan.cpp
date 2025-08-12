@@ -43,7 +43,6 @@ MethodBergerBoosScan::MethodBergerBoosScan(MethodProbScan* s, TString d) : Metho
   } else {
     this->dir = d;
   }
-  nBBPoints = 1;
   // std::cout << "open the file" << std::endl;
   TString fName;
   if (this->dir == "XX") {
@@ -70,18 +69,18 @@ TH2F* MethodBergerBoosScan::calcPValues(TH2F better, TH2F all, TH2F bg) {
   TH2F* cl = (TH2F*)better.Clone("cl");
   for (int i = 1; i <= better.GetNbinsX(); i++) {
     for (int j = 1; j <= better.GetNbinsY(); ++j) {
-      float nbetter = better.GetBinContent(i, j);
-      float nall = all.GetBinContent(i, j);
-      float nbackground = bg.GetBinContent(i, j);
+      double nbetter = better.GetBinContent(i, j);
+      double nall = all.GetBinContent(i, j);
+      double nbackground = bg.GetBinContent(i, j);
       if (nall == 0.) continue;
 
       // subtract background
-      // float p = (nbetter-nbackground)/(nall-nbackground);
+      // double p = (nbetter-nbackground)/(nall-nbackground);
       // hCL->SetBinContent(i, p);
       // hCL->SetBinError(i, sqrt(p * (1.-p)/(nall-nbackground)));
 
       // don't subtract background
-      float p = nbetter / nall;
+      double p = nbetter / nall;
       cl->SetBinContent(i, j, p);
       cl->SetBinError(i, j, sqrt(p * (1. - p) / nall));
     }
@@ -167,7 +166,7 @@ void MethodBergerBoosScan::drawBBPoints(TString varX, TString varY, int runMin, 
 void MethodBergerBoosScan::getBestPValue(TH1F* h, TH2F* pValues) {
   for (int i = 1; i <= pValues->GetNbinsX(); i++) {
     for (int j = 1; j <= pValues->GetNbinsY(); ++j) {
-      float pVal = pValues->GetBinContent(i, j);
+      double pVal = pValues->GetBinContent(i, j);
 
       if (j == 1) {
         h->SetBinContent(i, pVal);
@@ -340,8 +339,8 @@ int MethodBergerBoosScan::scan1d(int nRun) {
 
   // Define scan parameter and scan range.
   RooRealVar* par = w->var(scanVar1);
-  float min = hCL->GetXaxis()->GetXmin();
-  float max = hCL->GetXaxis()->GetXmax();
+  const double min = hCL->GetXaxis()->GetXmin();
+  const double max = hCL->GetXaxis()->GetXmax();
 
   if (arg->verbose) {
     std::cout << "Berger-Boos configuration:" << std::endl;
@@ -370,13 +369,13 @@ int MethodBergerBoosScan::scan1d(int nRun) {
 
   // for the progress bar: if more than 100 steps, show 50 status messages.
   int allSteps = nPoints1d * nToys * nBBPoints;
-  float printFreq = allSteps > 51 ? 50 : allSteps;
+  float printFreq = allSteps > 51 ? 50.f : allSteps;
   int curStep = 0;
   int StepCounter = 0;
   // start scan
   std::cout << "MethodBergerBoosScan::scan1d() : starting ..." << std::endl;
   for (int i = 0; i < nPoints1d; i++) {
-    float scanpoint = min + (max - min) * (double)i / (double)nPoints1d + hCL->GetBinWidth(1) / 2.;
+    double scanpoint = min + (max - min) * (double)i / nPoints1d + hCL->GetBinWidth(1) / 2.;
     t.scanpoint = scanpoint;
 
     // Tell tree how many BergerBoos points were sampled
@@ -487,7 +486,7 @@ void MethodBergerBoosScan::setNewBergerBoosPoint(int m) {
   for (const auto& parAbs : *w->set(parsName)) {
     const auto par = static_cast<RooRealVar*>(parAbs);
     // Set new parameter values by reading the BBTree
-    float VAL = -666;
+    float VAL = -666.f;
     BBtree->GetBranch(par->GetName())->GetEntry(m - 1);
     VAL = BBtree->GetLeaf(par->GetName())->GetValue();
     par->setVal(VAL);

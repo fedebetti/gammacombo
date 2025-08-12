@@ -2,6 +2,7 @@
 
 #include <Contour.h>
 #include <OptParser.h>
+#include <Utils.h>
 
 #include <TCanvas.h>
 #include <TGraph.h>
@@ -15,103 +16,91 @@
 #include <iostream>
 #include <vector>
 
-ConfidenceContours::ConfidenceContours(OptParser* arg) {
+namespace {
+  /**
+   * Transform the chi2 valley into a hill to help ROOTs contour mechanism. Caller assumes ownership.
+   *
+   *  @param hist   The 2D histogram
+   *  @param offset A chi2 offset, usually 30 units
+   *
+   *  @return       The transformed 2D histogram
+   */
+  TH2F* transformChi2valleyToHill(const TH2F* hist, const double offset) {
+    const auto chi2min = hist->GetMinimum();
+    auto newHist = Utils::histHardCopy(hist, false, true);
+    for (int ix = 1; ix <= hist->GetXaxis()->GetNbins(); ix++) {
+      for (int iy = 1; iy <= hist->GetYaxis()->GetNbins(); iy++) {
+        newHist->SetBinContent(ix, iy, -hist->GetBinContent(ix, iy) + offset + chi2min);
+      }
+    }
+    return newHist;
+  }
+
+  /**
+   * Construct a new 2D histogram that contains 2 more bins in each direction that are set to the minimum, so that the
+   * contours will always close.
+   *
+   * @param hist - the 2D histogram
+   * @return new 2D histogram. Caller assumes ownership.
+   */
+  TH2F* addBoundaryBins(TH2F* hist) {
+    double boundary = hist->GetMinimum();
+    auto hBoundaries = new TH2F(Utils::getUniqueRootName(), Utils::getUniqueRootName(), hist->GetNbinsX() + 2,
+                                hist->GetXaxis()->GetXmin() - hist->GetXaxis()->GetBinWidth(1),
+                                hist->GetXaxis()->GetXmax() + hist->GetXaxis()->GetBinWidth(1), hist->GetNbinsY() + 2,
+                                hist->GetYaxis()->GetXmin() - hist->GetYaxis()->GetBinWidth(1),
+                                hist->GetYaxis()->GetXmax() + hist->GetYaxis()->GetBinWidth(1));
+    /*
+    TH2F* hBoundaries =
+        new TH2F(Utils::getUniqueRootName(), Utils::getUniqueRootName(), hist->GetNbinsX() + 4,
+                 hist->GetXaxis()->GetXmin() - 2 * hist->GetXaxis()->GetBinWidth(1),
+                 hist->GetXaxis()->GetXmax() + 2 * hist->GetXaxis()->GetBinWidth(1), hist->GetNbinsY() + 4,
+                 hist->GetYaxis()->GetXmin() - 2 * hist->GetYaxis()->GetBinWidth(1),
+                 hist->GetYaxis()->GetXmax() + 2 * hist->GetYaxis()->GetBinWidth(1));
+    */
+    for (int ix = 1; ix <= hBoundaries->GetXaxis()->GetNbins(); ix++) {
+      for (int iy = 1; iy <= hBoundaries->GetYaxis()->GetNbins(); iy++) {
+        if (ix == 1 || ix == hBoundaries->GetXaxis()->GetNbins() || iy == 1 ||
+            iy == hBoundaries->GetYaxis()->GetNbins())
+          hBoundaries->SetBinContent(ix, iy, boundary);
+        else { hBoundaries->SetBinContent(ix, iy, hist->GetBinContent(ix - 1, iy - 1)); }
+        /*
+        // fill outmost extra bins with the boundary value
+        if (ix == 1 || ix == hBoundaries->GetXaxis()->GetNbins() || iy == 1 ||
+            iy == hBoundaries->GetYaxis()->GetNbins())
+          hBoundaries->SetBinContent(ix, iy, boundary);
+        // fill the outer 4 bins of the inner extra bins with the boundary value
+        else if ((ix == 2 && iy == hBoundaries->GetYaxis()->GetNbins() - 1) ||
+                 (ix == hBoundaries->GetXaxis()->GetNbins() - 1 && iy == hBoundaries->GetYaxis()->GetNbins() - 1) ||
+                 (ix == 2 && iy == 2) || (ix == hBoundaries->GetXaxis()->GetNbins() - 1 && iy == 2)) {
+          hBoundaries->SetBinContent(ix, iy, boundary);
+        }
+        // fill the rest of the inner bins with the adjacent values of the original histogram
+        else if (ix == 2 && (iy >= 3 || iy <= hBoundaries->GetYaxis()->GetNbins() - 2)) {
+          hBoundaries->SetBinContent(ix, iy, hist->GetBinContent(ix - 1, iy - 2));
+        } else if (ix == hBoundaries->GetXaxis()->GetNbins() - 1 &&
+                   (iy >= 3 || iy <= hBoundaries->GetYaxis()->GetNbins() - 2)) {
+          hBoundaries->SetBinContent(ix, iy, hist->GetBinContent(ix - 3, iy - 2));
+        } else if (iy == 2 && (ix >= 3 || ix <= hBoundaries->GetXaxis()->GetNbins() - 2)) {
+          hBoundaries->SetBinContent(ix, iy, hist->GetBinContent(ix - 2, iy - 1));
+        } else if (iy == hBoundaries->GetYaxis()->GetNbins() - 1 &&
+                   (ix >= 3 || ix <= hBoundaries->GetXaxis()->GetNbins() - 2)) {
+          hBoundaries->SetBinContent(ix, iy, hist->GetBinContent(ix - 2, iy - 3));
+        }
+        // copy the inner part from the original histogram
+        else {
+          hBoundaries->SetBinContent(ix, iy, hist->GetBinContent(ix - 2, iy - 2));
+        }
+        */
+      }
+    }
+    return hBoundaries;
+  }
+}  // namespace
+
+ConfidenceContours::ConfidenceContours(const OptParser* arg) {
   assert(arg);
   m_arg = arg;
-  m_transparency = 0.;
-  m_nMaxContours = 9;
-}
-
-ConfidenceContours::~ConfidenceContours() {}
-
-///
-/// Helper function for computeContours():
-/// Constructs a new 2D histogram that contains 2 more bins in each
-/// direction that are set to the minimum, so that the contours will always close.
-///
-/// \param hist - the 2D histogram
-/// \return new 2D histogram. Caller assumes ownership.
-///
-// TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist)
-//{
-// float boundary = hist->GetMinimum();
-// TH2F* hBoundaries = new TH2F(Utils::getUniqueRootName(),Utils::getUniqueRootName(),
-// hist->GetNbinsX()+4,
-// hist->GetXaxis()->GetXmin() - 2*hist->GetXaxis()->GetBinWidth(1),
-// hist->GetXaxis()->GetXmax() + 2*hist->GetXaxis()->GetBinWidth(1),
-// hist->GetNbinsY()+4,
-// hist->GetYaxis()->GetXmin() - 2*hist->GetYaxis()->GetBinWidth(1),
-// hist->GetYaxis()->GetXmax() + 2*hist->GetYaxis()->GetBinWidth(1));
-// for ( int ix=1; ix<=hBoundaries->GetXaxis()->GetNbins(); ix++ ){
-// for ( int iy=1; iy<=hBoundaries->GetYaxis()->GetNbins(); iy++ ){
-//// fill outmost extra bins with the boundary value
-// if ( ix==1 || ix==hBoundaries->GetXaxis()->GetNbins()
-//|| iy==1 || iy==hBoundaries->GetYaxis()->GetNbins() )
-// hBoundaries->SetBinContent(ix,iy,boundary);
-//// fill the outer 4 bins of the inner extra bins with the boundary value
-// else if ( (ix==2                                     && iy==hBoundaries->GetYaxis()->GetNbins()-1)
-//||(ix==hBoundaries->GetXaxis()->GetNbins()-1 && iy==hBoundaries->GetYaxis()->GetNbins()-1)
-//||(ix==2                                     && iy==2)
-//||(ix==hBoundaries->GetXaxis()->GetNbins()-1 && iy==2) ){
-// hBoundaries->SetBinContent(ix,iy,boundary);
-//}
-//// fill the rest of the inner bins with the adjacent values of the original histogram
-// else if ( ix==2 && (iy>=3 || iy<=hBoundaries->GetYaxis()->GetNbins()-2) ){
-// hBoundaries->SetBinContent(ix,iy,hist->GetBinContent(ix-1,iy-2));
-//}
-// else if ( ix==hBoundaries->GetXaxis()->GetNbins()-1 && (iy>=3 || iy<=hBoundaries->GetYaxis()->GetNbins()-2) ){
-// hBoundaries->SetBinContent(ix,iy,hist->GetBinContent(ix-3,iy-2));
-//}
-// else if ( iy==2 && (ix>=3 || ix<=hBoundaries->GetXaxis()->GetNbins()-2) ){
-// hBoundaries->SetBinContent(ix,iy,hist->GetBinContent(ix-2,iy-1));
-//}
-// else if ( iy==hBoundaries->GetYaxis()->GetNbins()-1 && (ix>=3 || ix<=hBoundaries->GetXaxis()->GetNbins()-2) ){
-// hBoundaries->SetBinContent(ix,iy,hist->GetBinContent(ix-2,iy-3));
-//}
-//// copy the inner part from the original histogram
-// else{
-// hBoundaries->SetBinContent(ix,iy,hist->GetBinContent(ix-2,iy-2));
-//}
-//}
-//}
-// return hBoundaries;
-//}
-TH2F* ConfidenceContours::addBoundaryBins(TH2F* hist) {
-  float boundary = hist->GetMinimum();
-  TH2F* hBoundaries = new TH2F(Utils::getUniqueRootName(), Utils::getUniqueRootName(), hist->GetNbinsX() + 2,
-                               hist->GetXaxis()->GetXmin() - hist->GetXaxis()->GetBinWidth(1),
-                               hist->GetXaxis()->GetXmax() + hist->GetXaxis()->GetBinWidth(1), hist->GetNbinsY() + 2,
-                               hist->GetYaxis()->GetXmin() - hist->GetYaxis()->GetBinWidth(1),
-                               hist->GetYaxis()->GetXmax() + hist->GetYaxis()->GetBinWidth(1));
-  for (int ix = 1; ix <= hBoundaries->GetXaxis()->GetNbins(); ix++) {
-    for (int iy = 1; iy <= hBoundaries->GetYaxis()->GetNbins(); iy++) {
-      if (ix == 1 || ix == hBoundaries->GetXaxis()->GetNbins() || iy == 1 || iy == hBoundaries->GetYaxis()->GetNbins())
-        hBoundaries->SetBinContent(ix, iy, boundary);
-      else { hBoundaries->SetBinContent(ix, iy, hist->GetBinContent(ix - 1, iy - 1)); }
-    }
-  }
-  return hBoundaries;
-}
-
-///
-/// Helper function for computeContours():
-/// Transforms the chi2 valley into a hill to help ROOTs contour mechanism
-/// Caller assumes ownership.
-///
-/// \param hist - the 2D histogram
-/// \param offset - a chi2 offset, usually 30 units
-/// \return - the transformed 2D histogram
-///
-TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, float offset) {
-  float chi2min = hist->GetMinimum();
-  // std::cout << "ConfidenceContours::transformChi2valleyToHill() : chi2min=" << chi2min << std::endl;
-  TH2F* newHist = Utils::histHardCopy(hist, false, true);
-  for (int ix = 1; ix <= hist->GetXaxis()->GetNbins(); ix++) {
-    for (int iy = 1; iy <= hist->GetYaxis()->GetNbins(); iy++) {
-      newHist->SetBinContent(ix, iy, -hist->GetBinContent(ix, iy) + offset + chi2min);
-    }
-  }
-  return newHist;
 }
 
 ///
@@ -121,10 +110,10 @@ TH2F* ConfidenceContours::transformChi2valleyToHill(TH2F* hist, float offset) {
 ///
 void ConfidenceContours::addFilledPlotArea(TH2F* hist) {
   // get boundaries
-  float xmin = hist->GetXaxis()->GetXmin();
-  float xmax = hist->GetXaxis()->GetXmax();
-  float ymin = hist->GetYaxis()->GetXmin();
-  float ymax = hist->GetYaxis()->GetXmax();
+  const auto xmin = hist->GetXaxis()->GetXmin();
+  const auto xmax = hist->GetXaxis()->GetXmax();
+  const auto ymin = hist->GetYaxis()->GetXmin();
+  const auto ymax = hist->GetYaxis()->GetXmax();
   // make new graph covering the plotted area
   TGraph* g = new TGraph(m_nMaxContours);
   g->SetPoint(0, xmin, ymin);
@@ -157,7 +146,7 @@ void ConfidenceContours::computeContours(TH2F* hist, Utils::histogramType type, 
   m_contours.clear();
 
   // transform chi2 from valley to hill
-  float offset = 100.;
+  const auto offset = 100.;
   if (type == Utils::kChi2) hist = transformChi2valleyToHill(hist, offset);
 
   // add boundaries
@@ -293,8 +282,9 @@ void ConfidenceContours::DrawDashedLine() {
 ///
 /// Set the contour style.
 ///
-void ConfidenceContours::setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth,
-                                  std::vector<int>& fillcolor, std::vector<int>& fillstyle) {
+void ConfidenceContours::setStyle(const std::vector<int>& linecolor, const std::vector<int>& linestyle,
+                                  const std::vector<int>& linewidth, const std::vector<int>& fillcolor,
+                                  const std::vector<int>& fillstyle) {
   m_linecolor = linecolor;
   m_linestyle = linestyle;
   m_fillcolor = fillcolor;

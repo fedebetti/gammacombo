@@ -14,7 +14,6 @@
 #include <random>
 
 PDF_DatasetTutorial::PDF_DatasetTutorial(RooWorkspace* w) : PDF_Datasets(w) {}
-PDF_DatasetTutorial::~PDF_DatasetTutorial(){};
 
 RooFitResult* PDF_DatasetTutorial::fit(RooDataSet* dataToFit) {
   //\todo: move the following into separate method in the ABS class

@@ -34,8 +34,6 @@ PDF_GausB::PDF_GausB(TString cObs, TString cErr, TString cCor) : PDF_Abs(1) {
   buildPdf();
 }
 
-PDF_GausB::~PDF_GausB() {}
-
 void PDF_GausB::initParameters() {
   ParametersTutorial p;
   parameters = new RooArgList("parameters");

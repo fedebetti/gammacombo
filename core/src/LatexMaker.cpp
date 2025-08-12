@@ -11,12 +11,10 @@
 #include <fstream>
 #include <vector>
 
-LatexMaker::LatexMaker(TString cName, PDF_Abs* _pdf) : pdf(_pdf) {
+LatexMaker::LatexMaker(TString cName, PDF_Abs* _pdf)
+    : pdf(_pdf), outfname{"plots/latex/" + cName + "_" + _pdf->getName()} {
   system("mkdir -p plots/latex");
-  outfname = "plots/latex/" + cName + "_" + pdf->getName();
 }
-
-LatexMaker::~LatexMaker() {}
 
 void LatexMaker::writeFile() {
 

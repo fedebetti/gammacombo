@@ -20,6 +20,10 @@ class MethodBergerBoosScan : public MethodPluginScan {
  public:
   MethodBergerBoosScan(MethodProbScan* s, TString d = "XX");
   ~MethodBergerBoosScan();
+
+  MethodBergerBoosScan(MethodBergerBoosScan&) = delete;
+  MethodBergerBoosScan& operator=(const MethodBergerBoosScan&) = delete;
+
   TH2F* calcPValues(TH2F better, TH2F all, TH2F bg);
   void getBestPValue(TH1F* hCL, TH2F* pValues);
   int getNBergerBoosPointsPerScanpoint() { return nBBPoints; };  ///< Return number of BB points per scan point
@@ -37,12 +41,12 @@ class MethodBergerBoosScan : public MethodPluginScan {
                     bool save = true);  ///< Draws 2D Histogram showing the BB points in varX-varY space
                                         ///< The boolian 'save' specifies if a copy of the plot will
                                         ///< be saved in the plots folder.
-  TFile* file;
-  TTree* BBtree;
+  TFile* file = nullptr;
+  TTree* BBtree = nullptr;
   TString dir;
 
  protected:
-  int nBBPoints;  ///< number of sampled Berger Boos points per scan point
+  int nBBPoints = 1;  ///< number of sampled Berger Boos points per scan point
 };
 
 #endif

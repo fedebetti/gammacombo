@@ -10,6 +10,7 @@
 
 #include "CLInterval.h"
 
+#include <TAttLine.h>
 #include <TRandom3.h>
 #include <TString.h>
 
@@ -34,25 +35,31 @@ class TH2F;
 
 class MethodAbsScan {
  public:
-  MethodAbsScan();
+  MethodAbsScan() = default;
   MethodAbsScan(Combiner* c);
-  MethodAbsScan(OptParser* opt);
-  ~MethodAbsScan();
+  MethodAbsScan(const OptParser* opt);
+
+  virtual ~MethodAbsScan();
 
   virtual void calcCLintervals(int CLsType = 0, bool calc_expected = false, bool quiet = false);
   void confirmSolutions();
   void doInitialFit(bool force = false);
-  inline OptParser* getArg() { return arg; };
+
+  // Getters
+  inline const OptParser* getArg() const { return arg; };
   inline const std::vector<RooSlimFitResult*>& getAllResults() { return allResults; };
+  std::pair<double, double> getBorders(const TGraph& graph, double confidence_level, bool qubic = false) const;
+  std::pair<double, double> getBorders_CLs(const TGraph& graph, double confidence_level, bool qubic = false) const;
   inline const std::vector<RooSlimFitResult*>& getCurveResults() { return curveResults; };
-  inline float getChi2minGlobal() { return chi2minGlobal; }
-  inline float getChi2minBkg() { return chi2minBkg; }
-  float getCL(double val);
+  inline double getChi2minGlobal() const { return chi2minGlobal; }
+  inline double getChi2minBkg() const { return chi2minBkg; }
+  double getCL(double val) const;
   CLInterval getCLintervalCentral(int sigma = 1, bool quiet = false);
   CLInterval getCLinterval(int iSol = 0, int sigma = 1, bool quiet = false);
-  inline Combiner* getCombiner() const { return combiner; };
-  int getDrawSolution();
-  inline bool getFilled() { return drawFilled; };
+  inline Combiner* getCombiner() { return combiner; };
+  inline const Combiner* getCombiner() const { return combiner; };
+  inline int getDrawSolution() const { return drawSolution; }
+  inline bool getFilled() const { return drawFilled; };
   inline TH1F* getHCL() { return hCL; };
   inline TH1F* getHCLs() { return hCLs; };
   inline TH1F* getHCLsFreq() { return hCLsFreq; };
@@ -65,34 +72,40 @@ class MethodAbsScan {
   inline TH2F* getHCLs2d() { return hCLs2d; };
   inline TH1F* getHchisq() { return hChi2min; };
   inline TH2F* getHchisq2d() { return hChi2min2d; };
-  inline int getLineColor() { return lineColor; };
-  inline int getLineStyle() { return lineStyle; };
-  inline int getLineWidth() { return lineWidth; };
-  inline int getFillStyle() { return fillStyle; };
-  inline int getFillColor() { return fillColor; };
-  inline float getFillTransparency() { return fillTransparency; };
+  inline int getLineColor() const { return lineColor; };
+  inline int getLineStyle() const { return lineStyle; };
+  inline int getLineWidth() const { return lineWidth; };
+  inline int getFillStyle() const { return fillStyle; };
+  inline int getFillColor() const { return fillColor; };
+  inline float getFillTransparency() const { return fillTransparency; };
+  inline int getTextColor() const { return textColor; };
   inline TString getMethodName() const { return methodName; };
   inline TString getName() const { return name; };
-  int getNObservables();
-  inline int getNPoints1d() { return nPoints1d; }
-  inline int getNPoints2dx() { return nPoints2dx; }
-  inline int getNPoints2dy() { return nPoints2dy; }
-  const RooArgSet* getObservables();
-  inline TString getObsName() { return obsName; };
-  inline TString getParsName() { return parsName; };
-  float getScanVarSolution(int iVar, int iSol);
+  int getNObservables() const;
+  inline int getNPoints1d() const { return nPoints1d; }
+  inline int getNPoints2dx() const { return nPoints2dx; }
+  inline int getNPoints2dy() const { return nPoints2dy; }
+  const RooArgSet* getObservables() const;
+  inline TString getObsName() const { return obsName; };
+  inline TString getParsName() const { return parsName; };
   RooRealVar* getScanVar1();
-  TString getScanVar1Name();
-  float getScanVar1Solution(int i = 0);
   RooRealVar* getScanVar2();
-  TString getScanVar2Name();
-  float getScanVar2Solution(int i = 0);
+  const RooRealVar* getScanVar1() const;
+  const RooRealVar* getScanVar2() const;
+  inline TString getScanVar1Name() const { return scanVar1; };
+  inline TString getScanVar2Name() const { return scanVar2; };
+  double getScanVarSolution(int iVar, int iSol) const;
+  double getScanVar1Solution(int i = 0) const;
+  double getScanVar2Solution(int i = 0) const;
   inline std::vector<RooSlimFitResult*> getSolutions() { return solutions; };
+  inline int getNSolutions() const { return solutions.size(); };
   RooSlimFitResult* getSolution(int i = 0);
-  const RooArgSet* getTheory();
-  inline int getTextColor() { return textColor; };
-  inline TString getTitle() { return title; };
+  const RooSlimFitResult* getSolution(int i = 0) const;
+  const RooArgSet* getTheory() const;
+  inline TString getTitle() const { return title; };
   inline RooWorkspace* getWorkspace() { return w; };
+  inline const RooWorkspace* getWorkspace() const { return w; };
+
   virtual void initScan();
   void loadParameters(RooSlimFitResult* r);
   bool loadSolution(int i = 0);
@@ -101,13 +114,19 @@ class MethodAbsScan {
   void plot1d(TString var);
   void plotOn(OneMinusClPlotAbs* plot, int CLsType = 0);  // CLsType: 0 (off), 1 (naive CLs t_s+b - t_b), 2 (freq CLs)
   void plotPulls(int nSolution = 0);
-  virtual void print();
+  virtual void print() const;
   void printCLintervals(int CLsType, bool calc_expected = false);
-  void printLocalMinima();
-  void saveLocalMinima(TString fName = "");
-  void saveScanner(TString fName = "");
+  void printLocalMinima() const;
+
+  // Save/dump results
+  void dumpResult(const std::string& ofname) const;
+  void saveLocalMinima(TString fName = "") const;
+  void saveScanner(TString fName = "") const;
+
   virtual int scan1d();
   virtual int scan2d();
+
+  // Setters
   inline void setDrawSolution(int code = 0) { drawSolution = code; };
   inline void setPValueCorrector(PValueCorrection* pvalCor) {
     pvalueCorrector = pvalCor;
@@ -132,12 +151,10 @@ class MethodAbsScan {
   inline void setVerbose(bool yesNo = true) { verbose = yesNo; };
   inline void setHCL(TH1F* h) { hCL = h; };
   inline void setHchisq(TH1F* h) { hChi2min = h; };
-  void setXscanRange(float min, float max);
-  void setYscanRange(float min, float max);
+  void setXscanRange(double min, double max);
+  void setYscanRange(double min, double max);
+
   void calcCLintervalsSimple(int CLsType = 0, bool calc_expected = false);
-  const std::pair<double, double> getBorders(const TGraph& graph, const double confidence_level, bool qubic = false);
-  const std::pair<double, double> getBorders_CLs(const TGraph& graph, const double confidence_level,
-                                                 bool qubic = false);
   virtual bool checkCLs();
 
   /// All fit results we encounter along the scan.
@@ -156,73 +173,73 @@ class MethodAbsScan {
   std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
   std::vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by
                                               ///< calcCLintervals()
-  RooFitResult* globalMin;                    ///< parameter values at a global minimum
+  RooFitResult* globalMin = nullptr;          ///< parameter values at a global minimum
 
  protected:
   void sortSolutions();
 
-  TString name;        ///< basename, e.g. ggsz
-  TString title;       ///< nice string for the legends
-  TString methodName;  ///< Prob, ...
-  TString pdfName;     ///< PDF name in workspace, derived from name
-  TString obsName;     ///< dataset name of observables, derived from name
-  TString parsName;    ///< set name of physics parameters, derived from name
-  TString thName;      ///< set name of theory parameters, derived from name
-  TString toysName;    ///< set name of parameters to vary in toys
-  TString scanVar1;    ///< scan parameter
-  TString scanVar2;    ///< second scan parameter if we're scanning 2d
-  int nPoints1d;       ///< number of scan points used by 1d scan
-  int nPoints2dx;      ///< number of scan points used by 2d scan, x axis
-  int nPoints2dy;      ///< number of scan points used by 2d scan, y axis
+  TString name;                ///< basename, e.g. ggsz
+  TString title;               ///< nice string for the legends
+  TString methodName = "Abs";  ///< Prob, ...
+  TString pdfName;             ///< PDF name in workspace, derived from name
+  TString obsName;             ///< dataset name of observables, derived from name
+  TString parsName;            ///< set name of physics parameters, derived from name
+  TString thName;              ///< set name of theory parameters, derived from name
+  TString toysName;            ///< set name of parameters to vary in toys
+  TString scanVar1;            ///< scan parameter
+  TString scanVar2;            ///< second scan parameter if we're scanning 2d
+  int nPoints1d = -1;          ///< number of scan points used by 1d scan
+  int nPoints2dx = -1;         ///< number of scan points used by 2d scan, x axis
+  int nPoints2dy = -1;         ///< number of scan points used by 2d scan, y axis
 
-  PValueCorrection* pvalueCorrector;  // object which can correct the pvalue for undercoverage if required
-  bool pvalueCorrectorSet;
+  PValueCorrection* pvalueCorrector = nullptr;  // object which can correct the pvalue for undercoverage if required
+  bool pvalueCorrectorSet = false;
 
   TRandom3 rndm;
-  RooWorkspace* w;
-  RooDataSet* obsDataset;   ///< save the nominal observables so we can restore them after we have fitted toys
-  RooDataSet* startPars;    ///< save the start parameter values before any scan
-  TH1F* hCL;                ///< 1-CL curve
-  TH1F* hCLs;               ///< 1-CL curve
-  TH1F* hCLsFreq;           ///< 1-CL curve
-  TH1F* hCLsExp;            ///< 1-CL curve
-  TH1F* hCLsErr1Up;         ///< 1-CL curve
-  TH1F* hCLsErr1Dn;         ///< 1-CL curve
-  TH1F* hCLsErr2Up;         ///< 1-CL curve
-  TH1F* hCLsErr2Dn;         ///< 1-CL curve
-  TH2F* hCL2d;              ///< 1-CL curve
-  TH2F* hCLs2d;             ///< 1-CL curve
-  TH1F* hChi2min;           ///< histogram for the chi2min values before Prob()
-  TH2F* hChi2min2d;         ///< histogram for the chi2min values before Prob()
-  double chi2minGlobal;     ///< chi2 value at global minimum
-  double chi2minBkg;        ///< chi2 value at global minimum
-  bool chi2minGlobalFound;  ///< flag to avoid finding minimum twice
-  int lineColor;
-  int textColor;  ///< color used for plotted central values
-  int lineStyle;
-  int lineWidth;
-  int fillStyle;
-  int fillColor;
-  float fillTransparency;
-  bool drawFilled;   ///< choose if Histogram is drawn filled or not
-  int drawSolution;  ///< Configure how to draw solutions on the plots.
+  RooWorkspace* w = nullptr;
+  RooDataSet* obsDataset = nullptr;  ///< save the nominal observables so we can restore them after we have fitted toys
+  RooDataSet* startPars = nullptr;   ///< save the start parameter values before any scan
+  TH1F* hCL = nullptr;               ///< 1-CL curve
+  TH1F* hCLs = nullptr;              ///< 1-CL curve
+  TH1F* hCLsFreq = nullptr;          ///< 1-CL curve
+  TH1F* hCLsExp = nullptr;           ///< 1-CL curve
+  TH1F* hCLsErr1Up = nullptr;        ///< 1-CL curve
+  TH1F* hCLsErr1Dn = nullptr;        ///< 1-CL curve
+  TH1F* hCLsErr2Up = nullptr;        ///< 1-CL curve
+  TH1F* hCLsErr2Dn = nullptr;        ///< 1-CL curve
+  TH2F* hCL2d = nullptr;             ///< 1-CL curve
+  TH2F* hCLs2d = nullptr;            ///< 1-CL curve
+  TH1F* hChi2min = nullptr;          ///< histogram for the chi2min values before Prob()
+  TH2F* hChi2min2d = nullptr;        ///< histogram for the chi2min values before Prob()
+  double chi2minGlobal = std::numeric_limits<double>::max();  ///< chi2 value at global minimum
+  double chi2minBkg = std::numeric_limits<double>::max();     ///< chi2 value at global minimum
+  bool chi2minGlobalFound = false;                            ///< flag to avoid finding minimum twice
+  int lineColor = kBlue - 8;
+  int textColor = kBlack;  ///< color used for plotted central values
+  int lineStyle = 0;
+  int lineWidth = 2;
+  int fillStyle = 1001;
+  int fillColor = kBlue - 8;
+  float fillTransparency = 0.f;
+  bool drawFilled = true;  ///< choose if Histogram is drawn filled or not
+  int drawSolution = 0;    ///< Configure how to draw solutions on the plots.
   ///< 0=don't plot, 1=plot at central value (1d) or markers (2d)
   ///< Default is taken from arg, unless disabled by setDrawSolution().
-  bool verbose;
-  int nWarnings;                         ///< number of warnings printed in getScanVarSolution()
-  OptParser* arg;                        ///< command line options
-  Combiner* combiner;                    ///< the combination
-  bool m_xrangeset;                      ///< true if the x range was set manually (setXscanRange())
-  bool m_yrangeset;                      ///< true if the y range was set manually (setYscanRange())
-  bool m_initialized;                    ///< true if initScan() was called
+  bool verbose = false;
+  mutable int nWarnings = 0;             ///< number of warnings printed in getScanVarSolution()
+  const OptParser* arg = nullptr;        ///< command line options
+  Combiner* combiner = nullptr;          ///< the combination
+  bool m_xrangeset = false;              ///< true if the x range was set manually (setXscanRange())
+  bool m_yrangeset = false;              ///< true if the y range was set manually (setYscanRange())
+  bool m_initialized = false;            ///< true if initScan() was called
   std::vector<double> ConfidenceLevels;  ///< container of the confidence levels to be computed
 
  private:
   bool compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2);
-  float pq(float p0, float p1, float p2, float y, int whichSol = 0);
+  double pq(double p0, double p1, double p2, double y, int whichSol = 0);
   void removeDuplicateSolutions();
-  bool interpolate(TH1F* h, int i, float y, float central, bool upper, float& val, float& err);
-  void interpolateSimple(TH1F* h, int i, float y, float& val);
+  bool interpolate(TH1F* h, int i, double y, double central, bool upper, double& val, double& err);
+  void interpolateSimple(TH1F* h, int i, double y, double& val);
 };
 
 #endif

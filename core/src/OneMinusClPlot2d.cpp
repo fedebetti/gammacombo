@@ -7,7 +7,6 @@
 
 #include <OneMinusClPlot2d.h>
 
-#include <ColorBuilder.h>
 #include <ConfidenceContours.h>
 #include <MethodAbsScan.h>
 #include <OptParser.h>
@@ -29,38 +28,29 @@
 #include <iostream>
 #include <vector>
 
-OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) : OneMinusClPlotAbs(arg, name, title) {
-  contoursOnly = false;
+OneMinusClPlot2d::OneMinusClPlot2d(const OptParser* arg, TString name, TString title)
+    : OneMinusClPlotAbs(arg, name, title) {
   xTitle = arg->xtitle;
   yTitle = arg->ytitle;
-  ColorBuilder cb;
-  m_legend = 0;
 
-  // ==== define style ====
-  for (int i = 0; i < 9; i++) {
-    // initialize containers holding the plot style
-    std::vector<int> tmp1;
-    linecolor.push_back(tmp1);
-    std::vector<int> tmp2;
-    linestyle.push_back(tmp2);
-    std::vector<int> tmp3;
-    fillcolor.push_back(tmp3);
-    std::vector<int> tmp4;
-    fillstyle.push_back(tmp4);
-    std::vector<int> tmp5;
-    linewidth.push_back(tmp5);
-  }
+  const int size = 9;
+  linecolor.resize(size);
+  linestyle.resize(size);
+  fillcolor.resize(size);
+  fillstyle.resize(size);
+  linewidth.resize(size);
 
-  // fill from the options first
-  for (int ncont = 0; ncont < 9; ncont++) {
-    for (int i = 0; i < arg->linecolor.size(); i++) { linecolor[ncont].push_back(arg->linecolor[i]); }
-    for (int i = 0; i < arg->linestyle.size(); i++) { linestyle[ncont].push_back(arg->linestyle[i]); }
-    for (int i = 0; i < arg->linewidth.size(); i++) { linewidth[ncont].push_back(arg->linewidth[i]); }
-    for (int i = 0; i < arg->fillcolor.size(); i++) { fillcolor[ncont].push_back(arg->fillcolor[i]); }
-    for (int i = 0; i < arg->fillstyle.size(); i++) { fillstyle[ncont].push_back(arg->fillstyle[i]); }
+  // Fill from the options first
+  for (int ncont = 0; ncont < size; ncont++) {
+    for (const auto val : arg->linecolor) { linecolor[ncont].push_back(val); }
+    for (const auto val : arg->linestyle) { linestyle[ncont].push_back(val); }
+    for (const auto val : arg->linewidth) { linewidth[ncont].push_back(val); }
+    for (const auto val : arg->fillcolor) { fillcolor[ncont].push_back(val); }
+    for (const auto val : arg->fillstyle) { fillstyle[ncont].push_back(val); }
   }
 
   // otherwise use some defaults
+  using Utils::TColorNS::lightcolor;
 
   // 1st scanner
   if (arg->plotsolutions[0] == 2) {
@@ -70,60 +60,40 @@ OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) 
     markerstyle.push_back(3);
     markersize.push_back(1.6);
   }
-  // 1 simga
+  for (int i = 0; i < size; ++i) {
+    // n_sigma = i + 1
+    linestyle[i].push_back(kSolid);
+    linewidth[i].push_back(2);
+    fillstyle[i].push_back(i == 0 ? 3005 : 1001);
+  }
+
+  // 1 sigma
   linecolor[0].push_back(TColor::GetColor(24, 170, 231));
-  linestyle[0].push_back(kSolid);
   fillcolor[0].push_back(TColor::GetColor("#bee7fd"));
-  fillstyle[0].push_back(3005);
-  linewidth[0].push_back(2);
   // 2 sigma
   linecolor[1].push_back(9);
-  linestyle[1].push_back(kSolid);
   fillcolor[1].push_back(TColor::GetColor("#d3e9ff"));
-  fillstyle[1].push_back(1001);
-  linewidth[1].push_back(2);
   // 3 sigma
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][0]));
-  linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.lightcolor(fillcolor[1][0]));
-  fillstyle[2].push_back(1001);
-  linewidth[2].push_back(2);
+  linecolor[2].push_back(lightcolor(linecolor[1][0]));
+  fillcolor[2].push_back(lightcolor(fillcolor[1][0]));
   // 4 sigma
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][0]));
-  linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][0]));
-  fillstyle[3].push_back(1001);
-  linewidth[3].push_back(2);
+  linecolor[3].push_back(lightcolor(linecolor[2][0]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][0]));
   // 5 sigma
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][0]));
-  linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][0]));
-  fillstyle[4].push_back(1001);
-  linewidth[4].push_back(2);
+  linecolor[4].push_back(lightcolor(linecolor[3][0]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][0]));
   // 6 sigma
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][0]));
-  linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][0]));
-  fillstyle[5].push_back(1001);
-  linewidth[5].push_back(2);
+  linecolor[5].push_back(lightcolor(linecolor[4][0]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][0]));
   // 7 sigma
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][0]));
-  linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][0]));
-  fillstyle[6].push_back(1001);
-  linewidth[6].push_back(2);
+  linecolor[6].push_back(lightcolor(linecolor[5][0]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][0]));
   // 8 sigma
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][0]));
-  linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][0]));
-  fillstyle[7].push_back(1001);
-  linewidth[7].push_back(2);
+  linecolor[7].push_back(lightcolor(linecolor[6][0]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][0]));
   // 9 sigma
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][0]));
-  linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][0]));
-  fillstyle[8].push_back(1001);
-  linewidth[8].push_back(2);
+  linecolor[8].push_back(lightcolor(linecolor[7][0]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][0]));
 
   // 2nd scanner
   // markerstyle.push_back(29);
@@ -131,233 +101,153 @@ OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) 
   markerstyle.push_back(20);
   markersize.push_back(1.1);
 
+  for (int i = 0; i < size; ++i) {
+    // n_sigma = i + 1
+    linestyle[i].push_back(kSolid);
+    linewidth[i].push_back(2);
+    fillstyle[i].push_back(i == 0 ? 3013 : 1001);
+  }
+
   linecolor[0].push_back(kOrange - 5);
-  linestyle[0].push_back(kSolid);
   fillcolor[0].push_back(TColor::GetColor(229, 199, 152));
-  fillstyle[0].push_back(3013);
-  linewidth[0].push_back(2);
 
   linecolor[1].push_back(kOrange + 4);
-  linestyle[1].push_back(kSolid);
   fillcolor[1].push_back(TColor::GetColor(254, 222, 185));
-  fillstyle[1].push_back(1001);
-  linewidth[1].push_back(2);
 
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][1]));
-  linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.lightcolor(fillcolor[1][1]));
-  fillstyle[2].push_back(1001);
-  linewidth[2].push_back(2);
+  linecolor[2].push_back(lightcolor(linecolor[1][1]));
+  fillcolor[2].push_back(lightcolor(fillcolor[1][1]));
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][1]));
-  linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][1]));
-  fillstyle[3].push_back(1001);
-  linewidth[3].push_back(2);
+  linecolor[3].push_back(lightcolor(linecolor[2][1]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][1]));
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][1]));
-  linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][1]));
-  fillstyle[4].push_back(1001);
-  linewidth[4].push_back(2);
+  linecolor[4].push_back(lightcolor(linecolor[3][1]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][1]));
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][1]));
-  linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][1]));
-  fillstyle[5].push_back(1001);
-  linewidth[5].push_back(2);
+  linecolor[5].push_back(lightcolor(linecolor[4][1]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][1]));
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][1]));
-  linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][1]));
-  fillstyle[6].push_back(1001);
-  linewidth[6].push_back(2);
+  linecolor[6].push_back(lightcolor(linecolor[5][1]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][1]));
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][1]));
-  linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][1]));
-  fillstyle[7].push_back(1001);
-  linewidth[7].push_back(2);
+  linecolor[7].push_back(lightcolor(linecolor[6][1]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][1]));
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][1]));
-  linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][1]));
-  fillstyle[8].push_back(1001);
-  linewidth[8].push_back(2);
+  linecolor[8].push_back(lightcolor(linecolor[7][1]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][1]));
 
   // 3rd scanner
   markerstyle.push_back(20);
   markersize.push_back(1.1);
 
+  for (int i = 0; i < size; ++i) {
+    // n_sigma = i + 1
+    linestyle[i].push_back(kSolid);
+    linewidth[i].push_back(2);
+    fillstyle[i].push_back(i == 0 ? 3013 : 1001);
+  }
+
   linecolor[0].push_back(TColor::GetColor(213, 0, 252));
-  linestyle[0].push_back(kSolid);
   fillcolor[0].push_back(TColor::GetColor(244, 123, 255));
-  fillstyle[0].push_back(3013);
-  linewidth[0].push_back(2);
 
   linecolor[1].push_back(TColor::GetColor(208, 11, 210));
-  linestyle[1].push_back(kSolid);
   fillcolor[1].push_back(kMagenta - 9);
-  fillstyle[1].push_back(1001);
-  linewidth[1].push_back(2);
 
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][2]));
-  linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.lightcolor(fillcolor[1][2]));
-  fillstyle[2].push_back(1001);
-  linewidth[2].push_back(2);
+  linecolor[2].push_back(lightcolor(linecolor[1][2]));
+  fillcolor[2].push_back(lightcolor(fillcolor[1][2]));
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][2]));
-  linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][2]));
-  fillstyle[3].push_back(1001);
-  linewidth[3].push_back(2);
+  linecolor[3].push_back(lightcolor(linecolor[2][2]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][2]));
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][2]));
-  linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][2]));
-  fillstyle[4].push_back(1001);
-  linewidth[4].push_back(2);
+  linecolor[4].push_back(lightcolor(linecolor[3][2]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][2]));
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][2]));
-  linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][2]));
-  fillstyle[5].push_back(1001);
-  linewidth[5].push_back(2);
+  linecolor[5].push_back(lightcolor(linecolor[4][2]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][2]));
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][2]));
-  linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][2]));
-  fillstyle[6].push_back(1001);
-  linewidth[6].push_back(2);
+  linecolor[6].push_back(lightcolor(linecolor[5][2]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][2]));
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][2]));
-  linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][2]));
-  fillstyle[7].push_back(1001);
-  linewidth[7].push_back(2);
+  linecolor[7].push_back(lightcolor(linecolor[6][2]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][2]));
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][2]));
-  linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][2]));
-  fillstyle[8].push_back(1001);
-  linewidth[8].push_back(2);
+  linecolor[8].push_back(lightcolor(linecolor[7][2]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][2]));
 
   // 4th scanner
   markerstyle.push_back(20);
   markersize.push_back(1.1);
 
+  for (int i = 0; i < size; ++i) {
+    // n_sigma = i + 1
+    linestyle[i].push_back(kSolid);
+    linewidth[i].push_back(2);
+    fillstyle[i].push_back(i == 0 ? 3013 : 1001);
+  }
+
   linecolor[0].push_back(kGreen + 3);
-  linestyle[0].push_back(kSolid);
   fillcolor[0].push_back(kGreen - 7);
-  fillstyle[0].push_back(3013);
-  linewidth[0].push_back(2);
 
   linecolor[1].push_back(kGreen - 1);
-  linestyle[1].push_back(kSolid);
   fillcolor[1].push_back(kGreen - 6);
-  fillstyle[1].push_back(1001);
-  linewidth[1].push_back(2);
 
-  linecolor[2].push_back(cb.lightcolor(linecolor[1][3]));
-  linestyle[2].push_back(kSolid);
+  linecolor[2].push_back(lightcolor(linecolor[1][3]));
   fillcolor[2].push_back(kGreen - 9);
-  fillstyle[2].push_back(1001);
-  linewidth[2].push_back(2);
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][3]));
-  linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][3]));
-  fillstyle[3].push_back(1001);
-  linewidth[3].push_back(2);
+  linecolor[3].push_back(lightcolor(linecolor[2][3]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][3]));
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][3]));
-  linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][3]));
-  fillstyle[4].push_back(1001);
-  linewidth[4].push_back(2);
+  linecolor[4].push_back(lightcolor(linecolor[3][3]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][3]));
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][3]));
-  linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][3]));
-  fillstyle[5].push_back(1001);
-  linewidth[5].push_back(2);
+  linecolor[5].push_back(lightcolor(linecolor[4][3]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][3]));
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][3]));
-  linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][3]));
-  fillstyle[6].push_back(1001);
-  linewidth[6].push_back(2);
+  linecolor[6].push_back(lightcolor(linecolor[5][3]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][3]));
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][3]));
-  linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][3]));
-  fillstyle[7].push_back(1001);
-  linewidth[7].push_back(2);
+  linecolor[7].push_back(lightcolor(linecolor[6][3]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][3]));
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][3]));
-  linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][3]));
-  fillstyle[8].push_back(1001);
-  linewidth[8].push_back(2);
+  linecolor[8].push_back(lightcolor(linecolor[7][3]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][3]));
 
   // 5th scanner
   markerstyle.push_back(22);
   markersize.push_back(1.1);
 
+  for (int i = 0; i < size; ++i) {
+    // n_sigma = i + 1
+    linestyle[i].push_back(kSolid);
+    linewidth[i].push_back(2);
+    fillstyle[i].push_back(i == 0 ? 3013 : 1001);
+  }
+
   linecolor[0].push_back(kOrange + 3);
-  linestyle[0].push_back(kSolid);
   fillcolor[0].push_back(kOrange - 7);
-  fillstyle[0].push_back(3013);
-  linewidth[0].push_back(2);
 
   linecolor[1].push_back(kOrange - 1);
-  linestyle[1].push_back(kSolid);
   fillcolor[1].push_back(kOrange - 6);
-  fillstyle[1].push_back(1001);
-  linewidth[1].push_back(2);
 
   linecolor[2].push_back(kOrange - 2);
-  linestyle[2].push_back(kSolid);
   fillcolor[2].push_back(kOrange - 9);
-  fillstyle[2].push_back(1001);
-  linewidth[2].push_back(2);
 
-  linecolor[3].push_back(cb.lightcolor(linecolor[2][4]));
-  linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.lightcolor(fillcolor[2][4]));
-  fillstyle[3].push_back(1001);
-  linewidth[3].push_back(2);
+  linecolor[3].push_back(lightcolor(linecolor[2][4]));
+  fillcolor[3].push_back(lightcolor(fillcolor[2][4]));
 
-  linecolor[4].push_back(cb.lightcolor(linecolor[3][4]));
-  linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.lightcolor(fillcolor[3][4]));
-  fillstyle[4].push_back(1001);
-  linewidth[4].push_back(2);
+  linecolor[4].push_back(lightcolor(linecolor[3][4]));
+  fillcolor[4].push_back(lightcolor(fillcolor[3][4]));
 
-  linecolor[5].push_back(cb.lightcolor(linecolor[4][4]));
-  linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.lightcolor(fillcolor[4][4]));
-  fillstyle[5].push_back(1001);
-  linewidth[5].push_back(2);
+  linecolor[5].push_back(lightcolor(linecolor[4][4]));
+  fillcolor[5].push_back(lightcolor(fillcolor[4][4]));
 
-  linecolor[6].push_back(cb.lightcolor(linecolor[5][4]));
-  linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.lightcolor(fillcolor[5][4]));
-  fillstyle[6].push_back(1001);
-  linewidth[6].push_back(2);
+  linecolor[6].push_back(lightcolor(linecolor[5][4]));
+  fillcolor[6].push_back(lightcolor(fillcolor[5][4]));
 
-  linecolor[7].push_back(cb.lightcolor(linecolor[6][4]));
-  linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.lightcolor(fillcolor[6][4]));
-  fillstyle[7].push_back(1001);
-  linewidth[7].push_back(2);
+  linecolor[7].push_back(lightcolor(linecolor[6][4]));
+  fillcolor[7].push_back(lightcolor(fillcolor[6][4]));
 
-  linecolor[8].push_back(cb.lightcolor(linecolor[7][4]));
-  linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.lightcolor(fillcolor[7][4]));
-  fillstyle[8].push_back(1001);
-  linewidth[8].push_back(2);
+  linecolor[8].push_back(lightcolor(linecolor[7][4]));
+  fillcolor[8].push_back(lightcolor(fillcolor[7][4]));
 
   // scanners 6-16
   // colors based on http://colorbrewer2.org/, six classes, qualitative, second scheme
@@ -443,7 +333,7 @@ OneMinusClPlot2d::OneMinusClPlot2d(OptParser* arg, TString name, TString title) 
 /// \param htmlColor - an HTML color, e.g. "#e6ab02". If ROOT is provided,
 /// the new scanner will be based on a predefined ROOT color.
 ///
-void OneMinusClPlot2d::makeNewPlotStyle(TString htmlColor, int ROOTColor) {
+void OneMinusClPlot2d::makeNewPlotStyle(const TString htmlColor, const int ROOTColor) {
   int currentNumberOfStyles = linecolor[0].size();
   // get index of new color. Either use the provided HTML color, or
   // take a predefined ROOT color.
@@ -456,53 +346,22 @@ void OneMinusClPlot2d::makeNewPlotStyle(TString htmlColor, int ROOTColor) {
     newColor = TColor::GetColor(htmlColor);
   markerstyle.push_back(20);
   markersize.push_back(1.1);
-  ColorBuilder cb;
-  float thisMuchDarker = 1.1;
-  linecolor[0].push_back(cb.darklightcolor(newColor, 0.7));
-  linestyle[0].push_back(kSolid);
-  fillcolor[0].push_back(newColor);
-  fillstyle[0].push_back(3005);
-  linewidth[0].push_back(2);
-  linecolor[1].push_back(cb.darklightcolor(linecolor[0][currentNumberOfStyles], thisMuchDarker));
-  linestyle[1].push_back(kSolid);
-  fillcolor[1].push_back(cb.darklightcolor(fillcolor[0][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[1].push_back(1001);
-  linewidth[1].push_back(2);
-  linecolor[2].push_back(cb.darklightcolor(linecolor[1][currentNumberOfStyles], thisMuchDarker));
-  linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.darklightcolor(fillcolor[1][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[2].push_back(1001);
-  linewidth[2].push_back(2);
-  linecolor[3].push_back(cb.darklightcolor(linecolor[2][currentNumberOfStyles], thisMuchDarker));
-  linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.darklightcolor(fillcolor[2][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[3].push_back(1001);
-  linewidth[3].push_back(2);
-  linecolor[4].push_back(cb.darklightcolor(linecolor[3][currentNumberOfStyles], thisMuchDarker));
-  linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.darklightcolor(fillcolor[3][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[4].push_back(1001);
-  linewidth[4].push_back(2);
-  linecolor[5].push_back(cb.darklightcolor(linecolor[4][currentNumberOfStyles], thisMuchDarker));
-  linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.darklightcolor(fillcolor[4][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[5].push_back(1001);
-  linewidth[5].push_back(2);
-  linecolor[6].push_back(cb.darklightcolor(linecolor[5][currentNumberOfStyles], thisMuchDarker));
-  linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.darklightcolor(fillcolor[5][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[6].push_back(1001);
-  linewidth[6].push_back(2);
-  linecolor[7].push_back(cb.darklightcolor(linecolor[6][currentNumberOfStyles], thisMuchDarker));
-  linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.darklightcolor(fillcolor[6][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[7].push_back(1001);
-  linewidth[7].push_back(2);
-  linecolor[8].push_back(cb.darklightcolor(linecolor[7][currentNumberOfStyles], thisMuchDarker));
-  linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.darklightcolor(fillcolor[7][currentNumberOfStyles], thisMuchDarker));
-  fillstyle[8].push_back(1001);
-  linewidth[8].push_back(2);
+  const float thisMuchDarker = 1.1;
+  using Utils::TColorNS::darklightcolor;
+
+  for (int i = 0; i < 9; ++i) {
+    // n_sigma = i + 1
+    linestyle[i].push_back(kSolid);
+    linewidth[i].push_back(2);
+    fillstyle[i].push_back(i == 0 ? 3005 : 1001);
+
+    int lineColor = (i == 0) ? darklightcolor(newColor, 0.7)
+                             : darklightcolor(linecolor[i - 1][currentNumberOfStyles], thisMuchDarker);
+    linecolor[i].push_back(lineColor);
+
+    int fillColor = (i == 0) ? newColor : darklightcolor(fillcolor[i - 1][currentNumberOfStyles], thisMuchDarker);
+    fillcolor[i].push_back(fillColor);
+  }
 }
 
 void OneMinusClPlot2d::makeOneColorPlotStyle(TString htmlColor, int ROOTColor) {
@@ -516,55 +375,17 @@ void OneMinusClPlot2d::makeOneColorPlotStyle(TString htmlColor, int ROOTColor) {
     newColor = ROOTColor;
   else
     newColor = TColor::GetColor(htmlColor);
-  ColorBuilder cb;
-  float thisMuchLighter = 1.2;
+  const float thisMuchLighter = 1.2;
   markerstyle.push_back(20);
   markersize.push_back(1.1);
-  linecolor[0].push_back(newColor);
-  linestyle[0].push_back(kSolid);
-  fillcolor[0].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[0].push_back(3005);
-  linewidth[0].push_back(2);
-  linecolor[1].push_back(newColor);
-  linestyle[1].push_back(kSolid);
-  fillcolor[1].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[1].push_back(1001);
-  linewidth[1].push_back(2);
-  linecolor[2].push_back(newColor);
-  linestyle[2].push_back(kSolid);
-  fillcolor[2].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[2].push_back(1001);
-  linewidth[2].push_back(2);
-  linecolor[3].push_back(newColor);
-  linestyle[3].push_back(kSolid);
-  fillcolor[3].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[3].push_back(1001);
-  linewidth[3].push_back(2);
-  linecolor[4].push_back(newColor);
-  linestyle[4].push_back(kSolid);
-  fillcolor[4].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[4].push_back(1001);
-  linewidth[4].push_back(2);
-  linecolor[5].push_back(newColor);
-  linestyle[5].push_back(kSolid);
-  fillcolor[5].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[5].push_back(1001);
-  linewidth[5].push_back(2);
-  linecolor[6].push_back(newColor);
-  linestyle[6].push_back(kSolid);
-  fillcolor[6].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[6].push_back(1001);
-  linewidth[6].push_back(2);
-  linecolor[7].push_back(newColor);
-  linestyle[7].push_back(kSolid);
-  fillcolor[7].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[7].push_back(1001);
-  linewidth[7].push_back(2);
-  linecolor[8].push_back(newColor);
-  linestyle[8].push_back(kSolid);
-  fillcolor[8].push_back(cb.darklightcolor(newColor, thisMuchLighter));
-  fillstyle[8].push_back(1001);
-  linewidth[8].push_back(2);
+  for (int i = 0; i < 9; ++i) {
+    // n_sigma = i + 1
+    linestyle[i].push_back(kSolid);
+    linewidth[i].push_back(2);
+    fillstyle[i].push_back(i == 0 ? 3005 : 1001);
+    linecolor[i].push_back(newColor);
+    fillcolor[i].push_back(Utils::TColorNS::darklightcolor(newColor, thisMuchLighter));
+  }
 }
 
 ///
@@ -623,7 +444,7 @@ void OneMinusClPlot2d::drawGroup() { OneMinusClPlotAbs::drawGroup(0.775); }
 ///
 /// t - histogram type: kChi2 or kPvalue
 ///
-bool OneMinusClPlot2d::hasHistoType(Utils::histogramType t) {
+bool OneMinusClPlot2d::hasHistoType(Utils::histogramType t) const {
   for (int i = 0; i < histosType.size(); i++) {
     if (histosType[i] == t) return true;
   }
@@ -634,7 +455,7 @@ bool OneMinusClPlot2d::hasHistoType(Utils::histogramType t) {
 /// Draw a line stating the CL content of the contours.
 ///
 void OneMinusClPlot2d::drawCLcontent(bool isFull) {
-  float xLow, yLow;
+  double xLow, yLow;
   xLow = 0.17;
   yLow = 0.15;
   if (arg->square) yLow = 0.11;
@@ -685,8 +506,8 @@ void OneMinusClPlot2d::DrawFull() {
   hChi2->SetContour(95);
   hChi2->GetXaxis()->SetTitle(xTitle != "" ? xTitle : (TString)scanners[0]->getScanVar1()->GetTitle());
   hChi2->GetYaxis()->SetTitle(yTitle != "" ? yTitle : (TString)scanners[0]->getScanVar2()->GetTitle());
-  float zMin = hChi2->GetMinimum();
-  float zMax;
+  double zMin = hChi2->GetMinimum();
+  double zMax;
   if (histosType[0] == Utils::kChi2) {
     zMax = fmin(zMin + 81, hChi2->GetMaximum());
   } else {
@@ -730,10 +551,10 @@ void OneMinusClPlot2d::DrawFull() {
 void OneMinusClPlot2d::drawLegend() {
   if (arg->debug) { std::cout << "OneMinusClPlot2d::drawLegend() : drawing legend ..." << std::endl; }
   // set up the legend
-  float legendXmin = arg->plotlegx != -1. ? arg->plotlegx : 0.17;
-  float legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.75;
-  float legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.38);
-  float legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.15);
+  double legendXmin = arg->plotlegx != -1. ? arg->plotlegx : 0.17;
+  double legendYmin = arg->plotlegy != -1. ? arg->plotlegy : 0.75;
+  double legendXmax = legendXmin + (arg->plotlegsizex != -1. ? arg->plotlegsizex : 0.38);
+  double legendYmax = legendYmin + (arg->plotlegsizey != -1. ? arg->plotlegsizey : 0.15);
   if (m_legend) delete m_legend;
   m_legend = new TLegend(legendXmin, legendYmin, legendXmax, legendYmax);
   m_legend->SetNColumns(arg->plotlegcols);
@@ -825,10 +646,10 @@ void OneMinusClPlot2d::Draw() {
   if (arg->grid) m_mainCanvas->SetGrid();
 
   TH2F* hCL = histos[0];
-  float min1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
-  float max1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
-  float min2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmin() : arg->scanrangeyMin;
-  float max2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmax() : arg->scanrangeyMax;
+  double min1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmin() : arg->scanrangeMin;
+  double max1 = arg->scanrangeMin == arg->scanrangeMax ? hCL->GetXaxis()->GetXmax() : arg->scanrangeMax;
+  double min2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmin() : arg->scanrangeyMin;
+  double max2 = arg->scanrangeyMin == arg->scanrangeyMax ? hCL->GetYaxis()->GetXmax() : arg->scanrangeyMax;
 
   // build a histogram which holds the axes
   TH1* haxes = new TH2F("haxes" + Utils::getUniqueRootName(), "haxes", 100, min1, max1, 100, min2, max2);
@@ -889,7 +710,7 @@ void OneMinusClPlot2d::Draw() {
     cont->setStyle(transpose(linecolor)[styleId], transpose(linestyle)[i], transpose(linewidth)[i],
                    transpose(fillcolor)[styleId], transpose(fillstyle)[i]);
     if (i < arg->filltransparency.size()) cont->setTransparency(arg->filltransparency[i]);
-    cont->setContoursToPlot(arg->contourlabels[i]);
+    if (arg->contourlabels.find(i) != arg->contourlabels.end()) cont->setContoursToPlot(arg->contourlabels.at(i));
     m_contours[i] = cont;
     m_contours_computed[i] = true;
   }
@@ -916,10 +737,10 @@ void OneMinusClPlot2d::Draw() {
   }
 
   gPad->Update();
-  float ymin = gPad->GetUymin();
-  float ymax = gPad->GetUymax();
-  float xmin = gPad->GetUxmin();
-  float xmax = gPad->GetUxmax();
+  double ymin = gPad->GetUymin();
+  double ymax = gPad->GetUymax();
+  double xmin = gPad->GetUxmin();
+  double xmax = gPad->GetUxmax();
 
   // Draw new axes.
   if (!arg->grid) {
@@ -1052,7 +873,7 @@ void OneMinusClPlot2d::Draw() {
   m_mainCanvas->Show();
 }
 
-void OneMinusClPlot2d::drawMarker(float x, float y, int color, int style, float size) {
+void OneMinusClPlot2d::drawMarker(double x, double y, int color, int style, float size) {
   TMarker* m = new TMarker(x, y, style);
   m->SetMarkerSize(size);
   m->SetMarkerColor(color);
@@ -1067,10 +888,10 @@ void OneMinusClPlot2d::drawMarker(float x, float y, int color, int style, float 
 void OneMinusClPlot2d::drawSolutions() {
   m_mainCanvas->cd();
   m_mainCanvas->Update();
-  float ymin = gPad->GetUymin();
-  float ymax = gPad->GetUymax();
-  float xmin = gPad->GetUxmin();
-  float xmax = gPad->GetUxmax();
+  double ymin = gPad->GetUymin();
+  double ymax = gPad->GetUymax();
+  double xmin = gPad->GetUxmin();
+  double xmax = gPad->GetUxmax();
 
   for (int i = 0; i < scanners.size(); i++) {
     if (scanners[i]->getDrawSolution() == 0) continue;
@@ -1094,7 +915,7 @@ void OneMinusClPlot2d::drawSolutions() {
       markerStyle = markerstyle[styleId];
     else
       std::cout << "OneMinusClPlot2d::drawSolutions() : ERROR : not enough marker styles" << std::endl;
-    float markerSize = 2.0;
+    float markerSize = 2.f;
     if (i < markersize.size())
       markerSize = markersize[styleId];
     else
@@ -1105,8 +926,8 @@ void OneMinusClPlot2d::drawSolutions() {
       if (scanners[i]->getDrawSolution() == 2 && iSol > 0 &&
           scanners[i]->getSolution(iSol)->minNll() - scanners[i]->getSolution(0)->minNll() > 0.01)
         continue;
-      float xSol = scanners[i]->getScanVar1Solution(iSol);
-      float ySol = scanners[i]->getScanVar2Solution(iSol);
+      double xSol = scanners[i]->getScanVar1Solution(iSol);
+      double ySol = scanners[i]->getScanVar2Solution(iSol);
       if (arg->debug) std::cout << "OneMinusClPlot2d::drawSolutions() : " << xSol << " " << ySol << std::endl;
       drawMarker(xSol, ySol, markerColor, markerStyle, markerSize);
     }

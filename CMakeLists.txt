@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.19)
 
 project(
   GammaCombo
-  VERSION 1.0.0
+  VERSION 1.4.0
   DESCRIPTION "LHCb frequentist combiner"
   HOMEPAGE_URL "https://gammacombo.github.io/"
   LANGUAGES CXX)
@@ -43,7 +43,10 @@ endif()
 
 find_package(Freetype REQUIRED)
 
-find_package(Boost REQUIRED)
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+find_package(Boost 1.70 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # Find ROOT (see https://root.cern/manual/integrate_root_into_my_cmake_project/,
@@ -71,14 +74,12 @@ set(CORE_LIB_SOURCES
     ./core/src/CLInterval.cpp
     ./core/src/CLIntervalMaker.cpp
     ./core/src/CLIntervalPrinter.cpp
-    ./core/src/ColorBuilder.cpp
     ./core/src/Combiner.cpp
     ./core/src/ConfidenceContours.cpp
     ./core/src/Contour.cpp
     ./core/src/ControlPlots.cpp
     ./core/src/FileNameBuilder.cpp
     ./core/src/FitResultCache.cpp
-    ./core/src/FitResultDump.cpp
     ./core/src/Fitter.cpp
     ./core/src/GammaComboEngine.cpp
     ./core/src/Graphviz.cpp
@@ -113,7 +114,6 @@ set(CORE_LIB_SOURCES
     ./core/src/RooSlimFitResult.cpp
     ./core/src/Rounder.cpp
     ./core/src/SharedArray.cpp
-    ./core/src/TGraphTools.cpp
     ./core/src/ToyTree.cpp
     ./core/src/UtilsConfig.cpp
     ./core/src/Utils.cpp)

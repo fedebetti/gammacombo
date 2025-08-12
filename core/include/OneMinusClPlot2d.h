@@ -24,17 +24,17 @@ class TLegend;
 
 class OneMinusClPlot2d : public OneMinusClPlotAbs {
  public:
-  OneMinusClPlot2d(OptParser* arg, TString name = "c1", TString title = "c1");
+  OneMinusClPlot2d(const OptParser* arg, TString name = "c1", TString title = "c1");
 
   void addScanner(MethodAbsScan* s, int CLsType = 0);
   void addFile(TString fName);
   void Draw();
   void DrawFull();
   void drawCLcontent(bool isFull = false);
-  void drawMarker(float x, float y, int color = 0, int style = 3, float size = 2.0);
+  void drawMarker(double x, double y, int color = 0, int style = 3, float size = 2.0);
   void drawGroup();
   void drawSolutions();
-  inline int getNumberOfDefinedColors() { return linecolor[0].size(); }
+  inline int getNumberOfDefinedColors() const { return linecolor[0].size(); }
   inline void setContoursOnly() { contoursOnly = true; };
   inline void setXaxisTitle(TString s) { xTitle = s; };
   inline void setYaxisTitle(TString s) { yTitle = s; };
@@ -43,7 +43,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   std::vector<TH2F*> histos;
   TString xTitle;
   TString yTitle;
-  bool contoursOnly;
+  bool contoursOnly = false;
   std::vector<std::vector<int>> linecolor;  ///< defines colors of 1 sigma lines and solutions of different scanners
   std::vector<std::vector<int>> fillcolor;  ///< defines colors of 1 sigma areas of different scanners
   std::vector<std::vector<int>> linestyle;  ///< defines the line style of 1 sigma line of different scanners
@@ -55,14 +55,14 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
 
  private:
   void drawLegend();
-  bool hasHistoType(Utils::histogramType t);
+  bool hasHistoType(Utils::histogramType t) const;
   void makeNewPlotStyle(TString htmlColor, int ROOTColor = -1);
   void makeOneColorPlotStyle(TString htmlColor, int ROOTColor = -1);
 
   std::vector<Utils::histogramType> histosType;  ///< defines if histogram is interpreted as p-value or chi2
   std::vector<ConfidenceContours*> m_contours;   ///< holds the contours for each scanner
   std::vector<bool> m_contours_computed;  ///< true if the contours were computed for that scanner by computeContours()
-  TLegend* m_legend;                      ///< pointer to the plot legend. Filled by drawLegend().
+  TLegend* m_legend = nullptr;            ///< pointer to the plot legend. Filled by drawLegend().
 };
 
 #endif

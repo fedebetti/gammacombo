@@ -13,14 +13,12 @@
 
 class Parameter {
  public:
-  virtual ~Parameter() = default;
-
   inline void setVal(double v) { startvalue = v; };
   void Print() const;
 
   struct Range {
-    float min;
-    float max;
+    double min;
+    double max;
   };
 
  private:

@@ -27,28 +27,9 @@
 
 class RooWorkspace;
 
-PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, OptParser* opt) : PDF_Abs(nObs) {
-  wspc = w;  // new RooWorkspace(*w);
-  obsName = "default_internal_observables_set_name";
-  parName = "default_internal_parameter_set_name";
-  // globalParsName  = "default_internal_global_pars_set_name";
-  globalObsName = "default_internal_global_obs_set_name";
-  constraintName = "default_internal_constraint_set_name";
-  dataName = "default_internal_dataset_name";
-  pdfName = "default_pdf_workspace_name";
-  pdfBkgName = "default_pdf_bkg_workspace_name";
-  parName = "default_internal_parameter_set";
-  areObsSet = areParsSet = areRangesSet = isPdfSet = isBkgPdfSet = isMultipdfSet = isBkgMultipdfSet = isMultipdfCatSet =
-      isDataSet = isToyDataSet = kFALSE;
+PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, const OptParser* opt) : PDF_Abs(nObs) {
+  wspc = w;
   arg = opt;
-  fitStatus = -10;
-  _NLL = nullptr;
-  minNllFree = 0;
-  minNllScan = 0;
-  minNll = 0;
-  nbkgfits = 0;
-  nsbfits = 0;
-  fitStrategy = 0;
 };
 
 PDF_Datasets::PDF_Datasets(RooWorkspace* w) : PDF_Datasets(w, 1, nullptr) {
@@ -59,6 +40,13 @@ PDF_Datasets::PDF_Datasets(RooWorkspace* w) : PDF_Datasets(w, 1, nullptr) {
 PDF_Datasets::~PDF_Datasets() {
   if (wspc) delete wspc;
   if (_constraintPdf) delete _constraintPdf;
+};
+
+void PDF_Datasets::deleteNLL() {
+  if (_NLL) {
+    delete _NLL;
+    _NLL = nullptr;
+  }
 };
 
 void PDF_Datasets::initConstraints(const TString& setName) {
@@ -281,8 +269,8 @@ void PDF_Datasets::initBkgPDF(const TString& name) {
   return;
 };
 
-void PDF_Datasets::setVarRange(const TString& varName, const TString& rangeName, const double& rangeMin,
-                               const double& rangeMax) {
+void PDF_Datasets::setVarRange(const TString& varName, const TString& rangeName, const double rangeMin,
+                               const double rangeMax) {
   RooRealVar* var = wspc->var(varName);
   if (!var) {
     std::cout << "ERROR in PDF_Datasets::setVarRange -- No Var with Name: " << varName << " found!!" << std::endl;
@@ -312,7 +300,7 @@ void PDF_Datasets::setBkgToyData(RooAbsData* ds) {
   return;
 };
 
-void PDF_Datasets::print() {
+void PDF_Datasets::print() const {
   if (isPdfSet) { std::cout << "PDF:\t" << this->getPdfName() << std::endl; }
   if (wspc) {
     std::cout << "Workspace:\t" << std::endl;
@@ -321,7 +309,7 @@ void PDF_Datasets::print() {
   return;
 };
 
-void PDF_Datasets::printParameters() {
+void PDF_Datasets::printParameters() const {
   int parcounter = 0;
   for (const auto& pAbs : *this->parameters) {
     const auto p = static_cast<RooRealVar*>(pAbs);
@@ -332,7 +320,7 @@ void PDF_Datasets::printParameters() {
   std::cout << std::endl << std::endl;
 };
 
-OptParser* PDF_Datasets::getArg() {
+const OptParser* PDF_Datasets::getArg() {
   std::cout << "ERROR: getting the options parser from the pdf has been deprecated" << std::endl;
   std::cout << "(This is up for discussion of course)" << std::endl;
   std::exit(EXIT_FAILURE);
@@ -706,8 +694,8 @@ void PDF_Datasets::unblind(TString var, TString unblindRegs) {
     minStr.Replace(minStr.Index(":"), minStr.Sizeof(), "");
     maxStr.ReplaceAll("]", "");
     maxStr.Replace(0, maxStr.Index(":") + 1, "");
-    float min = minStr.Atof();
-    float max = maxStr.Atof();
+    double min = minStr.Atof();
+    double max = maxStr.Atof();
     wspc->var(var)->setRange(Form("unblind%d", i), min, max);
     unblindString += Form("unblind%d", i);
     if (i < regs->GetEntries() - 1) unblindString += ",";

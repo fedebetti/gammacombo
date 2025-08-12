@@ -44,12 +44,11 @@ ParameterEvolutionPlotter::ParameterEvolutionPlotter(MethodProbScan* scanner) {
 
   // get the chi2 values at the local minima
   getLocalMinPositions();
-
-  // canvas handling
-  m_padId = 0;
 }
 
-ParameterEvolutionPlotter::~ParameterEvolutionPlotter() { delete w; }
+ParameterEvolutionPlotter::~ParameterEvolutionPlotter() {
+  if (w) delete w;
+}
 
 ///
 /// Compute the positions of the local minima, in terms of scan steps, store it in
@@ -74,13 +73,13 @@ void ParameterEvolutionPlotter::drawLinesAtMinima(TVirtualPad* pad) {
 ///
 /// Draw a vertical red line into the current pad at position i.
 ///
-void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos) {
+void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, double xpos) {
   pad->cd();
   pad->Update();
-  float ymin = pad->GetUymin();
-  float ymax = pad->GetUymax();
-  float xmin = pad->GetUxmin();
-  float xmax = pad->GetUxmax();
+  double ymin = pad->GetUymin();
+  double ymax = pad->GetUymax();
+  double xmin = pad->GetUxmin();
+  double xmax = pad->GetUxmax();
   TLine* l1 = new TLine(xpos, ymin, xpos, ymax);
   l1->SetLineWidth(1);
   l1->SetLineColor(kRed);
@@ -91,8 +90,8 @@ void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(std::vector<RooSlimFitResult*> results,
-                                                                  TString parName) {
+TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(const std::vector<RooSlimFitResult*>& results,
+                                                                  TString parName) const {
   TGraphErrors* g = new TGraphErrors(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -108,7 +107,8 @@ TGraphErrors* ParameterEvolutionPlotter::makeEvolutionGraphErrors(std::vector<Ro
 ///
 /// Make an evolution graph for one parameter.
 ///
-TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(std::vector<RooSlimFitResult*> results, TString parName) {
+TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(const std::vector<RooSlimFitResult*>& results,
+                                                      TString parName) const {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -123,7 +123,7 @@ TGraph* ParameterEvolutionPlotter::makeEvolutionGraph(std::vector<RooSlimFitResu
 ///
 /// Make a chi2 graph.
 ///
-TGraph* ParameterEvolutionPlotter::makeChi2Graph(std::vector<RooSlimFitResult*> results) {
+TGraph* ParameterEvolutionPlotter::makeChi2Graph(const std::vector<RooSlimFitResult*>& results) const {
   TGraph* g = new TGraph(results.size());
   int iGraph = 0;
   for (int i = 0; i < results.size(); i++) {
@@ -238,8 +238,8 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   for (int i = 0; i < results.size(); i++) {
     assert(results[i]);
     // get value of observable
-    float obsValue = results[i]->getParVal(scanVar1);
-    float obsError = w->var(scanVar1)->getError();
+    double obsValue = results[i]->getParVal(scanVar1);
+    double obsError = w->var(scanVar1)->getError();
 
     // get value of theory prediction
     Utils::setParameters(w, parsName, results[i]);
@@ -250,7 +250,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
                 << std::endl;
       continue;
     }
-    float thValue = w->function(thName)->getVal();
+    double thValue = w->function(thName)->getVal();
     g->SetPoint(iGraph, iGraph, obsValue - thValue);
     g->SetPointError(iGraph, 0., obsError);
     iGraph++;

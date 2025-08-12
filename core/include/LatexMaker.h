@@ -15,13 +15,12 @@ class LatexMaker {
 
  public:
   LatexMaker(TString cName, PDF_Abs* _pdf);
-  ~LatexMaker();
 
   void writeFile();
   void writeCorrMatrix(std::ofstream& file, TMatrixDSym mat, RooArgList* observables, std::vector<TString> labels);
 
-  TString outfname;
-  PDF_Abs* pdf;
+  const TString outfname;
+  PDF_Abs* pdf = nullptr;
 };
 
 #endif

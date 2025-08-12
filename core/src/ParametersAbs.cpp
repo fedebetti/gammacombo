@@ -12,7 +12,7 @@ Parameter* ParametersAbs::newParameter(TString name) {
   return p;
 }
 
-Parameter::Range ParametersAbs::range(float min, float max) {
+Parameter::Range ParametersAbs::range(double min, double max) {
   Parameter::Range r = {min, max};
   return r;
 }

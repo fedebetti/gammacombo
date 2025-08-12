@@ -15,7 +15,6 @@
 class PDF_Gaus2d : public PDF_Abs {
  public:
   PDF_Gaus2d(TString cObs = "year2013", TString cErr = "year2013", TString cCor = "year2013");
-  ~PDF_Gaus2d();
   void buildPdf();
   void initObservables();
   virtual void initParameters();

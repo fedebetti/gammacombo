@@ -19,12 +19,13 @@ class RooRealVar;
 
 class ParametersAbs {
  public:
-  inline ParametersAbs(){};
-  inline virtual ~ParametersAbs(){};
+  virtual ~ParametersAbs() = default;
+
   Parameter* var(TString name);
   RooRealVar* get(TString name);
   Parameter* newParameter(TString name);
-  Parameter::Range range(float min, float max);
+
+  Parameter::Range range(double min, double max);
 
  protected:
   std::vector<Parameter*> m_parameters;

@@ -29,14 +29,12 @@
 ///
 /// \param arg - command line options
 ///
-ParameterCache::ParameterCache(OptParser* arg) : m_parametersLoaded(false) {
+ParameterCache::ParameterCache(const OptParser* arg) {
   assert(arg);
   m_arg = arg;
 }
 
-ParameterCache::~ParameterCache() {}
-
-void ParameterCache::printFitResultToOutStream(std::ofstream& out, RooSlimFitResult* slimFitRes) {
+void ParameterCache::printFitResultToOutStream(std::ofstream& out, const RooSlimFitResult* slimFitRes) const {
 
   out << "### FCN: " << slimFitRes->minNll() << ", EDM: " << slimFitRes->edm() << std::endl;
   out << "### COV quality: " << slimFitRes->covQual() << ", status: " << slimFitRes->status()
@@ -88,7 +86,7 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
   //
   // 1D
   if (m_arg->savenuisances1d.size() > 0) {
-    std::vector<float>& points = m_arg->savenuisances1d;
+    const auto& points = m_arg->savenuisances1d;
     for (int i = 0; i < points.size(); i++) {
 
       int iBin = scanner->getHCL()->FindBin(points[i]);
@@ -109,8 +107,8 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
   }
   // 2D
   if (m_arg->savenuisances2dx.size() > 0) {
-    std::vector<float>& pointsx = m_arg->savenuisances2dx;
-    std::vector<float>& pointsy = m_arg->savenuisances2dy;
+    const auto& pointsx = m_arg->savenuisances2dx;
+    const auto& pointsy = m_arg->savenuisances2dy;
 
     if (pointsx.size() != pointsy.size()) {
       std::cout << "ParameterCache::cacheParameters() : ERROR : vectors for savenuisances2dx(y) have different size"
@@ -189,22 +187,22 @@ bool ParameterCache::loadPoints(TString fileName) {
   return successfullyLoaded;
 }
 
-void ParameterCache::printPoint() {
+void ParameterCache::printPoint() const {
 
   std::cout << "ParameterCache::printPoint() -- There are " << startingValues.size()
             << " solutions with values: " << std::endl;
 
   for (unsigned int i = 0; i < startingValues.size(); i++) {
     std::cout << "SOLUTION " << i << std::endl;
-    for (std::map<TString, double>::iterator it = startingValues[i].begin(); it != startingValues[i].end(); it++) {
-      std::cout << Form("%-25s", it->first.Data()) << " " << Form("%12.6f", it->second) << std::endl;
+    for (const auto& [name, val] : startingValues[i]) {
+      std::cout << Form("%-25s", name.Data()) << " " << Form("%12.6f", val) << std::endl;
     }
   }
 }
 
-int ParameterCache::getNPoints() { return startingValues.size(); }
+int ParameterCache::getNPoints() const { return startingValues.size(); }
 
-std::vector<TString> ParameterCache::getFixedNames(std::vector<Utils::FixPar> fixPar) {
+std::vector<TString> ParameterCache::getFixedNames(std::vector<Utils::FixPar> fixPar) const {
   std::vector<TString> names;
   for (unsigned int i = 0; i < fixPar.size(); i++) { names.push_back(fixPar[i].name); }
   return names;

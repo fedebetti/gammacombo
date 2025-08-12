@@ -38,10 +38,15 @@ class GammaComboEngine {
   GammaComboEngine(TString name, int argc, char* argv[], bool _runOnDataSet);
   ~GammaComboEngine();
 
+  GammaComboEngine(GammaComboEngine&) = delete;
+  GammaComboEngine& operator=(GammaComboEngine&) = delete;
+
   void adjustRanges(Combiner* c, int cId);
   void setupToyVariationSets(Combiner* c, int cId);
   void addPdf(int id, PDF_Abs* pdf, TString title = "");
-  void addSubsetPdf(int id, PDF_Abs* pdf, std::vector<int>& indices, TString title = "");
+  void addSubsetPdf(int id, PDF_Abs* pdf, const std::vector<int>& indices, TString title = "");
+
+  // The following methods are deprecated and maintained only to preserve backward-compatibility.
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, TString title = "");
@@ -51,18 +56,28 @@ class GammaComboEngine {
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, int i6, int i7, TString title = "");
   void addSubsetPdf(int id, PDF_Abs* pdf, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8,
                     TString title = "");
+
   void setPdf(PDF_Abs* pdf);
   void addCombiner(int id, Combiner* cmb);
   void cloneCombiner(int newId, int oldId, TString name, TString title);
-  Combiner* getCombiner(int id) const;
+  void newCombiner(const int id, const TString name, const TString title, const std::vector<int>& pdfIds = {});
+
+  /**
+   * This method is deprecated and is maintained only for legacy reasons.
+   *
+   * Add a new Combiner, consisting of the specified PDFs. The pdf arguments refer to the GammaComboEngine ID of the
+   * PDFs that should be combined (add them before using `addPdf()`).
+   */
+  void newCombiner(const int id, const TString name, const TString title, std::convertible_to<int> auto&&... pdfIds) {
+    newCombiner(id, name, title, std::vector<int>{pdfIds...});
+  }
+
+  Combiner* getCombiner(int id);
   PDF_Abs* getPdf(int id);
-  inline OptParser* getArg() { return arg; };
-  void newCombiner(int id, TString name, TString title, int pdf1 = -1, int pdf2 = -1, int pdf3 = -1, int pdf4 = -1,
-                   int pdf5 = -1, int pdf6 = -1, int pdf7 = -1, int pdf8 = -1, int pdf9 = -1, int pdf10 = -1,
-                   int pdf11 = -1, int pdf12 = -1, int pdf13 = -1, int pdf14 = -1, int pdf15 = -1);
-  void print();
-  void printPdfs();
-  void printCombinations();
+  inline OptParser* getArg() const { return arg; };
+  void print() const;
+  void printPdfs() const;
+  void printCombinations() const;
   void run();
   void runApplication();
   void scanStrategy1d(MethodProbScan* scanner, ParameterCache* pCache);
@@ -72,9 +87,9 @@ class GammaComboEngine {
 
  private:
   void makeAddDelCombinations();
-  void checkAsimovArg();
-  void checkColorArg();
-  void checkCombinationArg();
+  void checkAsimovArg() const;
+  void checkColorArg() const;
+  void checkCombinationArg() const;
   void configureAsimovCombinerNames(Combiner* c, int i);
   bool combinerExists(int id) const;
   void compareCombinations();
@@ -82,8 +97,8 @@ class GammaComboEngine {
   void defineColors();
   void disableSystematics();
   void fixParameters(Combiner* c, int cId);
-  TString getStartParFileName(int cId);
-  bool isScanVarObservable(Combiner* c, TString scanVar);
+  TString getStartParFileName(int cId) const;
+  bool isScanVarObservable(Combiner* c, TString scanVar) const;
   void loadStartParameters(MethodProbScan* s, ParameterCache* pCache, int cId);
   void make1dPluginOnlyPlot(MethodPluginScan* sPlugin, int cId);
   void make1dPluginPlot(MethodPluginScan* sPlugin, MethodProbScan* sProb, int cId);
@@ -98,9 +113,9 @@ class GammaComboEngine {
   void make2dPluginScan(MethodPluginScan* scannerPlugin, int cId);
   void make2dProbPlot(MethodProbScan* scanner, int cId);
   void make2dProbScan(MethodProbScan* scanner, int cId);
-  void printCombinerStructure(Combiner* c);
-  void printBanner();
-  bool pdfExists(int id);
+  void printCombinerStructure(Combiner* c) const;
+  void printBanner() const;
+  bool pdfExists(int id) const;
   void savePlot();
   void scaleStatErrors();
   void scaleStatAndSystErrors();
@@ -112,13 +127,13 @@ class GammaComboEngine {
   void loadAsimovPoint(Combiner* c, int cId);
   void setUpPlot();
   void tightenChi2Constraint(Combiner* c, TString scanVar);
-  void usage();
+  void usage() const;
   void writebatchscripts();
   void makeLatex(Combiner* c);
   void saveWorkspace(Combiner* c, int i);
   void runToys(Combiner* c);
 
-  OptParser* arg;
+  OptParser* arg = nullptr;
   std::vector<Combiner*> cmb;
   std::vector<int> colorsLine;
   std::vector<int> colorsText;
@@ -130,13 +145,13 @@ class GammaComboEngine {
   std::vector<int> lineWidths;
   std::vector<MethodProbScan*> comparisonScanners;
   TString execname;
-  FileNameBuilder* m_fnamebuilder;
-  BatchScriptWriter* m_batchscriptwriter;
+  FileNameBuilder* m_fnamebuilder = nullptr;
+  BatchScriptWriter* m_batchscriptwriter = nullptr;
   std::vector<PDF_Abs*> pdf;
-  OneMinusClPlotAbs* plot;
+  OneMinusClPlotAbs* plot = nullptr;
   TStopwatch t;
-  TApplication* theApp;
-  bool runOnDataSet;
+  TApplication* theApp = nullptr;
+  bool runOnDataSet = false;
 };
 
 #endif

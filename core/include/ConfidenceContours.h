@@ -21,30 +21,28 @@ class TH2F;
 
 class ConfidenceContours {
  public:
-  ConfidenceContours(OptParser* arg);
-  ~ConfidenceContours();
+  ConfidenceContours(const OptParser* arg);
+
   void computeContours(TH2F* hist, Utils::histogramType type, int id = 0);
   void Draw();
   void DrawDashedLine();
-  void setStyle(std::vector<int>& linecolor, std::vector<int>& linestyle, std::vector<int>& linewidth,
-                std::vector<int>& fillcolor, std::vector<int>& fillstyle);
+  void setStyle(const std::vector<int>& linecolor, const std::vector<int>& linestyle, const std::vector<int>& linewidth,
+                const std::vector<int>& fillcolor, const std::vector<int>& fillstyle);
   inline void setTransparency(float percent) { m_transparency = percent; };
-  inline void setContoursToPlot(std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
+  inline void setContoursToPlot(const std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
 
  private:
-  TH2F* addBoundaryBins(TH2F* hist);
   void addFilledPlotArea(TH2F* hist);
-  TH2F* transformChi2valleyToHill(TH2F* hist, float offset);
-  OptParser* m_arg;                  ///< command line arguments
+  const OptParser* m_arg = nullptr;  ///< command line arguments
   std::vector<Contour*> m_contours;  ///< container for the 1,...,N sigma contours
   std::vector<int> m_linecolor;      ///< style for the 1,...,N sigma contours
   std::vector<int> m_linestyle;
   std::vector<int> m_fillcolor;
   std::vector<int> m_fillstyle;
   std::vector<int> m_linewidth;
-  float m_transparency;
+  float m_transparency = 0.f;
   std::vector<int> m_contstoplots;  ///< container for which contours to actually draw
-  int m_nMaxContours;
+  const int m_nMaxContours = 9;
 };
 
 #endif
