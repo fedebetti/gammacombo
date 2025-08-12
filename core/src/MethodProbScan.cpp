@@ -56,7 +56,7 @@ int MethodProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
   auto warning = [](const std::string& msg) { msgBase("MethodProbScan::scan1d() : WARNING : ", msg); };
   auto error = [](const std::string& msg) {
     msgBase("MethodProbScan::scan1d() : ERROR : ", msg);
-    exit(1);
+    std::exit(1);
   };
 
   if (arg->debug) debug(std::format("Call with arguments ({:s}, {:s}, {:s})", fast, reverse, quiet));
@@ -75,21 +75,22 @@ int MethodProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
   setLimit(w, scanVar1, "scan");
   auto par = w->var(scanVar1);
   if (!par) {
-    cerr << std::format("Could not find the variable {:s} in the RooWorkspace. Exit", std::string(scanVar1)) << endl;
-    exit(1);
+    std::cerr << std::format("Could not find the variable {:s} in the RooWorkspace. Exit", std::string(scanVar1))
+              << std::endl;
+    std::exit(1);
   }
   const auto min = hCL->GetXaxis()->GetXmin();
   const auto max = hCL->GetXaxis()->GetXmax();
   if (std::abs(par->getMin() - min) > 1e-6 || std::abs(par->getMax() - max) > 1e-6)
     warning("Scan range was changed after initScan() was called so the old range will be used.");
   if (arg->verbose) {
-    cout << "\nProb configuration:" << endl;
-    cout << "  combination : " << title << endl;
-    cout << "  scan variable : " << scanVar1 << endl;
-    cout << "  scan range : " << min << " ... " << max << endl;
-    cout << "  scan steps : " << nPoints1d << endl;
-    cout << "  fast mode : " << fast << endl;
-    cout << endl;
+    std::cout << "\nProb configuration:" << std::endl;
+    std::cout << "  combination : " << title << std::endl;
+    std::cout << "  scan variable : " << scanVar1 << std::endl;
+    std::cout << "  scan range : " << min << " ... " << max << std::endl;
+    std::cout << "  scan steps : " << nPoints1d << std::endl;
+    std::cout << "  fast mode : " << fast << std::endl;
+    std::cout << std::endl;
   }
 
   // Set limit to all parameters.
@@ -104,7 +105,8 @@ int MethodProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
   auto floatPars = std::unique_ptr<RooAbsCollection>(likelihood->getVariables()->selectByAttrib("Constant", false));
   const bool hasFreePars = floatPars->getSize() > 0;
   if (!hasFreePars)
-    cout << "MethodProbScan::scan1d() : INFO : There are no free parameters. I will scan without fitting" << endl;
+    std::cout << "MethodProbScan::scan1d() : INFO : There are no free parameters. I will scan without fitting"
+              << std::endl;
 
   // Report on the smallest new minimum we come across while scanning.
   // Sometimes the scan doesn't find the minimum that was found before. Warn if this happens.
@@ -171,7 +173,7 @@ int MethodProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
 
       // status bar
       if (!quiet && (i % static_cast<int>(nTotalSteps / printFreq)) == 0)
-        cout << "MethodProbScan::scan1d() : scanning " << 100. * i / nTotalSteps << "%   \r" << flush;
+        std::cout << "MethodProbScan::scan1d() : scanning " << 100. * i / nTotalSteps << "%   \r" << flush;
 
       RooSlimFitResult* sfr = nullptr;
       auto chi2minScan = std::numeric_limits<double>::max();
@@ -202,10 +204,10 @@ int MethodProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
         error("I have found a new minimum with negative chi2. This should never happen");
         // TODO are there reasons why we shouldn't exit in the previous command?
         // double newChi2minScan = chi2minGlobal + 25.;  // 5sigma more than best point
-        // cout << "MethodProbScan::scan1d() : WARNING : " << title
+        // std::cout << "MethodProbScan::scan1d() : WARNING : " << title
         //      << std::format(" chi2 negative for scan point {:d}: {:.2f} setting to: {:.2f}", i, chi2minScan,
         //                     newChi2minScan)
-        //      << endl;
+        //      << std::endl;
         // chi2minScan = newChi2minScan;
       }
       bestMinFoundInScan = std::min(chi2minScan, bestMinFoundInScan);
@@ -241,7 +243,7 @@ int MethodProbScan::scan1d(bool fast, const bool reverse, const bool quiet) {
       }
     }
   }
-  cout << "MethodProbScan::scan1d() : scan done.           " << endl;
+  std::cout << "MethodProbScan::scan1d() : scan done.           " << std::endl;
 
   if (bestMinFoundInScan - bestMinOld > 1e-2) {
     warning(std::format("Scan didn't find similar minimum to what was found before!\n"
@@ -319,8 +321,8 @@ int MethodProbScan::computeCLvalues() {
 }
 
 /**
- * Delete a pointer if it is not included in the curveResults2d vector.
- * Also removes it from the allResults vector by setting the entry to 0.
+ * Delete a pointer if it is not included in the curveResults2d std::vector.
+ * Also removes it from the allResults std::vector by setting the entry to 0.
  *
  * :return: true if r was deleted, or if it is 0
  */
@@ -373,8 +375,8 @@ bool MethodProbScan::computeInnerTurnCoords(const int iStart, const int jStart, 
   // check result
   if (iResult - 1 >= curveResults2d.size() || jResult - 1 >= curveResults2d[0].size() || iResult - 1 < 0 ||
       jResult - 1 < 0) {
-    cout << "MethodProbScan::computeInnerTurnCoords() : ERROR : resulting coordinates out of range! " << iResult - 1
-         << " " << jResult - 1 << endl;
+    std::cout << "MethodProbScan::computeInnerTurnCoords() : ERROR : resulting coordinates out of range! "
+              << iResult - 1 << " " << jResult - 1 << std::endl;
   }
   if (iResult == iStart && jResult == jStart) return false;
   return true;
@@ -382,16 +384,16 @@ bool MethodProbScan::computeInnerTurnCoords(const int iStart, const int jStart, 
 
 void MethodProbScan::sanityChecks() const {
   if (!w->set(parsName)) {
-    cout << "MethodProbScan::sanityChecks() : ERROR : parsName not found: " << parsName << endl;
-    exit(1);
+    std::cout << "MethodProbScan::sanityChecks() : ERROR : parsName not found: " << parsName << std::endl;
+    std::exit(1);
   }
   if (!w->var(scanVar1)) {
-    cout << "MethodProbScan::sanityChecks() : ERROR : scanVar1 not found: " << scanVar1 << endl;
-    exit(1);
+    std::cout << "MethodProbScan::sanityChecks() : ERROR : scanVar1 not found: " << scanVar1 << std::endl;
+    std::exit(1);
   }
   if (!w->var(scanVar2)) {
-    cout << "MethodProbScan::sanityChecks() : ERROR : scanVar2 not found: " << scanVar2 << endl;
-    exit(1);
+    std::cout << "MethodProbScan::sanityChecks() : ERROR : scanVar2 not found: " << scanVar2 << std::endl;
+    std::exit(1);
   }
 }
 
@@ -407,7 +409,7 @@ void MethodProbScan::sanityChecks() const {
  * \return The scan status (2 = new global minimum found, 1 = error, 0 = success)
  */
 int MethodProbScan::scan2d() {
-  if (arg->debug) cout << "MethodProbScan::scan2d() : starting ..." << endl;
+  if (arg->debug) std::cout << "MethodProbScan::scan2d() : starting ..." << std::endl;
   nScansDone++;
   sanityChecks();
 
@@ -417,7 +419,8 @@ int MethodProbScan::scan2d() {
 
   // Set up storage for fit results of this particular scan. This is used for the drag start parameters.
   // We cannot use the curveResults2d member because that only holds better results.
-  vector<vector<RooSlimFitResult*>> mycurveResults2d(nPoints2dx, vector<RooSlimFitResult*>(nPoints2dy, nullptr));
+  std::vector<vector<RooSlimFitResult*>> mycurveResults2d(nPoints2dx,
+                                                          std::vector<RooSlimFitResult*>(nPoints2dy, nullptr));
 
   // store start parameters so we can reset them later
   startPars = std::make_unique<RooDataSet>("startPars", "startPars", *w->set(parsName));
@@ -426,10 +429,10 @@ int MethodProbScan::scan2d() {
   auto par1 = w->var(scanVar1);
   auto par2 = w->var(scanVar2);
   if (!par1 || !par2) {
-    cerr << std::format("Could not find the variables ({:s}, {:s}) in the RooWorkspace. Exit", std::string(scanVar1),
-                        std::string(scanVar2))
-         << endl;
-    exit(1);
+    std::cerr << std::format("Could not find the variables ({:s}, {:s}) in the RooWorkspace. Exit",
+                             std::string(scanVar1), std::string(scanVar2))
+              << std::endl;
+    std::exit(1);
   }
 
   // Set limit to all parameters.
@@ -445,7 +448,8 @@ int MethodProbScan::scan2d() {
   auto floatPars = std::unique_ptr<RooAbsCollection>(likelihood->getVariables()->selectByAttrib("Constant", false));
   const bool hasFreePars = floatPars->getSize() > 0;
   if (!hasFreePars)
-    cout << "MethodProbScan::scan1d() : INFO : There are not free parameters. I will scan without fitting" << endl;
+    std::cout << "MethodProbScan::scan1d() : INFO : There are not free parameters. I will scan without fitting"
+              << std::endl;
 
   // initialize some control plots
   gStyle->SetOptTitle(1);
@@ -503,7 +507,8 @@ int MethodProbScan::scan2d() {
         tScan.Start(false);
 
         if (nSteps % static_cast<int>(nTotalSteps / printFreq) == 0)
-          cout << std::format("MethodProbScan::scan2d() : scanning {:3.0f}%\r", 100. * nSteps / nTotalSteps) << flush;
+          std::cout << std::format("MethodProbScan::scan2d() : scanning {:3.0f}%\r", 100. * nSteps / nTotalSteps)
+                    << flush;
         nSteps++;
 
         // status histogram
@@ -578,9 +583,9 @@ int MethodProbScan::scan2d() {
         if (chi2minScan > -500 && chi2minScan < chi2minGlobal) {
           if (arg->debug || chi2minScan < chi2minGlobal - 1e-2) {
             if (arg->verbose)
-              cout << "MethodProbScan::scan2d() : WARNING : '" << title
-                   << "' new global minimum found! chi2minGlobal=" << chi2minGlobal << " chi2minScan=" << chi2minScan
-                   << endl;
+              std::cout << "MethodProbScan::scan2d() : WARNING : '" << title
+                        << "' new global minimum found! chi2minGlobal=" << chi2minGlobal
+                        << " chi2minScan=" << chi2minScan << std::endl;
           }
           chi2minGlobal = chi2minScan;
           // recompute previous 1-CL values
@@ -623,15 +628,15 @@ int MethodProbScan::scan2d() {
     x += dx;
     y += dy;
   }
-  cout << "MethodProbScan::scan2d() : scan done.            " << endl;
+  std::cout << "MethodProbScan::scan2d() : scan done.            " << std::endl;
   if (arg->debug) {
-    cout << "MethodProbScan::scan2d() : full scan time:             ";
+    std::cout << "MethodProbScan::scan2d() : full scan time:             ";
     tScan.Print();
-    cout << "MethodProbScan::scan2d() : - fitting:                  ";
+    std::cout << "MethodProbScan::scan2d() : - fitting:                  ";
     tFit.Print();
-    cout << "MethodProbScan::scan2d() : - create RooSlimFitResults: ";
+    std::cout << "MethodProbScan::scan2d() : - create RooSlimFitResults: ";
     tSlimResult.Print();
-    cout << "MethodProbScan::scan2d() : - memory management:        ";
+    std::cout << "MethodProbScan::scan2d() : - memory management:        ";
     tMemory.Print();
   }
   setParameters(w, parsName, startPars->get(0));
@@ -643,23 +648,23 @@ int MethodProbScan::scan2d() {
   for (auto&& result : allResults) { deleteIfNotInCurveResults2d(result.get()); }
 
   if (bestMinFoundInScan - bestMinOld > 0.1) {
-    cout << "MethodProbScan::scan2d() : WARNING: Scan didn't find minimum that was found before!" << endl;
-    cout << "MethodProbScan::scan2d() :          Are you using too strict parameter limits?" << endl;
-    cout << "MethodProbScan::scan2d() :          min chi2 found in scan: " << bestMinFoundInScan
-         << ", old min chi2: " << bestMinOld << endl;
+    std::cout << "MethodProbScan::scan2d() : WARNING: Scan didn't find minimum that was found before!" << std::endl;
+    std::cout << "MethodProbScan::scan2d() :          Are you using too strict parameter limits?" << std::endl;
+    std::cout << "MethodProbScan::scan2d() :          min chi2 found in scan: " << bestMinFoundInScan
+              << ", old min chi2: " << bestMinOld << std::endl;
     return 1;
   }
   return 0;
 }
 
 /**
- * Find the RooSlimFitResults corresponding to all local minima from the curveResults vector and save them into the
- * solutions vector. It will be sorted for minChi2. Index 0 will correspond to the least chi2.
+ * Find the RooSlimFitResults corresponding to all local minima from the curveResults std::vector and save them into the
+ * solutions std::vector. It will be sorted for minChi2. Index 0 will correspond to the least chi2.
  */
 void MethodProbScan::saveSolutions() {
   auto warning = [](const std::string& msg) { msgBase("MethodProbScan::saveSolutions() : WARNING : ", msg); };
 
-  if (arg->debug) cout << "MethodProbScan::saveSolutions() : searching for minima in hChi2min ..." << endl;
+  if (arg->debug) std::cout << "MethodProbScan::saveSolutions() : searching for minima in hChi2min ..." << std::endl;
 
   if (std::ranges::any_of(curveResults, [](const RooSlimFitResult* sfr) { return sfr != nullptr; })) {
     solutions.clear();
@@ -682,7 +687,7 @@ void MethodProbScan::saveSolutions() {
 
         if (hChi2min->FindBin(curveResults[j]->getConstParVal(scanVar1)) == i) {
           if (arg->debug) {
-            cout << "MethodProbScan::saveSolutions() : saving solution " << j << ":" << endl;
+            std::cout << "MethodProbScan::saveSolutions() : saving solution " << j << ":" << std::endl;
             curveResults[j]->Print();
           }
           solutions.push_back(curveResults[j]->Clone());
@@ -698,8 +703,8 @@ void MethodProbScan::saveSolutions() {
 
   if (solutions.empty()) {
     if (!globalMin) {
-      cerr << "MethodProbScan::saveSolutions() : ERROR : No solution was found at all. Exit" << endl;
-      exit(1);
+      std::cerr << "MethodProbScan::saveSolutions() : ERROR : No solution was found at all. Exit" << std::endl;
+      std::exit(1);
     }
     solutions.emplace_back(std::make_unique<RooSlimFitResult>(globalMin.get()));
   }
@@ -707,8 +712,8 @@ void MethodProbScan::saveSolutions() {
 
 ///
 /// Find the RooFitResults corresponding to all local
-/// minima from the curveResults2d vector
-/// and save them into the solutions vector.
+/// minima from the curveResults2d std::vector
+/// and save them into the solutions std::vector.
 /// It will be sorted for minChi2. Index 0
 /// will correspond to the least chi2.
 ///
@@ -717,7 +722,8 @@ void MethodProbScan::saveSolutions() {
 /// ones.
 ///
 void MethodProbScan::saveSolutions2d() {
-  if (arg->debug) cout << "MethodProbScan::saveSolutions2d() : searching for minima in hChi2min2d ..." << endl;
+  if (arg->debug)
+    std::cout << "MethodProbScan::saveSolutions2d() : searching for minima in hChi2min2d ..." << std::endl;
 
   if (std::ranges::any_of(curveResults2d, [](const std::vector<RooSlimFitResult*> v) {
         return std::ranges::any_of(v, [](const RooSlimFitResult* sfr) { return sfr != nullptr; });
@@ -739,30 +745,30 @@ void MethodProbScan::saveSolutions2d() {
 
         const auto r = curveResults2d[i - 1][j - 1];  // -1 because it starts counting at 0, but histograms at 1
         if (!r) {
-          cout << std::format("MethodProbScan::saveSolutions2d() : ERROR : No corresponding RooFitResult found! "
-                              "Skipping (i,j)=({:d},{:d})",
-                              i, j)
-               << endl;
+          std::cout << std::format("MethodProbScan::saveSolutions2d() : ERROR : No corresponding RooFitResult found! "
+                                   "Skipping (i,j)=({:d},{:d})",
+                                   i, j)
+                    << std::endl;
           continue;
         }
         if (arg->debug)
-          cout << std::format("MethodProbScan::saveSolutions2d() : saving solution of bin ({:d},{:d})...", i, j)
-               << endl;
+          std::cout << std::format("MethodProbScan::saveSolutions2d() : saving solution of bin ({:d},{:d})...", i, j)
+                    << std::endl;
         solutions.push_back(curveResults2d[i - 1][j - 1]->Clone());
       }
     }
   } else {
-    cout << "MethodProbScan::saveSolutions2d() : WARNING : No solutions found in 2D scan!\n"
-            "  This can happen when a solution is too close to the plot boundary.\n"
-            "  In this case, either change the scan range using --scanrange and --scanrangey,\n"
-            "  or increase the number of scan points, using --npoints or --npoints2dx, --npoints2dy"
-         << endl;
+    std::cout << "MethodProbScan::saveSolutions2d() : WARNING : No solutions found in 2D scan!\n"
+                 "  This can happen when a solution is too close to the plot boundary.\n"
+                 "  In this case, either change the scan range using --scanrange and --scanrangey,\n"
+                 "  or increase the number of scan points, using --npoints or --npoints2dx, --npoints2dy"
+              << std::endl;
   }
 
   if (solutions.empty()) {
     if (!globalMin) {
-      cerr << "MethodProbScan::saveSolutions2d() : ERROR : No solution was found at all. Exit" << endl;
-      exit(1);
+      std::cerr << "MethodProbScan::saveSolutions2d() : ERROR : No solution was found at all. Exit" << std::endl;
+      std::exit(1);
     }
     solutions.emplace_back(std::make_unique<RooSlimFitResult>(globalMin.get()));
   } else {

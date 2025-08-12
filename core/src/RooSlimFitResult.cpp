@@ -132,13 +132,13 @@ bool RooSlimFitResult::hasParameter(TString name) const {
 }
 
 void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor) {
-  outfile << "%  FCN: " << minNll() << ", EDM: " << edm() << endl;
+  outfile << "%  FCN: " << minNll() << ", EDM: " << edm() << std::endl;
   outfile << "%  COV quality: " << covQual() << ", status: " << status()
-          << ", confirmed: " << (_isConfirmed ? "yes" : "no") << endl;
-  outfile << endl;
-  outfile << "\\begin{tabular}{ l | l l l }" << endl;
-  outfile << "  Parameter &  Value & & Uncertainty \\\\" << endl;
-  vector<TString> myParNames;
+          << ", confirmed: " << (_isConfirmed ? "yes" : "no") << std::endl;
+  outfile << std::endl;
+  outfile << "\\begin{tabular}{ l | l l l }" << std::endl;
+  outfile << "  Parameter &  Value & & Uncertainty \\\\" << std::endl;
+  std::vector<TString> myParNames;
   for (int i = 0; i < _parsNames.size(); i++) {
     TString printName = "\\" + TString(_parsNames[i]).ReplaceAll("_", "");
     double val = _parsVal[i];
@@ -152,27 +152,27 @@ void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor)
       if (!TString(_parsNames[i]).Contains("obs")) {
         outfile << Form(" %-22s  &  $%5.3f$ & $\\pm$ & $%5.3f$", printName.Data(), val, err);
         if (_parsAngle[i]) outfile << " (Deg)";
-        outfile << " \\\\" << endl;
+        outfile << " \\\\" << std::endl;
       }
     }
     // print floating parameters
     else {
       outfile << Form(" %-22s  &  $%5.3f$ & $\\pm$ & $%5.3f$", printName.Data(), val, err);
       if (_parsAngle[i]) outfile << " (Deg)";
-      outfile << " \\\\" << endl;
+      outfile << " \\\\" << std::endl;
       myParNames.push_back(printName);
     }
   }
-  outfile << "\\end{tabular}" << endl;
+  outfile << "\\end{tabular}" << std::endl;
 
   // print correlations
-  outfile << "\n%Correlation matrix" << endl;
+  outfile << "\n%Correlation matrix" << std::endl;
   outfile << "\\begin{tabular}{ l |";
   for (int i = 0; i < _correlationMatrix.GetNcols(); i++) outfile << " l";
-  outfile << " }" << endl;
+  outfile << " }" << std::endl;
   outfile << Form("  %-10s", " ");
   for (int i = 0; i < _correlationMatrix.GetNcols(); i++) { outfile << " & " << Form("%5s", myParNames[i].Data()); }
-  outfile << " \\\\" << endl;
+  outfile << " \\\\" << std::endl;
   for (int j = 0; j < _correlationMatrix.GetNrows(); j++) {
     outfile << Form("  %-22s", myParNames[j].Data());
     for (int i = 0; i < _correlationMatrix.GetNcols(); i++) {
@@ -187,19 +187,20 @@ void RooSlimFitResult::SaveLatex(ofstream& outfile, bool verbose, bool printcor)
         outfile << Form("%4.2f$", _correlationMatrix[i][j]);
       }
     }
-    outfile << " \\\\" << endl;
+    outfile << " \\\\" << std::endl;
   }
-  outfile << "\\end{tabular}" << endl;
-  outfile << endl;
+  outfile << "\\end{tabular}" << std::endl;
+  outfile << std::endl;
 }
 
 void RooSlimFitResult::Print(bool verbose, bool printcor) const {
-  cout << "  FCN: " << minNll() << ", EDM: " << edm() << endl;
-  cout << "  COV quality: " << covQual() << ", status: " << status() << ", confirmed: " << (_isConfirmed ? "yes" : "no")
-       << endl;
-  cout << endl;
-  cout << "    Parameter                      FinalValue +/- Error " << (_isConfirmed ? "(HESSE)" : "(MIGRAD)") << endl;
-  cout << "  ----------------------------   ---------------------------------" << endl;
+  std::cout << "  FCN: " << minNll() << ", EDM: " << edm() << std::endl;
+  std::cout << "  COV quality: " << covQual() << ", status: " << status()
+            << ", confirmed: " << (_isConfirmed ? "yes" : "no") << std::endl;
+  std::cout << std::endl;
+  std::cout << "    Parameter                      FinalValue +/- Error " << (_isConfirmed ? "(HESSE)" : "(MIGRAD)")
+            << std::endl;
+  std::cout << "  ----------------------------   ---------------------------------" << std::endl;
   for (int i = 0; i < _parsNames.size(); i++) {
     double val = _parsVal[i];
     double err = _parsErr[i];
@@ -211,24 +212,24 @@ void RooSlimFitResult::Print(bool verbose, bool printcor) const {
     if (_parsConst[i]) {
       if (!TString(_parsNames[i]).Contains("obs")) {
         printf("       %22s    %11.6g +/- %10.6g (const)", TString(_parsNames[i]).Data(), val, err);
-        if (_parsAngle[i]) cout << " (Deg)";
-        cout << endl;
+        if (_parsAngle[i]) std::cout << " (Deg)";
+        std::cout << std::endl;
       }
     }
     // print floating parameters
     else {
       printf("    %2i %22s    %11.6g +/- %10.6g", _parsFloatId[i], TString(_parsNames[i]).Data(), val, err);
-      if (_parsAngle[i]) cout << " (Deg)";
-      cout << endl;
+      if (_parsAngle[i]) std::cout << " (Deg)";
+      std::cout << std::endl;
     }
   }
   if (printcor) {
     // print correlations
-    cout << "\n    Correlation matrix" << endl;
-    cout << "  ----------------------------" << endl;
+    std::cout << "\n    Correlation matrix" << std::endl;
+    std::cout << "  ----------------------------" << std::endl;
     _correlationMatrix.Print();
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 bool RooSlimFitResult::isAngle(RooRealVar* v) const {

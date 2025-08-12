@@ -36,7 +36,7 @@ void PDF_Datasets::initConstraints(const TString& setName) {
   // obtain the part of the PDF that can generate the global observables
   this->_constraintPdf = std::make_unique<RooProdPdf>("constraintPdf", "", *wspc->set(constraintName));
   if (!_constraintPdf) {
-    std::cout << "ERROR in PDF_B_MuMu::initConstraints - constraint pdf not initialized." << endl;
+    std::cout << "ERROR in PDF_B_MuMu::initConstraints - constraint pdf not initialized." << std::endl;
     exit(EXIT_FAILURE);
   }
   if (data && pdf)
@@ -96,7 +96,7 @@ void PDF_Datasets::initGlobalObservables(const TString& setName) {
 };
 
 void PDF_Datasets::initObservables() {
-  std::cout << "ERROR in PDF_Datasets::initObservables():" << endl;
+  std::cout << "ERROR in PDF_Datasets::initObservables():" << std::endl;
   std::cout << "This function is not supported for dataset scans." << std::endl;
   std::cout << "You must define the RooArgSet of observables in the Workspace." << std::endl;
   std::cout << "The name of the set in the workspace must be passed to the PDF object via " << std::endl;
@@ -119,7 +119,7 @@ void PDF_Datasets::initParameters(const TString& setName) {
   areParsSet = true;
 };
 
-void PDF_Datasets::initParameters(const vector<TString>& parNames) {
+void PDF_Datasets::initParameters(const std::vector<TString>& parNames) {
   if (areParametersSet()) {
     std::cout << "WARNING in PDF_Generic_Abs::initParameters -- Parameters already set" << std::endl;
     return;
@@ -137,7 +137,7 @@ void PDF_Datasets::initParameters(const vector<TString>& parNames) {
 };
 
 void PDF_Datasets::initParameters() {
-  std::cout << "ERROR in PDF_Datasets::initParameters():" << endl;
+  std::cout << "ERROR in PDF_Datasets::initParameters():" << std::endl;
   std::cout << "This function is not supported for dataset scans." << std::endl;
   std::cout << "You must define the RooArgSet of parameters in the Workspace." << std::endl;
   std::cout << "The name of the set in the workspace must be passed to the PDF object via " << std::endl;
@@ -295,11 +295,11 @@ void PDF_Datasets::printParameters() const {
   int parcounter = 0;
   for (const auto pAbs : *this->parameters) {
     const auto p = static_cast<RooRealVar*>(pAbs);
-    cout << p->GetName() << " " << p->getVal() << " ";
+    std::cout << p->GetName() << " " << p->getVal() << " ";
     parcounter += 1;
-    if (parcounter % 5 == 0) cout << endl << "  ";
+    if (parcounter % 5 == 0) std::cout << std::endl << "  ";
   }
-  cout << endl << endl;
+  std::cout << std::endl << std::endl;
 };
 
 const OptParser* PDF_Datasets::getArg() const {

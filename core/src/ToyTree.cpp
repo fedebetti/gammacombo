@@ -47,8 +47,8 @@ ToyTree::ToyTree(PDF_Datasets* p, const OptParser* opt, TChain* t, bool _quiet) 
 void ToyTree::setCombiner(Combiner* c) {
   assert(c);
   if (!c->isCombined()) {
-    cout << "ToyTree::setCombiner() : ERROR : combiner is not combined yet! Exit." << endl;
-    exit(1);
+    std::cout << "ToyTree::setCombiner() : ERROR : combiner is not combined yet! Exit." << std::endl;
+    std::exit(1);
   }
   this->comb = c;
   this->w = c->getWorkspace();
@@ -73,8 +73,8 @@ void ToyTree::fill() {
 ///
 void ToyTree::writeToFile(TString fName) {
   assert(t);
-  if (arg->debug) cout << "ToyTree::writeToFile() : ";
-  cout << "saving toys to: " << fName << endl;
+  if (arg->debug) std::cout << "ToyTree::writeToFile() : ";
+  std::cout << "saving toys to: " << fName << std::endl;
   TFile f(fName, "recreate");
   f.cd();
   t->Write();
@@ -84,8 +84,8 @@ void ToyTree::writeToFile(TString fName) {
 void ToyTree::writeToFile() {
   assert(t);
   if (arg->debug) {
-    cout << "ToyTree::writeToFile() : ";
-    cout << "saving toys to ... " << endl;
+    std::cout << "ToyTree::writeToFile() : ";
+    std::cout << "saving toys to ... " << std::endl;
   }
   t->GetCurrentFile()->cd();
   t->Write();
@@ -160,8 +160,8 @@ void ToyTree::init() {
     // global observables
     if (this->storeGlob) {
       if (w->set(globName) == nullptr) {
-        cerr << "Unable to store parameters of global constraints because no set called " + globName
-             << " is defined in the workspace. " << endl;
+        std::cerr << "Unable to store parameters of global constraints because no set called " + globName
+                  << " is defined in the workspace. " << std::endl;
         //\todo Implement init function in PDF_Datasets to enabe the user to set the name of this set in the workspace.
         exit(EXIT_FAILURE);
       }
@@ -270,8 +270,8 @@ void ToyTree::activateAllBranches() { t->SetBranchStatus("*", 1); }
 ///
 void ToyTree::storeParsPll() {
   if (!w->set(parsName)) {
-    cout << "ToyTree::storeParsPll() : ERROR : not found in workspace: " << parsName << endl;
-    cout << "ToyTree::storeParsPll() :         Workspace printout follows: " << endl;
+    std::cout << "ToyTree::storeParsPll() : ERROR : not found in workspace: " << parsName << std::endl;
+    std::cout << "ToyTree::storeParsPll() :         Workspace printout follows: " << std::endl;
     w->Print("v");
     assert(0);
   }
@@ -358,8 +358,8 @@ void ToyTree::GetEntry(Long64_t i) {
 void ToyTree::computeMinMaxN() {
   if (scanpointN != -1) return;
   assert(t);
-  vector<double> pointsx;
-  vector<double> pointsy;
+  std::vector<double> pointsx;
+  std::vector<double> pointsy;
   double _minx = 1e6;
   double _maxx = -1e6;
   double _miny = 1e6;
@@ -372,8 +372,8 @@ void ToyTree::computeMinMaxN() {
   if (nentries == 0) return;
   std::unique_ptr<ProgressBar> pb = nullptr;
   if (!quiet) pb = std::make_unique<ProgressBar>(arg, nentries);
-  if (arg->debug) cout << "ToyTree::computeMinMaxN() : ";
-  if (!quiet) cout << "analysing toys ..." << endl;
+  if (arg->debug) std::cout << "ToyTree::computeMinMaxN() : ";
+  if (!quiet) std::cout << "analysing toys ..." << std::endl;
   for (Long64_t i = 0; i < nentries; i++) {
     // status bar
     if (!quiet) pb->progress();
@@ -423,8 +423,9 @@ void ToyTree::computeMinMaxN() {
   if (arg->debug && arg->var.size() == 2)
     printf("ToyTree::computeMinMaxN() : min(y)=%f, max(y)=%f, n(y)=%i\n", _miny, _maxy, _nDifferentScanPointsy);
   if (foundDifferentBinWidths) {
-    cout << "\nToyTree::computeMinMaxN() : WARNING : Different bin widths found in the toys!" << endl;
-    cout << "                                      The p-value histogram will have binning problems.\n" << endl;
+    std::cout << "\nToyTree::computeMinMaxN() : WARNING : Different bin widths found in the toys!" << std::endl;
+    std::cout << "                                      The p-value histogram will have binning problems.\n"
+              << std::endl;
   }
   scanpointMin = _minx;
   scanpointMax = _maxx;
@@ -489,7 +490,7 @@ int ToyTree::getScanpointyN() {
 ///
 bool ToyTree::isWsVarAngle(TString var) const {
   if (!w->var(var)) {
-    cout << "ToyTree::isWsVarAngle() : ERROR : variable not found in workspace." << endl;
+    std::cout << "ToyTree::isWsVarAngle() : ERROR : variable not found in workspace." << std::endl;
     assert(0);
   }
   return isAngle(w->var(var));

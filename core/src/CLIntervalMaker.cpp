@@ -13,7 +13,7 @@ CLIntervalMaker::CLIntervalMaker(const OptParser* arg, const TH1* pvalues) : _pv
   assert(arg);
   _arg = arg;
   // for ( int i=1; i<pvalues.GetNbinsX(); i++ )
-  //  cout << i << " " << pvalues.GetBinCenter(i) << " " << pvalues.GetBinContent(i) << endl;
+  //  std::cout << i << " " << pvalues.GetBinCenter(i) << " " << pvalues.GetBinContent(i) << std::endl;
 }
 
 /**
@@ -23,7 +23,7 @@ CLIntervalMaker::CLIntervalMaker(const OptParser* arg, const TH1* pvalues) : _pv
  * @param method Details on how this maximum was found.
  */
 void CLIntervalMaker::provideMorePreciseMaximum(const double value, const TString method) {
-  // cout << "CLIntervalMaker::provideMorePreciseMaximum() : " << value << endl;
+  // std::cout << "CLIntervalMaker::provideMorePreciseMaximum() : " << value << std::endl;
   const double level = 1.;  // accept this many bin sizes deviation
   for (auto cli : _clintervals1sigma) {
     if (fabs(cli.central - value) < level * _pvalues->GetBinWidth(1)) {
@@ -103,10 +103,10 @@ bool CLIntervalMaker::isInInterval(const int binid, const double pvalue) const {
 /// \param binidHi - bin id of _pvalues histogram
 /// \param binidLo - bin id of _pvalues histogram
 /// \param pvalue - p-value threshold, accept points into interval if their p-value is above
-/// \param clis - vector of confidence intervals, usually _clintervals1sigma or _clintervals2sigma
+/// \param clis - std::vector of confidence intervals, usually _clintervals1sigma or _clintervals2sigma
 ///
 void CLIntervalMaker::storeRawInterval(const int binidLo, const int binidHi, const double pvalue,
-                                       vector<CLInterval>& clis) {
+                                       std::vector<CLInterval>& clis) {
   CLInterval c;
   c.pvalue = pvalue;
   // use the histogram border for non-closed intervals,
@@ -141,10 +141,10 @@ void CLIntervalMaker::storeRawInterval(const int binidLo, const int binidHi, con
 /// histogram _pvalues lie above the given threshold.
 ///
 /// \param pvalue - pvalue of the intervals to find
-/// \param clis - saves intervals into this vector of confidence intervals, usually _clintervals1sigma or
+/// \param clis - saves intervals into this std::vector of confidence intervals, usually _clintervals1sigma or
 /// _clintervals2sigma
 ///
-void CLIntervalMaker::findRawIntervals(const double pvalue, vector<CLInterval>& clis) {
+void CLIntervalMaker::findRawIntervals(const double pvalue, std::vector<CLInterval>& clis) {
   bool intervalIsOpened = false;
   int intervalBinLo = 1;
 
@@ -175,7 +175,7 @@ void CLIntervalMaker::findRawIntervals(const double pvalue, vector<CLInterval>& 
 /// \param pvalue - pvalue of the intervals to find
 /// \param clis - list of confidence intervals holding the central value
 ///
-void CLIntervalMaker::findRawIntervalsForCentralValues(const double pvalue, vector<CLInterval>& clis) {
+void CLIntervalMaker::findRawIntervalsForCentralValues(const double pvalue, std::vector<CLInterval>& clis) {
   for (auto cli : clis) {
     if (cli.pvalueAtCentral < pvalue)
       continue;  // skip central values that will not going to be included in an interval at this pvalue
@@ -214,8 +214,8 @@ void CLIntervalMaker::findRawIntervalsForCentralValues(const double pvalue, vect
 /// given.
 ///
 void CLIntervalMaker::removeBadIntervals() {
-  vector<CLInterval> _clintervals1sigmaTmp;
-  vector<CLInterval> _clintervals2sigmaTmp;
+  std::vector<CLInterval> _clintervals1sigmaTmp;
+  std::vector<CLInterval> _clintervals2sigmaTmp;
   for (auto cli : _clintervals1sigma) {
     if (cli.pvalue > 0) _clintervals1sigmaTmp.push_back(cli);
   }
@@ -253,9 +253,9 @@ int CLIntervalMaker::checkNeighboringBins(const int i, const double y) const {
   if (!binsOnSameSide(i, y)) return i;
   if (1 < i + 1 && i + 1 <= _pvalues->GetNbinsX() - 1 && !binsOnSameSide(i + 1, y)) return i + 1;
   if (1 < i - 1 && i - 1 <= _pvalues->GetNbinsX() - 1 && !binsOnSameSide(i - 1, y)) return i - 1;
-  cout << "CLIntervalMaker::checkNeighboringBins() : WARNING : ";
-  cout << "no direct neighbor of bin " << i << " lies on different sides of y=" << y;
-  cout << " Using bin " << i << "." << endl;
+  std::cout << "CLIntervalMaker::checkNeighboringBins() : WARNING : ";
+  std::cout << "no direct neighbor of bin " << i << " lies on different sides of y=" << y;
+  std::cout << " Using bin " << i << "." << std::endl;
   return i;
 }
 
@@ -271,10 +271,10 @@ int CLIntervalMaker::checkNeighboringBins(const int i, const double y) const {
 /// \return true if successful
 ///
 bool CLIntervalMaker::interpolateLine(const TH1* h, const int i, const double y, double& val) const {
-  // cout << "CLIntervalMaker::interpolateLine(): i=" << i << " y=" << y << endl;
+  // std::cout << "CLIntervalMaker::interpolateLine(): i=" << i << " y=" << y << std::endl;
   if (!(1 <= i && i <= h->GetNbinsX() - 1)) return false;
   if (binsOnSameSide(i, y)) {
-    cout << "CLIntervalMaker::interpolateLine() : ERROR : bins i and i+1 on same side of y" << endl;
+    std::cout << "CLIntervalMaker::interpolateLine() : ERROR : bins i and i+1 on same side of y" << std::endl;
     return false;
   }
   double p1x = h->GetBinCenter(i);
@@ -377,13 +377,14 @@ double CLIntervalMaker::pq(const double p0, const double p1, const double p2, co
 ///
 bool CLIntervalMaker::interpolatePol2fit(const TH1* h, const int i, const double y, const double central,
                                          const bool upper, double& val, double& err) const {
-  // cout << "CLIntervalMaker::interpolatePol2fit(): i=" << i << " y=" << y << " central=" << central << endl;
+  // std::cout << "CLIntervalMaker::interpolatePol2fit(): i=" << i << " y=" << y << " central=" << central << std::endl;
   // check if too close to border so we don't have enough bins to fit
   if (!(2 <= i && i <= h->GetNbinsX() - 1)) return false;
   // check if all necessary bins are on the same side. They are not always,
   // if e.g. in a plugin there's statistical fluctuations
   if (binsOnSameSide(i - 1, y) && binsOnSameSide(i, y)) {
-    // cout << "CLIntervalMaker::interpolatePol2fit() : ERROR : bins i-1, i, and i+1 on same side of y" << endl;
+    // std::cout << "CLIntervalMaker::interpolatePol2fit() : ERROR : bins i-1, i, and i+1 on same side of y" <<
+    // std::endl;
     return false;
   }
 
@@ -493,7 +494,7 @@ void CLIntervalMaker::print() {
   clp.addIntervals(_clintervals1sigma);
   clp.addIntervals(_clintervals2sigma);
   clp.print();
-  cout << endl;
+  std::cout << std::endl;
 }
 
 ///
@@ -505,12 +506,12 @@ void CLIntervalMaker::calcCLintervals() {
   // findMaxima(0.04); // ignore maxima under pvalue=0.04
   // print();
 
-  // cout << "findRawIntervalsForCentralValues()" << endl;
+  // std::cout << "findRawIntervalsForCentralValues()" << std::endl;
   findRawIntervalsForCentralValues(1. - 0.6827, _clintervals1sigma);
   findRawIntervalsForCentralValues(1. - 0.9545, _clintervals2sigma);
   // print();
 
-  // cout << "removeBadIntervals()" << endl;
+  // std::cout << "removeBadIntervals()" << std::endl;
   removeBadIntervals();
   // print();
 
@@ -518,12 +519,12 @@ void CLIntervalMaker::calcCLintervals() {
   findRawIntervals(1. - 0.6827, _clintervals1sigma);
   findRawIntervals(1. - 0.9545, _clintervals2sigma);
 
-  // cout << "improveIntervalsLine()" << endl;
+  // std::cout << "improveIntervalsLine()" << std::endl;
   improveIntervalsLine(_clintervals1sigma);
   improveIntervalsLine(_clintervals2sigma);
   // print();
 
-  // cout << "improveIntervalsPol2fit()" << endl;
+  // std::cout << "improveIntervalsPol2fit()" << std::endl;
   improveIntervalsPol2fit(_clintervals1sigma);
   improveIntervalsPol2fit(_clintervals2sigma);
   // print();

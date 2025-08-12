@@ -94,4 +94,6 @@ void Fitter::fit() {
     fitTwice();
 }
 
-void Fitter::print() const { cout << "Fitter: nFit1Best=" << nFit1Best << " nFit2Best=" << nFit2Best << endl; }
+void Fitter::print() const {
+  std::cout << "Fitter: nFit1Best=" << nFit1Best << " nFit2Best=" << nFit2Best << std::endl;
+}

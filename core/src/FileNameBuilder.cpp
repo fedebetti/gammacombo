@@ -161,7 +161,7 @@ TString FileNameBuilder::getFileNameSolution(const MethodAbsScan* c) {
 ///
 /// \return - the filename
 ///
-TString FileNameBuilder::getFileNamePlot(const vector<std::unique_ptr<Combiner>>& cmb) {
+TString FileNameBuilder::getFileNamePlot(const std::vector<std::unique_ptr<Combiner>>& cmb) {
   TString name = m_basename;
   if (m_arg->filenamechange != "") {
     name += "_" + m_arg->filenamechange;
@@ -192,7 +192,7 @@ TString FileNameBuilder::getFileNamePlot(const vector<std::unique_ptr<Combiner>>
 ///
 /// \return - the filename
 ///
-TString FileNameBuilder::getFileNamePlotSingle(const vector<std::unique_ptr<Combiner>>& cmb, int cId) {
+TString FileNameBuilder::getFileNamePlotSingle(const std::vector<std::unique_ptr<Combiner>>& cmb, int cId) {
   TString name = m_basename;
   name += "_" + cmb[m_arg->combid[cId]]->getName();
   name += "_" + m_arg->var[0];

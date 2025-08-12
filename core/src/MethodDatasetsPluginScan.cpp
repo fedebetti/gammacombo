@@ -70,7 +70,7 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
   bestfitpoint = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getVal();
   // globalMin = std::unique_ptr<RooFitResult>(static_cast<RooFitResult*>(w->obj("data_fit_result")));
   chi2minGlobal = probScan->getChi2minGlobal();
-  std::cout << "=============== Global Minimum (2*-Log(Likelihood)) is: " << chi2minGlobal << endl;
+  std::cout << "=============== Global Minimum (2*-Log(Likelihood)) is: " << chi2minGlobal << std::endl;
 
   // implement physical range a la Feldman Cousins
   bool refit_necessary = false;
@@ -102,12 +102,12 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
     chi2minGlobal = 2 * pdf->getMinNll();
     if (!globalMin->floatParsFinal().find(scanVar1)) {
       bestfitpoint = w->var(scanVar1)->getVal();
-      std::cout << "=============== NEW Best Fit Point is: " << bestfitpoint << endl;
+      std::cout << "=============== NEW Best Fit Point is: " << bestfitpoint << std::endl;
     } else {
       bestfitpoint = ((RooRealVar*)globalMin->floatParsFinal().find(scanVar1))->getVal();
-      std::cout << "=============== NEW Best Fit Point is: " << bestfitpoint << endl;
+      std::cout << "=============== NEW Best Fit Point is: " << bestfitpoint << std::endl;
     }
-    std::cout << "=============== NEW Global Minimum (2*-Log(Likelihood)) is: " << chi2minGlobal << endl;
+    std::cout << "=============== NEW Global Minimum (2*-Log(Likelihood)) is: " << chi2minGlobal << std::endl;
   }
 
   // reset parameters free from the Feldman Cousins behaviour
@@ -123,26 +123,26 @@ MethodDatasetsPluginScan::MethodDatasetsPluginScan(MethodProbScan* probScan, PDF
   }
 
   chi2minBkg = probScan->getChi2minBkg();
-  std::cout << "=============== Bkg minimum (2*-Log(Likelihood)) is: " << chi2minBkg << endl;
+  std::cout << "=============== Bkg minimum (2*-Log(Likelihood)) is: " << chi2minBkg << std::endl;
   if (chi2minBkg < chi2minGlobal) {
     std::cout << "WARNING: BKG MINIMUM IS LOWER THAN GLOBAL MINIMUM! The likelihoods are screwed up! Set bkg minimum "
                  "to global minimum for consistency."
               << std::endl;
     chi2minBkg = chi2minGlobal;
-    std::cout << "=============== New bkg minimum (2*-Log(Likelihood)) is: " << chi2minBkg << endl;
+    std::cout << "=============== New bkg minimum (2*-Log(Likelihood)) is: " << chi2minBkg << std::endl;
   }
 
   if (!w->set(pdf->getObsName())) {
-    cerr << "MethodDatasetsPluginScan::MethodDatasetsPluginScan() : ERROR : no '" + pdf->getObsName() +
-                "' set found in workspace"
-         << endl;
-    cerr << " You can specify the name of the set in the workspace using the pdf->initObservables(..) method.";
+    std::cerr << "MethodDatasetsPluginScan::MethodDatasetsPluginScan() : ERROR : no '" + pdf->getObsName() +
+                     "' set found in workspace"
+              << std::endl;
+    std::cerr << " You can specify the name of the set in the workspace using the pdf->initObservables(..) method.";
     exit(EXIT_FAILURE);
   }
   if (!w->set(pdf->getParName())) {
-    cerr << "MethodDatasetsPluginScan::MethodDatasetsPluginScan() : ERROR : no '" + pdf->getParName() +
-                "' set found in workspace"
-         << endl;
+    std::cerr << "MethodDatasetsPluginScan::MethodDatasetsPluginScan() : ERROR : no '" + pdf->getParName() +
+                     "' set found in workspace"
+              << std::endl;
     exit(EXIT_FAILURE);
   }
   dataBkgFitResult = std::unique_ptr<RooFitResult>(pdf->fitBkg(pdf->getData(), arg->var[0]));  // get Bkg fit parameters
@@ -161,23 +161,24 @@ double MethodDatasetsPluginScan::getParValAtIndex(int index, TString parName) {
   TLeaf* var = this->getProfileLH()->probScanTree->t->GetLeaf(parName);  //<- pretty sure that this will give a
                                                                          // segfault, we need to use parName + "_scan"
   if (!var) {
-    cout << "MethodDatasetsPluginScan::getParValAtScanpoint() : ERROR : variable (" << parName << ") not found!"
-         << endl;
+    std::cout << "MethodDatasetsPluginScan::getParValAtScanpoint() : ERROR : variable (" << parName << ") not found!"
+              << std::endl;
     exit(EXIT_FAILURE);
   }
   return var->GetValue();
 }
 
 void MethodDatasetsPluginScan::initScan() {
-  if (arg->debug) cout << "MethodDatasetsPluginScan::initScan() : initializing ..." << endl;
+  if (arg->debug) std::cout << "MethodDatasetsPluginScan::initScan() : initializing ..." << std::endl;
 
   // Init the 1-CL histograms. Range is taken from the scan range, unless
   // the --scanrange command line argument is set.
   RooRealVar* par1 = w->var(scanVar1);
   if (!par1) {
-    cout << "MethodDatasetsPluginScan::initScan() : ERROR : No such scan parameter: " << scanVar1 << endl;
-    cout << "MethodDatasetsPluginScan::initScan() :         Choose an existing one using: --var par" << endl << endl;
-    cout << "  Available parameters:" << endl << "  ---------------------" << endl << endl << "  ";
+    std::cout << "MethodDatasetsPluginScan::initScan() : ERROR : No such scan parameter: " << scanVar1 << std::endl;
+    std::cout << "MethodDatasetsPluginScan::initScan() :         Choose an existing one using: --var par" << std::endl
+              << std::endl;
+    std::cout << "  Available parameters:" << std::endl << "  ---------------------" << std::endl << std::endl << "  ";
     pdf->printParameters();
     exit(EXIT_FAILURE);
   }
@@ -208,8 +209,8 @@ void MethodDatasetsPluginScan::initScan() {
   for (int i = 1; i <= nPoints1d; i++) hChi2min->SetBinContent(i, 1e6);
 
   if (scanVar2 != "") {
-    cout << "MethodDatasetsPluginScan::initScan(): EROR: Scanning in more than one dimension is not supported."
-         << std::endl;
+    std::cout << "MethodDatasetsPluginScan::initScan(): EROR: Scanning in more than one dimension is not supported."
+              << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -323,7 +324,8 @@ std::unique_ptr<RooFitResult> MethodDatasetsPluginScan::loadAndFitBkg(PDF_Datase
 ///
 void MethodDatasetsPluginScan::loadParameterLimits() {
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
-  if (arg->debug) cout << "DEBUG in Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
+  if (arg->debug)
+    std::cout << "DEBUG in Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << std::endl;
   for (const auto p : *w->set(pdf->getParName())) setLimit(w, p->GetName(), rangeName);
 }
 
@@ -331,40 +333,41 @@ void MethodDatasetsPluginScan::loadParameterLimits() {
 /// Print settings member of MethodDatasetsPluginScan
 ///
 void MethodDatasetsPluginScan::print() const {
-  cout << "########################## Print MethodDatasetsPluginScan Class ##########################" << endl;
-  cout << "\t --- "
-       << "Method Name: \t\t\t" << methodName << endl;
-  cout << "\t --- "
-       << "Instance Name: \t\t\t" << name << endl;
-  cout << "\t --- "
-       << "Instance Title: \t\t\t" << title << endl;
-  cout << "\t --- "
-       << "Scan Var Name: \t\t\t" << scanVar1 << endl;
+  std::cout << "########################## Print MethodDatasetsPluginScan Class ##########################"
+            << std::endl;
+  std::cout << "\t --- "
+            << "Method Name: \t\t\t" << methodName << std::endl;
+  std::cout << "\t --- "
+            << "Instance Name: \t\t\t" << name << std::endl;
+  std::cout << "\t --- "
+            << "Instance Title: \t\t\t" << title << std::endl;
+  std::cout << "\t --- "
+            << "Scan Var Name: \t\t\t" << scanVar1 << std::endl;
   if (arg->var.size() > 1)
-    cout << "\t --- "
-         << "2nd Scan Var Name: \t\t" << scanVar2 << endl;
-  cout << "\t --- "
-       << "Number of Scanpoints 1D: \t\t" << nPoints1d << endl;
-  cout << "\t --- "
-       << "Number of Scanpoints x 2D: \t" << nPoints2dx << endl;
-  cout << "\t --- "
-       << "Number of Scanpoints y 2D: \t" << nPoints2dy << endl;
-  cout << "\t --- "
-       << "Number of Toys per scanpoint: \t" << nToys << endl;
-  cout << "\t --- "
-       << "PDF Name: \t\t\t\t" << pdf->getPdfName() << endl;
-  cout << "\t --- "
-       << "Observables Name: \t\t\t" << pdf->getObsName() << endl;
-  cout << "\t --- "
-       << "Parameters Name: \t\t\t" << pdf->getParName() << endl;
-  cout << "\t --- "
-       << "Global minimum Chi2: \t\t" << chi2minGlobal << endl;
-  cout << "\t --- "
-       << "nrun: \t\t\t\t" << arg->nrun << endl;
-  cout << "---------------------------------" << endl;
-  cout << "\t --- Scan Var " << scanVar1 << " from " << getScanVar1()->getMin("scan") << " to "
-       << getScanVar1()->getMax("scan") << endl;
-  cout << "---------------------------------" << endl;
+    std::cout << "\t --- "
+              << "2nd Scan Var Name: \t\t" << scanVar2 << std::endl;
+  std::cout << "\t --- "
+            << "Number of Scanpoints 1D: \t\t" << nPoints1d << std::endl;
+  std::cout << "\t --- "
+            << "Number of Scanpoints x 2D: \t" << nPoints2dx << std::endl;
+  std::cout << "\t --- "
+            << "Number of Scanpoints y 2D: \t" << nPoints2dy << std::endl;
+  std::cout << "\t --- "
+            << "Number of Toys per scanpoint: \t" << nToys << std::endl;
+  std::cout << "\t --- "
+            << "PDF Name: \t\t\t\t" << pdf->getPdfName() << std::endl;
+  std::cout << "\t --- "
+            << "Observables Name: \t\t\t" << pdf->getObsName() << std::endl;
+  std::cout << "\t --- "
+            << "Parameters Name: \t\t\t" << pdf->getParName() << std::endl;
+  std::cout << "\t --- "
+            << "Global minimum Chi2: \t\t" << chi2minGlobal << std::endl;
+  std::cout << "\t --- "
+            << "nrun: \t\t\t\t" << arg->nrun << std::endl;
+  std::cout << "---------------------------------" << std::endl;
+  std::cout << "\t --- Scan Var " << scanVar1 << " from " << getScanVar1()->getMin("scan") << " to "
+            << getScanVar1()->getMax("scan") << std::endl;
+  std::cout << "---------------------------------" << std::endl;
 }
 
 ///
@@ -395,7 +398,7 @@ TChain* MethodDatasetsPluginScan::readFiles(int runMin, int runMax, int& nFilesR
   } else {
     for (int i = runMin; i <= runMax; i++) {
       TString file = Form(fileNameBase + "%i.root", i);
-      cout << "MethodDatasetsPluginScan::readFiles() : opening " << file << "\r";
+      std::cout << "MethodDatasetsPluginScan::readFiles() : opening " << file << "\r";
       assertFileExists(file);
       c->Add(file);
       _nFilesRead += 1;
@@ -404,10 +407,10 @@ TChain* MethodDatasetsPluginScan::readFiles(int runMin, int runMax, int& nFilesR
 
   nFilesRead = _nFilesRead;
   if (nFilesRead == 0) {
-    cout << "MethodDatasetsPluginScan::readFiles() : no files read!" << endl;
+    std::cout << "MethodDatasetsPluginScan::readFiles() : no files read!" << std::endl;
     exit(EXIT_FAILURE);
   }
-  cout << "MethodDatasetsPluginScan::readFiles() : read files: " << nFilesRead << endl;
+  std::cout << "MethodDatasetsPluginScan::readFiles() : read files: " << nFilesRead << std::endl;
   return c;
 }
 
@@ -504,21 +507,21 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   TH1F* h_sig_bkgtoys = new TH1F("h_sig_bkgtoys", "signal distribution for bkg toys", 50,
                                  -5 * (w->var(scanVar1)->getError()), 5 * (w->var(scanVar1)->getError()));
 
-  // map of vectors for determining signal distributions per scan point
+  // map of std::vectors for determining signal distributions per scan point
   std::map<int, std::vector<double>> sampledBiasValues;
 
-  // map of vectors for CLb quantiles
+  // map of std::vectors for CLb quantiles
   std::map<int, std::vector<double>> sampledSchi2Values;
   std::map<int, std::vector<double>> sampledBValues;
   std::map<int, std::vector<double>> sampledSBValues;
 
-  // vector to compute significance
+  // std::vector to compute significance
   std::vector<double> sampledBTeststats;
 
   TH1F* h_pVals = new TH1F("p", "p", 200, 0.0, 1e-2);
   Long64_t nentries = t.GetEntries();
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : average number of toys per scanpoint: "
-       << (double)nentries / (double)nPoints1d << endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : average number of toys per scanpoint: "
+            << (double)nentries / (double)nPoints1d << std::endl;
   Long64_t nfailed = 0;
   Long64_t nfailedbkg = 0;
   Long64_t nwrongrun = 0;
@@ -532,8 +535,8 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   for (Long64_t i = 0; i < nentries; i++) {
     // status bar
     if (((int)i % (int)(nentries / printFreq)) == 0)
-      cout << "MethodDatasetsPluginScan::readScan1dTrees() : reading entries "
-           << Form("%.0f", (double)i / (double)nentries * 100.) << "%   \r" << flush;
+      std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : reading entries "
+                << Form("%.0f", (double)i / (double)nentries * 100.) << "%   \r" << flush;
     // load entry
     t.GetEntry(i);
 
@@ -692,8 +695,8 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     if (valid && !inPhysicalRegion) { h_background->Fill(t.scanpoint); }
 
     if (n0tot % 1500 == 0 && n0all != 0) {
-      // cout << "better: " << n0better << " all: " << n0all << " p: " << (double)n0better/(double)n0all << endl <<
-      // endl;
+      // std::cout << "better: " << n0better << " all: " << n0all << " p: " << (double)n0better/(double)n0all <<
+      // std::endl << std::endl;
       h_pVals->Fill((double)n0better / (double)n0all);
       n0tot = 0;
       n0better = 0;
@@ -702,28 +705,29 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   }
   // std::cout << "Overflow bkg: " << bkg_pvals->GetBinContent(0) << " underflow: " << bkg_pvals->GetBinContent(21) <<
   // std::endl;
-  cout << std::fixed << std::setprecision(2);
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : reading done.           \n" << endl;
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : read an average of "
-       << ((double)nentries - (double)nfailed) / (double)nPoints1d << " toys per scan point." << endl;
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of failed toys: "
-       << (double)nfailed / (double)nentries * 100. << "%." << endl;
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of failed background toys: "
-       << (double)nfailedbkg / (double)nentries * 100. << "%." << endl;
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of unphysical (negative test stat) toys: "
-       << h_background->GetEntries() / (double)nentries * 100. << "%." << endl;
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of unphysical (negative test stat) bkg toys: "
-       << (h_negtest_bkg->GetEntries() / (double)h_all_bkg->GetEntries()) * 100. << "%." << endl;
+  std::cout << std::fixed << std::setprecision(2);
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : reading done.           \n" << std::endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : read an average of "
+            << ((double)nentries - (double)nfailed) / (double)nPoints1d << " toys per scan point." << std::endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of failed toys: "
+            << (double)nfailed / (double)nentries * 100. << "%." << std::endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of failed background toys: "
+            << (double)nfailedbkg / (double)nentries * 100. << "%." << std::endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of unphysical (negative test stat) toys: "
+            << h_background->GetEntries() / (double)nentries * 100. << "%." << std::endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : fraction of unphysical (negative test stat) bkg toys: "
+            << (h_negtest_bkg->GetEntries() / (double)h_all_bkg->GetEntries()) * 100. << "%." << std::endl;
   double pval_significance = getVectorFracAboveValue(sampledBTeststats, chi2minBkg - chi2minGlobal);
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : signal significance: naive p-val: "
-       << TMath::Prob(chi2minBkg - chi2minGlobal, 1) << " (" << sqrt(chi2minBkg - chi2minGlobal) << " sigma)"
-       << " vs. value from toys: " << pval_significance << " ("
-       << std::numbers::sqrt2 * TMath::ErfInverse(1. - pval_significance) << " sigma)" << endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : signal significance: naive p-val: "
+            << TMath::Prob(chi2minBkg - chi2minGlobal, 1) << " (" << sqrt(chi2minBkg - chi2minGlobal) << " sigma)"
+            << " vs. value from toys: " << pval_significance << " ("
+            << std::numbers::sqrt2 * TMath::ErfInverse(1. - pval_significance) << " sigma)" << std::endl;
   if (nwrongrun > 0) {
-    cout << "\nMethodDatasetsPluginScan::readScan1dTrees() : WARNING : Read toys that differ in global chi2min (wrong "
-            "run) : "
-         << (double)nwrongrun / (double)(nentries - nfailed) * 100. << "%.\n"
-         << endl;
+    std::cout
+        << "\nMethodDatasetsPluginScan::readScan1dTrees() : WARNING : Read toys that differ in global chi2min (wrong "
+           "run) : "
+        << (double)nwrongrun / (double)(nentries - nfailed) * 100. << "%.\n"
+        << std::endl;
   }
 
   // //Test median error...
@@ -850,19 +854,19 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
 
     // check
     if (arg->debug) {
-      cout << i << endl;
-      cout << "Quants: ";
-      for (const auto val : probs) cout << val << " , ";
-      cout << endl;
-      cout << "CLb: ";
-      for (const auto val : quantiles_clb) cout << val << " , ";
-      cout << endl;
-      cout << "CLsb: ";
-      for (const auto val : quantiles_clsb) cout << val << " , ";
-      cout << endl;
-      cout << "CLs: ";
-      for (const auto val : quantiles_cls) cout << val << " , ";
-      cout << endl;
+      std::cout << i << std::endl;
+      std::cout << "Quants: ";
+      for (const auto val : probs) std::cout << val << " , ";
+      std::cout << std::endl;
+      std::cout << "CLb: ";
+      for (const auto val : quantiles_clb) std::cout << val << " , ";
+      std::cout << std::endl;
+      std::cout << "CLsb: ";
+      for (const auto val : quantiles_clsb) std::cout << val << " , ";
+      std::cout << std::endl;
+      std::cout << "CLs: ";
+      for (const auto val : quantiles_cls) std::cout << val << " , ";
+      std::cout << std::endl;
     }
 
     // //ideal method, but prone to fluctuations
@@ -889,8 +893,8 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     // }
     // boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::mean,
     // boost::accumulators::tag::variance> > acc; acc = for_each(medians.begin(), medians.end(), acc);
-    // // cout <<hCLsExp->GetBinContent(i)<<": " <<  boost::accumulators::mean(acc) << "\t" <<
-    // sqrt(boost::accumulators::variance(acc)) << endl; mederr_bootstrap->SetBinContent(i ,
+    // // std::cout <<hCLsExp->GetBinContent(i)<<": " <<  boost::accumulators::mean(acc) << "\t" <<
+    // sqrt(boost::accumulators::variance(acc)) << std::endl; mederr_bootstrap->SetBinContent(i ,
     // sqrt(boost::accumulators::variance(acc)));
 
     // // std::cout << "non-parameric median errors for bin " << i << std::endl;
@@ -954,12 +958,12 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
     }
 
     if (arg->debug) {
-      cout << "At scanpoint " << std::scientific << hCL->GetBinCenter(i)
-           << ": ===== number of toys for pValue calculation: " << nbetter << endl;
-      cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue:         " << p << endl;
-      cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLs:     " << p_cls << endl;
-      cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLsFreq: " << hCLsFreq->GetBinContent(i)
-           << endl;
+      std::cout << "At scanpoint " << std::scientific << hCL->GetBinCenter(i)
+                << ": ===== number of toys for pValue calculation: " << nbetter << std::endl;
+      std::cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue:         " << p << std::endl;
+      std::cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLs:     " << p_cls << std::endl;
+      std::cout << "At scanpoint " << hCL->GetBinCenter(i) << ": ===== pValue CLsFreq: " << hCLsFreq->GetBinContent(i)
+                << std::endl;
     }
   }
 
@@ -1157,8 +1161,8 @@ void MethodDatasetsPluginScan::readScan1dTrees(int runMin, int runMax, TString f
   double nall = h_all->GetBinContent(iBinBestFit);
   double fitprobabilityVal = nGofBetter / nall;
   double fitprobabilityErr = sqrt(fitprobabilityVal * (1. - fitprobabilityVal) / nall);
-  cout << "MethodDatasetsPluginScan::readScan1dTrees() : fit prob of best-fit point: "
-       << Form("(%.1f+/-%.1f)%%", fitprobabilityVal * 100., fitprobabilityErr * 100.) << endl;
+  std::cout << "MethodDatasetsPluginScan::readScan1dTrees() : fit prob of best-fit point: "
+            << Form("(%.1f+/-%.1f)%%", fitprobabilityVal * 100., fitprobabilityErr * 100.) << std::endl;
 }
 
 double MethodDatasetsPluginScan::getPValueTTestStatistic(double test_statistic_value) {
@@ -1167,14 +1171,15 @@ double MethodDatasetsPluginScan::getPValueTTestStatistic(double test_statistic_v
     return TMath::Prob(test_statistic_value, 1);
   } else {
     if (arg->verbose) {
-      cout << "MethodDatasetsPluginScan::scan1d_prob() : WARNING : Test statistic is negative, forcing it to zero"
-           << std::endl
-           << "Fit at current scan point has higher likelihood than free fit." << std::endl
-           << "This should not happen except for very small underflows when the scan point is at the best fit value. "
-           << std::endl
-           << "Value of test statistic is " << test_statistic_value << std::endl
-           << "An equal upwards fluctuaion corresponds to a p value of " << TMath::Prob(abs(test_statistic_value), 1)
-           << std::endl;
+      std::cout
+          << "MethodDatasetsPluginScan::scan1d_prob() : WARNING : Test statistic is negative, forcing it to zero"
+          << std::endl
+          << "Fit at current scan point has higher likelihood than free fit." << std::endl
+          << "This should not happen except for very small underflows when the scan point is at the best fit value. "
+          << std::endl
+          << "Value of test statistic is " << test_statistic_value << std::endl
+          << "An equal upwards fluctuaion corresponds to a p value of " << TMath::Prob(abs(test_statistic_value), 1)
+          << std::endl;
     }
     // TMath::Prob will return 0 if the Argument is slightly below zero. As we are working with a double-zero we can not
     // rely on it here: TMath::Prob( 0 ) returns 1
@@ -1236,17 +1241,17 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
   // if CLs toys we need to keep hold of what's going on in the bkg only case
   // there is a small overhead here but it's necessary because the bkg only hypothesis
   // might not necessarily be in the scan range (although often it will be the first point)
-  vector<RooAbsData*> cls_bkgOnlyToys;
-  vector<TString> bkgOnlyGlobObsSnaphots;
-  vector<double> chi2minGlobalBkgToysStore;  // Global fit to bkg-only toys
-  vector<double> chi2minBkgBkgToysStore;     // Bkg fit to bkg-only toys
-  vector<double> scanbestBkgToysStore;       // best fit point of gloabl fit to bkg-only toys
-  vector<double> scanbestBkgBkgToysStore;    // best fit point of bkg fit to bkg-only toys (usually zero because bkg pdf
-                                             // will not depend on signal parameter)
-  vector<int> covQualFreeBkgToysStore;       // covariance quality of gloabl fit to bkg-only toys
-  vector<int> covQualBkgBkgToysStore;        // covariance quality of bkg fit to bkg-only toys
-  vector<int> StatusFreeBkgToysStore;        // status of gloabl fit to bkg-only toys
-  vector<int> StatusBkgBkgToysStore;         // status of bkg fit to bkg-only toys
+  std::vector<RooAbsData*> cls_bkgOnlyToys;
+  std::vector<TString> bkgOnlyGlobObsSnaphots;
+  std::vector<double> chi2minGlobalBkgToysStore;  // Global fit to bkg-only toys
+  std::vector<double> chi2minBkgBkgToysStore;     // Bkg fit to bkg-only toys
+  std::vector<double> scanbestBkgToysStore;       // best fit point of gloabl fit to bkg-only toys
+  std::vector<double> scanbestBkgBkgToysStore;  // best fit point of bkg fit to bkg-only toys (usually zero because bkg
+                                                // pdf will not depend on signal parameter)
+  std::vector<int> covQualFreeBkgToysStore;     // covariance quality of gloabl fit to bkg-only toys
+  std::vector<int> covQualBkgBkgToysStore;      // covariance quality of bkg fit to bkg-only toys
+  std::vector<int> StatusFreeBkgToysStore;      // status of gloabl fit to bkg-only toys
+  std::vector<int> StatusBkgBkgToysStore;       // status of bkg fit to bkg-only toys
   // Titus: Try importance sampling from the combination part -> works, but definitely needs improvement in precision
   int nActualToys = nToys;
   if (arg->importance) {
@@ -1329,15 +1334,15 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       }
 
       if (std::isinf(pdf->minNll) || std::isnan(pdf->minNll)) {
-        cout << "++++ > second and a half fit gives inf/nan: " << endl
-             << "++++ > minNll: " << pdf->minNll << endl
-             << "++++ > status: " << pdf->getFitStatus() << endl;
+        std::cout << "++++ > second and a half fit gives inf/nan: " << std::endl
+                  << "++++ > minNll: " << pdf->minNll << std::endl
+                  << "++++ > status: " << pdf->getFitStatus() << std::endl;
         pdf->setFitStatus(-99);
       }
       if (rb->edm() > 1.e-3) {
-        cout << "++++ > Fit not converged: " << endl
-             << "++++ > edm: " << rb->edm() << endl
-             << "++++ > status: " << -60 << endl;
+        std::cout << "++++ > Fit not converged: " << std::endl
+                  << "++++ > edm: " << rb->edm() << std::endl
+                  << "++++ > status: " << -60 << std::endl;
         pdf->setFitStatus(-60);
       }
       pdf->setMinNllScan(pdf->minNll);
@@ -1383,9 +1388,9 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
         }
       }
       if (rb->edm() > 1.e-3) {
-        cout << "++++ > Bkg Fit not converged: " << endl
-             << "++++ > edm: " << rb->edm() << endl
-             << "++++ > status: " << -60 << endl;
+        std::cout << "++++ > Bkg Fit not converged: " << std::endl
+                  << "++++ > edm: " << rb->edm() << std::endl
+                  << "++++ > status: " << -60 << std::endl;
         pdf->setFitStatus(-60);
       }
       // chi2minBkgBkgToysStore.push_back( 2 * rb->minNll() );
@@ -1422,19 +1427,20 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
     toyTree.scanpoint = scanpoint;
 
     if (i == 0 && scanpoint != 0) {
-      cout << "WARNING: For CLs option the first point in the scan should be zero, not: " << scanpoint << endl;
-      // exit(1);
+      std::cout << "WARNING: For CLs option the first point in the scan should be zero, not: " << scanpoint
+                << std::endl;
+      // std::exit(1);
     }
 
     if (arg->debug)
-      cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - scanpoint in step " << i << " : " << scanpoint
-           << endl;
+      std::cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - scanpoint in step " << i << " : " << scanpoint
+                << std::endl;
 
     // don't scan in unphysical region
     // by default this means checking against "free" range
     if (scanpoint < parameterToScan->getMin() || scanpoint > parameterToScan->getMax() + 2e-13) {
-      cout << "not obvious: " << scanpoint << " < " << parameterToScan->getMin() << " and " << scanpoint << " > "
-           << parameterToScan->getMax() + 2e-13 << endl;
+      std::cout << "not obvious: " << scanpoint << " < " << parameterToScan->getMin() << " and " << scanpoint << " > "
+                << parameterToScan->getMax() + 2e-13 << std::endl;
       continue;
     }
 
@@ -1450,7 +1456,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
     if (this->chi2minGlobalFound) {
       toyTree.chi2minGlobal = this->getChi2minGlobal();
     } else {
-      cout << "FATAL in MethodDatasetsPluginScan::scan1d_plugin() - Global Minimum not set!" << endl;
+      std::cout << "FATAL in MethodDatasetsPluginScan::scan1d_plugin() - Global Minimum not set!" << std::endl;
       exit(EXIT_FAILURE);
     }
 
@@ -1468,7 +1474,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
     // Titus: Debug histogram to see the different deltachisq distributions
     TH1F histdeltachi2("histdeltachi2", "histdeltachi2", 200, 0, 5);
     for (int j = 0; j < nActualToys; j++) {
-      if (arg->debug) cout << ">> new toy\n" << endl;
+      if (arg->debug) std::cout << ">> new toy\n" << std::endl;
       this->pdf->setMinNllFree(0);
       this->pdf->setMinNllScan(0);
 
@@ -1494,7 +1500,8 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       //
       // 2. Fit to toys with parameter of interest fixed to scanpoint
       //
-      if (arg->debug) cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - perform scan toy fit" << endl;
+      if (arg->debug)
+        std::cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - perform scan toy fit" << std::endl;
 
       // set parameters to constrained data scan fit result again
       this->setParevolPointByIndex(i);
@@ -1524,9 +1531,9 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       }
 
       if (std::isinf(pdf->minNll) || std::isnan(pdf->minNll)) {
-        cout << "++++ > second fit gives inf/nan: " << endl
-             << "++++ > minNll: " << pdf->minNll << endl
-             << "++++ > status: " << pdf->getFitStatus() << endl;
+        std::cout << "++++ > second fit gives inf/nan: " << std::endl
+                  << "++++ > minNll: " << pdf->minNll << std::endl
+                  << "++++ > status: " << pdf->getFitStatus() << std::endl;
         pdf->setFitStatus(-99);
       }
       pdf->setMinNllScan(pdf->minNll);
@@ -1549,7 +1556,8 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       // 2.5 Fit to bkg only toys with parameter of interest fixed to scanpoint
       //
       if (arg->debug)
-        cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - perform scan toy fit to background" << endl;
+        std::cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - perform scan toy fit to background"
+                  << std::endl;
 
       // set parameters to constrained data scan fit result again
       this->setParevolPointByIndex(i);
@@ -1561,7 +1569,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       auto tempData = (RooAbsData*)this->pdf->getToyObservables();
       // now get our background only toy (to fit under this hypothesis)
       auto bkgToy = (RooAbsData*)cls_bkgOnlyToys[j];
-      if (arg->debug) cout << "Setting background toy as data " << bkgToy << endl;
+      if (arg->debug) std::cout << "Setting background toy as data " << bkgToy << std::endl;
       this->pdf->setBkgToyData(bkgToy);
       this->pdf->setGlobalObsSnapshotBkgToy(bkgOnlyGlobObsSnaphots[j]);
 
@@ -1587,9 +1595,9 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       }
 
       if (std::isinf(pdf->minNll) || std::isnan(pdf->minNll)) {
-        cout << "++++ > second and a half fit gives inf/nan: " << endl
-             << "++++ > minNll: " << pdf->minNll << endl
-             << "++++ > status: " << pdf->getFitStatus() << endl;
+        std::cout << "++++ > second and a half fit gives inf/nan: " << std::endl
+                  << "++++ > minNll: " << pdf->minNll << std::endl
+                  << "++++ > status: " << pdf->getFitStatus() << std::endl;
         pdf->setFitStatus(-99);
       }
       pdf->setMinNllScan(pdf->minNll);
@@ -1605,7 +1613,8 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       //
       // 3. Fit to toys with free parameter of interest
       //
-      if (arg->debug) cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - perform free toy fit" << endl;
+      if (arg->debug)
+        std::cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - perform free toy fit" << std::endl;
       // Use parameters from the scanfit to data
 
       this->setParevolPointByIndex(i);
@@ -1616,7 +1625,7 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       //  w->var(scanVar1)->removeRange();
 
       // set dataset back
-      if (arg->debug) cout << "Setting toy back as data " << tempData << endl;
+      if (arg->debug) std::cout << "Setting toy back as data " << tempData << std::endl;
       this->pdf->setToyData(tempData);
       // restore MinNllScan to value from 2. (not take from 2.5) for more correct error messages
       pdf->setMinNllScan(toyTree.chi2minToy / 2.);
@@ -1630,8 +1639,8 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       toyTree.chi2minGlobalToy = 2 * pdf->getMinNllFree();
 
       if (!std::isfinite(pdf->getMinNllFree())) {
-        cout << "----> nan/inf flag detected " << endl;
-        cout << "----> fit status: " << pdf->getFitStatus() << endl;
+        std::cout << "----> nan/inf flag detected " << std::endl;
+        std::cout << "----> fit status: " << pdf->getFitStatus() << std::endl;
         pdf->setFitStatus(-99);
       }
 
@@ -1643,15 +1652,15 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
 
         pdf->setFitStrategy(1);
 
-        if (arg->verbose) cout << "----> refit with strategy: 1" << endl;
+        if (arg->verbose) std::cout << "----> refit with strategy: 1" << std::endl;
         r1 = this->loadAndFit(this->pdf);
         assert(r1);
         pdf->setMinNllFree(pdf->minNll);
         // toyTree.chi2minGlobalToy = 2 * r1->minNll();
         toyTree.chi2minGlobalToy = 2 * pdf->getMinNllFree();
         if (!std::isfinite(pdf->getMinNllFree())) {
-          cout << "----> nan/inf flag detected " << endl;
-          cout << "----> fit status: " << pdf->getFitStatus() << endl;
+          std::cout << "----> nan/inf flag detected " << std::endl;
+          std::cout << "----> fit status: " << pdf->getFitStatus() << std::endl;
           pdf->setFitStatus(-99);
         }
         negTestStat = toyTree.chi2minToy - toyTree.chi2minGlobalToy < 0;
@@ -1662,29 +1671,29 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
 
           pdf->setFitStrategy(2);
 
-          if (arg->verbose) cout << "----> refit with strategy: 2" << endl;
+          if (arg->verbose) std::cout << "----> refit with strategy: 2" << std::endl;
           r1 = this->loadAndFit(this->pdf);
           assert(r1);
           pdf->setMinNllFree(pdf->minNll);
           // toyTree.chi2minGlobalToy = 2 * r1->minNll();
           toyTree.chi2minGlobalToy = 2 * pdf->getMinNllFree();
           if (!std::isfinite(pdf->getMinNllFree())) {
-            cout << "----> nan/inf flag detected " << endl;
-            cout << "----> fit status: " << pdf->getFitStatus() << endl;
+            std::cout << "----> nan/inf flag detected " << std::endl;
+            std::cout << "----> fit status: " << pdf->getFitStatus() << std::endl;
             pdf->setFitStatus(-99);
           }
           if (r1->edm() > 1.e-3) {
-            cout << "----> too large edm " << endl;
-            cout << "----> edm: " << r1->edm() << endl;
+            std::cout << "----> too large edm " << std::endl;
+            std::cout << "----> edm: " << r1->edm() << std::endl;
             pdf->setFitStatus(-60);
           }
           this->setAndPrintFitStatusConstrainedToys(toyTree);
 
           if ((toyTree.chi2minToy - toyTree.chi2minGlobalToy) < 0) {
-            cout << "+++++ > still negative test statistic after whole procedure!! " << endl;
-            cout << "+++++ > try to fit with different starting values" << endl;
-            cout << "+++++ > dChi2: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << endl;
-            cout << "+++++ > dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl;
+            std::cout << "+++++ > still negative test statistic after whole procedure!! " << std::endl;
+            std::cout << "+++++ > try to fit with different starting values" << std::endl;
+            std::cout << "+++++ > dChi2: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << std::endl;
+            std::cout << "+++++ > dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << std::endl;
             setParameters(this->pdf->getWorkspace(), pdf->getParName(), parsAfterScanFit->get(0));
             // if (parameterToScan->getVal() < 1e-13) parameterToScan->setVal(0.67e-12); //what do we gain from this?
             parameterToScan->setConstant(false);
@@ -1693,23 +1702,23 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
             assert(r_tmp);
             if (r_tmp->status() == 0 && r_tmp->minNll() < r1->minNll() && r_tmp->minNll() > -1e27) {
               pdf->setMinNllFree(pdf->minNll);
-              cout << "+++++ > Improvement found in extra fit: Nll before: " << r1->minNll()
-                   << " after: " << r_tmp->minNll() << endl;
+              std::cout << "+++++ > Improvement found in extra fit: Nll before: " << r1->minNll()
+                        << " after: " << r_tmp->minNll() << std::endl;
               r1 = std::move(r_tmp);
-              cout << "+++++ > new minNll value: " << r1->minNll() << endl;
+              std::cout << "+++++ > new minNll value: " << r1->minNll() << std::endl;
             } else {
               // set back parameter value to last fit value
-              cout << "+++++ > no Improvement found, reset ws par value to last fit result" << endl;
+              std::cout << "+++++ > no Improvement found, reset ws par value to last fit result" << std::endl;
               parameterToScan->setVal(
                   static_cast<RooRealVar*>(r1->floatParsFinal().find(parameterToScan->GetName()))->getVal());
             }
           };
           if (arg->debug) {
-            cout << "===== > compare free fit result with pdf parameters: " << endl;
-            cout << "===== > minNLL for fitResult: " << r1->minNll() << endl
-                 << "===== > minNLL for pdfResult: " << pdf->getMinNllFree() << endl
-                 << "===== > status for pdfResult: " << pdf->getFitStatus() << endl
-                 << "===== > status for fitResult: " << r1->status() << endl;
+            std::cout << "===== > compare free fit result with pdf parameters: " << std::endl;
+            std::cout << "===== > minNLL for fitResult: " << r1->minNll() << std::endl
+                      << "===== > minNLL for pdfResult: " << pdf->getMinNllFree() << std::endl
+                      << "===== > status for pdfResult: " << pdf->getFitStatus() << std::endl
+                      << "===== > status for fitResult: " << r1->status() << std::endl;
           }
         }
       }
@@ -1753,8 +1762,8 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
         toyTree.chi2minGlobalToy = 2 * pdf->getMinNllFree();
 
         if (!std::isfinite(pdf->getMinNllFree())) {
-          cout << "----> nan/inf flag detected " << endl;
-          cout << "----> fit status: " << pdf->getFitStatus() << endl;
+          std::cout << "----> nan/inf flag detected " << std::endl;
+          std::cout << "----> fit status: " << pdf->getFitStatus() << std::endl;
           pdf->setFitStatus(-99);
         }
 
@@ -1766,15 +1775,15 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
 
           pdf->setFitStrategy(1);
 
-          if (arg->verbose) cout << "----> refit with strategy: 1" << endl;
+          if (arg->verbose) std::cout << "----> refit with strategy: 1" << std::endl;
           r1 = this->loadAndFit(this->pdf);
           assert(r1);
           pdf->setMinNllFree(pdf->minNll);
           // toyTree.chi2minGlobalToy = 2 * r1->minNll();
           toyTree.chi2minGlobalToy = 2 * pdf->getMinNllFree();
           if (!std::isfinite(pdf->getMinNllFree())) {
-            cout << "----> nan/inf flag detected " << endl;
-            cout << "----> fit status: " << pdf->getFitStatus() << endl;
+            std::cout << "----> nan/inf flag detected " << std::endl;
+            std::cout << "----> fit status: " << pdf->getFitStatus() << std::endl;
             pdf->setFitStatus(-99);
           }
           negTestStat = toyTree.chi2minToy - toyTree.chi2minGlobalToy < 0;
@@ -1785,29 +1794,29 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
 
             pdf->setFitStrategy(2);
 
-            if (arg->verbose) cout << "----> refit with strategy: 2" << endl;
+            if (arg->verbose) std::cout << "----> refit with strategy: 2" << std::endl;
             r1 = this->loadAndFit(this->pdf);
             assert(r1);
             pdf->setMinNllFree(pdf->minNll);
             // toyTree.chi2minGlobalToy = 2 * r1->minNll();
             toyTree.chi2minGlobalToy = 2 * pdf->getMinNllFree();
             if (!std::isfinite(pdf->getMinNllFree())) {
-              cout << "----> nan/inf flag detected " << endl;
-              cout << "----> fit status: " << pdf->getFitStatus() << endl;
+              std::cout << "----> nan/inf flag detected " << std::endl;
+              std::cout << "----> fit status: " << pdf->getFitStatus() << std::endl;
               pdf->setFitStatus(-99);
             }
             if (r1->edm() > 1.e-3) {
-              cout << "----> too large edm " << endl;
-              cout << "----> edm: " << r1->edm() << endl;
+              std::cout << "----> too large edm " << std::endl;
+              std::cout << "----> edm: " << r1->edm() << std::endl;
               pdf->setFitStatus(-60);
             }
             this->setAndPrintFitStatusConstrainedToys(toyTree);
 
             if ((toyTree.chi2minToy - toyTree.chi2minGlobalToy) < 0) {
-              cout << "+++++ > still negative test statistic after whole procedure!! " << endl;
-              cout << "+++++ > try to fit with different starting values" << endl;
-              cout << "+++++ > dChi2: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << endl;
-              cout << "+++++ > dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl;
+              std::cout << "+++++ > still negative test statistic after whole procedure!! " << std::endl;
+              std::cout << "+++++ > try to fit with different starting values" << std::endl;
+              std::cout << "+++++ > dChi2: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << std::endl;
+              std::cout << "+++++ > dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << std::endl;
               setParameters(this->pdf->getWorkspace(), pdf->getParName(), parsAfterScanFit->get(0));
               // but need to keep the parameters fixed to boundary:
               for (auto element : boundary_vals) { w->var(element.first)->setVal(element.second); }
@@ -1816,13 +1825,13 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
               assert(r_tmp);
               if (r_tmp->status() == 0 && r_tmp->minNll() < r1->minNll() && r_tmp->minNll() > -1e27) {
                 pdf->setMinNllFree(pdf->minNll);
-                cout << "+++++ > Improvement found in extra fit: Nll before: " << r1->minNll()
-                     << " after: " << r_tmp->minNll() << endl;
+                std::cout << "+++++ > Improvement found in extra fit: Nll before: " << r1->minNll()
+                          << " after: " << r_tmp->minNll() << std::endl;
                 r1 = std::move(r_tmp);
-                cout << "+++++ > new minNll value: " << r1->minNll() << endl;
+                std::cout << "+++++ > new minNll value: " << r1->minNll() << std::endl;
               } else {
                 // set back parameter value to last fit value
-                cout << "+++++ > no Improvement found";
+                std::cout << "+++++ > no Improvement found";
                 if (!parameterToScan->isConstant()) {
                   std::cout << ", reset ws par value to last fit result";
                   parameterToScan->setVal(
@@ -1832,11 +1841,11 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
               }
             };
             if (arg->debug) {
-              cout << "===== > compare free fit result with pdf parameters: " << endl;
-              cout << "===== > minNLL for fitResult: " << r1->minNll() << endl
-                   << "===== > minNLL for pdfResult: " << pdf->getMinNllFree() << endl
-                   << "===== > status for pdfResult: " << pdf->getFitStatus() << endl
-                   << "===== > status for fitResult: " << r1->status() << endl;
+              std::cout << "===== > compare free fit result with pdf parameters: " << std::endl;
+              std::cout << "===== > minNLL for fitResult: " << r1->minNll() << std::endl
+                        << "===== > minNLL for pdfResult: " << pdf->getMinNllFree() << std::endl
+                        << "===== > status for pdfResult: " << pdf->getFitStatus() << std::endl
+                        << "===== > status for fitResult: " << r1->status() << std::endl;
             }
           }
         }
@@ -1888,31 +1897,33 @@ int MethodDatasetsPluginScan::scan1d(const int nRun) {
       toyTree.statusBkgBkg = StatusBkgBkgToysStore[j];
 
       if (arg->debug) {
-        cout << "#### > Fit summary: " << endl;
-        cout << "#### > free fit status: " << toyTree.statusFree << " vs pdf: " << toyTree.statusFreePDF << endl
-             << "#### > scan fit status: " << toyTree.statusScan << " vs pdf: " << toyTree.statusScanPDF << endl
-             << "#### > free min nll: " << toyTree.chi2minGlobalToy << " vs pdf: " << toyTree.chi2minGlobalToyPDF
-             << endl
-             << "#### > scan min nll: " << toyTree.chi2minToy << " vs pdf: " << toyTree.chi2minToyPDF << endl
-             << "#### > dChi2 fitresult: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << endl
-             << "#### > dChi2 pdfresult: " << toyTree.chi2minToyPDF - toyTree.chi2minGlobalToyPDF << endl;
-        cout << std::setprecision(6);
+        std::cout << "#### > Fit summary: " << std::endl;
+        std::cout << "#### > free fit status: " << toyTree.statusFree << " vs pdf: " << toyTree.statusFreePDF
+                  << std::endl
+                  << "#### > scan fit status: " << toyTree.statusScan << " vs pdf: " << toyTree.statusScanPDF
+                  << std::endl
+                  << "#### > free min nll: " << toyTree.chi2minGlobalToy << " vs pdf: " << toyTree.chi2minGlobalToyPDF
+                  << std::endl
+                  << "#### > scan min nll: " << toyTree.chi2minToy << " vs pdf: " << toyTree.chi2minToyPDF << std::endl
+                  << "#### > dChi2 fitresult: " << toyTree.chi2minToy - toyTree.chi2minGlobalToy << std::endl
+                  << "#### > dChi2 pdfresult: " << toyTree.chi2minToyPDF - toyTree.chi2minGlobalToyPDF << std::endl;
+        std::cout << std::setprecision(6);
 
         if (toyTree.chi2minToy - toyTree.chi2minGlobalToy > 20 &&
             (toyTree.statusFree == 0 && toyTree.statusScan == 0) && toyTree.chi2minToy > -1e27 &&
             toyTree.chi2minGlobalToy > -1e27) {
-          cout << std::setw(30) << std::setfill('-')
-               << ">>> HIGH test stat value!! print fit results with fit strategy: " << pdf->getFitStrategy()
-               << std::setfill(' ') << endl;
-          cout << "SCAN FIT Result" << endl;
+          std::cout << std::setw(30) << std::setfill('-')
+                    << ">>> HIGH test stat value!! print fit results with fit strategy: " << pdf->getFitStrategy()
+                    << std::setfill(' ') << std::endl;
+          std::cout << "SCAN FIT Result" << std::endl;
           r->Print("");
-          cout << "================" << endl;
-          cout << "FREE FIT result" << endl;
+          std::cout << "================" << std::endl;
+          std::cout << "FREE FIT result" << std::endl;
           r1->Print("");
         }
 
-        cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - ToyTree 2*minNll free fit: "
-             << toyTree.chi2minGlobalToy << endl;
+        std::cout << "DEBUG in MethodDatasetsPluginScan::scan1d_plugin() - ToyTree 2*minNll free fit: "
+                  << toyTree.chi2minGlobalToy << std::endl;
       }
 
       //
@@ -1955,7 +1966,7 @@ void MethodDatasetsPluginScan::drawDebugPlots(int runMin, int runMax, TString fi
   auto c = this->readFiles(runMin, runMax, nFilesRead, nFilesMissing, fileNameBaseIn);
   // ToyTree t(this->pdf, c);
   // t.open();
-  cout << "does it take long?" << endl;
+  std::cout << "does it take long?" << std::endl;
 
   TString cut =
       "scanpoint == 0 && statusScan == 0 && statusFree == 0 && abs(chi2minToy)<300e3 && abs(chi2minGlobalToy)<300e3";
@@ -1976,7 +1987,7 @@ void MethodDatasetsPluginScan::drawDebugPlots(int runMin, int runMax, TString fi
   can3->cd();
   c->Draw("chi2minToy", cut, "norm");
   c->Draw("chi2minGlobalToy", cut, "normSAME");
-  // cout << "draw takes a while" << endl;
+  // std::cout << "draw takes a while" << std::endl;
 };
 
 ///
@@ -2016,7 +2027,7 @@ void MethodDatasetsPluginScan::performBootstrapTest(int nSamples, const TString&
     t.GetEntry(i);
     if (i == 0) {
       q_data = t.chi2min - this->chi2minGlobal;
-      cout << "Test stat for data: " << q_data << endl;
+      std::cout << "Test stat for data: " << q_data << std::endl;
     }
     if (!(t.statusScan == 0 && t.statusFree == 0 && fabs(t.chi2minToy) < 1e27 && fabs(t.chi2minGlobalToy) < 1e27 &&
           t.scanpoint == 0)) {
@@ -2025,8 +2036,8 @@ void MethodDatasetsPluginScan::performBootstrapTest(int nSamples, const TString&
       if( (t.statusFree == 0 && t.statusScan ==1)
               || (t.statusFree == 1 && t.statusScan ==0)
               || (t.statusFree == 1 && t.statusScan ==1)){
-          cout  << "Check test stat for status>0: dChi2 = "
-                      << t.chi2minToy-t.chi2minGlobalToy << endl;
+          std::cout  << "Check test stat for status>0: dChi2 = "
+                      << t.chi2minToy-t.chi2minGlobalToy << std::endl;
           q_Status_gt0.push_back(t.chi2minToy-t.chi2minGlobalToy);
       }
       */
@@ -2036,9 +2047,10 @@ void MethodDatasetsPluginScan::performBootstrapTest(int nSamples, const TString&
 
     q.push_back(t.chi2minToy - t.chi2minGlobalToy);
   }
-  cout << "INFO in MethodDatasetsPluginScan::performBootstrapTest - Tree loop finished" << endl;
-  cout << "- start BootstrapTest with " << nSamples << " Samples and " << numberOfToys << " Toys each" << endl;
-  cout << " Total number failed: " << totFailed << endl;
+  std::cout << "INFO in MethodDatasetsPluginScan::performBootstrapTest - Tree loop finished" << std::endl;
+  std::cout << "- start BootstrapTest with " << nSamples << " Samples and " << numberOfToys << " Toys each"
+            << std::endl;
+  std::cout << " Total number failed: " << totFailed << std::endl;
 
   for (int i = 0; i < nSamples; ++i) {
     double nbetter = 0;
@@ -2053,8 +2065,8 @@ void MethodDatasetsPluginScan::performBootstrapTest(int nSamples, const TString&
     bootstrapPVals.push_back(p);
     hist->Fill(p);
     if (i % 100 == 0)
-      cout << i << " Samples from " << nSamples << " done. p Value: " << p << " with " << nbetter << " Toys of "
-           << numberOfToys << " total" << endl;
+      std::cout << i << " Samples from " << nSamples << " done. p Value: " << p << " with " << nbetter << " Toys of "
+                << numberOfToys << " total" << std::endl;
   }
   auto c = new TCanvas("c", "c", 1024, 768);
   hist->SetLineColor(kRed + 2);
@@ -2071,14 +2083,14 @@ void MethodDatasetsPluginScan::performBootstrapTest(int nSamples, const TString&
 };
 
 void MethodDatasetsPluginScan::printDebug(const RooFitResult& r) {
-  cout << std::fixed << std::scientific;
-  cout << std::setw(42) << std::right << std::setfill('-') << " Minimum: " << std::setprecision(8) << r.minNll()
-       << " with edm: " << std::setprecision(6) << r.edm() << endl;
-  cout << std::setw(42) << std::right << std::setfill('-') << " Minimize status: " << r.status() << endl;
-  cout << std::setw(42) << std::right << std::setfill('-')
-       << " Number of invalid NLL evaluations: " << r.numInvalidNLL() << endl;
-  cout << std::resetiosflags(std::ios::right) << std::resetiosflags(std::ios::fixed)
-       << std::resetiosflags(std::ios::scientific);
+  std::cout << std::fixed << std::scientific;
+  std::cout << std::setw(42) << std::right << std::setfill('-') << " Minimum: " << std::setprecision(8) << r.minNll()
+            << " with edm: " << std::setprecision(6) << r.edm() << std::endl;
+  std::cout << std::setw(42) << std::right << std::setfill('-') << " Minimize status: " << r.status() << std::endl;
+  std::cout << std::setw(42) << std::right << std::setfill('-')
+            << " Number of invalid NLL evaluations: " << r.numInvalidNLL() << std::endl;
+  std::cout << std::resetiosflags(std::ios::right) << std::resetiosflags(std::ios::fixed)
+            << std::resetiosflags(std::ios::scientific);
 };
 
 RooSlimFitResult* MethodDatasetsPluginScan::getParevolPoint([[maybe_unused]] double scanpoint) {
@@ -2096,8 +2108,9 @@ void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
 
   //\todo: make sure this is checked during pdf init, do not check again here
   if (!pars) {
-    cout << "MethodDatasetsPluginScan::setParevolPointByIndex(int index) : ERROR : no parameter set found in workspace!"
-         << endl;
+    std::cout
+        << "MethodDatasetsPluginScan::setParevolPointByIndex(int index) : ERROR : no parameter set found in workspace!"
+        << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -2105,8 +2118,8 @@ void MethodDatasetsPluginScan::setParevolPointByIndex(int index) {
     TString parName = p->GetName();
     auto parLeaf = (TLeaf*)this->getProfileLH()->probScanTree->t->GetLeaf(parName + "_scan");
     if (!parLeaf) {
-      cout << "MethodDatasetsPluginScan::setParevolPointByIndex(int index) : ERROR : no var (" << parName
-           << ") found in PLH scan file!" << endl;
+      std::cout << "MethodDatasetsPluginScan::setParevolPointByIndex(int index) : ERROR : no var (" << parName
+                << ") found in PLH scan file!" << std::endl;
       exit(EXIT_FAILURE);
     }
     double scanParVal = parLeaf->GetValue();
@@ -2140,56 +2153,56 @@ void MethodDatasetsPluginScan::setAndPrintFitStatusConstrainedToys([[maybe_unuse
   bool negTestStat = toyTree.chi2minToy - toyTree.chi2minGlobalToy < 0;
 
   if ((pdf->getFitStatus() != 0 || negTestStat) && arg->debug) {
-    cout << "----> problem in current fit: going to refit with strategy " << pdf->getFitStrategy()
-         << " , summary: " << endl
-         << "----> NLL value: " << std::setprecision(9) << pdf->getMinNllFree() << endl
-         << "----> fit status: " << pdf->getFitStatus() << endl
-         << "----> dChi2: " << (toyTree.chi2minToy - toyTree.chi2minGlobalToy) << endl
-         << "----> dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl;
+    std::cout << "----> problem in current fit: going to refit with strategy " << pdf->getFitStrategy()
+              << " , summary: " << std::endl
+              << "----> NLL value: " << std::setprecision(9) << pdf->getMinNllFree() << std::endl
+              << "----> fit status: " << pdf->getFitStatus() << std::endl
+              << "----> dChi2: " << (toyTree.chi2minToy - toyTree.chi2minGlobalToy) << std::endl
+              << "----> dChi2PDF: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << std::endl;
 
     switch (pdf->getFitStatus()) {
     case 1:
-      cout << "----> fit results in status 1" << endl;
-      cout << "----> NLL value: " << pdf->getMinNllFree() << endl;
+      std::cout << "----> fit results in status 1" << std::endl;
+      std::cout << "----> NLL value: " << pdf->getMinNllFree() << std::endl;
       break;
 
     case -1:
-      cout << "----> fit results in status -1" << endl;
-      cout << "----> NLL value: " << pdf->getMinNllFree() << endl;
+      std::cout << "----> fit results in status -1" << std::endl;
+      std::cout << "----> NLL value: " << pdf->getMinNllFree() << std::endl;
       break;
 
     case -99:
-      cout << "----> fit has NLL value with flag NaN or INF" << endl;
-      cout << "----> NLL value: " << pdf->getMinNllFree() << endl;
+      std::cout << "----> fit has NLL value with flag NaN or INF" << std::endl;
+      std::cout << "----> NLL value: " << pdf->getMinNllFree() << std::endl;
       break;
     case -66:
-      cout << "----> fit has nan/inf NLL value and a negative test statistic" << endl
-           << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl
-           << "----> scan fit min nll:" << pdf->getMinNllScan() << endl
-           << "----> free fit min nll:" << pdf->getMinNllFree() << endl;
+      std::cout << "----> fit has nan/inf NLL value and a negative test statistic" << std::endl
+                << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << std::endl
+                << "----> scan fit min nll:" << pdf->getMinNllScan() << std::endl
+                << "----> free fit min nll:" << pdf->getMinNllFree() << std::endl;
       break;
     case -13:
-      cout << "----> free fit has status 0 but creates a negative test statistic" << endl
-           << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl
-           << "----> scan fit min nll:" << pdf->getMinNllScan() << endl
-           << "----> free fit min nll:" << pdf->getMinNllFree() << endl;
+      std::cout << "----> free fit has status 0 but creates a negative test statistic" << std::endl
+                << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << std::endl
+                << "----> scan fit min nll:" << pdf->getMinNllScan() << std::endl
+                << "----> free fit min nll:" << pdf->getMinNllFree() << std::endl;
       break;
     case -12:
-      cout << "----> free fit has status 1 and creates a negative test statistic" << endl
-           << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl
-           << "----> scan fit min nll:" << pdf->getMinNllScan() << endl
-           << "----> free fit min nll:" << pdf->getMinNllFree() << endl;
+      std::cout << "----> free fit has status 1 and creates a negative test statistic" << std::endl
+                << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << std::endl
+                << "----> scan fit min nll:" << pdf->getMinNllScan() << std::endl
+                << "----> free fit min nll:" << pdf->getMinNllFree() << std::endl;
 
       break;
     case -33:
-      cout << "----> free fit has status -1 and creates a negative test statistic" << endl
-           << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << endl
-           << "----> scan fit min nll:" << pdf->getMinNllScan() << endl
-           << "----> free fit min nll:" << pdf->getMinNllFree() << endl;
-      cout << std::setprecision(6);
+      std::cout << "----> free fit has status -1 and creates a negative test statistic" << std::endl
+                << "----> dChi2: " << 2 * (pdf->getMinNllScan() - pdf->getMinNllFree()) << std::endl
+                << "----> scan fit min nll:" << pdf->getMinNllScan() << std::endl
+                << "----> free fit min nll:" << pdf->getMinNllFree() << std::endl;
+      std::cout << std::setprecision(6);
       break;
     default:
-      cout << "-----> unknown / fitResult neg test stat, but status" << pdf->getFitStatus() << endl;
+      std::cout << "-----> unknown / fitResult neg test stat, but status" << pdf->getFitStatus() << std::endl;
       break;
     }
   }
@@ -2199,43 +2212,44 @@ void MethodDatasetsPluginScan::setAndPrintFitStatusFreeToys(const ToyTree& toyTr
 
   if (!std::isfinite(pdf->getMinNllScan())) {
     if (arg->debug) {
-      cout << "----> nan/inf flag detected " << endl;
-      cout << "----> fit status: " << pdf->getFitStatus() << endl;
+      std::cout << "----> nan/inf flag detected " << std::endl;
+      std::cout << "----> fit status: " << pdf->getFitStatus() << std::endl;
     }
     pdf->setFitStatus(-99);
   }
 
   if (pdf->getFitStatus() != 0 && arg->debug) {
-    cout << "----> problem in current fit: going to refit with strategy 1, summary: " << endl
-         << "----> NLL value: " << std::setprecision(9) << pdf->minNll << endl
-         << "----> fit status: " << pdf->getFitStatus() << endl;
+    std::cout << "----> problem in current fit: going to refit with strategy 1, summary: " << std::endl
+              << "----> NLL value: " << std::setprecision(9) << pdf->minNll << std::endl
+              << "----> fit status: " << pdf->getFitStatus() << std::endl;
     switch (pdf->getFitStatus()) {
     case 1:
-      cout << "----> fit results in status 1" << endl;
-      cout << "----> NLL value: " << pdf->minNll << endl;
-      // cout << "----> edm: " << r->edm() << endl;
+      std::cout << "----> fit results in status 1" << std::endl;
+      std::cout << "----> NLL value: " << pdf->minNll << std::endl;
+      // std::cout << "----> edm: " << r->edm() << std::endl;
       break;
 
     case -1:
-      cout << "----> fit results in status -1" << endl;
-      cout << "----> NLL value: " << pdf->minNll << endl;
-      // cout << "----> edm: " << r->edm() << endl;
+      std::cout << "----> fit results in status -1" << std::endl;
+      std::cout << "----> NLL value: " << pdf->minNll << std::endl;
+      // std::cout << "----> edm: " << r->edm() << std::endl;
       break;
 
     case -99:
-      cout << "----> fit has NLL value with flag NaN or INF" << endl;
-      cout << "----> NLL value: " << pdf->minNll << endl;
-      // cout << "----> edm: " << r->edm() << endl;
+      std::cout << "----> fit has NLL value with flag NaN or INF" << std::endl;
+      std::cout << "----> NLL value: " << pdf->minNll << std::endl;
+      // std::cout << "----> edm: " << r->edm() << std::endl;
       break;
 
     default:
-      cout << "unknown" << endl;
+      std::cout << "unknown" << std::endl;
       break;
     }
   }
 }
 
-void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, map<int, vector<double>> sbVals) const {
+void MethodDatasetsPluginScan::makeControlPlots(map<int, std::vector<double>> bVals,
+                                                map<int, std::vector<double>> sbVals) const {
   // the quantiles of the CLb distribution (for expected CLs)
   std::vector<double> probs = {TMath::Prob(4, 1), TMath::Prob(1, 1), 0.5, 1. - TMath::Prob(1, 1),
                                1. - TMath::Prob(4, 1)};
@@ -2263,7 +2277,7 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
     // std::cout << "CLb alternative: " << getVectorFracAboveValue( bVals[i], dataVal) << std::endl;
     auto lD = new TArrow(dataVal, 0.6 * hsb->GetMaximum(), dataVal, 0., 0.15, "|>");
 
-    vector<TLine*> qLs;
+    std::vector<TLine*> qLs;
     for (const auto val : quantiles) { qLs.push_back(new TLine(val, 0, val, 0.8 * hsb->GetMaximum())); }
     auto lat = new TLatex();
     lat->SetTextColor(kRed);
@@ -2368,7 +2382,7 @@ void MethodDatasetsPluginScan::makeControlPlots(map<int, vector<double>> bVals, 
   savePlot(c.get(), "cls_ControlPlot_" + scanVar1);
 }
 
-void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, vector<double>> biasVals) {
+void MethodDatasetsPluginScan::makeControlPlotsBias(map<int, std::vector<double>> biasVals) {
   for (int i = 1; i <= hCLs->GetNbinsX(); i++) {
 
     auto c = newNoWarnTCanvas(Form("q%d", i), Form("q%d", i));

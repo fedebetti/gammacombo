@@ -291,7 +291,7 @@ void ConfidenceContours::setStyle(const std::vector<int>& linecolor, const std::
     const int laststyle = m_linestyle.size() - 1;
     if (laststyle < 0) {
       std::cout << "ConfidenceContours::setStyle() : ERROR : linestyle is empty. Exit." << std::endl;
-      exit(1);
+      std::exit(1);
     }
     for (int i = m_linestyle.size(); i < m_arg->plotnsigmacont; i++) {
       m_linecolor.push_back(m_linecolor[laststyle]);

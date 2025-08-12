@@ -23,7 +23,7 @@ RooCrossCorPdf::RooCrossCorPdf(const RooCrossCorPdf& other, const char* name)
 
 Double_t RooCrossCorPdf::evaluate() const {
   // return 1.;
-  //  Represent observables and theory as vector
+  //  Represent observables and theory as std::vector
   TVectorD obs(_obs.getSize());
   TVectorD th(_th.getSize());
   for (int i = 0; i < _obs.getSize(); i++) {

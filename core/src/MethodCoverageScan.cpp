@@ -28,8 +28,8 @@ MethodCoverageScan::MethodCoverageScan(Combiner* comb) : MethodAbsScan(comb) { m
 
 int MethodCoverageScan::scan1d(const int nRun) {
   if (!pCache) {
-    cout << "\nERROR : parameterCache has not been in set for the coverage scanner " << endl;
-    exit(1);
+    std::cout << "\nERROR : parameterCache has not been in set for the coverage scanner " << std::endl;
+    std::exit(1);
   }
   nToys = arg->ncoveragetoys;
   // TString forceVariables = "dD_k3pi,dD_kpi,d_dk,g,d_dpi,r_dpi,";
@@ -54,7 +54,7 @@ int MethodCoverageScan::scan1d(const int nRun) {
   double tSolProbErr2Up = 0.0;
   double tSolProbErr3Low = 0.0;
   double tSolProbErr3Up = 0.0;
-  vector<double> paramVals;
+  std::vector<double> paramVals;
   for (int i = 0; i < combiner->getParameterNames().size(); i++) { paramVals.push_back(0.0); }
   double tChi2free = 0.0;
   double tChi2scan = 0.0;
@@ -100,7 +100,7 @@ int MethodCoverageScan::scan1d(const int nRun) {
   // ProgressBar *pb = new ProgressBar(arg, nToys);
 
   for (int i = 0; i < nToys; i++) {
-    cout << "ITOY = " << i << endl;
+    std::cout << "ITOY = " << i << std::endl;
     // pb->progress();
 
     tId = i;
@@ -123,7 +123,7 @@ int MethodCoverageScan::scan1d(const int nRun) {
     combiner->loadParameterLimits();
 
     if (arg->debug) {
-      cout << "PARAMETERS BEFORE TOY SCAN" << endl;
+      std::cout << "PARAMETERS BEFORE TOY SCAN" << std::endl;
       combiner->getParameters()->Print("v");
     }
 
@@ -132,7 +132,7 @@ int MethodCoverageScan::scan1d(const int nRun) {
     // scanToy(combiner, plot, i);
     //}
     if (arg->debug) {
-      cout << "PARAMETERS AFTER TOY SCAN" << endl;
+      std::cout << "PARAMETERS AFTER TOY SCAN" << std::endl;
       combiner->getParameters()->Print("v");
     }
 
@@ -148,7 +148,7 @@ int MethodCoverageScan::scan1d(const int nRun) {
     FitResultCache frCache(arg);
     frCache.storeParsAtFunctionCall(w->set(parName));
 
-    cout << "Free Fit" << endl;
+    std::cout << "Free Fit" << std::endl;
     w->var(varName)->setConstant(false);
     auto rToyFreeFull = fitToMinForce(w, pdfName, forceVariables, false);
     if (!rToyFreeFull) continue;
@@ -162,7 +162,7 @@ int MethodCoverageScan::scan1d(const int nRun) {
       paramVals[i] = w->var(combiner->getParameterNames()[i].c_str())->getVal();
     }
 
-    cout << "Scan Point Fit" << endl;
+    std::cout << "Scan Point Fit" << std::endl;
     setParameters(w, parName, frCache.getParsAtFunctionCall());
     w->var(varName)->setConstant(true);
     auto rToyScanFull = fitToMinForce(w, pdfName, forceVariables, false);
@@ -185,24 +185,24 @@ int MethodCoverageScan::scan1d(const int nRun) {
     //
     // compute p-value of the Plugin method
     //
-    cout << "PLUGIN...";
+    std::cout << "PLUGIN...";
     auto scanner = new MethodPluginScan(combiner);
     scanner->initScan();
     tPvalue = scanner->getPvalue1d(rToyScan.get(), tChi2free, myTree, i, !arg->verbose);
-    cout << "Done" << endl;
-    cout << "P VALUE IS " << tPvalue << endl;
+    std::cout << "Done" << std::endl;
+    std::cout << "P VALUE IS " << tPvalue << std::endl;
     hPvalues->Fill(tPvalue);
     c3->cd();
     hPvalues->Draw();
     c3->Update();
 
     // now do the uncertainty scan for the Prob method
-    cout << "PROB" << endl;
+    std::cout << "PROB" << std::endl;
     auto probScanner = new MethodProbScan(combiner);
     probScanner->initScan();
     probScanner->loadParameters(rToyFree.get());  // load parameters from forced fit
     probScanner->scan1d(false, false, true);
-    // vector<RooSlimFitResult*> firstScanSolutions = probScanner->getSolutions();
+    // std::vector<RooSlimFitResult*> firstScanSolutions = probScanner->getSolutions();
     // for ( int i=0; i<firstScanSolutions.size(); i++ ){
     // probScanner->loadParameters( firstScanSolutions[i] );
     // probScanner->scan1d(true);
@@ -244,15 +244,15 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
   TString idStr = arg->id < 0 ? "0" : Form("%d", arg->id);
   TString dirname = "root/scan1dCoverage_" + name + "_" + scanVar1 + "_id" + idStr;
   TString fileNameBase = dirname + "/scan1dCoverage_" + name + "_" + scanVar1 + "_id" + idStr + "_run";
-  if (arg->debug) cout << "MethodCoverageScan::readScan1dTrees() : ";
-  cout << "reading files: " << fileNameBase + "*.root" << endl;
+  if (arg->debug) std::cout << "MethodCoverageScan::readScan1dTrees() : ";
+  std::cout << "reading files: " << fileNameBase + "*.root" << std::endl;
   for (int i = runMin; i <= runMax; i++) {
     TString file = Form(fileNameBase + "%i.root", i);
     if (!FileExists(file)) {
-      if (arg->verbose) cout << "ERROR : File not found: " + file + " ..." << endl;
+      if (arg->verbose) std::cout << "ERROR : File not found: " + file + " ..." << std::endl;
       continue;
     }
-    if (arg->verbose) cout << "reading " + file + " ..." << endl;
+    if (arg->verbose) std::cout << "reading " + file + " ..." << std::endl;
     c->Add(file);
   }
 
@@ -322,8 +322,8 @@ void MethodCoverageScan::readScan1dTrees(int runMin, int runMax) {
   }
 
   // fit p-values (if transFunc=="none" don't bother)
-  vector<double> fitParamsPlugin;
-  vector<double> fitParamsProb;
+  std::vector<double> fitParamsPlugin;
+  std::vector<double> fitParamsProb;
   TCanvas* my_c;
   if (transFunc != TString("none")) {
     my_c = new TCanvas();
@@ -386,7 +386,7 @@ void MethodCoverageScan::saveScanner(TString fName) {
     FileNameBuilder fb(arg);
     fName = fb.getFileNameScanner(this);
   }
-  if (arg->debug) cout << "MethodCoverageScan::saveScanner() : saving scanner: " << fName << endl;
+  if (arg->debug) std::cout << "MethodCoverageScan::saveScanner() : saving scanner: " << fName << std::endl;
   TFile f(fName, "recreate");
 
   // save histograms
@@ -418,13 +418,14 @@ bool MethodCoverageScan::loadScanner(TString fName) {
     FileNameBuilder fb(arg);
     fName = fb.getFileNameScanner(this);
   }
-  if (arg->debug) cout << "MethodCoverageScan::loadScanner() : ";
-  cout << "loading scanner: " << fName << endl;
+  if (arg->debug) std::cout << "MethodCoverageScan::loadScanner() : ";
+  std::cout << "loading scanner: " << fName << std::endl;
   if (!FileExists(fName)) {
-    cout << "MethodCoverageScan::loadScanner() : ERROR : file not found: " << fName << endl;
-    cout << "                                    Run first without the '-a plot' option to produce the missing file."
-         << endl;
-    exit(1);
+    std::cout << "MethodCoverageScan::loadScanner() : ERROR : file not found: " << fName << std::endl;
+    std::cout
+        << "                                    Run first without the '-a plot' option to produce the missing file."
+        << std::endl;
+    std::exit(1);
   }
   auto f = new TFile(fName, "ro");  // don't delete this later else the objects die
   h_sol = (TH1F*)f->Get("h_sol");
@@ -434,30 +435,32 @@ bool MethodCoverageScan::loadScanner(TString fName) {
   h_pvalue_prob_notransf = (TH1F*)f->Get("h_pvalue_prob_notransf");
 
   if (!h_sol) {
-    cout << "\nERROR : Histogram \'h_sol\' not found in saved coverage scanner : " << fName << endl;
-    exit(1);
+    std::cout << "\nERROR : Histogram \'h_sol\' not found in saved coverage scanner : " << fName << std::endl;
+    std::exit(1);
   }
   if (!h_pvalue_plugin) {
-    cout << "\nERROR : Histogram \'h_pvalue_plugin\' not found in saved coverage scanner : " << fName << endl;
-    exit(1);
+    std::cout << "\nERROR : Histogram \'h_pvalue_plugin\' not found in saved coverage scanner : " << fName << std::endl;
+    std::exit(1);
   }
   if (!h_pvalue_prob) {
-    cout << "\nERROR : Histogram \'h_pvalue_prob\' not found in saved coverage scanner : " << fName << endl;
-    exit(1);
+    std::cout << "\nERROR : Histogram \'h_pvalue_prob\' not found in saved coverage scanner : " << fName << std::endl;
+    std::exit(1);
   }
   if (!h_pvalue_plugin_notransf) {
-    cout << "\nERROR : Histogram \'h_pvalue_plugin_notransf\' not found in saved coverage scanner : " << fName << endl;
-    exit(1);
+    std::cout << "\nERROR : Histogram \'h_pvalue_plugin_notransf\' not found in saved coverage scanner : " << fName
+              << std::endl;
+    std::exit(1);
   }
   if (!h_pvalue_prob_notransf) {
-    cout << "\nERROR : Histogram \'h_pvalue_prob_notransf\' not found in saved coverage scanner : " << fName << endl;
-    exit(1);
+    std::cout << "\nERROR : Histogram \'h_pvalue_prob_notransf\' not found in saved coverage scanner : " << fName
+              << std::endl;
+    std::exit(1);
   }
 
   auto loadTree = (TTree*)f->Get("result_values");
   if (!loadTree) {
-    cout << "\nERROR : Tree \'result_values\' not found in saved coverage scanner : " << fName << endl;
-    exit(1);
+    std::cout << "\nERROR : Tree \'result_values\' not found in saved coverage scanner : " << fName << std::endl;
+    std::exit(1);
   }
   loadTree->SetBranchAddress("nentries", &nentries);
   loadTree->SetBranchAddress("nfailed", &nfailed);
@@ -544,29 +547,29 @@ void MethodCoverageScan::plot() const {
 
   // compute coverage
   auto n = (double)(nentries - nfailed);
-  cout << "coverage test nToys=" << n << endl;
-  cout << "Plugin:" << endl;
-  cout << " eta=68.27%: alpha=" << Form("%.4f", 1. * n68plugin / n) << " +/- "
-       << Form("%.4f", sqrt(n68plugin * (n - n68plugin) / n) / n)
-       << " alpha-eta=" << Form("%.4f", 1. * n68plugin / n - 0.6827) << endl
-       << " eta=95.45%: alpha=" << Form("%.4f", 1. * n95plugin / n) << " +/- "
-       << Form("%.4f", sqrt(n95plugin * (n - n95plugin) / n) / n)
-       << " alpha-eta=" << Form("%.4f", 1. * n95plugin / n - 0.9545) << endl
-       << " eta=99.73%: alpha=" << Form("%.4f", 1. * n99plugin / n) << " +/- "
-       << Form("%.4f", sqrt(n99plugin * (n - n99plugin) / n) / n)
-       << " alpha-eta=" << Form("%.4f", 1. * n99plugin / n - 0.9973) << endl;
-  cout << "Prob:" << endl;
-  cout << " eta=68.27%: alpha=" << Form("%.4f", 1. * n68prob / n) << " +/- "
-       << Form("%.4f", sqrt(n68prob * (n - n68prob) / n) / n)
-       << " alpha-eta=" << Form("%.4f", 1. * n68prob / n - 0.6827) << endl
-       << " eta=95.45%: alpha=" << Form("%.4f", 1. * n95prob / n) << " +/- "
-       << Form("%.4f", sqrt(n95prob * (n - n95prob) / n) / n)
-       << " alpha-eta=" << Form("%.4f", 1. * n95prob / n - 0.9545) << endl
-       << " eta=99.73%: alpha=" << Form("%.4f", 1. * n99prob / n) << " +/- "
-       << Form("%.4f", sqrt(n99prob * (n - n99prob) / n) / n)
-       << " alpha-eta=" << Form("%.4f", 1. * n99prob / n - 0.9973) << endl;
-  cout << "The stat. errors are correlated as they come from the same toys!" << endl;
-  cout << "\nLatex:" << endl;
+  std::cout << "coverage test nToys=" << n << std::endl;
+  std::cout << "Plugin:" << std::endl;
+  std::cout << " eta=68.27%: alpha=" << Form("%.4f", 1. * n68plugin / n) << " +/- "
+            << Form("%.4f", sqrt(n68plugin * (n - n68plugin) / n) / n)
+            << " alpha-eta=" << Form("%.4f", 1. * n68plugin / n - 0.6827) << std::endl
+            << " eta=95.45%: alpha=" << Form("%.4f", 1. * n95plugin / n) << " +/- "
+            << Form("%.4f", sqrt(n95plugin * (n - n95plugin) / n) / n)
+            << " alpha-eta=" << Form("%.4f", 1. * n95plugin / n - 0.9545) << std::endl
+            << " eta=99.73%: alpha=" << Form("%.4f", 1. * n99plugin / n) << " +/- "
+            << Form("%.4f", sqrt(n99plugin * (n - n99plugin) / n) / n)
+            << " alpha-eta=" << Form("%.4f", 1. * n99plugin / n - 0.9973) << std::endl;
+  std::cout << "Prob:" << std::endl;
+  std::cout << " eta=68.27%: alpha=" << Form("%.4f", 1. * n68prob / n) << " +/- "
+            << Form("%.4f", sqrt(n68prob * (n - n68prob) / n) / n)
+            << " alpha-eta=" << Form("%.4f", 1. * n68prob / n - 0.6827) << std::endl
+            << " eta=95.45%: alpha=" << Form("%.4f", 1. * n95prob / n) << " +/- "
+            << Form("%.4f", sqrt(n95prob * (n - n95prob) / n) / n)
+            << " alpha-eta=" << Form("%.4f", 1. * n95prob / n - 0.9545) << std::endl
+            << " eta=99.73%: alpha=" << Form("%.4f", 1. * n99prob / n) << " +/- "
+            << Form("%.4f", sqrt(n99prob * (n - n99prob) / n) / n)
+            << " alpha-eta=" << Form("%.4f", 1. * n99prob / n - 0.9973) << std::endl;
+  std::cout << "The stat. errors are correlated as they come from the same toys!" << std::endl;
+  std::cout << "\nLatex:" << std::endl;
   printLatexLine(0.6827, 1. * n68prob / n, sqrt(n68prob * (n - n68prob) / n) / n, 1. * n68plugin / n,
                  sqrt(n68plugin * (n - n68plugin) / n) / n);
   printLatexLine(0.9545, 1. * n95prob / n, sqrt(n95prob * (n - n95prob) / n) / n, 1. * n95plugin / n,
@@ -579,11 +582,11 @@ void MethodCoverageScan::plot() const {
 
 vector<double> MethodCoverageScan::fitHist(TH1* h, TString fitfunc, bool draw) const {
   if (fitfunc != "p1" && fitfunc != "p1+exp" && fitfunc != "p1+1/x") {
-    cout << "ERROR -- " << fitfunc << " is not a valid function" << endl;
-    exit(1);
+    std::cout << "ERROR -- " << fitfunc << " is not a valid function" << std::endl;
+    std::exit(1);
   }
 
-  vector<double> fitParams;
+  std::vector<double> fitParams;
   TString fitString;
   TF1* fitFunc;
 
@@ -614,8 +617,8 @@ double MethodCoverageScan::transform(vector<double> fitParams, TString transFunc
   double y = -999.;  // this should be getting returned
 
   if (transFunc != "p1" && transFunc != "p1+exp" && transFunc != "p1+1/x") {
-    cout << "ERROR -- " << transFunc << " is not a valid function" << endl;
-    exit(1);
+    std::cout << "ERROR -- " << transFunc << " is not a valid function" << std::endl;
+    std::exit(1);
   }
   if (transFunc == "p1") assert(fitParams.size() == 2);
   if (transFunc == "p1+exp") assert(fitParams.size() == 4);

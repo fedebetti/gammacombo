@@ -109,8 +109,8 @@ TString Utils::ConfigToTString(config s) {
   if (s == year2014) return "year2014";
   if (s == zero) return "zero";
 
-  cout << "Utils::ConfigToTString() : ERROR : Config not found: " << s << endl;
-  exit(1);
+  std::cout << "Utils::ConfigToTString() : ERROR : Config not found: " << s << std::endl;
+  std::exit(1);
 }
 
 Utils::config Utils::TStringToConfig(TString c) {
@@ -118,6 +118,6 @@ Utils::config Utils::TStringToConfig(TString c) {
   if (c == "truth") return truth;
   if (c == "zero") return zero;
   if (c == "manual") return manual;
-  cout << "Utils::TStringToConfig() : ERROR : Config not found." << endl;
-  exit(1);
+  std::cout << "Utils::TStringToConfig() : ERROR : Config not found." << std::endl;
+  std::exit(1);
 }

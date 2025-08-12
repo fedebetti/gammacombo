@@ -30,7 +30,7 @@ ControlPlots::ControlPlots(ToyTree* tt) {
     std::cout << "\nError in ControlPlots::ControlPlots(): Prob free fit or Prob scan fit have inappropriate fit "
                  "result (fit status or cov qual). Cannot do control plots."
               << std::endl;
-    exit(1);
+    std::exit(1);
   }
 }
 
@@ -282,7 +282,7 @@ void ControlPlots::ctrlPlotChi2() {
 ///
 void ControlPlots::ctrlPlotNuisances() {
   selectNewCanvas("Nuisances 1");
-  vector<TString> usedVariableNames;
+  std::vector<TString> usedVariableNames;
 
   int nBinsX = 50;
   int nBinsY = tt->getScanpointN() / 2;
@@ -311,9 +311,10 @@ void ControlPlots::ctrlPlotNuisances() {
 
     if ((bName.BeginsWith("d_") || bName.BeginsWith("g"))  //  pi symmetry is only in the B strong phases!
         && !(bName.BeginsWith("dD"))) {
-      cout << "\nControlPlots::ctrlPlotNuisances() : WARNING : folding everything into the range [0,pi]. This is a "
-              "remnant of the LHCb gamma combination.\n"
-           << endl;
+      std::cout
+          << "\nControlPlots::ctrlPlotNuisances() : WARNING : folding everything into the range [0,pi]. This is a "
+             "remnant of the LHCb gamma combination.\n"
+          << std::endl;
       varScan = "fmod(" + varScan + ",3.14152)";
       varFree = "fmod(" + varFree + ",3.14152)";
       varStart = "fmod(" + varStart + ",3.14152)";
@@ -329,7 +330,7 @@ void ControlPlots::ctrlPlotNuisances() {
 
     {
       selectNewPad();
-      if (arg->debug) cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varScan << endl;
+      if (arg->debug) std::cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varScan << std::endl;
       t->Draw("scanpoint:" + varScan, ctrlPlotCuts, "colz");  // first test plot to get the automatic x axis range
       double xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
                                                    : customRangeLo;
@@ -353,7 +354,7 @@ void ControlPlots::ctrlPlotNuisances() {
     }
     {
       selectNewPad();
-      if (arg->debug) cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varFree << endl;
+      if (arg->debug) std::cout << "ControlPlots::ctrlPlotNuisances() : plotting " << varFree << std::endl;
       t->Draw("scanpoint:" + varFree, ctrlPlotCuts, "colz");  // first test plot to get the automatic x axis range
       double xmin = customRangeLo == customRangeHi ? ((TH1F*)(gPad->GetPrimitive("htemp")))->GetXaxis()->GetXmin()
                                                    : customRangeLo;
@@ -391,7 +392,7 @@ void ControlPlots::ctrlPlotObservables() {
     if (!bName.Contains("obs")) continue;
     TString bBaseName = bName;
     bBaseName.ReplaceAll("_obs", "");
-    if (arg->debug) cout << "ControlPlots::ctrlPlotObservables() : plotting " << bBaseName << endl;
+    if (arg->debug) std::cout << "ControlPlots::ctrlPlotObservables() : plotting " << bBaseName << std::endl;
     int nBinsX = 50;
     int nBinsY = tt->getScanpointN() / 2;
     selectNewPad();
@@ -471,7 +472,7 @@ void ControlPlots::ctrlPlotChi2Distribution() {
 /// Plot deltaChi2 of the toys versus the scan variable.
 ///
 void ControlPlots::ctrlPlotChi2Parabola() {
-  if (arg->debug) cout << "ControlPlots::ctrlPlotChi2Parabola() : plotting ..." << endl;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotChi2Parabola() : plotting ..." << std::endl;
   int nBins = 12;  //  this many chi2 plots we want
   selectNewCanvas("Chi2Parabola 1");
   double scanpointMin = tt->getScanpointMin();
@@ -519,7 +520,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // create a new TTree that contains the profile likelihood
   // chi2 so we can compare
   if (arg->debug)
-    cout << "ControlPlots::ctrlPlotMore() : creating a new TTree that also contains the pll chi2 ..." << endl;
+    std::cout << "ControlPlots::ctrlPlotMore() : creating a new TTree that also contains the pll chi2 ..." << std::endl;
   new TFile("/tmp/" + getUniqueRootName(), "recreate");  //  dummy file so the new tree is not memory resident
   auto tNew = std::make_unique<TTree>("tNew", "tNew");
   double tNew_scanpoint = 0.;
@@ -536,8 +537,8 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   for (Long64_t j = 0; j < nentries; j++) {
     // status bar
     if (arg->debug && (((int)j % (int)(nentries / printFreq)) == 0)) {
-      cout << "ControlPlots::ctrlPlotMore() : reading toys " << Form("%.0f", (double)j / (double)nentries * 100.)
-           << "%   \r" << flush;
+      std::cout << "ControlPlots::ctrlPlotMore() : reading toys " << Form("%.0f", (double)j / (double)nentries * 100.)
+                << "%   \r" << flush;
     }
     tt->GetEntry(j);
     int iBin = profileLH->getHchisq()->FindBin(tt->scanpoint);
@@ -548,15 +549,15 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   }
   t->SetBranchStatus("*", 1);  // perhaps we need ".*" in certain root versions?
   if (arg->debug)
-    cout << "ControlPlots::ctrlPlotMore() : creating new TTree done.                      "
-         << endl;  // extra spaces for the above \r
+    std::cout << "ControlPlots::ctrlPlotMore() : creating new TTree done.                      "
+              << std::endl;  // extra spaces for the above \r
 
   // make control plots
   // selectNewPad();
   // t->Draw("scanpoint:chi2minToy", "abs(chi2minToy)<25");
   // makePlotsNice("htemp", "");
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 1 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 1 ...\r" << flush;
   selectNewPad();
   t->Draw("scanpoint:chi2minToy", "abs(chi2minToy)<25", "colz");
   makePlotsNice();
@@ -565,7 +566,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // t->Draw("scanbest:chi2minToy", "abs(chi2minToy)<25");
   // makePlotsNice("htemp", "");
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 2 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 2 ...\r" << flush;
   selectNewPad();
   RooRealVar* scanvar = profileLH->getScanVar1();
   double svmin = scanvar->getMin("scan");
@@ -573,7 +574,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   t->Draw("scanbest:chi2minToy", Form("abs(chi2minToy)<25 && %f<scanbest && scanbest<%f", svmin, svmax), "colz");
   makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 3 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 3 ...\r" << flush;
   selectNewPad();
   tNew->Draw("scanpoint:chi2min", "", "colz");
   makePlotsNice();
@@ -584,18 +585,18 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   // t->Draw("scanpoint:chi2min", "", "colz");
   // makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 4 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 4 ...\r" << flush;
   selectNewPad();
   t->Draw("chi2min:nrun", "", "colz");
   makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 5 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 5 ...\r" << flush;
   selectNewPad()->SetRightMargin(0.1);
   ;
   tNew->Draw("scanpoint:chi2min-chi2minPLH", "", "colz");
   makePlotsNice();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plot 6 ...\r" << flush;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plot 6 ...\r" << flush;
   selectNewPad();
   t->Draw("chi2minGlobal:nrun", "", "colz");
   makePlotsNice();
@@ -606,7 +607,7 @@ void ControlPlots::ctrlPlotMore(MethodProbScan* profileLH) {
   l.SetLineColor(kRed);
   l.Draw();
 
-  if (arg->debug) cout << "ControlPlots::ctrlPlotMore() : making plots done.        " << endl;
+  if (arg->debug) std::cout << "ControlPlots::ctrlPlotMore() : making plots done.        " << std::endl;
 }
 
 /**
@@ -634,7 +635,7 @@ TVirtualPad* ControlPlots::selectNewPad() {
   }
 
   ctrlPadId += 1;
-  // cout << "ControlPlots::selectNewPad() : selecting pad id " << ctrlPadId << endl;
+  // std::cout << "ControlPlots::selectNewPad() : selecting pad id " << ctrlPadId << std::endl;
   return c1->cd(ctrlPadId);
 }
 

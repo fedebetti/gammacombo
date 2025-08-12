@@ -15,16 +15,16 @@ using namespace RooFit;
 using namespace Utils;
 
 Combiner::Combiner(const OptParser* arg, TString title) : title(title), arg(arg) {
-  cout << "Combiner::Combiner() : WARNING : This constructor is deprecated. "
-          "Use Combiner(OptParser *arg, TString name, TString title) instead."
-       << endl;
-  if (arg->debug) cout << "Combiner::Combiner() : new combiner title=" << title << endl;
+  std::cout << "Combiner::Combiner() : WARNING : This constructor is deprecated. "
+               "Use Combiner(OptParser *arg, TString name, TString title) instead."
+            << std::endl;
+  if (arg->debug) std::cout << "Combiner::Combiner() : new combiner title=" << title << std::endl;
   TString wsname = "w" + getUniqueRootName();
   w = std::make_unique<RooWorkspace>(wsname, wsname);
 }
 
 Combiner::Combiner(const OptParser* arg, TString name, TString title) : title(title), name(name), arg(arg) {
-  if (arg->debug) cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << endl;
+  if (arg->debug) std::cout << "Combiner::Combiner() : new combiner name=" << name << " title=" << title << std::endl;
   TString wsname = "w" + getUniqueRootName();
   w = std::make_unique<RooWorkspace>(wsname, wsname);
 }
@@ -47,10 +47,10 @@ void Combiner::addPdf(PDF_Abs* p) {
 
 void Combiner::delPdf(PDF_Abs* p) {
   if (_isCombined) {
-    cout << "Combiner::delPdf() : ERROR : Can't delete pdf after the Combiner was combined!" << endl;
+    std::cout << "Combiner::delPdf() : ERROR : Can't delete pdf after the Combiner was combined!" << std::endl;
     return;
   }
-  vector<PDF_Abs*> pdfsNew;
+  std::vector<PDF_Abs*> pdfsNew;
   for (auto pdf : pdfs) {
     if (pdf->getUniqueGlobalID() == p->getUniqueGlobalID()) continue;
     pdfsNew.push_back(pdf);
@@ -65,12 +65,12 @@ void Combiner::replacePdf(PDF_Abs* from, PDF_Abs* to) {
 
 void Combiner::combine() {
   if (_isCombined) {
-    cout << "Combiner::combine() : WARNING : Already combined. Skipping." << endl;
+    std::cout << "Combiner::combine() : WARNING : Already combined. Skipping." << std::endl;
     return;
   }
-  if (arg->debug) cout << "Combiner::combine() : combining name=" << name << " title=" << title << endl;
+  if (arg->debug) std::cout << "Combiner::combine() : combining name=" << name << " title=" << title << std::endl;
   if (pdfs.empty()) {
-    cout << "Combiner::combine() : ERROR : Combination is empty." << endl;
+    std::cout << "Combiner::combine() : ERROR : Combination is empty." << std::endl;
     return;
   }
   // check for pitfalls and warn the user
@@ -78,27 +78,28 @@ void Combiner::combine() {
     for (int j = i + 1; j < pdfs.size(); j++) {
       PDF_Abs* p = pdfs[j];
       if (pdfs[i]->getUniqueGlobalID() == p->getUniqueGlobalID()) {
-        cout << "\nWARNING : You are trying to combine the same PDF twice!" << endl;
-        cout << "          Ignore this warning if you're doing it intentionally!" << endl;
-        cout << "          combiner: " << title << endl;
-        cout << "          PDF: " << p->getBaseName() << endl;
+        std::cout << "\nWARNING : You are trying to combine the same PDF twice!" << std::endl;
+        std::cout << "          Ignore this warning if you're doing it intentionally!" << std::endl;
+        std::cout << "          combiner: " << title << std::endl;
+        std::cout << "          PDF: " << p->getBaseName() << std::endl;
       } else if (pdfs[i]->getBaseName() == p->getBaseName()) {
-        cout << "\nWARNING : You are trying to combine two PDFs with the same name." << endl;
-        cout << "          Ignore this warning if you're doing it intentionally!" << endl;
-        cout << "          combiner: " << title << endl;
-        cout << "          PDF: " << p->getBaseName() << endl;
+        std::cout << "\nWARNING : You are trying to combine two PDFs with the same name." << std::endl;
+        std::cout << "          Ignore this warning if you're doing it intentionally!" << std::endl;
+        std::cout << "          combiner: " << title << std::endl;
+        std::cout << "          PDF: " << p->getBaseName() << std::endl;
       }
     }
   }
 
   // uniquify all input pdfs, add them to the workspace
   for (int i = 0; i < pdfs.size(); i++) {
-    if (arg->debug) cout << "Combiner::combine() : processing PDF " << pdfs[i]->getName() << endl;
+    if (arg->debug) std::cout << "Combiner::combine() : processing PDF " << pdfs[i]->getName() << std::endl;
     // check consistency of input pdfs
     bool pdfOk = pdfs[i]->checkConsistency();
     if (!pdfOk) {
-      cout << "Combiner::combine() : ERROR : PDF " << pdfs[i]->getName() << " is not self consitent. Exit." << endl;
-      exit(1);
+      std::cout << "Combiner::combine() : ERROR : PDF " << pdfs[i]->getName() << " is not self consitent. Exit."
+                << std::endl;
+      std::exit(1);
     }
     // uniquify pdf
     pdfs[i]->uniquify(i);  // Needs to be unique inside this combiner, not globally: it's important
@@ -130,9 +131,9 @@ void Combiner::combine() {
   // new thing here
   pdfName = "comb";
   auto pdfList = new RooArgList();
-  vector<string> parStr;
-  vector<string> obsStr;
-  vector<string> thStr;
+  std::vector<std::string> parStr;
+  std::vector<std::string> obsStr;
+  std::vector<std::string> thStr;
 
   for (auto name : pdfNames) {
     // add to pdf name
@@ -191,10 +192,10 @@ void Combiner::combine() {
 void Combiner::setParametersConstant() {
   for (auto constVar : constVars) {
     if (!w->var(constVar.name)) {
-      cout << "Combiner::setParametersConstant() : ERROR : requesting to set a parameter constant\n"
-              "  which is not in the workspace: "
-           << constVar.name << " . Exit." << endl;
-      exit(1);
+      std::cout << "Combiner::setParametersConstant() : ERROR : requesting to set a parameter constant\n"
+                   "  which is not in the workspace: "
+                << constVar.name << " . Exit." << std::endl;
+      std::exit(1);
     }
     // add parameter to the list of constant paramters; create the list, if necessary
     if (!w->set("const"))
@@ -211,7 +212,7 @@ void Combiner::setParametersConstant() {
 ///
 RooAbsPdf* Combiner::getPdf() {
   if (!_isCombined) {
-    cout << "Combiner::getPdf() : ERROR : Combiner needs to be combined first!" << endl;
+    std::cout << "Combiner::getPdf() : ERROR : Combiner needs to be combined first!" << std::endl;
     assert(0);
   }
   if (pdfName == "") assert(0);
@@ -219,7 +220,7 @@ RooAbsPdf* Combiner::getPdf() {
 }
 
 /**
- * Return a vector of all parameter names present in this combination.
+ * Return a std::vector of all parameter names present in this combination.
  *
  * This works already before combine() was called (unlike Combiner::getParameters()).
  */
@@ -239,7 +240,7 @@ std::vector<std::string> Combiner::getParameterNames() const {
 }
 
 /**
- * Return a vector of all observables names present in this combination.
+ * Return a std::vector of all observables names present in this combination.
  *
  * If called before combine() was called, a list of observables contained in all PDFs is returned, without unification
  * strings. There might be duplicates in that list, if more than one PDFs contain observables of the same name.
@@ -258,8 +259,8 @@ std::vector<std::string> Combiner::getObservableNames() const {
     // get observables from the combined workspace
     const RooArgSet* obs = w->set("obs_" + pdfName);
     if (!obs) {
-      cout << "Combiner::getObservableNames() : ERROR : Observables set not found in workspace: "
-           << "obs_" + pdfName << endl;
+      std::cout << "Combiner::getObservableNames() : ERROR : Observables set not found in workspace: "
+                << "obs_" + pdfName << std::endl;
       assert(0);
     }
     for (const auto p : *obs) vars.push_back(p->GetName());
@@ -272,7 +273,7 @@ std::vector<std::string> Combiner::getObservableNames() const {
 ///
 const RooArgSet* Combiner::getParameters() const {
   if (!_isCombined) {
-    cout << "Combiner::getParameters() : ERROR : Combiner needs to be combined first!" << endl;
+    std::cout << "Combiner::getParameters() : ERROR : Combiner needs to be combined first!" << std::endl;
     assert(0);
   }
   return w->set("par_" + pdfName);
@@ -283,7 +284,7 @@ const RooArgSet* Combiner::getParameters() const {
 ///
 const RooArgSet* Combiner::getObservables() const {
   if (!_isCombined) {
-    cout << "Combiner::getObservables() : ERROR : Combiner needs to be combined first!" << endl;
+    std::cout << "Combiner::getObservables() : ERROR : Combiner needs to be combined first!" << std::endl;
     assert(0);
   }
   return w->set("obs_" + pdfName);
@@ -294,8 +295,8 @@ const RooArgSet* Combiner::getObservables() const {
 ///
 void Combiner::print() const {
   if (pdfs.empty()) return;
-  cout << "\nCombiner Configuration: " << title << endl;
-  cout << "=======================" << endl;
+  std::cout << "\nCombiner Configuration: " << title << std::endl;
+  std::cout << "=======================" << std::endl;
   // consice summary
   for (int i = 0; i < pdfs.size(); i++) {
     TString name = pdfs[i]->getName();
@@ -303,7 +304,7 @@ void Combiner::print() const {
     printf("%2i. [measurement %3i] %-65s\n", i + 1, pdfs[i]->getGcId(), (pdfs[i]->getTitle()).Data());
   }
   // if ( arg->verbose ) {
-  cout << "=======================" << endl;
+  std::cout << "=======================" << std::endl;
   // print observables of the combination
   const auto olist = getObservableNames();
   TString obslist = "";
@@ -320,7 +321,7 @@ void Combiner::print() const {
     }
   }
   obslist += " " + olist[olist.size() - 1] + " )";
-  cout << obslist << endl;
+  std::cout << obslist << std::endl;
 
   // print free parameters of the combination
   const auto plist = getParameterNames();
@@ -338,20 +339,20 @@ void Combiner::print() const {
     }
   }
   parlist += " " + plist[plist.size() - 1] + " )";
-  cout << parlist << endl;
+  std::cout << parlist << std::endl;
   //}
-  cout << "=======================" << endl;
+  std::cout << "=======================" << std::endl;
 
   // verbose printout
   if (arg->verbose) {
-    cout << "\nDetailed Configuration:" << endl;
-    cout << "=======================\n" << endl;
+    std::cout << "\nDetailed Configuration:" << std::endl;
+    std::cout << "=======================\n" << std::endl;
     for (int i = 0; i < pdfs.size(); i++) {
       printf("%2i. ", i + 1);
       pdfs[i]->print();
     }
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 ///
@@ -360,14 +361,14 @@ void Combiner::print() const {
 ///
 void Combiner::adjustPhysRange(const TString varName, const double min, const double max) {
   if (!_isCombined) {
-    cout << "Combiner::adjustPhysRange() : ERROR : Can't adjust parameters range before ";
-    cout << "combine() was called. Skipping." << endl;
+    std::cout << "Combiner::adjustPhysRange() : ERROR : Can't adjust parameters range before ";
+    std::cout << "combine() was called. Skipping." << std::endl;
     return;
   }
   if (!w->var(varName)) {
-    cout << "Combiner::adjustPhysRange() : ERROR : requesting to set a parameter constant\n";
-    cout << "                                      which is not in the workspace: ";
-    cout << varName << ". Skipping." << endl;
+    std::cout << "Combiner::adjustPhysRange() : ERROR : requesting to set a parameter constant\n";
+    std::cout << "                                      which is not in the workspace: ";
+    std::cout << varName << ". Skipping." << std::endl;
     return;
   }
   if (min <= -999 && max <= -999) {
@@ -386,9 +387,9 @@ void Combiner::adjustPhysRange(const TString varName, const double min, const do
 ///
 void Combiner::fixParameter(const TString var, const double value) {
   if (_isCombined) {
-    cout << "Combiner::fixParameter() : WARNING : Can't set parameters constant "
-            "after combine() was called. Skipping."
-         << endl;
+    std::cout << "Combiner::fixParameter() : WARNING : Can't set parameters constant "
+                 "after combine() was called. Skipping."
+              << std::endl;
     return;
   }
   // check if the parameter is already in the list
@@ -403,8 +404,8 @@ void Combiner::fixParameter(const TString var, const double value) {
   if (save)
     constVars.push_back(p);
   else {
-    cout << "Combiner::fixParameter() : WARNING : fixing a parameter that was fixed before: " << var << "=" << value
-         << endl;
+    std::cout << "Combiner::fixParameter() : WARNING : fixing a parameter that was fixed before: " << var << "="
+              << value << std::endl;
   }
 }
 
@@ -418,9 +419,9 @@ void Combiner::fixParameter(const TString var, const double value) {
 ///
 void Combiner::fixParameters(TString vars) {
   if (_isCombined) {
-    cout << "Combiner::fixParameters() : WARNING : Can't set parameters constant "
-            "after combine() was called. Skipping."
-         << endl;
+    std::cout << "Combiner::fixParameters() : WARNING : Can't set parameters constant "
+                 "after combine() was called. Skipping."
+              << std::endl;
     return;
   }
   // parse the comma separated list
@@ -451,13 +452,14 @@ void Combiner::fixParameters(TString vars) {
 ///
 void Combiner::setObservablesToToyValues() {
   if (!_isCombined) {
-    cout << "Combiner::setObservablesToToyValues() : ERROR : Can't set observables to toy values before "
-            "combine() was called. Exit."
-         << endl;
-    exit(1);
+    std::cout << "Combiner::setObservablesToToyValues() : ERROR : Can't set observables to toy values before "
+                 "combine() was called. Exit."
+              << std::endl;
+    std::exit(1);
   }
   if (arg->debug) {
-    cout << "Combiner::setObservablesToToyValues() : setting observables to toy values generated from:" << endl;
+    std::cout << "Combiner::setObservablesToToyValues() : setting observables to toy values generated from:"
+              << std::endl;
     getParameters()->Print("v");
   }
   RooRandom::randomGenerator()->SetSeed(0);
@@ -468,9 +470,9 @@ void Combiner::setObservablesToToyValues() {
   RooMsgService::instance().setStreamStatus(1, kTRUE);
   const RooArgSet* toyData = dataset->get(0);
   if (arg->debug) {
-    cout << "Combiner::setObservablesToToyValues() : generated toy observables from:" << endl;
+    std::cout << "Combiner::setObservablesToToyValues() : generated toy observables from:" << std::endl;
     getObservables()->Print("v");
-    cout << "Combiner::setObservablesToToyValues() : generated toy observables to:" << endl;
+    std::cout << "Combiner::setObservablesToToyValues() : generated toy observables to:" << std::endl;
     toyData->Print("v");
   }
   setParameters(w.get(), "obs_" + pdfName, toyData);
@@ -494,11 +496,11 @@ void Combiner::setObservablesToToyValues() {
 ///
 void Combiner::loadParameterLimits() {
   if (!_isCombined) {
-    cout << "Combiner::loadParameterLimits() : ERROR : Combiner needs to be combined first! Exit." << endl;
-    exit(1);
+    std::cout << "Combiner::loadParameterLimits() : ERROR : Combiner needs to be combined first! Exit." << std::endl;
+    std::exit(1);
   }
   TString rangeName = arg->enforcePhysRange ? "phys" : "free";
-  if (arg->debug) cout << "Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << endl;
+  if (arg->debug) std::cout << "Combiner::loadParameterLimits() : loading parameter ranges: " << rangeName << std::endl;
   for (const auto p : *w->set("par_" + pdfName)) setLimit(w.get(), p->GetName(), rangeName);
 }
 
@@ -507,8 +509,9 @@ void Combiner::loadParameterLimits() {
 ///
 void Combiner::setName(const TString name) {
   if (_isCombined) {
-    cout << "Combiner::setName() : ERROR : Name can only be changed before combiner is combined. Exit." << endl;
-    exit(1);
+    std::cout << "Combiner::setName() : ERROR : Name can only be changed before combiner is combined. Exit."
+              << std::endl;
+    std::exit(1);
   }
   this->name = name;
 }
@@ -528,20 +531,22 @@ PDF_Abs* Combiner::getPdfProvidingObservable(const TString obsname) {
   TString obsnameparse = obsname;
   TString UID = "UID";
   if (!obsnameparse.Contains(UID)) {
-    cout << "Combiner::getPdfProvidingObservable() : ERROR : observable name doesn't contain the string " << UID
-         << endl;
+    std::cout << "Combiner::getPdfProvidingObservable() : ERROR : observable name doesn't contain the string " << UID
+              << std::endl;
     return nullptr;
   }
   obsnameparse.Replace(0, obsnameparse.Index(UID) + UID.Length(),
                        "");  // deleting from beginning of string until end of UID. That should leave only the number.
   if (!obsnameparse.IsDigit()) {
-    cout << "Combiner::getPdfProvidingObservable() : ERROR : observable name doesn't end with an integer ID" << endl;
+    std::cout << "Combiner::getPdfProvidingObservable() : ERROR : observable name doesn't end with an integer ID"
+              << std::endl;
     return nullptr;
   }
   int id = obsnameparse.Atoi();
   // get the PDF of given ID
   if (id < 0 || id >= pdfs.size()) {
-    cout << "Combiner::getPdfProvidingObservable() : ERROR : observable ID not found in Combiner: ID=" << id << endl;
+    std::cout << "Combiner::getPdfProvidingObservable() : ERROR : observable ID not found in Combiner: ID=" << id
+              << std::endl;
     return nullptr;
   }
   PDF_Abs* foundpdf = pdfs[id];
@@ -550,8 +555,8 @@ PDF_Abs* Combiner::getPdfProvidingObservable(const TString obsname) {
   obsnameparse.Replace(obsnameparse.Index(UID), obsnameparse.Length(),
                        "");  // delete the unique ID. That should leave just the observable name.
   if (!(foundpdf->hasObservable(obsname) || foundpdf->hasObservable(obsnameparse))) {
-    cout << "Combiner::getPdfProvidingObservable() : ERROR : observable '" << obsname << "' not found in PDF '"
-         << foundpdf->getName() << "'" << endl;
+    std::cout << "Combiner::getPdfProvidingObservable() : ERROR : observable '" << obsname << "' not found in PDF '"
+              << foundpdf->getName() << "'" << std::endl;
     return nullptr;
   }
   return foundpdf;

@@ -63,7 +63,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMin(RooAbsPdf* pdf, const bool thoroug
   if (thorough) {
     m.hesse();
     // MINOS seems to fail in more complicated scenarios
-    // Can't just use m.minos() because there's a cout that cannot be turned off (root 5-34-03).
+    // Can't just use m.minos() because there's a std::cout that cannot be turned off (root 5-34-03).
     // It's not there when we run minos only on selected parameters- so select them all!
     // //m.minos();
     // RooArgSet floatingPars;
@@ -163,8 +163,8 @@ std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, const TStrin
 
   // save start parameters
   if (!w->set(parsName)) {
-    cout << "Utils::fitToMinForce() : ERROR : parsName not found: " << parsName << endl;
-    exit(1);
+    std::cout << "Utils::fitToMinForce() : ERROR : parsName not found: " << parsName << std::endl;
+    std::exit(1);
   }
   RooDataSet startPars("startParsForce", "startParsForce", *w->set(parsName));
   startPars.add(*w->set(parsName));
@@ -188,8 +188,9 @@ std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, const TStrin
     }
   }
   int nPars = varyPars->getSize();
-  if (debug) cout << "Utils::fitToMinForce() : nPars = " << nPars << " => " << pow(2., nPars) << " fits" << endl;
-  if (debug) cout << "Utils::fitToMinForce() : varying ";
+  if (debug)
+    std::cout << "Utils::fitToMinForce() : nPars = " << nPars << " => " << pow(2., nPars) << " fits" << std::endl;
+  if (debug) std::cout << "Utils::fitToMinForce() : varying ";
   if (debug) varyPars->Print();
 
   //////////
@@ -203,7 +204,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, const TStrin
   // We define a binary mask where each bit corresponds
   // to parameter at max or at min.
   for (int i = 0; i < pow(2., nPars); i++) {
-    if (debug) cout << "Utils::fitToMinForce() : fit " << i << "        \r" << flush;
+    if (debug) std::cout << "Utils::fitToMinForce() : fit " << i << "        \r" << flush;
     setParameters(w, parsName, startPars.get(0));
 
     for (int ip = 0; ip < nPars; ip++) {
@@ -237,8 +238,8 @@ std::unique_ptr<RooFitResult> Utils::fitToMinForce(RooWorkspace* w, const TStrin
     }
   }
 
-  if (debug) cout << endl;
-  if (debug) cout << "Utils::fitToMinForce() : nErrors = " << nErrors << endl;
+  if (debug) std::cout << std::endl;
+  if (debug) std::cout << "Utils::fitToMinForce() : nErrors = " << nErrors << std::endl;
 
   RooMsgService::instance().setGlobalKillBelow(INFO);
 
@@ -282,7 +283,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, const TStr
     r1 = std::unique_ptr<RooFitResult>(m.save());
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
-    //   cout << "step 1" << endl;
+    //   std::cout << "step 1" << std::endl;
     //   r1->Print("v");
     //   gStyle->SetPalette(1);
     //   double xmin = 0.;
@@ -328,7 +329,7 @@ std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, const TStr
 
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
-    //   cout << "step 3" << endl;
+    //   std::cout << "step 3" << std::endl;
     //   r2->Print("v");
     //
     //   gStyle->SetPalette(1);
@@ -366,19 +367,19 @@ std::unique_ptr<RooFitResult> Utils::fitToMinImprove(RooWorkspace* w, const TStr
     r3 = std::unique_ptr<RooFitResult>(m.save());
     // if ( 102<RadToDeg(w->var("g")->getVal())&&RadToDeg(w->var("g")->getVal())<103 )
     // {
-    //   cout << "step 3" << endl;
+    //   std::cout << "step 3" << std::endl;
     //   r3->Print("v");
     // }
   }
 
   // step 5: chose better minimum
-  // cout << r1->minNll() << " " << r3->minNll() << endl;
+  // std::cout << r1->minNll() << " " << r3->minNll() << std::endl;
   std::unique_ptr<RooFitResult> r;
   if (r1->minNll() < r3->minNll()) {
     r = std::move(r1);
   } else {
     r = std::move(r3);
-    // cout << "Utils::fitToMinImprove() : improved fit is better!" << endl;
+    // std::cout << "Utils::fitToMinImprove() : improved fit is better!" << std::endl;
   }
 
   RooMsgService::instance().setGlobalKillBelow(INFO);
@@ -482,7 +483,7 @@ void Utils::setParameters(RooWorkspace* w, const RooFitResult* values) {
     auto var = dynamic_cast<RooRealVar*>(w->allVars().find(p->GetName()));
     if (!(var)) {
       std::cout << "WARNING in Utils::setParameters(RooWorkspace,RooFitResult) -- no Var found with name "
-                << p->GetName() << " in Workspace!" << endl;
+                << p->GetName() << " in Workspace!" << std::endl;
     } else {
       var->setVal(p->getVal());
     }
@@ -525,7 +526,7 @@ void Utils::setParametersFloating(const RooAbsCollection* setMe, const RooAbsCol
 ///
 void Utils::setParameters(RooWorkspace* w, TString parname, const RooAbsCollection* set) {
   if (!w->set(parname)) {
-    cout << "Utils::setParameters() : ERROR : set not found in workspace: " << parname << endl;
+    std::cout << "Utils::setParameters() : ERROR : set not found in workspace: " << parname << std::endl;
     assert(0);
   }
   setParameters(w->set(parname), set);
@@ -786,7 +787,7 @@ bool Utils::buildCorMatrix(TMatrixDSym& cor) {
 
 ///
 /// Build a covariance matrix
-/// from a correlation matrix and error vectors.
+/// from a correlation matrix and error std::vectors.
 ///
 TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, double* err) {
   int n = cor.GetNcols();
@@ -798,9 +799,9 @@ TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, double* err) {
 
 ///
 /// Build a covariance matrix
-/// from a correlation matrix and error vectors.
+/// from a correlation matrix and error std::vectors.
 ///
-TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, vector<double>& err) {
+TMatrixDSym* Utils::buildCovMatrix(TMatrixDSym& cor, std::vector<double>& err) {
   int n = cor.GetNcols();
   TMatrixDSym cov(n);
   for (int i = 0; i < n; i++)
@@ -821,18 +822,18 @@ RooFormulaVar* Utils::makeTheoryVar(TString name, TString title, TString formula
   return new RooFormulaVar(name, title, formula, *explicitDependents);
 }
 
-void Utils::addSetNamesToList(vector<string>& list, RooWorkspace* w, TString setName) {
+void Utils::addSetNamesToList(vector<std::string>& list, RooWorkspace* w, TString setName) {
   for (const auto p : *w->set(setName)) list.push_back(p->GetName());
 }
 
 ///
 /// Make a named set from a list of strings of object names
 /// Duplicates will only be contained once
-void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, vector<string>& names) {
+void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, std::vector<std::string>& names) {
 
   // 1. remove duplicates
   std::ranges::sort(names);
-  vector<string> vars;
+  std::vector<std::string> vars;
   vars.push_back(names[0]);
   string previous = names[0];
   for (int i = 1; i < names.size(); i++) {
@@ -855,14 +856,14 @@ void Utils::makeNamedSet(RooWorkspace* w, TString mergedSet, vector<string>& nam
 /// Duplicate variables will only be contained once.
 ///
 void Utils::mergeNamedSets(RooWorkspace* w, TString mergedSet, TString set1, TString set2) {
-  // 1. fill all variables into a vector
-  vector<string> varsAll;
+  // 1. fill all variables into a std::vector
+  std::vector<std::string> varsAll;
   for (const auto p : *w->set(set1)) varsAll.push_back(p->GetName());
   for (const auto p : *w->set(set2)) varsAll.push_back(p->GetName());
 
   // 2. remove duplicates
   std::ranges::sort(varsAll);
-  vector<string> vars;
+  std::vector<std::string> vars;
   vars.push_back(varsAll[0]);
   string previous = varsAll[0];
   for (int i = 1; i < varsAll.size(); i++) {
@@ -894,7 +895,7 @@ bool Utils::FileExists(const TString strFilename) {
 }
 
 void Utils::savePlot(const TCanvas* c1, const TString name, const std::vector<std::string>& extensions) {
-  cout << "saving plot (pdf and other formats) to: plots/pdf/" + name + ".pdf" << endl;
+  std::cout << "saving plot (pdf and other formats) to: plots/pdf/" + name + ".pdf" << std::endl;
   gErrorIgnoreLevel = kWarning;
   for (auto ext : extensions) c1->Print("plots/" + ext + "/" + name + "." + ext);
   gErrorIgnoreLevel = kInfo;
@@ -987,8 +988,8 @@ std::unique_ptr<TGraph> Utils::smoothGraph(TGraph* g, const int option) {
   else if (option == 1)
     gr = std::unique_ptr<TGraph>(static_cast<TGraph*>(smoother.Approx(g)->Clone(Form("sm%s", g->GetName()))));
   else {
-    cout << "Utils::smoothGraph() : ERROR - no such option " << option << endl;
-    exit(1);
+    std::cout << "Utils::smoothGraph() : ERROR - no such option " << option << std::endl;
+    std::exit(1);
   }
   return gr;
 }
@@ -1012,7 +1013,7 @@ std::unique_ptr<TGraph> Utils::smoothHist(const TH1* h, const int option) {
  * If no such position is found, the point is added at the end.
  */
 std::unique_ptr<TGraph> Utils::addPointToGraphAtFirstMatchingX(const TGraph* g, const double xNew, const double yNew) {
-  // Get x and y coordinates as vectors- the TGraph interface is just not suited to what we want to do
+  // Get x and y coordinates as std::vectors- the TGraph interface is just not suited to what we want to do
   std::vector<double> xVec;
   std::vector<double> yVec;
   for (int i = 0; i < g->GetN(); ++i) {
@@ -1101,7 +1102,7 @@ bool Utils::isPosDef(const TMatrixDSym* c) {
   TVectorD eigenvalues = eigen.GetEigenValues();
   auto minEigenVal = eigenvalues.Min();
   if (minEigenVal < 0) {
-    cout << "Utils::isPosDef() : ERROR : Matrix not pos. def." << endl;
+    std::cout << "Utils::isPosDef() : ERROR : Matrix not pos. def." << std::endl;
     return false;
   }
   return true;
@@ -1126,19 +1127,19 @@ int Utils::makeNewColor(const std::string hex) {
 
 ///
 /// function filling a RooArgList with parameters within a Workspace
-/// parameter names given by an vector with TStrings
+/// parameter names given by an std::vector with TStrings
 ///
 void Utils::fillArgList(RooArgList* list, RooWorkspace* w, std::vector<TString> names) {
   for (auto name : names) {
     if (!list->add(*w->var(name), kTRUE)) {  //> add silent
       std::cout << "WARNING: Utils::fillArgList - Var either already in ArgList: " << list->GetName()
-                << " or the List does own its vars" << endl;
+                << " or the List does own its vars" << std::endl;
     };
   }
 }
 
 ///
-/// Fills vector with floating pars names
+/// Fills std::vector with floating pars names
 ///
 void Utils::getParameters(const RooFitResult& result, std::vector<TString>& names) {
   RooArgList pars = result.floatParsFinal();
@@ -1161,11 +1162,11 @@ std::vector<TString> Utils::getParsWithName(const TString& subString, const RooA
   return _results;
 }
 ///
-/// searches for unphysical values in a fit result, fills problematic var names in vectors
+/// searches for unphysical values in a fit result, fills problematic var names in std::vectors
 /// returns true if everything is within boundaries
 ///
 bool Utils::checkBoundary(const RooSlimFitResult& r, std::vector<TString> lowProb, std::vector<TString> highProb) {
-  // make sure vectors are empty
+  // make sure std::vectors are empty
   lowProb.clear();
   highProb.clear();
   RooArgList floats = r.floatParsFinal();
@@ -1205,18 +1206,18 @@ void Utils::setParametersFloating(RooWorkspace* w, const std::vector<TString>& n
 };
 
 ///
-/// Debug tools: print the content of a vector to stdout.
+/// Debug tools: print the content of a std::vector to stdout.
 ///
 void Utils::dump_vector(const std::vector<int>& l) {
-  for (auto const& el : l) { cout << el << endl; }
+  for (auto const& el : l) { std::cout << el << std::endl; }
 }
 void Utils::dump_vector(const std::vector<double>& l) {
-  for (auto const& el : l) { cout << el << endl; }
+  for (auto const& el : l) { std::cout << el << std::endl; }
 }
 void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {
   for (int ix = 0; ix < l.size(); ix++) {
-    for (int iy = 0; iy < l[0].size(); iy++) { cout << printf("%5i", l[ix][iy]) << " "; }
-    cout << endl;
+    for (int iy = 0; iy < l[0].size(); iy++) { std::cout << printf("%5i", l[ix][iy]) << " "; }
+    std::cout << std::endl;
   }
 }
 
@@ -1225,8 +1226,8 @@ void Utils::dump_matrix(const std::vector<std::vector<int>>& l) {
 ///
 void Utils::dump_map(const std::map<int, std::vector<int>>& map) {
   for (auto const& [key, val] : map) {
-    cout << "Key: " << key << endl;
-    cout << "Values" << endl;
+    std::cout << "Key: " << key << std::endl;
+    std::cout << "Values" << std::endl;
     dump_vector(val);
   }
 }
@@ -1235,18 +1236,18 @@ std::vector<std::vector<int>> Utils::transpose(std::vector<std::vector<int>>& v)
   std::vector<std::vector<int>> newVector;
   int oldNx = v.size();
   if (oldNx == 0) {
-    cout << "Utils::transpose() : ERROR : x dimension is 0" << endl;
+    std::cout << "Utils::transpose() : ERROR : x dimension is 0" << std::endl;
     return newVector;
   }
   int oldNy = v[0].size();
   if (oldNy == 0) {
-    cout << "Utils::transpose() : ERROR : y dimension is 0" << endl;
+    std::cout << "Utils::transpose() : ERROR : y dimension is 0" << std::endl;
     return newVector;
   }
   // check if rectangular
   for (int j = 1; j < oldNx; j++) {
     if (v[j].size() != oldNy) {
-      cout << "Utils::transpose() : ERROR : vector not rectangular" << endl;
+      std::cout << "Utils::transpose() : ERROR : std::vector not rectangular" << std::endl;
       return newVector;
     }
   }
@@ -1339,7 +1340,7 @@ void Utils::HFAGLabel(const TString& label, Double_t xpos, Double_t ypos, Double
 
 void Utils::assertFileExists(const TString strFilename) {
   if (!FileExists(strFilename)) {
-    cout << "ERROR : File not found: " + strFilename << endl;
+    std::cout << "ERROR : File not found: " + strFilename << std::endl;
     exit(EXIT_FAILURE);
   }
 }
@@ -1353,7 +1354,7 @@ std::vector<double> Utils::computeNormalQuantiles(std::vector<double>& values, i
   probs.push_back(0.5);
   for (int i = 0; i < nsigma; i++) probs.push_back(1. - TMath::Prob(sq(i + 1), 1));
 
-  vector<double> quants(nsigma * 2 + 1);
+  std::vector<double> quants(nsigma * 2 + 1);
 
   TMath::Quantiles(values.size(), probs.size(), &values[0], &quants[0], &probs[0], false);
 
@@ -1362,7 +1363,7 @@ std::vector<double> Utils::computeNormalQuantiles(std::vector<double>& values, i
   return quantiles;
 }
 
-double Utils::getCorrelationFactor(const vector<double>& a, const vector<double>& b) {
+double Utils::getCorrelationFactor(const std::vector<double>& a, const std::vector<double>& b) {
 
   assert(a.size() == b.size());
 

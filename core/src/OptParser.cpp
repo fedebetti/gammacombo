@@ -274,7 +274,7 @@ void OptParser::bookFlowcontrolOptions() {
 ///
 void OptParser::bookOption(TString opt) {
   if (!isIn<TString>(availableOptions, opt)) {
-    cout << "OptParser::bookOption() : ERROR : No such option! Check OptParser::defineOptions()." << endl;
+    std::cout << "OptParser::bookOption() : ERROR : No such option! Check OptParser::defineOptions()." << std::endl;
     return;
   }
   bookedOptions.push_back(opt);
@@ -542,7 +542,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   TCLAP::SwitchArg saveAtMinArg("", "saveAtMin", "Save workspace after minimization", false);
 
   // --------------- aruments that can be given multiple times
-  vector<string> vAction;
+  std::vector<std::string> vAction;
   // vAction.push_back("bb");
   // vAction.push_back("bbbatch");
   vAction.push_back("coverage");
@@ -597,13 +597,13 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "1: Simplified CLs (deprecated version, using CLb=CLs+b(s=0). Almost always larger intervals than Standard CLs)\n"
       "2: Standard  CLs (sampling the full distribution for CLb)\n",
       false, "int");
-  TCLAP::MultiArg<string> hexfillcolorArg(
-      "", "hexfillcolor",
-      "Fill color of the 1D and 2D contours to be used for the combination. Default is picked up from color vector",
-      false, "int");
+  TCLAP::MultiArg<string> hexfillcolorArg("", "hexfillcolor",
+                                          "Fill color of the 1D and 2D contours to be used for the combination. "
+                                          "Default is picked up from color std::vector",
+                                          false, "int");
   TCLAP::MultiArg<string> hexlinecolorArg("", "hexlinecolor",
                                           "Set line color of the 1D and 2D contours to be used for the combination. "
-                                          "Default is picked up from color vector.",
+                                          "Default is picked up from color std::vector.",
                                           false, "int");
   TCLAP::MultiArg<double> filltransparencyArg(
       "", "filltransparency",
@@ -613,16 +613,16 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       "", "fillstyle",
       "Fill style of the 1D and 2D contours to be used for the combination. Default is 1001 (solid) for all.", false,
       "int");
-  TCLAP::MultiArg<int> fillcolorArg(
-      "", "fillcolor",
-      "Fill color of the 1D and 2D contours to be used for the combination. Default is picked up from color vector",
-      false, "int");
+  TCLAP::MultiArg<int> fillcolorArg("", "fillcolor",
+                                    "Fill color of the 1D and 2D contours to be used for the combination. Default is "
+                                    "picked up from color std::vector",
+                                    false, "int");
   TCLAP::MultiArg<int> linewidthArg(
       "", "linewidth", "Set line width of the 1D and 2D contours to be used for the combination. Default is 2 for all.",
       false, "int");
   TCLAP::MultiArg<int> linecolorArg("", "linecolor",
                                     "Set line color of the 1D and 2D contours to be used for the combination. Default "
-                                    "is picked up from color vector.",
+                                    "is picked up from color std::vector.",
                                     false, "int");
   TCLAP::MultiArg<int> linestyleArg(
       "", "linestyle",
@@ -1052,19 +1052,19 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // -c
   // Test parsing:
   // int resultCmbId = 0;
-  // vector<int> resultAddPdf;
-  // vector<int> resultDelPdf;
+  // std::vector<int> resultAddPdf;
+  // std::vector<int> resultDelPdf;
   // TString parseMe = combidArg.getValue()[0];
-  // cout << "parseMe " << parseMe << endl;
+  // std::cout << "parseMe " << parseMe << std::endl;
   // parseCombinerString(parseMe, resultCmbId, resultAddPdf, resultDelPdf);
-  // cout << "resultCmbId " << resultCmbId << endl;
-  // for ( int i=0; i<resultAddPdf.size(); i++){cout << "resultAddPdf " << resultAddPdf[i] << endl;}
-  // for ( int i=0; i<resultDelPdf.size(); i++){cout << "resultDelPdf " << resultDelPdf[i] << endl;}
+  // std::cout << "resultCmbId " << resultCmbId << std::endl;
+  // for ( int i=0; i<resultAddPdf.size(); i++){cout << "resultAddPdf " << resultAddPdf[i] << std::endl;}
+  // for ( int i=0; i<resultDelPdf.size(); i++){cout << "resultDelPdf " << resultDelPdf[i] << std::endl;}
   // exit(0);
-  vector<string> tmp = combidArg.getValue();
+  std::vector<std::string> tmp = combidArg.getValue();
   for (auto val : tmp) {
     int resultCmbId = 0;
-    vector<int> resultAddDelPdf;
+    std::vector<int> resultAddDelPdf;
     parseCombinerString(val, resultCmbId, resultAddDelPdf);
     combid.push_back(resultCmbId);
     combmodifications.push_back(resultAddDelPdf);
@@ -1079,8 +1079,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   if (tmp.empty())
     var.push_back("g");
   else if (tmp.size() > 2) {
-    cout << "Argument error --var: please give two instances at maximum." << endl;
-    exit(1);
+    std::cout << "Argument error --var: please give two instances at maximum." << std::endl;
+    std::exit(1);
   }
   for (auto val : tmp) var.push_back(val);
 
@@ -1093,7 +1093,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   tmp = readfromfileArg.getValue();
   // loop over instances passed
   for (auto val : tmp) {
-    vector<TString> a;
+    std::vector<TString> a;
     // split at , and push back
     TObjArray* assignmentArray = TString(val).Tokenize(",");  // split at ","
     for (int j = 0; j < assignmentArray->GetEntries(); j++) {
@@ -1104,7 +1104,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   }
   // fill the remaining with default
   for (int i = tmp.size(); i < combid.size(); i++) {
-    vector<TString> a;
+    std::vector<TString> a;
     a.push_back("default");
     readfromfile.push_back(a);
   }
@@ -1132,8 +1132,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --covCorrect
   coverageCorrectionID = coverageCorrectionIDArg.getValue();
   if (coverageCorrectionID < 0 || coverageCorrectionID > 3) {
-    cout << "Argument error: covCorrect has to be in the range [0,3]" << endl;
-    exit(1);
+    std::cout << "Argument error: covCorrect has to be in the range [0,3]" << std::endl;
+    std::exit(1);
   }
   coverageCorrectionPoint = coverageCorrectionPointArg.getValue();
 
@@ -1150,8 +1150,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // --jobs
   if (jobsArg.getValue().size() > 1 && jobsArg.getValue().size() != combid.size()) {
-    cout << "Argument error: Please give as many job ranges (-j) as combinations (-c)." << endl;
-    exit(1);
+    std::cout << "Argument error: Please give as many job ranges (-j) as combinations (-c)." << std::endl;
+    std::exit(1);
   }
   if (jobsArg.getValue().empty()) {
     // default: job 1
@@ -1175,8 +1175,8 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       int min = convertToDigitWithCheck(x, usage);
       int max = convertToDigitWithCheck(y, usage);
       if (min > max) {
-        cout << "Argument error: job range min>max." << endl;
-        exit(1);
+        std::cout << "Argument error: job range min>max." << std::endl;
+        std::exit(1);
       }
       jmin.push_back(min);
       jmax.push_back(max);
@@ -1259,7 +1259,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --prange
   tmp = physrangeArg.getValue();
   for (auto val : tmp) {  // loop over instances of --prange
-    vector<RangePar> ranges;
+    std::vector<RangePar> ranges;
     // parse default string
     if (TString(val) == TString("def")) {
       physRanges.push_back(ranges);
@@ -1275,15 +1275,16 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       check = check && parseRange(parsedRangeStr, p.min, p.max);
       if (check)
         ranges.push_back(p);
-      else { cout << "ERROR : parse error in --prange argument: " << rangeString << endl << endl; }
+      else { std::cout << "ERROR : parse error in --prange argument: " << rangeString << std::endl << std::endl; }
     }
     physRanges.push_back(ranges);
   }
   // test code for --prange
   // for ( int i = 0; i < physRanges.size(); i++ ){
-  // cout << "combination " << i << endl;
+  // std::cout << "combination " << i << std::endl;
   // for ( int j = 0; j < physRanges[i].size(); j++ ){
-  // cout << physRanges[i][j].name << " = " << physRanges[i][j].min << " ... " << physRanges[i][j].max << endl;
+  // std::cout << physRanges[i][j].name << " = " << physRanges[i][j].min << " ... " << physRanges[i][j].max <<
+  // std::endl;
   //}
   //}
   // exit(0);
@@ -1292,7 +1293,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   tmp = randomizeToyVarsArg.getValue();
   for (auto val : tmp) {
     TObjArray* parsArray = TString(val).Tokenize(",");  // split string at ","
-    vector<TString> pars;
+    std::vector<TString> pars;
     for (int j = 0; j < parsArray->GetEntries(); j++) {
       TString par = ((TObjString*)parsArray->At(j))->GetString();
       pars.push_back(par);
@@ -1304,7 +1305,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   tmp = removeRangeArg.getValue();
   for (auto val : tmp) {
     TObjArray* parsArray = TString(val).Tokenize(",");  // split string at ","
-    vector<TString> pars;
+    std::vector<TString> pars;
     for (int j = 0; j < parsArray->GetEntries(); j++) {
       TString par = ((TObjString*)parsArray->At(j))->GetString();
       pars.push_back(par);
@@ -1315,7 +1316,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --fix
   tmp = fixArg.getValue();
   for (auto val : tmp) {
-    vector<FixPar> assignments;
+    std::vector<FixPar> assignments;
     // parse 'none' default string
     if (TString(val) == TString("none")) {
       fixParameters.push_back(assignments);
@@ -1329,7 +1330,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       if (parseAssignment(assignmentString, p.name, p.value)) {
         assignments.push_back(p);
       } else {
-        cout << "ERROR : parse error in --fix argument: " << assignmentString << endl << endl;
+        std::cout << "ERROR : parse error in --fix argument: " << assignmentString << std::endl << std::endl;
       }
     }
     fixParameters.push_back(assignments);
@@ -1338,7 +1339,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
   // --start
   tmp = startArg.getValue();
   for (auto val : tmp) {
-    vector<StartPar> assignments;
+    std::vector<StartPar> assignments;
     // parse 'none' default string
     if (TString(val) == TString("none")) {
       startVals.push_back(assignments);
@@ -1352,7 +1353,7 @@ void OptParser::parseArguments(int argc, char* argv[]) {
       if (parseAssignment(assignmentString, p.name, p.value)) {
         assignments.push_back(p);
       } else {
-        cout << "ERROR : parse error in --fix argument: " << assignmentString << endl << endl;
+        std::cout << "ERROR : parse error in --fix argument: " << assignmentString << std::endl << std::endl;
       }
     }
     startVals.push_back(assignments);
@@ -1455,14 +1456,14 @@ void OptParser::parseArguments(int argc, char* argv[]) {
 
   // check --po argument
   if (plotpluginonly && !isAction("plugin")) {
-    cout << "ERROR : --po can only be given when -a plugin is set." << endl;
-    exit(1);
+    std::cout << "ERROR : --po can only be given when -a plugin is set." << std::endl;
+    std::exit(1);
   }
 
   // check --CL argument
   if (var.size() > 1 && !CL.empty()) {
     std::cout << "ERROR: User specific confidence levels are only available for 1D option." << std::endl;
-    exit(1);
+    std::exit(1);
   }
 }
 
@@ -1490,9 +1491,9 @@ void OptParser::parsePosition(TString parseMe, double& x, double& y, TString usa
   TRegexp format2("^def:0?\\.[0-9]+$");
   TRegexp format3("^0?\\.[0-9]+:def$");
   if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3))) {
-    cout << "position parse error: could not parse " << parseMe << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "position parse error: could not parse " << parseMe << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   TString xStr = parseMe;
   TString yStr = parseMe;
@@ -1510,9 +1511,9 @@ void OptParser::parsePosition(TString parseMe, double& x, double& y, TString usa
   }
   if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
     // should never be reached
-    cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << endl;
-    cout << "They need to be in  [0,1], or equal to -1 to set the default value." << endl;
-    exit(1);
+    std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
+    std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
+    std::exit(1);
   }
 }
 
@@ -1532,9 +1533,9 @@ void OptParser::parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y,
   TRegexp format6("^0?\\.[0-9]+:def:def$");
   if (!(parseMe.Contains(format1) || parseMe.Contains(format2) || parseMe.Contains(format3) ||
         parseMe.Contains(format4) || parseMe.Contains(format5) || parseMe.Contains(format6))) {
-    cout << "position parse error: could not parse " << parseMe << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "position parse error: could not parse " << parseMe << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   TString xStr = parseMe;
   TString sStr = parseMe;
@@ -1556,9 +1557,9 @@ void OptParser::parsePositionAndScale(TString parseMe, Double_t& x, Double_t& y,
   }
   if (!((x == -1 || (0.0 <= x && x <= 1.0)) && (y == -1 || (0.0 <= y && y <= 1.0)))) {
     // should never be reached
-    cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << endl;
-    cout << "They need to be in  [0,1], or equal to -1 to set the default value." << endl;
-    exit(1);
+    std::cout << "Argument error: coordinates out of range: x=" << x << ", y=" << y << std::endl;
+    std::cout << "They need to be in  [0,1], or equal to -1 to set the default value." << std::endl;
+    std::exit(1);
   }
   if (zStr.EqualTo("def")) {
     scale = 1;
@@ -1625,10 +1626,10 @@ bool OptParser::parseAssignment(TString parseMe, TString& name, double& value) c
 ///
 int OptParser::convertToIntWithCheck(TString parseMe, TString usage) const {
   if (!(!parseMe.Contains(".") && !parseMe.Contains(",") && parseMe.IsFloat())) {
-    cout << "ERROR : could not parse argument. This string is not a positive or negative integer: '" << parseMe << "'"
-         << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "ERROR : could not parse argument. This string is not a positive or negative integer: '" << parseMe
+              << "'" << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   return parseMe.Atoi();
 }
@@ -1639,9 +1640,10 @@ int OptParser::convertToIntWithCheck(TString parseMe, TString usage) const {
 ///
 int OptParser::convertToDigitWithCheck(TString parseMe, TString usage) const {
   if (!parseMe.IsDigit()) {
-    cout << "ERROR : could not parse argument. This string is not a positive integer: '" << parseMe << "'" << endl;
-    cout << usage << endl;
-    exit(1);
+    std::cout << "ERROR : could not parse argument. This string is not a positive integer: '" << parseMe << "'"
+              << std::endl;
+    std::cout << usage << std::endl;
+    std::exit(1);
   }
   return parseMe.Atoi();
 }
@@ -1656,11 +1658,11 @@ int OptParser::convertToDigitWithCheck(TString parseMe, TString usage) const {
 ///
 /// \param parseMe      - the string provided to -c
 /// \param resultCmbId      - resulting combiner ID
-/// \param resultAddDelPdf  - vector of all PDF IDs, that are requested to be added or deleted
+/// \param resultAddDelPdf  - std::vector of all PDF IDs, that are requested to be added or deleted
 ///                     to/from the combiner. If it is supposed to be added, a positive PDF ID
 ///                 is stored, if it is supposed to be deleted, a negative PDF ID is stored
 ///
-void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<int>& resultAddDelPdf) const {
+void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, std::vector<int>& resultAddDelPdf) const {
   resultCmbId = 0;
   resultAddDelPdf.clear();
   TString usage = "";
@@ -1678,8 +1680,8 @@ void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<in
   // 1. parse leading combiner ID
   TObjArray* array = parseMe.Tokenize(":");  // split string at ":"
   if (array->GetEntries() != 2) {
-    cout << "-c parse error: too many ':'. " << usage << endl;
-    exit(1);
+    std::cout << "-c parse error: too many ':'. " << usage << std::endl;
+    std::exit(1);
   }
   TString combinerIdStr = ((TObjString*)array->At(0))->GetString();  // gets the part before the colon
   resultCmbId = convertToDigitWithCheck(combinerIdStr, usage);
@@ -1689,8 +1691,8 @@ void OptParser::parseCombinerString(TString parseMe, int& resultCmbId, vector<in
   for (int j = 0; j < arrayCommaList->GetEntries(); j++) {
     TString pdfId = ((TObjString*)arrayCommaList->At(j))->GetString();
     if (!(pdfId.BeginsWith("+") || pdfId.BeginsWith("-"))) {
-      cout << "-c parse error: first character not a + or -. " << usage << endl;
-      exit(1);
+      std::cout << "-c parse error: first character not a + or -. " << usage << std::endl;
+      std::exit(1);
     }
     resultAddDelPdf.push_back(convertToIntWithCheck(pdfId, usage));
   }

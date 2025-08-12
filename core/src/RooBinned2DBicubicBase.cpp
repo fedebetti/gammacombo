@@ -172,7 +172,7 @@ Double_t RooBinned2DBicubicBase<BASE>::analyticalIntegral(Int_t code, const char
   case 3:
     return evalXY(x.min(rangeName), x.max(rangeName), y.min(rangeName), y.max(rangeName));
   };
-  coutE(Integration) << base().GetName() << ": Unknown integration code " << code << " supplied!" << std::endl;
+  std::coutE(Integration) << base().GetName() << ": Unknown integration code " << code << " supplied!" << std::endl;
   return -1.;
 }
 

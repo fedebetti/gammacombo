@@ -14,9 +14,9 @@ void LatexMaker::writeFile() {
   outfile.open(outfname + ".tex");
 
   RooArgList* observables = pdf->getObservables();
-  vector<TString> labels = pdf->getLatexObservables();
+  std::vector<TString> labels = pdf->getLatexObservables();
 
-  outfile << "\\begin{alignat}{3}" << endl;
+  outfile << "\\begin{alignat}{3}" << std::endl;
   for (int i = 0; i < pdf->getNobs(); i++) {
 
     auto var = (RooRealVar*)observables->at(i);
@@ -34,12 +34,12 @@ void LatexMaker::writeFile() {
                       title.Data(), var->getVal(), pdf->StatErr[i], pdf->SystErr[i]);
     }
     if (i < pdf->getNobs() - 1) {
-      outfile << " \\\\" << endl;
+      outfile << " \\\\" << std::endl;
     } else {
-      outfile << endl;
+      outfile << std::endl;
     }
   }
-  outfile << "\\end{alignat}" << endl;
+  outfile << "\\end{alignat}" << std::endl;
 
   outfile.close();
 
@@ -56,13 +56,14 @@ void LatexMaker::writeFile() {
   outfile_syst.close();
 }
 
-void LatexMaker::writeCorrMatrix(ofstream& file, TMatrixDSym mat, RooArgList* observables, vector<TString> labels) {
+void LatexMaker::writeCorrMatrix(ofstream& file, TMatrixDSym mat, RooArgList* observables,
+                                 std::vector<TString> labels) {
 
   file << "\\begin{tabular}{ l |";
   for (int i = 0; i < mat.GetNcols(); i++) file << "l";
-  file << "}" << endl;
-  file << "\\hline" << endl;
-  file << "\\hline" << endl;
+  file << "}" << std::endl;
+  file << "\\hline" << std::endl;
+  file << "\\hline" << std::endl;
   file << Form("%-15s", "");
 
   for (int i = 0; i < mat.GetNcols(); i++) {
@@ -71,8 +72,8 @@ void LatexMaker::writeCorrMatrix(ofstream& file, TMatrixDSym mat, RooArgList* ob
     if (i < labels.size()) title = labels[i];
     file << Form(" & %s", title.Data());
   }
-  file << "\\\\" << endl;
-  file << "\\hline" << endl;
+  file << "\\\\" << std::endl;
+  file << "\\hline" << std::endl;
   for (int i = 0; i < mat.GetNrows(); i++) {
 
     TString title = observables->at(i)->GetTitle();
@@ -93,10 +94,10 @@ void LatexMaker::writeCorrMatrix(ofstream& file, TMatrixDSym mat, RooArgList* ob
         file << " & $\\phantom{-}0   $";
       }
     }
-    file << "  \\\\" << endl;
+    file << "  \\\\" << std::endl;
   }
-  file << "\\hline" << endl;
-  file << "\\hline" << endl;
+  file << "\\hline" << std::endl;
+  file << "\\hline" << std::endl;
 
-  file << "\\end{tabular}" << endl;
+  file << "\\end{tabular}" << std::endl;
 }

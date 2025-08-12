@@ -91,9 +91,10 @@ bool GammaComboEngine::combinerExists(const int id) const { return id >= 0 && id
 ///
 void GammaComboEngine::setPdf(PDF_Abs* pdf) {
   if (!runOnDataSet) {
-    cout << "GammaComboEngine::setPdf() : WARNING : You are trying to set a pdf but you haven't set runOnDataSet=true. "
-            "I will do that for you"
-         << endl;
+    std::cout
+        << "GammaComboEngine::setPdf() : WARNING : You are trying to set a pdf but you haven't set runOnDataSet=true. "
+           "I will do that for you"
+        << std::endl;
     runOnDataSet = true;
   }
   auto error = [](std::string msg) { return errBase("setPdf()", msg); };
@@ -110,7 +111,7 @@ void GammaComboEngine::setPdf(PDF_Abs* pdf) {
 void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
   auto error = [](std::string msg) { return errBase("addPdf()", msg); };
 
-  if (arg->debug) cout << "GammaComboEngine::addPdf() : INFO  : Adding pdf " << id << " = " << title << endl;
+  if (arg->debug) std::cout << "GammaComboEngine::addPdf() : INFO  : Adding pdf " << id << " = " << title << std::endl;
   if (!pdf) error("Trying to add nullptr as the PDF");
   if (id < 0) error("id must take a positive value");
   if (pdfExists(id)) error(std::format("Requested PDF id {:d} exists already in GammaComboEngine", id));
@@ -125,7 +126,7 @@ void GammaComboEngine::addPdf(int id, PDF_Abs* pdf, TString title) {
 ///
 /// Add a pdf with a subset of the observables to the GammaComboEngine
 ///
-void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const vector<int>& indices, const TString title) {
+void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const std::vector<int>& indices, const TString title) {
   auto error = [](std::string msg) { return errBase("addSubsetPdf()", msg); };
   if (indices.size() > pdf->getObservables()->getSize()) {
     error(std::format("The subset size {:d} is bigger than the observables size {:d}", indices.size(),
@@ -163,8 +164,8 @@ void GammaComboEngine::addSubsetPdf(const int id, PDF_Abs* pdf, const vector<int
   pdf->getParameters()->remove(paramsToRemove);
 
   // now sort out uncertainties
-  vector<double> oldStatErrs = pdf->StatErr;
-  vector<double> oldSystErrs = pdf->SystErr;
+  std::vector<double> oldStatErrs = pdf->StatErr;
+  std::vector<double> oldSystErrs = pdf->SystErr;
   pdf->StatErr.clear();
   pdf->SystErr.clear();
   for (const auto index : indices) {
@@ -272,10 +273,10 @@ Combiner* GammaComboEngine::getCombiner(const int id) const {
 }
 
 ///
-/// Get a vector with the indices of all non-trivial combiners created.
+/// Get a std::vector with the indices of all non-trivial combiners created.
 ///
 vector<int> GammaComboEngine::getCombinersIds() const {
-  vector<int> ids;
+  std::vector<int> ids;
   for (int id = 0; id < cmb.size(); ++id) {
     if (combinerExists(id)) ids.push_back(id);
   }
@@ -295,12 +296,13 @@ PDF_Abs* GammaComboEngine::getPdf(int id) const {
 PDF_Abs* GammaComboEngine::operator[](int idx) { return getPdf(idx); }
 
 ///
-/// Add a new Combiner, consisting of the PDFs specified by the vector of their GammaComboEngine IDs.
+/// Add a new Combiner, consisting of the PDFs specified by the std::vector of their GammaComboEngine IDs.
 ///
 /// The PDFs must be added to GammaComboEngine before calling this function.
 /// An empty combiner is possible, too, so that it can be filled later.
 ///
-void GammaComboEngine::newCombiner(const int id, const TString name, const TString title, const vector<int>& pdfs) {
+void GammaComboEngine::newCombiner(const int id, const TString name, const TString title,
+                                   const std::vector<int>& pdfs) {
   auto error = [](std::string msg) { return errBase("newCombiner()", msg); };
   if (combinerExists(id)) error(std::format("Requested new Combiner id {:d} exists already in GammaComboEngine", id));
   auto c = std::make_unique<Combiner>(arg.get(), name, title);
@@ -325,7 +327,8 @@ void GammaComboEngine::scaleDownErrors() {
     if (i == 60) scale = sqrt(50. / 3.);
     // if ( i==23 ) scale = sqrt(50.);
     if (scale == 1.) continue;
-    cout << "Configuration: Scaling down LHCb errors by a factor " << scale << ": " << pdf[i]->getTitle() << endl;
+    std::cout << "Configuration: Scaling down LHCb errors by a factor " << scale << ": " << pdf[i]->getTitle()
+              << std::endl;
     for (int iObs = 0; iObs < pdf[i]->getNobs(); iObs++) {
       pdf[i]->StatErr[iObs] /= scale;
       pdf[i]->SystErr[iObs] /= scale;
@@ -347,14 +350,14 @@ void GammaComboEngine::scaleDownErrors() {
   pdf[i]->buildCov();
   pdf[i]->buildPdf();
 
-  cout << endl;
+  std::cout << std::endl;
 }
 
 ///
 /// scale stat errors
 ///
 void GammaComboEngine::scaleStatErrors() {
-  cout << "\nConfiguration: Scaling ALL STAT ERRORS by " << arg->scalestaterr << ".\n" << endl;
+  std::cout << "\nConfiguration: Scaling ALL STAT ERRORS by " << arg->scalestaterr << ".\n" << std::endl;
   for (auto p : pdf) {
     if (!p) continue;
     for (int iObs = 0; iObs < p->getNobs(); iObs++) { p->StatErr[iObs] *= arg->scalestaterr; }
@@ -367,7 +370,7 @@ void GammaComboEngine::scaleStatErrors() {
 /// scale stat+syst errors
 ///
 void GammaComboEngine::scaleStatAndSystErrors() {
-  cout << "\nConfiguration: Scaling ALL STAT AND SYST ERRORS by " << arg->scaleerr << ".\n" << endl;
+  std::cout << "\nConfiguration: Scaling ALL STAT AND SYST ERRORS by " << arg->scaleerr << ".\n" << std::endl;
   for (auto p : pdf) {
     if (!p) continue;
     for (int iObs = 0; iObs < p->getNobs(); iObs++) {
@@ -383,7 +386,7 @@ void GammaComboEngine::scaleStatAndSystErrors() {
 /// disable systematics
 ///
 void GammaComboEngine::disableSystematics() {
-  cout << "\nConfiguration: Setting ALL SYSTEMATICS TO ZERO.\n" << endl;
+  std::cout << "\nConfiguration: Setting ALL SYSTEMATICS TO ZERO.\n" << std::endl;
   for (auto p : pdf) {
     if (!p) continue;
     for (int iObs = 0; iObs < p->getNobs(); iObs++) p->SystErr[iObs] = 0.;
@@ -435,7 +438,7 @@ void GammaComboEngine::setAsimovObservables(Combiner* c) {
 ///
 void GammaComboEngine::loadStartParameters(const MethodProbScan* s, ParameterCache* pCache, const int cId) {
   auto error = [](std::string msg) { return errBase("loadStartParameters()", msg); };
-  cout << "Start parameter configuration:\n" << endl;
+  std::cout << "Start parameter configuration:\n" << std::endl;
   TString startparfile;
   TString startparfile2 = m_fnamebuilder->getFileNameStartPar(s);
   TString startparfile3;
@@ -450,8 +453,8 @@ void GammaComboEngine::loadStartParameters(const MethodProbScan* s, ParameterCac
     startparfile = arg->loadParamsFile[cId];
     filefound = FileExists(startparfile);
     if (!filefound) {
-      cout << "\n ERROR: --parfile not found: " << startparfile << endl;
-      cout << "  Will now look for default files.\n" << endl;
+      std::cout << "\n ERROR: --parfile not found: " << startparfile << std::endl;
+      std::cout << "  Will now look for default files.\n" << std::endl;
     }
   }
   // requested file not found, try default
@@ -466,20 +469,21 @@ void GammaComboEngine::loadStartParameters(const MethodProbScan* s, ParameterCac
   }
   // still not found
   if (!filefound) {
-    cout << "  No start parameter file was found, will use the default values" << endl;
-    cout << "  configured in ParameterAbs class. Start parameter files are searched" << endl;
-    cout << "  in the following order:" << endl;
-    cout << "  1. --parfile option" << endl;
-    cout << "  2. default start paramter file: " << startparfile2 << endl;
+    std::cout << "  No start parameter file was found, will use the default values" << std::endl;
+    std::cout << "  configured in ParameterAbs class. Start parameter files are searched" << std::endl;
+    std::cout << "  in the following order:" << std::endl;
+    std::cout << "  1. --parfile option" << std::endl;
+    std::cout << "  2. default start paramter file: " << startparfile2 << std::endl;
     if (arg->isAsimovCombiner(cId)) {
-      cout << "  3. for Asimov combiners: corresponding non-Asimov start parameter file: " << startparfile3 << endl;
+      std::cout << "  3. for Asimov combiners: corresponding non-Asimov start parameter file: " << startparfile3
+                << std::endl;
     }
   } else {
-    cout << "  Loading start parameters from file: " << startparfile << endl;
+    std::cout << "  Loading start parameters from file: " << startparfile << std::endl;
     bool loaded = pCache->loadPoints(startparfile);
     if (!loaded) error("Error loading file");
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 ///
@@ -490,13 +494,13 @@ void GammaComboEngine::loadStartParameters(const MethodProbScan* s, ParameterCac
 ///
 void GammaComboEngine::configureAsimovCombinerNames(Combiner* c, const int i) {
   if (arg->asimov[i] == 0) {
-    cout << "\n--asimov 0 : ignoring generator point ID 0" << endl;
+    std::cout << "\n--asimov 0 : ignoring generator point ID 0" << std::endl;
     return;
   }
-  cout << "\n--asimov : setting up an ASIMOV TOY based on combination \"" << c->getName() << "\"" << endl;
+  std::cout << "\n--asimov : setting up an ASIMOV TOY based on combination \"" << c->getName() << "\"" << std::endl;
   if (arg->title[i] == TString("default")) c->setTitle(c->getTitle() + " (Asimov)");
   c->setName(c->getName() + m_fnamebuilder->getAsimovCombinerNameAddition(arg->asimov[i]));
-  cout << "           Asimov combiner name: \"" << c->getName() << "\"" << endl;
+  std::cout << "           Asimov combiner name: \"" << c->getName() << "\"" << std::endl;
 }
 
 ///
@@ -505,7 +509,7 @@ void GammaComboEngine::configureAsimovCombinerNames(Combiner* c, const int i) {
 ///
 void GammaComboEngine::loadAsimovPoint(Combiner* c, const int cId) {
   if (arg->asimov[cId] == 0) return;
-  cout << "\nAsimov point configuration:\n" << endl;
+  std::cout << "\nAsimov point configuration:\n" << std::endl;
   auto pCache = std::make_unique<ParameterCache>(arg.get());
   TString asimovfile;
   TString asimovfile2 = m_fnamebuilder->getFileNameAsimovPar(c);
@@ -538,20 +542,21 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, const int cId) {
   }
   // if no parameter file exits, we use point from the ParameterAbs class
   if (!filefound) {
-    cout << "  No Asimov point parameter file found. Using start values configured in ParameterAbs class." << endl;
-    cout << "  Point files are looked for in the following order:" << endl;
-    cout << "  1. --asimovfile" << endl;
-    cout << "  2. " << asimovfile2 << endl;
-    cout << "  3. " << asimovfile3 << endl;
-    cout << "  4. " << asimovfile4 << endl;
+    std::cout << "  No Asimov point parameter file found. Using start values configured in ParameterAbs class."
+              << std::endl;
+    std::cout << "  Point files are looked for in the following order:" << std::endl;
+    std::cout << "  1. --asimovfile" << std::endl;
+    std::cout << "  2. " << asimovfile2 << std::endl;
+    std::cout << "  3. " << asimovfile3 << std::endl;
+    std::cout << "  4. " << asimovfile4 << std::endl;
   } else {
-    cout << "  Loading Asimov points from file: " << asimovfile << endl;
+    std::cout << "  Loading Asimov points from file: " << asimovfile << std::endl;
     bool loaded = pCache->loadPoints(asimovfile);
     if (!loaded) {
-      cout << "  Error loading file. Exit." << endl;
-      exit(1);
+      std::cout << "  Error loading file. Exit." << std::endl;
+      std::exit(1);
     }
-    cout << "  Setting point number: " << arg->asimov[cId] << endl;
+    std::cout << "  Setting point number: " << arg->asimov[cId] << std::endl;
     pCache->setPoint(c, arg->asimov[cId] - 1);
   }
   setAsimovObservables(c);
@@ -562,39 +567,39 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, const int cId) {
 ///
 void GammaComboEngine::usage() const {
   if (runOnDataSet) {
-    cout << "USAGE\n\n"
-            "  # Compute limit on parameter a:\n"
-            "  "
-         << execname
-         << " --var a --ps 1\n\n"
-            "  # Compute limits on two parameters a and b:\n"
-            "  "
-         << execname << " --var a --var b --ps 1\n\n"
-         << endl;
+    std::cout << "USAGE\n\n"
+                 "  # Compute limit on parameter a:\n"
+                 "  "
+              << execname
+              << " --var a --ps 1\n\n"
+                 "  # Compute limits on two parameters a and b:\n"
+                 "  "
+              << execname << " --var a --var b --ps 1\n\n"
+              << std::endl;
     exit(0);
   }
-  cout << "USAGE\n\n"
-          "  # Compute combination 1, make a 1D Prob scan for variable a_gaus:\n"
-          "  "
-       << execname
-       << " -c 1 -i --var a_gaus --ps 1\n\n"
-          "  # Add combinations 1, 2, 3, add to the same plot:\n"
-          "  "
-       << execname
-       << " -c 1 -c 2 -c 3 -i --var a_gaus --ps 1\n\n"
-          "  # Add or remove measurements to/from existing cominers:\n"
-          "  "
-       << execname
-       << " -i --var a_gaus -c 3:+1,+2,-3\n\n"
-          "  # Make a 2D Prob scan\n"
-          "  "
-       << execname
-       << " -c 4 --var a_gaus --var b_gaus -i\n\n"
-          "  # Re-plot a previous 2D Prob scan with 2D CL and best fit points\n"
-          "  "
-       << execname << " -c 4 --var a_gaus --var b_gaus -i -a plot --2dcl --ps 1\n"
-       << endl;
-  // cout << "Available plugin toy control plots:\n"
+  std::cout << "USAGE\n\n"
+               "  # Compute combination 1, make a 1D Prob scan for variable a_gaus:\n"
+               "  "
+            << execname
+            << " -c 1 -i --var a_gaus --ps 1\n\n"
+               "  # Add combinations 1, 2, 3, add to the same plot:\n"
+               "  "
+            << execname
+            << " -c 1 -c 2 -c 3 -i --var a_gaus --ps 1\n\n"
+               "  # Add or remove measurements to/from existing cominers:\n"
+               "  "
+            << execname
+            << " -i --var a_gaus -c 3:+1,+2,-3\n\n"
+               "  # Make a 2D Prob scan\n"
+               "  "
+            << execname
+            << " -c 4 --var a_gaus --var b_gaus -i\n\n"
+               "  # Re-plot a previous 2D Prob scan with 2D CL and best fit points\n"
+               "  "
+            << execname << " -c 4 --var a_gaus --var b_gaus -i -a plot --2dcl --ps 1\n"
+            << std::endl;
+  // std::cout << "Available plugin toy control plots:\n"
   //"===================================\n"
   //"\n"
   //"All control plots are produced when option --controlplots is given.\n"
@@ -604,7 +609,7 @@ void GammaComboEngine::usage() const {
   //" (3) nuisances\n"
   //" (4) observables\n"
   //" (5) chi2 distributions\n"
-  //" (6) chi2 parabolas\n" << endl;
+  //" (6) chi2 parabolas\n" << std::endl;
   print();
   exit(0);
 }
@@ -613,26 +618,26 @@ void GammaComboEngine::usage() const {
 /// Print the available PDFs.
 ///
 void GammaComboEngine::printPdfs() const {
-  cout << "AVAILABLE MEASUREMENTS\n\n";
+  std::cout << "AVAILABLE MEASUREMENTS\n\n";
   for (int i = 0; i < pdf.size(); i++) {
     if (!pdf[i]) continue;
     auto indexStr = format("({:d})", i);
-    cout << format("{:>7s} {:s}\n", indexStr, pdf[i]->getTitle().Data());
+    std::cout << format("{:>7s} {:s}\n", indexStr, pdf[i]->getTitle().Data());
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 ///
 /// Print the availabe Combinations.
 ///
 void GammaComboEngine::printCombinations() const {
-  cout << "AVAILABLE COMBINATIONS\n\n";
+  std::cout << "AVAILABLE COMBINATIONS\n\n";
   for (int i = 0; i < cmb.size(); i++) {
     if (!cmb[i]) continue;
     auto indexStr = format("({:d})", i);
-    cout << format("{:>7s} {:s}\n", indexStr, cmb[i]->getTitle().Data());
+    std::cout << format("{:>7s} {:s}\n", indexStr, cmb[i]->getTitle().Data());
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 ///
@@ -672,10 +677,10 @@ void GammaComboEngine::checkCombinationArg() const {
 ///
 void GammaComboEngine::checkAsimovArg() const {
   if (arg->asimov.size() == 1 && arg->asimov[0] == 0) {
-    cout << "WARNING : --asimov 0 found, this won't do anything." << endl;
-    cout << "          To run an Asimov toy, the generation point ID" << endl;
-    cout << "          needs to be different from 0." << endl;
-    cout << endl;
+    std::cout << "WARNING : --asimov 0 found, this won't do anything." << std::endl;
+    std::cout << "          To run an Asimov toy, the generation point ID" << std::endl;
+    std::cout << "          needs to be different from 0." << std::endl;
+    std::cout << std::endl;
   }
 }
 
@@ -690,9 +695,10 @@ void GammaComboEngine::checkColorArg() const {
     // colors for one-dimensional plots
     if (arg->var.size() == 1) {
       if (colorsLine.size() <= arg->color[i]) {
-        cout << "Argument error --color: No such color for one-dimensional plots. Please choose a color between 0 and "
-             << colorsLine.size() - 1 << endl;
-        exit(1);
+        std::cout
+            << "Argument error --color: No such color for one-dimensional plots. Please choose a color between 0 and "
+            << colorsLine.size() - 1 << std::endl;
+        std::exit(1);
       }
     }
     // colors for two-dimensional plots
@@ -700,9 +706,10 @@ void GammaComboEngine::checkColorArg() const {
       OneMinusClPlot2d p(arg.get());
       int nMaxColors = p.getNumberOfDefinedColors();
       if (nMaxColors <= arg->color[i]) {
-        cout << "Argument error --color: No such color for two-dimensional plots. Please choose a color between 0 and "
-             << nMaxColors - 1 << endl;
-        exit(1);
+        std::cout
+            << "Argument error --color: No such color for two-dimensional plots. Please choose a color between 0 and "
+            << nMaxColors - 1 << std::endl;
+        std::exit(1);
       }
     }
   }
@@ -715,9 +722,9 @@ void GammaComboEngine::makeAddDelCombinations() {
   if (runOnDataSet) return;
 
   if (arg->combmodifications.size() != arg->combid.size()) {
-    cout << "GammaComboEngine::makeAddDelCombinations() : ERROR : internal inconsistency. \n"
-            "combid and combmodifications vectors not of same size."
-         << endl;
+    std::cout << "GammaComboEngine::makeAddDelCombinations() : ERROR : internal inconsistency. \n"
+                 "combid and combmodifications std::vectors not of same size."
+              << std::endl;
     assert(0);
   }
 
@@ -727,17 +734,17 @@ void GammaComboEngine::makeAddDelCombinations() {
     // see if anything is to be added or subtracted
     if (arg->combmodifications[i].empty()) continue;
     // there are modifications to be done!
-    cout << "-c : Making a new combination based on combination " << arg->combid[i] << endl;
+    std::cout << "-c : Making a new combination based on combination " << arg->combid[i] << std::endl;
     // compute name and title of new combiner
     TString nameNew = cOld->getName();
     TString titleNew = cOld->getTitle();
     for (auto cm : arg->combmodifications[i]) {
       int pdfId = abs(cm);
       if (!pdfExists(pdfId)) {
-        cout << "\nERROR: measurement of given ID does not exist: " << pdfId << endl;
-        cout << "       Here is a list of available measurements:" << endl;
+        std::cout << "\nERROR: measurement of given ID does not exist: " << pdfId << std::endl;
+        std::cout << "       Here is a list of available measurements:" << std::endl;
         printPdfs();
-        exit(1);
+        std::exit(1);
       }
       if (cm > 0) {
         nameNew += Form("+%i", pdfId);
@@ -753,10 +760,10 @@ void GammaComboEngine::makeAddDelCombinations() {
     for (auto cm : arg->combmodifications[i]) {
       int pdfId = abs(cm);
       if (cm > 0) {
-        cout << "... adding measurement " << pdfId << endl;
+        std::cout << "... adding measurement " << pdfId << std::endl;
         cNew->addPdf(pdf[pdfId]);
       } else {
-        cout << "... deleting measurement " << pdfId << endl;
+        std::cout << "... deleting measurement " << pdfId << std::endl;
         cNew->delPdf(pdf[pdfId]);
       }
     }
@@ -866,14 +873,14 @@ void GammaComboEngine::defineColors() {
     colorsText.push_back(kBlue - 2 + i);
   }
 
-  // sort out the fill style vector
+  // sort out the fill style std::vector
   for (int i = 0; i < arg->combid.size(); i++) {
     if (i >= arg->fillstyle.size())
       fillStyles.push_back(1001);
     else
       fillStyles.push_back(arg->fillstyle[i]);
   }
-  // sort out the fill color vector
+  // sort out the fill color std::vector
   for (int i = 0; i < arg->combid.size(); i++) {
     // if --hexfillcolor passed use this
     if (i < arg->hexfillcolor.size()) fillColors.push_back(TColor::GetColor(TString(arg->hexfillcolor[i])));
@@ -887,7 +894,7 @@ void GammaComboEngine::defineColors() {
     else
       fillColors.push_back(colorsLine[i]);
   }
-  // sort out the fill transparency vector
+  // sort out the fill transparency std::vector
   for (int i = 0; i < arg->combid.size(); i++) {
     if (i >= arg->filltransparency.size())
       fillTransparencies.push_back(0.);
@@ -895,21 +902,21 @@ void GammaComboEngine::defineColors() {
       fillTransparencies.push_back(arg->filltransparency[i]);
   }
 
-  // sort out the line width vector
+  // sort out the line width std::vector
   for (int i = 0; i < arg->combid.size(); i++) {
     if (i >= arg->linewidth.size())
       lineWidths.push_back(2);
     else
       lineWidths.push_back(arg->linewidth[i]);
   }
-  // sort out the line style vector
+  // sort out the line style std::vector
   for (int i = 0; i < arg->combid.size(); i++) {
     if (i >= arg->linestyle.size())
       lineStyles.push_back(1);
     else
       lineStyles.push_back(arg->linestyle[i]);
   }
-  // sort out the line color vector
+  // sort out the line color std::vector
   for (int i = 0; i < arg->combid.size(); i++) {
     // if --hexlinecolor passed use this
     if (i < arg->hexlinecolor.size()) lineColors.push_back(TColor::GetColor(TString(arg->hexlinecolor[i])));
@@ -970,22 +977,22 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
   const int nStartingPoints = pCache->getNPoints();
   // if no starting values loaded do the default thing
   if (nStartingPoints == 0) {
-    cout << "\nPerforming default 2D scan:\n"
-            " 1. scan in first variable:  " +
-                scanner->getScanVar1Name() +
-                "\n"
-                " 2. scan in second variable: " +
-                scanner->getScanVar2Name() +
-                "\n"
-                " 3. scan starting from each solution found in 1. and 2."
-         << endl;
+    std::cout << "\nPerforming default 2D scan:\n"
+                 " 1. scan in first variable:  " +
+                     scanner->getScanVar1Name() +
+                     "\n"
+                     " 2. scan in second variable: " +
+                     scanner->getScanVar2Name() +
+                     "\n"
+                     " 3. scan starting from each solution found in 1. and 2."
+              << std::endl;
 
     // setup a scanner for each variable individually
     Combiner* c = scanner->getCombiner();
     std::unique_ptr<MethodProbScan> s1;
     std::unique_ptr<MethodProbScan> s2;
 
-    cout << "\n1D scan for X variable, " + scanner->getScanVar1Name() + ":\n" << endl;
+    std::cout << "\n1D scan for X variable, " + scanner->getScanVar1Name() + ":\n" << std::endl;
     if (runOnDataSet) {
       const MethodDatasetsProbScan* temp = dynamic_cast<MethodDatasetsProbScan*>(scanner);
       s1 = std::make_unique<MethodDatasetsProbScan>(temp->pdf, arg.get());
@@ -997,7 +1004,7 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
     scanStrategy1d(s1.get(), pCache);
     if (arg->verbose) s1->printLocalMinima();
 
-    cout << "\n1D scan for Y variable, " + scanner->getScanVar2Name() + ":\n" << endl;
+    std::cout << "\n1D scan for Y variable, " + scanner->getScanVar2Name() + ":\n" << std::endl;
     if (runOnDataSet) {
       const MethodDatasetsProbScan* temp = dynamic_cast<MethodDatasetsProbScan*>(scanner);
       s2 = std::make_unique<MethodDatasetsProbScan>(temp->pdf, arg.get());
@@ -1011,21 +1018,22 @@ void GammaComboEngine::scanStrategy2d(MethodProbScan* scanner, ParameterCache* p
     if (arg->verbose) s2->printLocalMinima();
 
     // now do the 2D scan from the two starting points
-    cout << "\n2D scan for " + scanner->getScanVar1Name() + " and " + scanner->getScanVar2Name() + ":\n" << endl;
-    vector<RooSlimFitResult*> solutions;
+    std::cout << "\n2D scan for " + scanner->getScanVar1Name() + " and " + scanner->getScanVar2Name() + ":\n"
+              << std::endl;
+    std::vector<RooSlimFitResult*> solutions;
     for (int i = 0; i < s1->getSolutions().size(); i++) solutions.push_back(s1->getSolution(i));
     for (int i = 0; i < s2->getSolutions().size(); i++) solutions.push_back(s2->getSolution(i));
     // \todo remove similar solutions from list
     for (int j = 0; j < solutions.size(); j++) {
-      cout << "2D scan " << j + 1 << " of " << solutions.size() << " ..." << endl;
+      std::cout << "2D scan " << j + 1 << " of " << solutions.size() << " ..." << std::endl;
       scanner->loadParameters(solutions[j]);
       scanner->scan2d();
     }
   }
   // otherwise load each starting value found
   else {
-    cout << "\nPerforming 2D scan from provided starting points." << endl;
-    cout << "Number of scans to run: " << nStartingPoints << endl;
+    std::cout << "\nPerforming 2D scan from provided starting points." << std::endl;
+    std::cout << "Number of scans to run: " << nStartingPoints << std::endl;
     for (int i = 0; i < nStartingPoints; i++) {
       pCache->setPoint(scanner, i);
       scanner->scan2d();
@@ -1048,9 +1056,9 @@ void GammaComboEngine::make1dProbScan(MethodProbScan* scanner, const int cId) {
 
   scanner->initScan();
   scanStrategy1d(scanner, pCache.get());
-  cout << "\nResults:\n"
-       << "========\n"
-       << endl;
+  std::cout << "\nResults:\n"
+            << "========\n"
+            << std::endl;
   scanner->printLocalMinima();
   scanner->saveLocalMinima(m_fnamebuilder->getFileNameSolution(scanner));
   scanner->computeCLvalues();
@@ -1111,7 +1119,7 @@ void GammaComboEngine::make2dPluginScan(std::shared_ptr<MethodPluginScan> scanne
     scannerPlugin->readScan2dTrees(arg->jmin[cId], arg->jmax[cId]);
     scannerPlugin->saveScanner(m_fnamebuilder->getFileNameScanner(scannerPlugin.get()));
     // plot chi2
-    cout << "making full chi2 plot ..." << endl;
+    std::cout << "making full chi2 plot ..." << std::endl;
     auto plotf = std::make_unique<OneMinusClPlot2d>(arg.get(), plot->getName() + "_plugin_full",
                                                     "p-value histogram: " + scannerPlugin->getTitle());
     plotf->addScanner(scannerPlugin);
@@ -1149,10 +1157,11 @@ void GammaComboEngine::make1dCoverageScan(MethodCoverageScan* scanner, const int
   // load coverage point parameters (this can be done automatically)
   auto pCache = std::make_unique<ParameterCache>(arg.get());
   if (arg->loadParamsFile.size() != arg->combid.size()) {
-    cout << "\nERROR : For a Coverage scan you must pass a parameter file (--parfile) to throw the toys from. You need "
-            "one parfile per combiner"
-         << endl;
-    exit(1);
+    std::cout
+        << "\nERROR : For a Coverage scan you must pass a parameter file (--parfile) to throw the toys from. You need "
+           "one parfile per combiner"
+        << std::endl;
+    std::exit(1);
   }
   pCache->loadPoints(arg->loadParamsFile[cId]);
 
@@ -1211,18 +1220,18 @@ void GammaComboEngine::make1dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
 /// 2. scan again from each solution found in the first step
 ///
 void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* pCache) {
-  cout << "Scan strategy:" << endl;
-  cout << "==============\n" << endl;
+  std::cout << "Scan strategy:" << std::endl;
+  std::cout << "==============\n" << std::endl;
   const int nStartingPoints = pCache->getNPoints();
   if (nStartingPoints == 0) {
-    cout << "1. perform an initial scan" << endl;
-    cout << "2. perform an additional scan starting from each solution found\n" << endl;
-    cout << "first scan ..." << endl;
+    std::cout << "1. perform an initial scan" << std::endl;
+    std::cout << "2. perform an additional scan starting from each solution found\n" << std::endl;
+    std::cout << "first scan ..." << std::endl;
     scanner->scan1d();
     if (!arg->probforce) {
       auto&& firstScanSolutions = scanner->getSolutions();
       for (int i = 0; i < firstScanSolutions.size(); i++) {
-        cout << std::format("Scan from solution {:d}:", i) << endl;
+        std::cout << std::format("Scan from solution {:d}:", i) << std::endl;
         // scanner->loadSolution(i);
         scanner->loadParameters(firstScanSolutions[i].get());
         scanner->scan1d(true, false, false);
@@ -1231,9 +1240,9 @@ void GammaComboEngine::scanStrategy1d(MethodProbScan* scanner, ParameterCache* p
   }
   // otherwise load each starting value found
   else {
-    cout << "Scanning from each point found in start parameter file.\n" << endl;
+    std::cout << "Scanning from each point found in start parameter file.\n" << std::endl;
     for (int i = 0; i < nStartingPoints; i++) {
-      cout << "scan " << i + 1 << " of " << nStartingPoints << " ..." << endl;
+      std::cout << "scan " << i + 1 << " of " << nStartingPoints << " ..." << std::endl;
       pCache->setPoint(scanner, i);
       scanner->scan1d();
     }
@@ -1365,7 +1374,7 @@ void GammaComboEngine::make2dProbScan(MethodProbScan* scanner, const int cId) {
   // scan
   scanner->initScan();
   scanStrategy2d(scanner, pCache.get());
-  cout << endl;
+  std::cout << std::endl;
   scanner->printLocalMinima();
   // save
   scanner->saveScanner(m_fnamebuilder->getFileNameScanner(scanner));
@@ -1386,7 +1395,7 @@ void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
                                                "p-value histogram: " + scanner->getTitle());  // Titus: change to make
                                                                                               // datasets plot possible
   else
-    cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
+    std::cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << std::endl;
   plotf->addScanner(scanner);
   plotf->DrawFull();
   plotf->save();
@@ -1403,7 +1412,7 @@ void GammaComboEngine::make2dProbPlot(std::shared_ptr<MethodProbScan> scanner, c
                                              "p-value histogram: " + scanner->getTitle());  // Titus: change to make
                                                                                             // datasets plot possible
     else
-      cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << endl;
+      std::cout << "The name of the scanner matches neither Prob nor DatasetsProb!" << std::endl;
     plotfcls->addScanner(scanner, 1);
     plotfcls->DrawFull();
     plotfcls->save();
@@ -1509,15 +1518,15 @@ bool GammaComboEngine::isScanVarObservable(const Combiner* c, const TString scan
 /// \param scanVar  - the scan variable name (must be an observable)
 ///
 void GammaComboEngine::tightenChi2Constraint(Combiner* c, const TString scanVar) {
-  cout << "\n--var " << scanVar << ": Setting up a scan for an observable ..." << endl;
+  std::cout << "\n--var " << scanVar << ": Setting up a scan for an observable ..." << std::endl;
   PDF_Abs* pdf = c->getPdfProvidingObservable(scanVar);
   if (!pdf) {
-    cout << "GammaComboEngine::tightenChi2Constraint() : ERROR : no PDF found that contains the observable '" << scanVar
-         << "'. Exit." << endl;
-    exit(1);
+    std::cout << "GammaComboEngine::tightenChi2Constraint() : ERROR : no PDF found that contains the observable '"
+              << scanVar << "'. Exit." << std::endl;
+    std::exit(1);
   }
   double scale = 0.1;
-  cout << "... observable error is multiplied by a factor " << scale << endl;
+  std::cout << "... observable error is multiplied by a factor " << scale << std::endl;
   pdf->ScaleError(scanVar, scale);
   pdf->buildCov();
   pdf->buildPdf();
@@ -1536,16 +1545,17 @@ void GammaComboEngine::setObservablesFromFile(Combiner* c, const int cId) {
   if (arg->readfromfile[cId].size() == 1 && arg->readfromfile[cId][0] == TString("default")) return;
   if (arg->readfromfile[cId].size() == 1 && arg->readfromfile[cId][0] == TString("")) return;
 
-  vector<PDF_Abs*> pdfs = c->getPdfs();
+  std::vector<PDF_Abs*> pdfs = c->getPdfs();
 
   if (pdfs.size() != arg->readfromfile[cId].size()) {
-    cout << "ERROR -- I think you are trying to read values from a file but you haven't specified one for each PDF in "
-            "the combination"
-         << endl;
-    cout << "      -- Pass like this: -c 0:+1,+2,+3 --readfromfile "
-            "default,<path_to_pdf2_vals.dat>,<path_to_pdf3_vals.dat>"
-         << endl;
-    exit(1);
+    std::cout
+        << "ERROR -- I think you are trying to read values from a file but you haven't specified one for each PDF in "
+           "the combination"
+        << std::endl;
+    std::cout << "      -- Pass like this: -c 0:+1,+2,+3 --readfromfile "
+                 "default,<path_to_pdf2_vals.dat>,<path_to_pdf3_vals.dat>"
+              << std::endl;
+    std::exit(1);
   }
 
   for (int i = 0; i < pdfs.size(); i++) {
@@ -1556,8 +1566,8 @@ void GammaComboEngine::setObservablesFromFile(Combiner* c, const int cId) {
     //
     ifstream infile(arg->readfromfile[cId][i].Data());
     if (!infile.is_open()) {
-      cerr << "No such read file found: " << arg->readfromfile[cId][i] << endl;
-      exit(1);
+      std::cerr << "No such read file found: " << arg->readfromfile[cId][i] << std::endl;
+      std::exit(1);
     }
     string line;
     bool pdfExists = false;
@@ -1572,7 +1582,7 @@ void GammaComboEngine::setObservablesFromFile(Combiner* c, const int cId) {
         pdfFound = false;  // this is some other pdf after the pdf we are looking for
 
       if (pdfFound) {
-        vector<string> els;
+        std::vector<std::string> els;
         boost::split(els, line, boost::is_any_of(" "), boost::token_compress_on);
         TString typ = els[0];
         if (typ == "obs:") {
@@ -1605,8 +1615,8 @@ void GammaComboEngine::setObservablesFromFile(Combiner* c, const int cId) {
       pdfs[i]->buildCov();
       pdfs[i]->buildPdf();
     } else {
-      cout << "WARNING - did not find any pdf named: " << pdfs[i]->getBaseName()
-           << " in file: " << arg->readfromfile[cId][i] << endl;
+      std::cout << "WARNING - did not find any pdf named: " << pdfs[i]->getBaseName()
+                << " in file: " << arg->readfromfile[cId][i] << std::endl;
     }
   }
 }
@@ -1682,8 +1692,8 @@ void GammaComboEngine::compareCombinations() {
                                  Form("; Obs pulls for %s [#sigma]; Obs pulls %s [#sigma]",
                                       comparisonScanners[i]->getName().Data(), comparisonScanners[j]->getName().Data()),
                                  10, -5, 5, 10, -5, 5);
-      vector<double> pullVec1;
-      vector<double> pullVec2;
+      std::vector<double> pullVec1;
+      std::vector<double> pullVec2;
       double total_pull = 0.;
       int nmatch = 0;
       comparisonScanners[i]->loadSolution(0);
@@ -1742,21 +1752,22 @@ void GammaComboEngine::compareCombinations() {
         err = sqrt(sq(cl1->max - cl1->central) + sq(cl2->central - cl2->min) -
                    2. * corr * (cl1->max - cl1->central) * (cl2->central - cl2->min));
       }
-      cout << "Comparison   1): " << Form("%-20s", comparisonScanners[i]->getName().Data())
-           << " to 2): " << Form("%-20s", comparisonScanners[j]->getName().Data()) << endl;
-      cout << "        chi2:    " << Form("%-20.3f", chi21) << "        " << Form("%-20.3f", chi22) << endl;
-      cout << "        nObs:    " << Form("%-20d", nObs1) << "        " << Form("%-20d", nObs2) << endl;
-      cout << "        nPar:    " << Form("%-20d", nPar1) << "        " << Form("%-20d", nPar2) << endl;
-      cout << "        pval:    " << Form("%-20.2f", 100. * TMath::Prob(chi21, nObs1 - nPar1)) << "        "
-           << Form("%-20.2f", 100. * TMath::Prob(chi22, nObs2 - nPar2)) << endl;
-      cout << "         val:    " << Form("%-6.3f", cl1->central) << " [" << Form("%6.3f", cl1->min) << ","
-           << Form("%-6.3f", cl1->max) << "]"
-           << "      " << Form("%-6.3f", cl2->central) << "[" << Form("%6.3f", cl2->min) << ","
-           << Form("%-6.3f", cl2->max) << "]" << endl;
-      cout << "        dval:    " << diff << " +/- " << err << " (" << TMath::Abs(diff) / err << " sigma)" << endl;
-      cout << "PULL PER OBS:  " << total_pull << endl;
-      cout << "CORRELATION:   " << corr << endl;
-      cout << "COMPATIBILITY: " << TMath::Abs(diff) / err << " sigma" << endl;
+      std::cout << "Comparison   1): " << Form("%-20s", comparisonScanners[i]->getName().Data())
+                << " to 2): " << Form("%-20s", comparisonScanners[j]->getName().Data()) << std::endl;
+      std::cout << "        chi2:    " << Form("%-20.3f", chi21) << "        " << Form("%-20.3f", chi22) << std::endl;
+      std::cout << "        nObs:    " << Form("%-20d", nObs1) << "        " << Form("%-20d", nObs2) << std::endl;
+      std::cout << "        nPar:    " << Form("%-20d", nPar1) << "        " << Form("%-20d", nPar2) << std::endl;
+      std::cout << "        pval:    " << Form("%-20.2f", 100. * TMath::Prob(chi21, nObs1 - nPar1)) << "        "
+                << Form("%-20.2f", 100. * TMath::Prob(chi22, nObs2 - nPar2)) << std::endl;
+      std::cout << "         val:    " << Form("%-6.3f", cl1->central) << " [" << Form("%6.3f", cl1->min) << ","
+                << Form("%-6.3f", cl1->max) << "]"
+                << "      " << Form("%-6.3f", cl2->central) << "[" << Form("%6.3f", cl2->min) << ","
+                << Form("%-6.3f", cl2->max) << "]" << std::endl;
+      std::cout << "        dval:    " << diff << " +/- " << err << " (" << TMath::Abs(diff) / err << " sigma)"
+                << std::endl;
+      std::cout << "PULL PER OBS:  " << total_pull << std::endl;
+      std::cout << "CORRELATION:   " << corr << std::endl;
+      std::cout << "COMPATIBILITY: " << TMath::Abs(diff) / err << " sigma" << std::endl;
 
       auto canv = newNoWarnTCanvas("pull_corr" + getUniqueRootName());
       pull_corr->SetMarkerStyle(kMultiply);
@@ -1808,7 +1819,7 @@ void GammaComboEngine::runToys(Combiner* c) {
   RooArgList fitPars = probscan->solutions[0]->floatParsFinal();
   for (const auto pAbs : fitPars) {
     const auto p = static_cast<RooRealVar*>(pAbs);
-    cout << "YO:: " << p->GetName() << endl;
+    std::cout << "YO:: " << p->GetName() << std::endl;
     vals[p->GetName()] = p->getVal();
     errs[p->GetName()] = p->getError();
     tree->Branch(p->GetName() + TString("_val"), &vals[p->GetName()]);
@@ -1817,14 +1828,14 @@ void GammaComboEngine::runToys(Combiner* c) {
   tree->Fill();
 
   for (int i = 0; i < arg->ntoys; i++) {
-    cout << "RUNNING TOY " << i << " / " << arg->ntoys << endl;
+    std::cout << "RUNNING TOY " << i << " / " << arg->ntoys << std::endl;
     c->setObservablesToToyValues();
     auto toyscan = std::make_unique<MethodProbScan>(c);
     make1dProbScan(toyscan.get(), 0);
     if (toyscan->solutions.empty()) continue;
     toyscan->solutions[0]->Print();
-    // cout << "My stuff I want to save" << endl;
-    // cout << "chi2: " << toyscan->solutions[0]->minNll() << endl;
+    // std::cout << "My stuff I want to save" << std::endl;
+    // std::cout << "chi2: " << toyscan->solutions[0]->minNll() << std::endl;
 
     chi2val = toyscan->solutions[0]->minNll();
     ntoy = i;
@@ -1964,7 +1975,7 @@ void GammaComboEngine::scan() {
         /*
         if (arg->isAction("pluginhybridbatch")) {
           // Hybrid Plugin: compute a second profile likelihood to define the parameter evolution
-          cout << "HYBRID PLUGIN: preparing profile likelihood to be used for parameter evolution:" << endl;
+          std::cout << "HYBRID PLUGIN: preparing profile likelihood to be used for parameter evolution:" << std::endl;
           auto pCache =
               std::make_unique<ParameterCache>(arg.get(), m_fnamebuilder->getFileBaseName(cmb[arg->pevid[0]]));
           pCache->loadPoints();
@@ -1984,11 +1995,12 @@ void GammaComboEngine::scan() {
             if (FileExists(m_fnamebuilder->getFileNameScanner(scannerProb.get()))) {
               scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
             } else {
-              cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << endl;
-              cout << "          scan now. You should have run the Prob scan locally" << endl;
-              cout << "          before running the Plugin scan." << endl;
-              cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get()) << endl;
-              cout << endl;
+              std::cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << std::endl;
+              std::cout << "          scan now. You should have run the Prob scan locally" << std::endl;
+              std::cout << "          before running the Plugin scan." << std::endl;
+              std::cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get())
+                        << std::endl;
+              std::cout << std::endl;
               make1dProbScan(scannerProb.get(), i);
             }
           }
@@ -2050,8 +2062,8 @@ void GammaComboEngine::scan() {
 
     if (arg->isAction("coverage") || arg->isAction("coveragebatch")) {
       if (arg->var.size() != 1) {
-        cerr << "ERROR -- you can only scan in 1D for a coverage check" << endl;
-        exit(1);
+        std::cerr << "ERROR -- you can only scan in 1D for a coverage check" << std::endl;
+        std::exit(1);
       }
       auto coverageScan = std::make_unique<MethodCoverageScan>(c);
       if (arg->isAction("coveragebatch")) {
@@ -2061,9 +2073,9 @@ void GammaComboEngine::scan() {
           if (FileExists(m_fnamebuilder->getFileNameScanner(coverageScan.get()))) {
             coverageScan->loadScanner(m_fnamebuilder->getFileNameScanner(coverageScan.get()));
           } else {
-            cout << "\nERROR : Couldn't load the coverage scanner: "
-                 << m_fnamebuilder->getFileNameScanner(coverageScan.get()) << endl;
-            exit(1);
+            std::cout << "\nERROR : Couldn't load the coverage scanner: "
+                      << m_fnamebuilder->getFileNameScanner(coverageScan.get()) << std::endl;
+            std::exit(1);
           }
         } else {
           make1dCoverageScan(coverageScan.get(), i);
@@ -2079,10 +2091,10 @@ void GammaComboEngine::scan() {
     if (arg->save != "" && arg->saveAtMin) saveWorkspace(c, i);
 
     if (i < arg->combid.size() - 1) {
-      cout << std::format(
-                  "\n-- now starting -c {:d} ------------------------------------------------------------------\n",
-                  arg->combid[i + 1])
-           << endl;
+      std::cout << std::format(
+                       "\n-- now starting -c {:d} ------------------------------------------------------------------\n",
+                       arg->combid[i + 1])
+                << std::endl;
     }
   }
 }
@@ -2138,11 +2150,11 @@ void GammaComboEngine::scanDataSet() {
           scannerProb->initScan();
           scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
         } else {
-          cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << endl;
-          cout << "          scan now. You should have run the Prob scan locally" << endl;
-          cout << "          before running the Plugin scan." << endl;
-          cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get()) << endl;
-          cout << endl;
+          std::cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << std::endl;
+          std::cout << "          scan now. You should have run the Prob scan locally" << std::endl;
+          std::cout << "          before running the Plugin scan." << std::endl;
+          std::cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get()) << std::endl;
+          std::cout << std::endl;
           make1dProbScan(scannerProb.get(), 0);
         }
         auto scannerPlugin =
@@ -2155,11 +2167,12 @@ void GammaComboEngine::scanDataSet() {
             scannerProb->initScan();
             scannerProb->loadScanner(m_fnamebuilder->getFileNameScanner(scannerProb.get()));
           } else {
-            cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << endl;
-            cout << "          scan now. You should have run the Prob scan locally" << endl;
-            cout << "          before running the Plugin scan." << endl;
-            cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get()) << endl;
-            cout << endl;
+            std::cout << "\nWARNING : Couldn't load the Prob scanner, will rerun the Prob" << std::endl;
+            std::cout << "          scan now. You should have run the Prob scan locally" << std::endl;
+            std::cout << "          before running the Plugin scan." << std::endl;
+            std::cout << "          missing file: " << m_fnamebuilder->getFileNameScanner(scannerProb.get())
+                      << std::endl;
+            std::cout << std::endl;
             make1dProbScan(scannerProb.get(), 0);
           }
         }
@@ -2178,12 +2191,12 @@ void GammaComboEngine::scanDataSet() {
         }
       }
     } else if (arg->var.size() == 2) {
-      cout << "SORRY - 2D plugin scans not yet implemented for datasets - this will probably take a while anyway"
-           << endl;
-      exit(1);
+      std::cout << "SORRY - 2D plugin scans not yet implemented for datasets - this will probably take a while anyway"
+                << std::endl;
+      std::exit(1);
     }
   }
-  cout << "Dataset Scan Done" << endl;
+  std::cout << "Dataset Scan Done" << std::endl;
 }
 
 /**
@@ -2191,7 +2204,7 @@ void GammaComboEngine::scanDataSet() {
  */
 void GammaComboEngine::runApplication() {
   if (arg->interactive) {
-    cout << "Exit with Ctrl+c" << endl;
+    std::cout << "Exit with Ctrl+c" << std::endl;
     theApp->Run();
   }
 }
@@ -2200,9 +2213,9 @@ void GammaComboEngine::runApplication() {
  * Print the GammaCombo banner.
  */
 void GammaComboEngine::printBanner() const {
-  cout << "\n\033[1mGammaCombo " << GAMMACOMBO_VERSION << " \033[0m"
-       << "-- All rights reserved under GPLv3, http://www.gnu.org/licenses/gpl.txt\n"
-       << endl;
+  std::cout << "\n\033[1mGammaCombo " << GAMMACOMBO_VERSION << " \033[0m"
+            << "-- All rights reserved under GPLv3, http://www.gnu.org/licenses/gpl.txt\n"
+            << std::endl;
 }
 
 /**
@@ -2225,7 +2238,7 @@ void GammaComboEngine::run() {
   if (arg->compare) compareCombinations();
   if (arg->info || arg->latex || (arg->save != "" && !arg->saveAtMin)) return;
   if (!arg->isAction("pluginbatch") && !arg->isAction("coveragebatch") && !arg->isAction("coverage")) savePlot();
-  cout << endl;
+  std::cout << std::endl;
   t.Stop();
   t.Print();
   runApplication();

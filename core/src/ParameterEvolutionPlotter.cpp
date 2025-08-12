@@ -128,16 +128,16 @@ TGraph* ParameterEvolutionPlotter::makeChi2Graph(vector<RooSlimFitResult*> resul
 /// only those comprising the 1-CL curve.
 ///
 void ParameterEvolutionPlotter::plotParEvolution() {
-  vector<RooSlimFitResult*> results = allResults;
-  // vector<RooSlimFitResult*> results = curveResults;
+  std::vector<RooSlimFitResult*> results = allResults;
+  // std::vector<RooSlimFitResult*> results = curveResults;
 
-  cout << "ParameterEvolutionPlotter::plotParEvolution() : plotting ..." << endl;
+  std::cout << "ParameterEvolutionPlotter::plotParEvolution() : plotting ..." << std::endl;
   selectNewCanvas(title + " 1");
 
   // get all parameters, loop over them
   for (const auto p : *w->set(parsName)) {
     if (p->isConstant() && p->GetName() != scanVar1) continue;
-    if (arg->debug) cout << "ParameterEvolutionPlotter::plotParEvolution() : var = " << p->GetName() << endl;
+    if (arg->debug) std::cout << "ParameterEvolutionPlotter::plotParEvolution() : var = " << p->GetName() << std::endl;
     TVirtualPad* pad = selectNewPad();
     pad->SetLeftMargin(0.25);
     pad->SetTopMargin(0.10);
@@ -209,9 +209,9 @@ void ParameterEvolutionPlotter::saveEvolutionPlots() {
 /// This only works for 1D scans for now.
 ///
 void ParameterEvolutionPlotter::plotObsScanCheck() {
-  vector<RooSlimFitResult*> results = curveResults;
+  std::vector<RooSlimFitResult*> results = curveResults;
 
-  cout << "ParameterEvolutionPlotter::plotObsScanCheck() : plotting ..." << endl;
+  std::cout << "ParameterEvolutionPlotter::plotObsScanCheck() : plotting ..." << std::endl;
   auto c2 = newNoWarnTCanvas("plotObsScanCheck" + getUniqueRootName(), title, 800, 600);
   c2->SetLeftMargin(0.2);
 
@@ -230,7 +230,8 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
     TString thName = scanVar1;
     thName.ReplaceAll("_obs", "_th");
     if (!w->function(thName)) {
-      cout << "ParameterEvolutionPlotter::plotObsScanCheck() : ERROR : theory value not found: " << thName << endl;
+      std::cout << "ParameterEvolutionPlotter::plotObsScanCheck() : ERROR : theory value not found: " << thName
+                << std::endl;
       continue;
     }
     double thValue = w->function(thName)->getVal();

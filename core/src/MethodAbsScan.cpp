@@ -152,7 +152,7 @@ void MethodAbsScan::dumpResult(const std::string ofname) const {
 
   system("mkdir -p plots/par");
   const auto ofpath = std::format("plots/par/{:s}.dat", ofname);
-  cout << "MethodAbsScan::dumpResult() : saving " << ofpath << endl;
+  std::cout << "MethodAbsScan::dumpResult() : saving " << ofpath << std::endl;
 
   const bool angle = Utils::isAngle(this->getWorkspace()->var(this->getScanVar1Name()));
 
@@ -262,7 +262,7 @@ void MethodAbsScan::initScan() {
 
   // 2d:
   curveResults2d.clear();
-  curveResults2d.resize(nPoints2dx, vector<RooSlimFitResult*>(nPoints2dy, nullptr));
+  curveResults2d.resize(nPoints2dx, std::vector<RooSlimFitResult*>(nPoints2dy, nullptr));
 
   // global minimum
   doInitialFit();
@@ -284,7 +284,7 @@ void MethodAbsScan::saveScanner(TString fName) const {
     FileNameBuilder fb(arg);
     fName = fb.getFileNameScanner(this);
   }
-  if (arg->debug) cout << "MethodAbsScan::saveScanner() : saving scanner to file " << fName << endl;
+  if (arg->debug) std::cout << "MethodAbsScan::saveScanner() : saving scanner to file " << fName << std::endl;
   TFile f(fName, "recreate");
   if (f.IsZombie()) error(std::format("Could not open file {:s}", std::string(fName)));
   // save 1-CL histograms
@@ -322,8 +322,8 @@ bool MethodAbsScan::loadScanner(TString fName) {
     FileNameBuilder fb(arg);
     fName = fb.getFileNameScanner(this);
   }
-  if (arg->debug) cout << "MethodAbsScan::loadScanner() : ";
-  cout << "loading scanner: " << fName << endl;
+  if (arg->debug) std::cout << "MethodAbsScan::loadScanner() : ";
+  std::cout << "loading scanner: " << fName << std::endl;
   if (!FileExists(fName))
     error(std::format("File not found: {:s}\n"
                       "Run first without the '-a plot' option to produce the missing file.",
@@ -333,8 +333,8 @@ bool MethodAbsScan::loadScanner(TString fName) {
   // load 1-CL histograms
   TObject* obj = f.Get("hCL");
   if (!obj) {
-    cout << "MethodAbsScan::loadScanner() : ERROR : 'hCL' not found in root file " << fName << endl;
-    exit(1);
+    std::cout << "MethodAbsScan::loadScanner() : ERROR : 'hCL' not found in root file " << fName << std::endl;
+    std::exit(1);
   }
   if (scanVar2 != "") {
     hCL2d = Utils::clone<TH2>(obj, "hCL2d" + getUniqueRootName());
@@ -344,8 +344,8 @@ bool MethodAbsScan::loadScanner(TString fName) {
   // load chi2 histograms
   obj = f.Get("hChi2min");
   if (!obj) {
-    cout << "MethodAbsScan::loadScanner() : ERROR : 'hChi2min' not found in root file " << fName << endl;
-    // exit(1);
+    std::cout << "MethodAbsScan::loadScanner() : ERROR : 'hChi2min' not found in root file " << fName << std::endl;
+    // std::exit(1);
     // return false;
   }
   if (scanVar2 != "") {
@@ -357,9 +357,10 @@ bool MethodAbsScan::loadScanner(TString fName) {
   if (std::ranges::find(arg->cls, 1) != arg->cls.end()) {
     obj = f.Get("hCLs");
     if (!obj) {
-      cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLs' not found in root file - you can ignore this if you're "
-              "not running in dataset mode "
-           << fName << endl;
+      std::cout
+          << "MethodAbsScan::loadScanner() : WARNING : 'hCLs' not found in root file - you can ignore this if you're "
+             "not running in dataset mode "
+          << fName << std::endl;
     }
     if (scanVar2 != "") {
       hCLs2d = Utils::clone<TH2>(obj, "hCLs2d" + getUniqueRootName());
@@ -372,49 +373,54 @@ bool MethodAbsScan::loadScanner(TString fName) {
   if (lookForMixedCLs) {
     obj = f.Get("hCLsFreq");
     if (!obj) {
-      cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsFreq' not found in root file - you can ignore this if "
-              "you're not running in dataset mode "
-           << fName << endl;
+      std::cout
+          << "MethodAbsScan::loadScanner() : WARNING : 'hCLsFreq' not found in root file - you can ignore this if "
+             "you're not running in dataset mode "
+          << fName << std::endl;
     } else if (scanVar2 == "") {
       hCLsFreq = Utils::clone<TH1>(obj, "hCLsFreq" + getUniqueRootName());
     }
     obj = f.Get("hCLsExp");
     if (!obj) {
-      cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsExp' not found in root file - you can ignore this if "
-              "you're not running in dataset mode "
-           << fName << endl;
+      std::cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsExp' not found in root file - you can ignore this if "
+                   "you're not running in dataset mode "
+                << fName << std::endl;
     } else if (scanVar2 == "") {
       hCLsExp = Utils::clone<TH1>(obj, "hCLsExp" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr1Up");
     if (!obj) {
-      cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Up' not found in root file - you can ignore this if "
-              "you're not running in dataset mode "
-           << fName << endl;
+      std::cout
+          << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Up' not found in root file - you can ignore this if "
+             "you're not running in dataset mode "
+          << fName << std::endl;
     } else if (scanVar2 == "") {
       hCLsErr1Up = Utils::clone<TH1>(obj, "hCLsErr1Up" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr1Dn");
     if (!obj) {
-      cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Dn' not found in root file - you can ignore this if "
-              "you're not running in dataset mode "
-           << fName << endl;
+      std::cout
+          << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr1Dn' not found in root file - you can ignore this if "
+             "you're not running in dataset mode "
+          << fName << std::endl;
     } else if (scanVar2 == "") {
       hCLsErr1Dn = Utils::clone<TH1>(obj, "hCLsErr1Dn" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr2Up");
     if (!obj) {
-      cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Up' not found in root file - you can ignore this if "
-              "you're not running in dataset mode "
-           << fName << endl;
+      std::cout
+          << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Up' not found in root file - you can ignore this if "
+             "you're not running in dataset mode "
+          << fName << std::endl;
     } else if (scanVar2 == "") {
       hCLsErr2Up = Utils::clone<TH1>(obj, "hCLsErr2Up" + getUniqueRootName());
     }
     obj = f.Get("hCLsErr2Dn");
     if (!obj) {
-      cout << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Dn' not found in root file - you can ignore this if "
-              "you're not running in dataset mode "
-           << fName << endl;
+      std::cout
+          << "MethodAbsScan::loadScanner() : WARNING : 'hCLsErr2Dn' not found in root file - you can ignore this if "
+             "you're not running in dataset mode "
+          << fName << std::endl;
     } else if (scanVar2 == "") {
       hCLsErr2Dn = Utils::clone<TH1>(obj, "hCLsErr2Dn" + getUniqueRootName());
     }
@@ -427,7 +433,8 @@ bool MethodAbsScan::loadScanner(TString fName) {
     if (auto sfr = dynamic_cast<RooSlimFitResult*>(f.Get(Form("sol%i", i)))) solutions.push_back(sfr->Clone());
   }
   if (f.Get(Form("sol%i", nSol))) {
-    cout << "MethodAbsScan::loadScanner() : WARNING : Only the first 100 solutions read from: " << fName << endl;
+    std::cout << "MethodAbsScan::loadScanner() : WARNING : Only the first 100 solutions read from: " << fName
+              << std::endl;
   }
   f.Close();
 
@@ -454,7 +461,7 @@ std::optional<double> MethodAbsScan::interpolateLinear(const TH1* h, const int i
   double p2y = h->GetBinContent(i + 1);
   if (!((p1y < y && y < p2y) || (p2y < y && y < p1y))) [[unlikely]] {
     std::cerr << "MethodAbsScan::interpolateLinear : ERROR : There is a problem in GammaCombo core" << std::endl;
-    exit(1);
+    std::exit(1);
   }
   return p2x + (y - p2y) / (p1y - p2y) * (p1x - p2x);
 }
@@ -488,7 +495,7 @@ double MethodAbsScan::pq(double p0, double p1, double p2, double y, int whichSol
  */
 std::optional<std::pair<double, double>> MethodAbsScan::interpolate(TH1* h, const int i, const double y,
                                                                     const double central, const bool upper) const {
-  // cout << "MethodAbsScan::interpolate(): i=" << i << " y=" << y << " central=" << central << endl;
+  // std::cout << "MethodAbsScan::interpolate(): i=" << i << " y=" << y << " central=" << central << std::endl;
   if (i > h->GetNbinsX() - 2 || i < 3) return {};
 
   // if method Prob, don't interpolate (no proper error estimate)
@@ -569,7 +576,7 @@ std::optional<std::pair<double, double>> MethodAbsScan::interpolate(TH1* h, cons
 
   double sol0 = pq(p[0], p[1], p[2], y, 0);
   double sol1 = pq(p[0], p[1], p[2], y, 1);
-  // cout << upper << " ";
+  // std::cout << upper << " ";
   // printf("%f %f %f\n", central, sol0, sol1);
 
   // std::cout << central << "\t" << sol0 << "\t" <<sol1 << std::endl;
@@ -583,7 +590,7 @@ std::optional<std::pair<double, double>> MethodAbsScan::interpolate(TH1* h, cons
     auto th1f = dynamic_cast<TH1F*>(h);
     if (!th1f) {
       std::cerr << "Cannot cast to TH1F!" << std::endl;
-      exit(1);
+      std::exit(1);
     }
     g->SetHistogram(th1f);
     h->Draw();
@@ -596,15 +603,15 @@ std::optional<std::pair<double, double>> MethodAbsScan::interpolate(TH1* h, cons
   if ((h->GetBinCenter(i - 2) > sol0 || sol0 > h->GetBinCenter(i + 2)) &&
       (h->GetBinCenter(i - 2) > sol1 || sol1 > h->GetBinCenter(i + 2))) {
     if (arg->verbose || arg->debug) {
-      cout << "MethodAbsScan::interpolate(): Quadratic interpolation out of bounds [" << h->GetBinCenter(i - 2) << ", "
-           << h->GetBinCenter(i + 2) << "]:" << std::endl;
+      std::cout << "MethodAbsScan::interpolate(): Quadratic interpolation out of bounds [" << h->GetBinCenter(i - 2)
+                << ", " << h->GetBinCenter(i + 2) << "]:" << std::endl;
       std::cout << "Solutions are " << central << "(free fit result)\t" << sol0 << "(bound solution 0) \t" << sol1
                 << "(bound solution 1)." << std::endl;
     }
     return {};
   } else if (sol0 != sol0 || sol1 != sol1) {
     if (arg->verbose || arg->debug) {
-      cout << "MethodAbsScan::interpolate(): Quadratic interpolation leads to NaN:" << std::endl;
+      std::cout << "MethodAbsScan::interpolate(): Quadratic interpolation leads to NaN:" << std::endl;
       std::cout << "Solutions are " << central << "(free fit result)\t" << sol0 << "(bound solution 0) \t" << sol1
                 << "(bound solution 1)." << std::endl;
     }
@@ -680,7 +687,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
     // TODO Switch to the new CLIntervalMaker mechanism. It can be activated already using --qh 8,
     //      but it really is in beta stage still
     // TODO Add user specific CL interval
-    cout << "\n";
+    std::cout << "\n";
     info(std::format("USING NEW CLIntervalMaker for {:s}\n", std::string(name)));
     CLIntervalMaker clm(arg, histogramCL);
     clm.findMaxima(0.04);  // ignore maxima under pvalue=0.04
@@ -701,7 +708,7 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
 
   // TODO
   if (solutions.empty()) {
-    info("Solutions vector empty. Using simple method with linear splines");
+    info("Solutions std::vector empty. Using simple method with linear splines");
     this->calcCLintervalsSimple(CLsType, calc_expected);
     return;
   } else if ((CLsType == 1 || CLsType == 2) && !this->getHCLs()) {
@@ -709,7 +716,8 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
     this->calcCLintervalsSimple(CLsType, calc_expected);
   }
 
-  if (!quiet) cout << std::format("\nCONFIDENCE INTERVALS for combination `{:s}`\n", std::string(name)) << endl;
+  if (!quiet)
+    std::cout << std::format("\nCONFIDENCE INTERVALS for combination `{:s}`\n", std::string(name)) << std::endl;
   clintervals.clear();
   clintervals.resize(ConfidenceLevels.size());
 
@@ -876,15 +884,16 @@ void MethodAbsScan::calcCLintervals(const int CLsType, const bool calc_expected,
     if (std::abs(chi2) > 1e-3)
       error(std::format("Chi2 is not zero ({:.4f}), even if the number of degrees of freedom is zero\n", chi2));
     else
-      cout << std::format(
-                  "Fit quality is meaningless for zero degrees of freedom (chi2 = 0): (nObs, nPar) = ({:d}, {:d})\n",
-                  nObs, nPar)
-           << endl;
+      std::cout
+          << std::format(
+                 "Fit quality is meaningless for zero degrees of freedom (chi2 = 0): (nObs, nPar) = ({:d}, {:d})\n",
+                 nObs, nPar)
+          << std::endl;
   } else {
     const auto prob = TMath::Prob(chi2, nObs - nPar);
-    cout << std::format("Fit quality: chi2/(nObs-nPar) = {:.2f}/({:d}-{:d}), P = {:4.1f}%\n", chi2, nObs, nPar,
-                        prob * 100.)
-         << endl;
+    std::cout << std::format("Fit quality: chi2/(nObs-nPar) = {:.2f}/({:d}-{:d}), P = {:4.1f}%\n", chi2, nObs, nPar,
+                             prob * 100.)
+              << std::endl;
   }
 }
 
@@ -901,7 +910,7 @@ void MethodAbsScan::printCLintervals(const int CLsType, const bool calc_expected
   clp.addIntervals(clintervals);
   clp.print();
   clp.savePython();
-  cout << endl;
+  std::cout << std::endl;
 
   // Print solutions not contained in any of the intervals
   for (int i = 0; i < solutions.size(); i++) {
@@ -918,8 +927,8 @@ void MethodAbsScan::printCLintervals(const int CLsType, const bool calc_expected
     int d = arg->digits;
     if (d <= 0) d = 3;
     printf("%s = %7.*f", w->var(scanVar1)->GetName(), d, sol);
-    if (unit != "") cout << " [" << unit << "]";
-    cout << endl;
+    if (unit != "") std::cout << " [" << unit << "]";
+    std::cout << std::endl;
   }
 }
 
@@ -977,8 +986,8 @@ RooRealVar* MethodAbsScan::getScanVar2() { return w->var(scanVar2); }
 const RooRealVar* MethodAbsScan::getScanVar2() const { return w->var(scanVar2); }
 
 void MethodAbsScan::print() const {
-  cout << "MethodAbsScan::print() : Method: " << methodName;
-  cout << ", Scanner: " << name << endl;
+  std::cout << "MethodAbsScan::print() : Method: " << methodName;
+  std::cout << ", Scanner: " << name << std::endl;
   w->set(parsName)->Print("v");
 }
 
@@ -986,16 +995,16 @@ void MethodAbsScan::print() const {
 /// Make a 1d plot of the NLL in var
 ///
 void MethodAbsScan::plot1d(TString var) {
-  cout << "MethodAbsScan::plot1d() : Method: " << methodName;
-  cout << ", Scanner: " << name << endl;
+  std::cout << "MethodAbsScan::plot1d() : Method: " << methodName;
+  std::cout << ", Scanner: " << name << std::endl;
 
   //   RooRealVar* vx = w->var(var);
   //   assert(vx);
   // setLimit(w, var, "plot");
   //
-  //   // cout << "MethodAbsScan::plot1d() : loading global minimum ..." << endl;
-  //   // if ( !globalMin ){ cout << "MethodAbsScan::plot1d() : no global minimum. Call doInitialFit() first!" << endl;
-  //   exit(1); }
+  //   // std::cout << "MethodAbsScan::plot1d() : loading global minimum ..." << std::endl;
+  //   // if ( !globalMin ){ std::cout << "MethodAbsScan::plot1d() : no global minimum. Call doInitialFit() first!" <<
+  //   std::endl; std::exit(1); }
   //   // setParameters(w, parsName, globalMinP);
   //   // print();
   //
@@ -1015,8 +1024,8 @@ void MethodAbsScan::plot1d(TString var) {
 /// Make a 2d plot of the PDF in varx and vary.
 ///
 void MethodAbsScan::plot2d(TString varx, TString vary) {
-  cout << "MethodAbsScan::plot2d() : Method: " << methodName;
-  cout << ", scanner: " << name << endl;
+  std::cout << "MethodAbsScan::plot2d() : Method: " << methodName;
+  std::cout << ", scanner: " << name << std::endl;
 
   RooRealVar* vx = w->var(varx);
   RooRealVar* vy = w->var(vary);
@@ -1025,10 +1034,10 @@ void MethodAbsScan::plot2d(TString varx, TString vary) {
   setLimit(w, varx, "plot");
   setLimit(w, vary, "plot");
 
-  cout << "MethodAbsScan::plot2d() : loading global minimum ..." << endl;
+  std::cout << "MethodAbsScan::plot2d() : loading global minimum ..." << std::endl;
   if (!globalMin) {
-    cout << "MethodAbsScan::plot2d() : no global minimum. Call doInitialFit() first!" << endl;
-    exit(1);
+    std::cout << "MethodAbsScan::plot2d() : no global minimum. Call doInitialFit() first!" << std::endl;
+    std::exit(1);
   }
 
   setParameters(w, parsName, globalMin.get());
@@ -1058,9 +1067,9 @@ void MethodAbsScan::plot2d(TString varx, TString vary) {
  * @param i Index of the solution, i=0 corresponds to the best one.
  */
 bool MethodAbsScan::loadSolution(const int i) {
-  if (arg->debug) cout << "MethodAbsScan::loadSolution() : loading solution " << i << endl;
+  if (arg->debug) std::cout << "MethodAbsScan::loadSolution() : loading solution " << i << std::endl;
   if (i < 0 || i >= solutions.size()) {
-    cout << "MethodAbsScan::loadSolution() : ERROR : solution ID out of range." << endl;
+    std::cout << "MethodAbsScan::loadSolution() : ERROR : solution ID out of range." << std::endl;
     return false;
   }
   auto tmp = std::make_unique<RooArgSet>();
@@ -1074,7 +1083,7 @@ bool MethodAbsScan::loadSolution(const int i) {
 /// Load the values given by an (external) fit result.
 ///
 void MethodAbsScan::loadParameters(const RooSlimFitResult* r) {
-  if (arg->debug) cout << "MethodAbsScan::loadParameters() : loading a RooSlimFitResult " << endl;
+  if (arg->debug) std::cout << "MethodAbsScan::loadParameters() : loading a RooSlimFitResult " << std::endl;
   auto tmp = std::make_unique<RooArgSet>();
   tmp->add(r->floatParsFinal());
   tmp->add(r->constPars());
@@ -1087,14 +1096,14 @@ void MethodAbsScan::loadParameters(const RooSlimFitResult* r) {
 void MethodAbsScan::printLocalMinima() const {
   TDatime date;  // lets also print the current date
   if (arg->debug) {
-    cout << "MethodAbsScan::printLocalMinima() : LOCAL MINIMA for " << title << endl;
-    cout << endl;
+    std::cout << "MethodAbsScan::printLocalMinima() : LOCAL MINIMA for " << title << std::endl;
+    std::cout << std::endl;
   }
   for (int i = 0; i < solutions.size(); i++) {
-    cout << "SOLUTION " << i << ":\n" << endl;
-    cout << "  combination: " << name << endl;
-    cout << "  title:       " << title << endl;
-    cout << "  date:        " << date.AsString() << endl;
+    std::cout << "SOLUTION " << i << ":\n" << std::endl;
+    std::cout << "  combination: " << name << std::endl;
+    std::cout << "  title:       " << title << std::endl;
+    std::cout << "  date:        " << date.AsString() << std::endl;
     solutions[i]->Print(arg->verbose, arg->printcor);
   }
 }
@@ -1105,17 +1114,17 @@ void MethodAbsScan::printLocalMinima() const {
 void MethodAbsScan::saveLocalMinima(TString fName) const {
   TDatime date;  // lets also print the current date
   if (arg->debug) {
-    cout << "MethodAbsScan::saveLocalMinima() : LOCAL MINIMA for " << title << endl;
-    cout << endl;
+    std::cout << "MethodAbsScan::saveLocalMinima() : LOCAL MINIMA for " << title << std::endl;
+    std::cout << std::endl;
   }
   ofstream outfile;
   outfile.open(fName.Data());
 
   for (int i = 0; i < solutions.size(); i++) {
-    outfile << "%SOLUTION " << i << ":\n" << endl;
-    outfile << "%  combination: " << name << endl;
-    outfile << "%  title:       " << title << endl;
-    outfile << "%  date:        " << date.AsString() << endl;
+    outfile << "%SOLUTION " << i << ":\n" << std::endl;
+    outfile << "%  combination: " << name << std::endl;
+    outfile << "%  title:       " << title << std::endl;
+    outfile << "%  date:        " << date.AsString() << std::endl;
     solutions[i]->SaveLatex(outfile, arg->verbose, arg->printcor);
   }
   outfile.close();
@@ -1134,10 +1143,10 @@ void MethodAbsScan::saveLocalMinima(TString fName) const {
  */
 double MethodAbsScan::getScanVarSolution(const int iVar, const int iSol) {
   auto error = [](const std::string& msg, const double err) {
-    std::cerr << "MethodAbsScan::getScanVarSolution() : ERROR : " << msg << endl;
+    std::cerr << "MethodAbsScan::getScanVarSolution() : ERROR : " << msg << std::endl;
     return err;
   };
-  if (solutions.empty()) error("The vector of solutions is empty", -999.);
+  if (solutions.empty()) error("The std::vector of solutions is empty", -999.);
   if (iSol >= solutions.size()) error(std::format("No solution with id {:d}", iSol), -99.);
   auto r = getSolution(iSol);
   assert(r);
@@ -1151,7 +1160,8 @@ double MethodAbsScan::getScanVarSolution(const int iVar, const int iSol) {
   if (r->isConfirmed()) {
     return r->getFloatParFinalVal(varName);
   } else {
-    if (nWarnings == 0) cout << "MethodAbsScan::getScanVarSolution() : WARNING : Using unconfirmed solution." << endl;
+    if (nWarnings == 0)
+      std::cout << "MethodAbsScan::getScanVarSolution() : WARNING : Using unconfirmed solution." << std::endl;
     nWarnings += 1;
     return r->getConstParVal(varName);
   }
@@ -1175,7 +1185,7 @@ double MethodAbsScan::getScanVar2Solution(int iSol) { return getScanVarSolution(
 /// Sort solutions in order of increasing chi2.
 ///
 void MethodAbsScan::sortSolutions() {
-  if (arg->debug) cout << "MethodAbsScan::sortSolutions() : sorting solutions ..." << endl;
+  if (arg->debug) std::cout << "MethodAbsScan::sortSolutions() : sorting solutions ..." << std::endl;
   std::ranges::sort(solutions, [](const std::unique_ptr<RooSlimFitResult>& a,
                                   const std::unique_ptr<RooSlimFitResult>& b) { return a->minNll() < b->minNll(); });
 }
@@ -1186,27 +1196,28 @@ void MethodAbsScan::sortSolutions() {
  * or if their Delta chi2 value is above 25.
  */
 void MethodAbsScan::confirmSolutions() {
-  if (arg->debug) cout << "MethodAbsScan::confirmSolutions() : Confirming solutions ..." << endl;
+  if (arg->debug) std::cout << "MethodAbsScan::confirmSolutions() : Confirming solutions ..." << std::endl;
   FitResultCache frCache(arg);
   frCache.storeParsAtFunctionCall(w->set(parsName));
 
-  vector<std::unique_ptr<RooSlimFitResult>> confirmedSolutions;
+  std::vector<std::unique_ptr<RooSlimFitResult>> confirmedSolutions;
   auto par1 = w->var(scanVar1);
   auto par2 = w->var(scanVar2);
   if (par1) par1->setConstant(false);
   if (par2) par2->setConstant(false);
   for (int i = 0; i < solutions.size(); i++) {
     if (!loadSolution(i)) {
-      cout << std::format(
-                  "MethodAbsScan::confirmSolutions() : WARNING Could not load solution {:d}, so I will not confirm", i)
-           << endl;
+      std::cout
+          << std::format(
+                 "MethodAbsScan::confirmSolutions() : WARNING Could not load solution {:d}, so I will not confirm", i)
+          << std::endl;
       continue;
     }
     if (arg->debug) {
-      cout << "MethodAbsScan::confirmSolutions() : solution " << i;
-      cout << " " << par1->GetName() << "=" << par1->getVal();
-      if (par2) cout << " " << par2->GetName() << "=" << par2->getVal();
-      cout << endl;
+      std::cout << "MethodAbsScan::confirmSolutions() : solution " << i;
+      std::cout << " " << par1->GetName() << "=" << par1->getVal();
+      if (par2) std::cout << " " << par2->GetName() << "=" << par2->getVal();
+      std::cout << std::endl;
     }
 
     // Refit the solution. `true` uses thorough fit with HESSE, -1 silences output
@@ -1237,10 +1248,11 @@ void MethodAbsScan::confirmSolutions() {
     for (const auto pAbs : r->floatParsFinal()) {
       auto p = static_cast<RooRealVar*>(pAbs);
       if (p->getMax() - p->getVal() < p->getError() || p->getVal() - p->getMin() < p->getError()) {
-        cout << "\nMethodAbsScan::confirmSolutions() : WARNING : " << p->GetName() << " is close to its limit!" << endl;
-        cout << "                                  : ";
+        std::cout << "\nMethodAbsScan::confirmSolutions() : WARNING : " << p->GetName() << " is close to its limit!"
+                  << std::endl;
+        std::cout << "                                  : ";
         p->Print();
-        cout << endl;
+        std::cout << std::endl;
       }
     }
 
@@ -1255,7 +1267,7 @@ void MethodAbsScan::confirmSolutions() {
       auto pOld = (RooRealVar*)listOld.find(p->GetName());
       auto pNew = (RooRealVar*)listNew.find(p->GetName());
       if (!pOld && !pNew) {
-        cout << "MethodAbsScan::confirmSolutions() : ERROR : parameter not found: " << p->GetName() << endl;
+        std::cout << "MethodAbsScan::confirmSolutions() : ERROR : parameter not found: " << p->GetName() << std::endl;
         continue;
       }
       if (pNew->getError() > 0) {
@@ -1263,7 +1275,8 @@ void MethodAbsScan::confirmSolutions() {
         if (isAngle(pOld)) shift = angularDifference(pOld->getVal(), pNew->getVal());
         if (shift / pNew->getError() > allowedSigma) {
           if (arg->debug) {
-            cout << "MethodAbsScan::confirmSolutions() : solution " << i << ", too large parameter shift:" << endl;
+            std::cout << "MethodAbsScan::confirmSolutions() : solution " << i
+                      << ", too large parameter shift:" << std::endl;
             pOld->Print();
             pNew->Print();
           }
@@ -1273,20 +1286,20 @@ void MethodAbsScan::confirmSolutions() {
       }
     }
     if (r->minNll() - chi2minGlobal > 25.) {
-      cout << "MethodAbsScan::confirmSolutions() : WARNING : local minimum has DeltaChi2>25." << endl;
+      std::cout << "MethodAbsScan::confirmSolutions() : WARNING : local minimum has DeltaChi2>25." << std::endl;
       isConfirmed = false;
       rejectReason =
           Form("too large chi2: DeltaChi2>25 - chi2minGlobal: %e and confirmed NLL: %e", chi2minGlobal, r->minNll());
     }
     if (isConfirmed) {
-      if (arg->debug) cout << "MethodAbsScan::confirmSolutions() : solution " << i << " accepted." << endl;
+      if (arg->debug) std::cout << "MethodAbsScan::confirmSolutions() : solution " << i << " accepted." << std::endl;
       auto sr = make_unique<RooSlimFitResult>(r.get(), true);  // true saves correlation matrix
       sr->setConfirmed(true);
       confirmedSolutions.push_back(std::move(sr));
     } else {
-      cout << std::format("MethodAbsScan::confirmSolutions() : WARNING : solution {:d} rejected ({:s})", i,
-                          std::string(rejectReason))
-           << endl;
+      std::cout << std::format("MethodAbsScan::confirmSolutions() : WARNING : solution {:d} rejected ({:s})", i,
+                               std::string(rejectReason))
+                << std::endl;
     }
   }
   // do NOT delete the old solutions! They are still in allResults and curveResults.
@@ -1299,7 +1312,7 @@ void MethodAbsScan::confirmSolutions() {
 }
 
 /**
- * Remove duplicate solutions from the common solutions storage ('solutions' vector).
+ * Remove duplicate solutions from the common solutions storage ('solutions' std::vector).
  *
  * Duplicate solutions can occur when two unconfirmed solutions converge to the same true local minimum when refitted
  * by confirmSolutions(). No solutions will be removed if --qh 9 is given.
@@ -1307,7 +1320,7 @@ void MethodAbsScan::confirmSolutions() {
 void MethodAbsScan::removeDuplicateSolutions() {
   // TODO upgrade the quickhack to a proper option
   if (arg->isQuickhack(9)) return;
-  vector<std::unique_ptr<RooSlimFitResult>> solutionsNoDup;
+  std::vector<std::unique_ptr<RooSlimFitResult>> solutionsNoDup;
   for (int i = 0; i < solutions.size(); i++) {
     bool found = false;
     for (int j = i + 1; j < solutions.size(); j++) {
@@ -1317,16 +1330,17 @@ void MethodAbsScan::removeDuplicateSolutions() {
     if (!found)
       solutionsNoDup.push_back(solutions[i]->Clone());
     else {
-      if (arg->debug) cout << "MethodAbsScan::removeDuplicateSolutions() : removing duplicate solution " << i << endl;
+      if (arg->debug)
+        std::cout << "MethodAbsScan::removeDuplicateSolutions() : removing duplicate solution " << i << std::endl;
     }
   }
   if (solutions.size() != solutionsNoDup.size()) {
-    cout << endl;
-    if (arg->debug) cout << "MethodAbsScan::removeDuplicateSolutions() : ";
-    cout << "INFO : some equivalent solutions were removed. In case of 2D scans" << endl;
-    cout << "       many equivalent solutions may lay on a contour of constant chi2, in" << endl;
-    cout << "       that case removing them is perhaps not desired. You can keep all solutions" << endl;
-    cout << "       using --qh 9\n" << endl;
+    std::cout << std::endl;
+    if (arg->debug) std::cout << "MethodAbsScan::removeDuplicateSolutions() : ";
+    std::cout << "INFO : some equivalent solutions were removed. In case of 2D scans" << std::endl;
+    std::cout << "       many equivalent solutions may lay on a contour of constant chi2, in" << std::endl;
+    std::cout << "       that case removing them is perhaps not desired. You can keep all solutions" << std::endl;
+    std::cout << "       using --qh 9\n" << std::endl;
   }
   solutions = std::move(solutionsNoDup);
 }
@@ -1350,7 +1364,7 @@ bool MethodAbsScan::compareSolutions(const RooSlimFitResult* r1, const RooSlimFi
     auto p1 = (RooRealVar*)list1.find(p->GetName());
     auto p2 = (RooRealVar*)list2.find(p->GetName());
     if (!p1 && !p2) {
-      cout << "MethodAbsScan::compareSolutions() : ERROR : parameter not found: " << p->GetName() << endl;
+      std::cout << "MethodAbsScan::compareSolutions() : ERROR : parameter not found: " << p->GetName() << std::endl;
       continue;
     }
     // We accept two parameters to be equal if they agree within 0.1 sigma.
@@ -1369,7 +1383,7 @@ bool MethodAbsScan::compareSolutions(const RooSlimFitResult* r1, const RooSlimFi
 ///
 RooSlimFitResult* MethodAbsScan::getSolution(const int i) {
   if (i < 0 || i >= solutions.size() || !solutions[i]) {
-    cout << Form("MethodAbsScan::getSolution() : ERROR : No solution with id %i.", i) << endl;
+    std::cout << Form("MethodAbsScan::getSolution() : ERROR : No solution with id %i.", i) << std::endl;
     return nullptr;
   }
   return solutions[i].get();
@@ -1377,10 +1391,10 @@ RooSlimFitResult* MethodAbsScan::getSolution(const int i) {
 
 ///
 /// Helper function to copy over solutions from another
-/// scanner. Clears the solutions vector and sets the one
+/// scanner. Clears the solutions std::vector and sets the one
 /// given.
 ///
-void MethodAbsScan::setSolutions(const vector<std::unique_ptr<RooSlimFitResult>>& sols) {
+void MethodAbsScan::setSolutions(const std::vector<std::unique_ptr<RooSlimFitResult>>& sols) {
   solutions.clear();
   for (auto&& sol : sols) solutions.emplace_back(sol->Clone());
 }
@@ -1444,7 +1458,7 @@ void MethodAbsScan::calcCLintervalsSimple(int CLsType, bool calc_expected) {
       if (CLsType == 1) std::cout << "Simplified CL_s ";
       if (CLsType == 2) std::cout << "Standard CL_s";
       std::cout << "borders at " << ConfidenceLevels[c] << "    [ " << borders.first << " : " << borders.second << "]";
-      cout << ", " << methodName << " (simple boundary scan)" << endl;
+      std::cout << ", " << methodName << " (simple boundary scan)" << std::endl;
     }
   }
   ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1473,7 +1487,7 @@ void MethodAbsScan::calcCLintervalsSimple(int CLsType, bool calc_expected) {
       clintervals[c].push_back(std::move(cli));
       std::cout << "CL_s borders at " << ConfidenceLevels[c] << "  [ " << borders_CLs.first << " : "
                 << borders_CLs.second << "]";
-      cout << ", " << methodName << " (simple boundary scan)" << endl;
+      std::cout << ", " << methodName << " (simple boundary scan)" << std::endl;
     }
   }
 }
