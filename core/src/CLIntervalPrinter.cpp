@@ -59,6 +59,8 @@ void CLIntervalPrinter::print() const {
       i.central = RadToDeg(i.central);
       i.min = RadToDeg(i.min);
       i.max = RadToDeg(i.max);
+      i.minerr = RadToDeg(i.minerr);
+      i.maxerr = RadToDeg(i.maxerr);
       unit = "Deg";
     }
 
@@ -86,7 +88,9 @@ void CLIntervalPrinter::print() const {
                                std::string(i.centralmethod), std::string(i.minmethod), std::string(i.maxmethod),
                                i.pvalueAtCentral);
     }
-    std::cout << std::endl;
+    const auto float_format2 = std::format("{{:8.{:d}f}}", rounder.getNsubdigits() + 1);
+    const auto format_str2 = std::format(", border errs: [{0}, {0}]", float_format2);
+    std::cout << std::vformat(format_str2, std::make_format_args(i.minerr, i.maxerr)) << std::endl;
   }
 }
 

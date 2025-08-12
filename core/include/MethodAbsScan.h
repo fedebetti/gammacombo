@@ -15,6 +15,7 @@
 #include <TString.h>
 
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -240,10 +241,15 @@ class MethodAbsScan {
 
  private:
   bool compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2);
-  double pq(double p0, double p1, double p2, double y, int whichSol = 0);
   void removeDuplicateSolutions();
-  bool interpolate(TH1F* h, int i, double y, double central, bool upper, double& val, double& err);
-  void interpolateSimple(TH1F* h, int i, double y, double& val);
+
+  std::optional<std::pair<double, double>> interpolate(TH1F* h, int i, double y, double central, bool upper) const;
+
+  [[deprecated]] bool interpolate(TH1F* h, int i, double y, double central, bool upper, double& val, double& err) const;
+
+  std::optional<double> interpolateLinear(TH1F* h, int i, double y) const;
+
+  [[deprecated]] void interpolateSimple(TH1F* h, int i, double y, double& val) const;
 };
 
 #endif

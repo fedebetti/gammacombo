@@ -20,8 +20,7 @@
  * max (p-value at maximum and central value should then be uniquely identified by the other characteristics of the
  * intervals).
  */
-class CLInterval {
- public:
+struct CLInterval {
   bool operator==(const CLInterval& rhs) const noexcept;
   std::strong_ordering operator<=>(const CLInterval& rhs) const noexcept;
 
@@ -36,6 +35,10 @@ class CLInterval {
   double min = std::numeric_limits<double>::quiet_NaN();
   /// Upper interval border.
   double max = std::numeric_limits<double>::quiet_NaN();
+  /// Error on lower interval border.
+  double minerr = std::numeric_limits<double>::quiet_NaN();
+  /// Error on upper interval border.
+  double maxerr = std::numeric_limits<double>::quiet_NaN();
   /// Central value.
   double central = std::numeric_limits<double>::quiet_NaN();
   /// True if the interval was not closed by limited scan range.

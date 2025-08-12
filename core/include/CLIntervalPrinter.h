@@ -33,7 +33,7 @@ class CLIntervalPrinter {
   std::string _unit;                ///< Unit of scan variable
   std::string _method;              ///< Method name (e.g. Prob)
   bool convertToDegrees = false;    ///< Convert values into degrees
-  std::set<CLInterval> _intervals;  ///< Container of intervals, sorted according to CLCompare.
+  std::set<CLInterval> _intervals;  ///< Container of intervals sorted according to default less (@see CLInterval).
   int _clstype = 0;                 ///< Type of CLs intervals, 0 means no CLs method
 };
 
