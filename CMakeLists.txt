@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.19)
 
 project(
   GammaCombo
-  VERSION 1.0.0
+  VERSION 1.4.0
   DESCRIPTION "LHCb frequentist combiner"
   HOMEPAGE_URL "https://gammacombo.github.io/"
   LANGUAGES CXX)
