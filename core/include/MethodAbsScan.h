@@ -14,6 +14,7 @@
 #include <TRandom3.h>
 #include <TString.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -166,14 +167,17 @@ class MethodAbsScan {
   /// Local minima filled by saveSolutions() and saveSolutions2d().
   std::vector<RooSlimFitResult*> solutions;
 
-  /// The names of the CL interval std::vectors might be misleading. They correspond to the default CL intervals.
-  /// If the option --CL is given, the 1-3 sigma correspond to the first, second,... given value of the CL.
-  std::vector<CLInterval> clintervals1sigma;  ///< all 1 sigma intervals that were found by calcCLintervals()
-  std::vector<CLInterval> clintervals2sigma;  ///< all 2 sigma intervals that were found by calcCLintervals()
-  std::vector<CLInterval> clintervals3sigma;  ///< all 3 sigma intervals that were found by calcCLintervals()
-  std::vector<CLInterval> clintervalsuser;    ///< all intervals with an additional user specific CL that were found by
-                                              ///< calcCLintervals()
-  RooFitResult* globalMin = nullptr;          ///< parameter values at a global minimum
+  /**
+   * All CL intervals found by `calcCLintervals`.
+   *
+   * The first index corresponds to the CL values set (1, 2, 3 sigma by default).
+   * The second index corresponds to the solutions from 0 to n (in case they fall in the scan range, otherwise the value
+   * will be nullptr). There may be also two more CL intervals at the end, corresponding e.g. to scans starting from the
+   * minimum and maximum values of the scan range.
+   */
+  std::vector<std::vector<std::unique_ptr<CLInterval>>> clintervals;
+
+  RooFitResult* globalMin = nullptr;  ///< Parameter values at a global minimum.
 
  protected:
   void sortSolutions();
