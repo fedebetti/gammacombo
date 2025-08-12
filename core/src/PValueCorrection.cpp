@@ -113,7 +113,7 @@ double PValueCorrection::transform(const double x) const {
   return y;
 }
 
-void PValueCorrection::printCoverage(float n68, float n95, float n99, float n, TString name) const {
+void PValueCorrection::printCoverage(double n68, double n95, double n99, double n, TString name) const {
   std::cout << "PValueCorrection::printCoverage(): " << name << std::endl;
   std::cout << "  eta=68.27%: alpha=" << Form("%.4f", 1. * n68 / n) << " +/- "
             << Form("%.4f", sqrt(n68 * (n - n68) / n) / n) << "  alpha-eta=" << Form("%.4f", 1. * n68 / n - 0.6827)
@@ -174,11 +174,11 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
   h_pvalue_after = new TH1F("h_pvalue_after", "p-value", 50, 0., 1.);
 
   // set up root tree for reading
-  float tSol = 0.0;
-  float tChi2free = 0.0;
-  float tChi2scan = 0.0;
-  float tSolGen = 0.0;
-  float tPvalue = 0.0;
+  double tSol = 0.;
+  double tChi2free = 0.;
+  double tChi2scan = 0.;
+  double tSolGen = 0.;
+  double tPvalue = 0.;
   fChain->SetBranchAddress("sol", &tSol);
   fChain->SetBranchAddress("chi2free", &tChi2free);
   fChain->SetBranchAddress("chi2scan", &tChi2scan);
@@ -188,20 +188,20 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
   // initialize loop variables
   Long64_t nentries = fChain->GetEntries();
   Long64_t nfailed = 0;
-  float n68 = 0.;
-  float n95 = 0.;
-  float n99 = 0.;
+  double n68 = 0.;
+  double n95 = 0.;
+  double n99 = 0.;
 
   for (Long64_t i = 0; i < nentries; i++) {
     fChain->GetEntry(i);
     // apply cuts (we'll count the failed ones later)
     if (!(tChi2free > -1e10 && tChi2scan > -1e10 && tChi2scan - tChi2free > 0 &&
-          tSol != 0.0  ///< exclude some pathological jobs from when tSol wasn't set yet
+          tSol != 0.  ///< exclude some pathological jobs from when tSol wasn't set yet
           && tChi2free < 500 && tChi2scan < 500)) {
       nfailed++;
       continue;
     }
-    float pvalue = -999.;
+    double pvalue = -999.;
     if (isPlugin) {
       pvalue = tPvalue;
     } else {
@@ -216,7 +216,7 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
   }
 
   fitHist(h_pvalue_before);
-  if (verbose) printCoverage(n68, n95, n99, float(nentries - nfailed), "Before Correction");
+  if (verbose) printCoverage(n68, n95, n99, double(nentries - nfailed), "Before Correction");
 
   n68 = 0.;
   n95 = 0.;
@@ -225,11 +225,11 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
     fChain->GetEntry(i);
     // apply cuts (we'll count the failed ones later)
     if (!(tChi2free > -1e10 && tChi2scan > -1e10 && tChi2scan - tChi2free > 0 &&
-          tSol != 0.0  ///< exclude some pathological jobs from when tSol wasn't set yet
+          tSol != 0.  ///< exclude some pathological jobs from when tSol wasn't set yet
           && tChi2free < 500 && tChi2scan < 500)) {
       continue;
     }
-    float pvalue = -999.;
+    double pvalue = -999.;
     if (isPlugin) {
       pvalue = transform(tPvalue);
     } else {
@@ -243,6 +243,6 @@ void PValueCorrection::readFiles(TString name, int id, bool isPlugin) {
     h_pvalue_after->Fill(pvalue);
   }
 
-  if (verbose) printCoverage(n68, n95, n99, float(nentries - nfailed), "After Correction");
+  if (verbose) printCoverage(n68, n95, n99, double(nentries - nfailed), "After Correction");
   checkParams();
 }

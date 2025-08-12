@@ -30,7 +30,7 @@ class PValueCorrection {
 
   void checkValid() const;
   void checkParams() const;
-  void printCoverage(float, float, float, float, TString name = "") const;
+  void printCoverage(double, double, double, double, TString name = "") const;
 
   void write(TString fname);
   void write(TFile* f);

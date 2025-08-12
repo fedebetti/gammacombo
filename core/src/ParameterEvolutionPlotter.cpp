@@ -73,13 +73,13 @@ void ParameterEvolutionPlotter::drawLinesAtMinima(TVirtualPad* pad) {
 ///
 /// Draw a vertical red line into the current pad at position i.
 ///
-void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, float xpos) {
+void ParameterEvolutionPlotter::drawVerticalRedLine(TVirtualPad* pad, double xpos) {
   pad->cd();
   pad->Update();
-  float ymin = pad->GetUymin();
-  float ymax = pad->GetUymax();
-  float xmin = pad->GetUxmin();
-  float xmax = pad->GetUxmax();
+  double ymin = pad->GetUymin();
+  double ymax = pad->GetUymax();
+  double xmin = pad->GetUxmin();
+  double xmax = pad->GetUxmax();
   TLine* l1 = new TLine(xpos, ymin, xpos, ymax);
   l1->SetLineWidth(1);
   l1->SetLineColor(kRed);
@@ -238,8 +238,8 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
   for (int i = 0; i < results.size(); i++) {
     assert(results[i]);
     // get value of observable
-    float obsValue = results[i]->getParVal(scanVar1);
-    float obsError = w->var(scanVar1)->getError();
+    double obsValue = results[i]->getParVal(scanVar1);
+    double obsError = w->var(scanVar1)->getError();
 
     // get value of theory prediction
     Utils::setParameters(w, parsName, results[i]);
@@ -250,7 +250,7 @@ void ParameterEvolutionPlotter::plotObsScanCheck() {
                 << std::endl;
       continue;
     }
-    float thValue = w->function(thName)->getVal();
+    double thValue = w->function(thName)->getVal();
     g->SetPoint(iGraph, iGraph, obsValue - thValue);
     g->SetPointError(iGraph, 0., obsError);
     iGraph++;

@@ -151,8 +151,8 @@ class MethodAbsScan {
   inline void setVerbose(bool yesNo = true) { verbose = yesNo; };
   inline void setHCL(TH1F* h) { hCL = h; };
   inline void setHchisq(TH1F* h) { hChi2min = h; };
-  void setXscanRange(float min, float max);
-  void setYscanRange(float min, float max);
+  void setXscanRange(double min, double max);
+  void setYscanRange(double min, double max);
 
   void calcCLintervalsSimple(int CLsType = 0, bool calc_expected = false);
   virtual bool checkCLs();
@@ -236,10 +236,10 @@ class MethodAbsScan {
 
  private:
   bool compareSolutions(RooSlimFitResult* r1, RooSlimFitResult* r2);
-  float pq(float p0, float p1, float p2, float y, int whichSol = 0);
+  double pq(double p0, double p1, double p2, double y, int whichSol = 0);
   void removeDuplicateSolutions();
-  bool interpolate(TH1F* h, int i, float y, float central, bool upper, float& val, float& err);
-  void interpolateSimple(TH1F* h, int i, float y, float& val);
+  bool interpolate(TH1F* h, int i, double y, double central, bool upper, double& val, double& err);
+  void interpolateSimple(TH1F* h, int i, double y, double& val);
 };
 
 #endif

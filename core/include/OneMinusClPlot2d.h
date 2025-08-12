@@ -31,7 +31,7 @@ class OneMinusClPlot2d : public OneMinusClPlotAbs {
   void Draw();
   void DrawFull();
   void drawCLcontent(bool isFull = false);
-  void drawMarker(float x, float y, int color = 0, int style = 3, float size = 2.0);
+  void drawMarker(double x, double y, int color = 0, int style = 3, float size = 2.0);
   void drawGroup();
   void drawSolutions();
   inline int getNumberOfDefinedColors() const { return linecolor[0].size(); }

@@ -21,7 +21,7 @@ class PullPlotter {
  public:
   PullPlotter(MethodAbsScan* cmb);
 
-  bool hasPullsAboveNsigma(float nsigma) const;
+  bool hasPullsAboveNsigma(double nsigma) const;
   void loadParsFromSolution(int n);
   void savePulls();
   void plotPulls();

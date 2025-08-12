@@ -27,8 +27,8 @@ class OneMinusClPlotAbs {
   inline void disableLegend(bool yesNo = false) { plotLegend = yesNo; };
   inline void disableSolution(bool yesNo = false) { plotSolution = yesNo; };
   virtual void drawSolutions();
-  virtual void drawLabel(float yPos = 0.6) { std::cout << "nothing yet" << std::endl; };
-  virtual void drawGroup(float yPos = 0.6);
+  virtual void drawLabel(double yPos = 0.6) { std::cout << "nothing yet" << std::endl; };
+  virtual void drawGroup(double yPos = 0.6);
   inline TString getName() const { return name; };
   void save();
   void setYLogRange(double min = 1.e-3, double max = 1) {

@@ -32,8 +32,8 @@ class OneMinusClPlot : public OneMinusClPlotAbs {
   void Draw();
 
  private:
-  void drawCLguideLine(float pvalue);
-  void drawVerticalLine(float x, int color, int style);
+  void drawCLguideLine(double pvalue);
+  void drawVerticalLine(double x, int color, int style);
   TGraph* scan1dPlot(MethodAbsScan* s, bool first, bool last, bool filled, int CLsType = 0);
   void scan1dPlotSimple(MethodAbsScan* s, bool first, int CLsType = 0);
   void scan1dCLsPlot(MethodAbsScan* s, bool smooth = true, bool obsError = true);

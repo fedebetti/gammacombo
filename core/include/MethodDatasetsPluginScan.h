@@ -29,7 +29,7 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
  public:
   MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, const OptParser* opt);
   void drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn = "default");
-  float getParValAtIndex(int index, TString parName);
+  double getParValAtIndex(int index, TString parName);
   MethodDatasetsProbScan* getProfileLH();
   void initScan() override;
   void loadParameterLimits();
@@ -53,7 +53,7 @@ class MethodDatasetsPluginScan : public MethodPluginScan {
   RooFitResult* dataBkgFitResult = nullptr;
 
  protected:
-  RooSlimFitResult* getParevolPoint(float scanpoint);
+  RooSlimFitResult* getParevolPoint(double scanpoint);
   void setParevolPointByIndex(int index);
 
   double bestfitpoint = std::numeric_limits<double>::quiet_NaN();
