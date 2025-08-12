@@ -224,12 +224,12 @@ void Contour::findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2) {
   //   x1, y1, i1, x2, y2, i2);
 }
 
-// float Contour::getXBoundary(float p1x, float p1y, float p2x, float p2y, float ymax)
+// double Contour::getXBoundary(double p1x, double p1y, double p2x, double p2y, double ymax)
 //{
 // return p1x + (ymax-p1y)/(p2y-p1y)*(p2x-p1x);
 //}
 
-// float Contour::getYBoundary(float p1x, float p1y, float p2x, float p2y, float xmax)
+// double Contour::getYBoundary(double p1x, double p1y, double p2x, double p2y, double xmax)
 //{
 // return p1y + (xmax-p1x)/(p2x-p1x)*(p2y-p1y);
 //}
@@ -242,13 +242,13 @@ void Contour::findClosestPoints(TGraph* g1, TGraph* g2, int& i1, int& i2) {
 /// \param hCL - a histogram defining the boundaries
 ///
 void Contour::magneticBoundaries(std::vector<TGraph*>& contours, const TH2F* hCL) {
-  float magneticRange = 0.75;
-  float xmin = hCL->GetXaxis()->GetXmin();
-  float xmax = hCL->GetXaxis()->GetXmax();
-  float ymin = hCL->GetYaxis()->GetXmin();
-  float ymax = hCL->GetYaxis()->GetXmax();
-  float xbinwidth = hCL->GetXaxis()->GetBinWidth(1);
-  float ybinwidth = hCL->GetYaxis()->GetBinWidth(1);
+  double magneticRange = 0.75;
+  const double xmin = hCL->GetXaxis()->GetXmin();
+  const double xmax = hCL->GetXaxis()->GetXmax();
+  const double ymin = hCL->GetYaxis()->GetXmin();
+  const double ymax = hCL->GetYaxis()->GetXmax();
+  const double xbinwidth = hCL->GetXaxis()->GetBinWidth(1);
+  const double ybinwidth = hCL->GetYaxis()->GetBinWidth(1);
   Double_t pointx, pointy;
   for (int j = 0; j < contours.size(); j++) {
     TGraph* g = (TGraph*)contours[j];

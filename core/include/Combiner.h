@@ -37,10 +37,10 @@ class Combiner {
   void addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4);
   void addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5);
   void addPdf(PDF_Abs* p1, PDF_Abs* p2, PDF_Abs* p3, PDF_Abs* p4, PDF_Abs* p5, PDF_Abs* p6);
-  void adjustPhysRange(TString varName, float min, float max);
+  void adjustPhysRange(TString varName, double min, double max);
   Combiner* Clone(TString name, TString title);
   void combine();
-  void fixParameter(TString var, float value);
+  void fixParameter(TString var, double value);
   void fixParameters(TString vars);
   void delPdf(PDF_Abs* p);
   void delPdf(PDF_Abs* p1, PDF_Abs* p2);

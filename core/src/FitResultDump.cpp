@@ -29,9 +29,9 @@ void FitResultDump::dumpResult(std::string ofname, MethodAbsScan* scanner) {
   for (std::vector<CLInterval>::iterator cl = scanner->clintervals1sigma.begin();
        cl != scanner->clintervals1sigma.end(); cl++) {
 
-    float central = cl->central;
-    float min = cl->min;
-    float max = cl->max;
+    auto central = cl->central;
+    auto min = cl->min;
+    auto max = cl->max;
     if (angle) {
       using Utils::RadToDeg;
       central = RadToDeg(central);
@@ -44,9 +44,9 @@ void FitResultDump::dumpResult(std::string ofname, MethodAbsScan* scanner) {
   for (std::vector<CLInterval>::iterator cl = scanner->clintervals2sigma.begin();
        cl != scanner->clintervals2sigma.end(); cl++) {
 
-    float central = cl->central;
-    float min = cl->min;
-    float max = cl->max;
+    auto central = cl->central;
+    auto min = cl->min;
+    auto max = cl->max;
     if (angle) {
       using Utils::RadToDeg;
       central = RadToDeg(central);

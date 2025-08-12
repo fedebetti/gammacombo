@@ -86,7 +86,7 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
   //
   // 1D
   if (m_arg->savenuisances1d.size() > 0) {
-    std::vector<float>& points = m_arg->savenuisances1d;
+    const auto& points = m_arg->savenuisances1d;
     for (int i = 0; i < points.size(); i++) {
 
       int iBin = scanner->getHCL()->FindBin(points[i]);
@@ -107,8 +107,8 @@ void ParameterCache::cacheParameters(MethodAbsScan* scanner, TString fileName) {
   }
   // 2D
   if (m_arg->savenuisances2dx.size() > 0) {
-    std::vector<float>& pointsx = m_arg->savenuisances2dx;
-    std::vector<float>& pointsy = m_arg->savenuisances2dy;
+    const auto& pointsx = m_arg->savenuisances2dx;
+    const auto& pointsy = m_arg->savenuisances2dy;
 
     if (pointsx.size() != pointsy.size()) {
       std::cout << "ParameterCache::cacheParameters() : ERROR : vectors for savenuisances2dx(y) have different size"

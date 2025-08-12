@@ -77,7 +77,7 @@ void Fitter::fitForce() {
 /// Returns minimum chi2 value obtained by fit().
 /// \return min chi2; 1e6 if fit wasn't performed yet
 ///
-float Fitter::getChi2() const {
+double Fitter::getChi2() const {
   if (!theResult) assert(0);
   if (theResult->minNll() < -10) return -10;  ///< else we have many entries at -1e27 in the ToyTree
   return theResult->minNll();
