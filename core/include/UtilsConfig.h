@@ -61,6 +61,7 @@ namespace Utils {
     belle2_1ab_untagged,
     belle2_5ab_untagged,
     belle2_50ab_untagged,
+    belle2_387,
     bes3,
     cdf,
     cdf2007,
