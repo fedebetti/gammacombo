@@ -681,7 +681,7 @@ def plot2d(
     # add the best fit
     if bf is not None:
         for i, pt in enumerate(bf):
-            if pt is not None:
+            if pt is not None and pt is not False:
                 ax.plot(pt[0], pt[1], **mopts[i])
 
     # add legend
