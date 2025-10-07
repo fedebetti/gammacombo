@@ -8,27 +8,36 @@
 #ifndef ProgressBar_h
 #define ProgressBar_h
 
-class OptParser;
+#include "OptParser.h"
+#include "Utils.h"
+
+using namespace std;
+using namespace Utils;
 
 ///
 /// Class showing a progress bar.
 ///
-class ProgressBar {
- public:
-  ProgressBar(const OptParser* arg, int n);
+class ProgressBar
+{
+public:
 
-  void progress();
-  void skipSteps(int n);
+    ProgressBar(OptParser *arg, unsigned int n);
+    ~ProgressBar();
 
- private:
-  void progressBar() const;
-  void progressPercentage() const;
+    void progress();
+    void skipSteps(unsigned int n);
+    
+private:
+    
+    void progressBar();
+    void progressPercentage();
 
-  int _n = 100;                ///< maximum number of steps, "100%"
-  int _x = 0;                  ///< current step, "78%"
-  const int _width = 50;       ///< width of the progress bar
-  const int _resolution = 50;  ///< update the display this many times
-  bool _batch = false;         ///< display progress in a log-file compatible way
+    OptParser* _arg;  ///< command line arguments
+    unsigned int _n;  ///< maximum number of steps, "100%"
+    unsigned int _x;  ///< current step, "78%"
+    int _width;       ///< width of the progress bar
+    int _resolution;  ///< update the display this many times
+    bool _batch;      ///< display progress in a log-file compatible way
 };
 
 #endif

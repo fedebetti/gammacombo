@@ -8,14 +8,11 @@
 #ifndef FitResultCache_h
 #define FitResultCache_h
 
-#include <RooDataSet.h>
+#include "OptParser.h"
+#include "Utils.h"
 
-#include <cassert>
-#include <vector>
-
-class OptParser;
-
-class RooArgSet;
+using namespace std;
+using namespace Utils;
 
 ///
 /// Helper class for the scan methods. Store several parameter points
@@ -27,35 +24,30 @@ class RooArgSet;
 ///    the plugin scans we can refit multiple times with varying start
 ///    parameters
 ///
-class FitResultCache {
- public:
-  FitResultCache(const OptParser* arg, int roundrobinsize = 4);
-  ~FitResultCache();
+class FitResultCache
+{
+public:
 
-  FitResultCache(FitResultCache& other) = delete;
-  FitResultCache& operator=(const FitResultCache& other) = delete;
+    FitResultCache(OptParser *arg, int roundrobinsize=4);
+    ~FitResultCache();
 
-  void storeParsAtFunctionCall(const RooArgSet* set);
-  void storeParsAtGlobalMin(const RooArgSet* set);
-  void storeParsRoundRobin(const RooArgSet* set);
-  void initRoundRobinDB(const RooArgSet* set);
-  const RooArgSet* getRoundRobinNminus(int n);
-  const inline RooArgSet* getParsAtFunctionCall() {
-    assert(_parsAtFunctionCall);
-    return _parsAtFunctionCall->get(0);
-  };
-  const inline RooArgSet* getParsAtGlobalMin() {
-    assert(_parsAtGlobalMin);
-    return _parsAtGlobalMin->get(0);
-  };
+    void storeParsAtFunctionCall(const RooArgSet* set);
+    void storeParsAtGlobalMin(const RooArgSet* set);
+    void storeParsRoundRobin(const RooArgSet* set);
+    void initRoundRobinDB(const RooArgSet* set);
+    const RooArgSet* getRoundRobinNminus(int n);
+    const inline RooArgSet* getParsAtFunctionCall(){assert(_parsAtFunctionCall); return _parsAtFunctionCall->get(0);};
+    const inline RooArgSet* getParsAtGlobalMin(){assert(_parsAtGlobalMin); return _parsAtGlobalMin->get(0);};
 
- private:
-  const OptParser* _arg = nullptr;  ///< command line arguments
-  int _roundrobinsize = -1;         ///< size of the round robin database
-  int _roundrobinid = 0;            ///< id of currently active round robin cell
-  RooDataSet* _parsAtFunctionCall = nullptr;
-  RooDataSet* _parsAtGlobalMin = nullptr;
-  std::vector<RooDataSet*> _parsRoundRobin;
+private:
+
+    OptParser* _arg;                    ///< command line arguments
+    int _roundrobinsize;                ///< size of the round robin database
+    int _roundrobinid;                  ///< id of currently active round robin cell
+    RooDataSet* _parsAtFunctionCall;
+    RooDataSet* _parsAtGlobalMin;
+    vector<RooDataSet*> _parsRoundRobin;
+
 };
 
 #endif

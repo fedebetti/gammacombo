@@ -10,26 +10,32 @@
 #ifndef Rounder_h
 #define Rounder_h
 
-#include <limits>
+#include "OptParser.h"
+#include "Utils.h"
 
-class OptParser;
+using namespace std;
+using namespace Utils;
 
-class Rounder {
- public:
-  Rounder(const OptParser* arg, double cllo, double clhi, double central);
+class Rounder
+{
+public:
 
-  int getNsubdigits() const;
-  double CLlo() const;
-  double CLhi() const;
-  double central() const;
-  double errNeg() const;
-  double errPos() const;
-
- private:
-  const OptParser* arg = nullptr;
-  double m_cllo = std::numeric_limits<double>::quiet_NaN();
-  double m_clhi = std::numeric_limits<double>::quiet_NaN();
-  double m_central = std::numeric_limits<double>::quiet_NaN();
+    Rounder(OptParser *arg, float cllo, float clhi, float central);
+    ~Rounder();
+    
+    int   getNsubdigits();
+    float CLlo();
+    float CLhi();
+    float central();
+    float errNeg();
+    float errPos();
+    
+private:
+      
+    OptParser *arg;  ///< command line arguments
+    float m_cllo;
+    float m_clhi;
+    float m_central;
 };
 
 #endif

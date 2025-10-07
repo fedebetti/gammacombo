@@ -1,15 +1,8 @@
-#include <FileNameBuilder.h>
+#include "FileNameBuilder.h"
 
-#include <Combiner.h>
-#include <MethodAbsScan.h>
-#include <OptParser.h>
-
-#include <TString.h>
-
-#include <cassert>
-#include <vector>
-
-using namespace std;
+#include "MethodAbsScan.h"
+#include "GammaComboEngine.h"
+#include "Combiner.h"
 
 ///
 /// Constructor.
@@ -17,10 +10,16 @@ using namespace std;
 /// \param arg - command line parsing object
 /// \param name - the base name, e.g. "gammacombo"
 ///
-FileNameBuilder::FileNameBuilder(const OptParser* arg, TString name) : m_basename{name} {
-  assert(arg);
-  m_arg = arg;
+FileNameBuilder::FileNameBuilder(OptParser *arg, TString name)
+{
+    assert(arg);
+    m_arg = arg;
+    m_basename = name;
+    m_asimov = "Asimov";
 }
+
+FileNameBuilder::~FileNameBuilder()
+{}
 
 ///
 /// Get base name, e.g. "gammacombo". The base name is set
@@ -28,7 +27,9 @@ FileNameBuilder::FileNameBuilder(const OptParser* arg, TString name) : m_basenam
 ///
 /// \return - the base name
 ///
-TString FileNameBuilder::getBaseName() const { return m_basename; }
+TString FileNameBuilder::getBaseName(){
+    return m_basename;
+}
 
 ///
 /// Compute the file base name of individual combinations.
@@ -39,14 +40,18 @@ TString FileNameBuilder::getBaseName() const { return m_basename; }
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileBaseName(const Combiner* c) const {
-  TString name = m_basename;
-  name += "_" + c->getName();
-  name += "_" + m_arg->var[0];
-  if (m_arg->var.size() == 2) name += "_" + m_arg->var[1];
-  return name;
+TString FileNameBuilder::getFileBaseName(const Combiner *c)
+{
+    TString name = m_basename;
+    name += "_"+c->getName();
+    name += "_"+m_arg->var[0];
+    if ( m_arg->var.size()==2 ) name += "_"+m_arg->var[1];
+    return name;
 }
-TString FileNameBuilder::getFileBaseName(const MethodAbsScan* s) const { return getFileBaseName(s->getCombiner()); }
+TString FileNameBuilder::getFileBaseName(const MethodAbsScan *s)
+{
+    return getFileBaseName(s->getCombiner());
+}
 
 ///
 /// Compute the file name of the start parameter file.
@@ -57,14 +62,16 @@ TString FileNameBuilder::getFileBaseName(const MethodAbsScan* s) const { return 
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameStartPar(const Combiner* c) const {
-  TString name = "plots/par/";
-  name += getFileBaseName(c);
-  name += "_start.dat";
-  return name;
+TString FileNameBuilder::getFileNameStartPar(const Combiner *c)
+{
+    TString name = "plots/par/";
+    name += getFileBaseName(c);
+    name += "_start.dat";
+    return name;
 }
-TString FileNameBuilder::getFileNameStartPar(const MethodAbsScan* s) const {
-  return getFileNameStartPar(s->getCombiner());
+TString FileNameBuilder::getFileNameStartPar(const MethodAbsScan *s)
+{
+    return getFileNameStartPar(s->getCombiner());
 }
 
 ///
@@ -79,20 +86,22 @@ TString FileNameBuilder::getFileNameStartPar(const MethodAbsScan* s) const {
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameAsimovPar(const Combiner* c) const {
-  TString name = "plots/par/";
-  name += getFileBaseName(c);
-  // remove any string after the "Asimov" token and the first "_" after that
-  // e.g.: "combinerAsimov3_" -> "combinerAsimov_"
-  int startOfToken = name.Index(m_asimov);
-  int startOfFirstUnderscore = name.Index("_", startOfToken);
-  int length = startOfFirstUnderscore - (startOfToken + m_asimov.Sizeof()) + 1;
-  name.Replace(startOfToken + m_asimov.Sizeof() - 1, length, "");
-  name += "_genpoints.dat";
-  return name;
+TString FileNameBuilder::getFileNameAsimovPar(const Combiner *c)
+{
+    TString name = "plots/par/";
+    name += getFileBaseName(c);
+    // remove any string after the "Asimov" token and the first "_" after that
+    // e.g.: "combinerAsimov3_" -> "combinerAsimov_"
+    int startOfToken = name.Index(m_asimov);
+    int startOfFirstUnderscore = name.Index("_",startOfToken);
+    int length = startOfFirstUnderscore-(startOfToken+m_asimov.Sizeof())+1;
+    name.Replace(startOfToken+m_asimov.Sizeof()-1, length, "");
+    name += "_genpoints.dat";
+    return name;
 }
-TString FileNameBuilder::getFileNameAsimovPar(const MethodAbsScan* s) const {
-  return getFileNameStartPar(s->getCombiner());
+TString FileNameBuilder::getFileNameAsimovPar(const MethodAbsScan *s)
+{
+    return getFileNameStartPar(s->getCombiner());
 }
 
 ///
@@ -104,15 +113,17 @@ TString FileNameBuilder::getFileNameAsimovPar(const MethodAbsScan* s) const {
 /// \param c - Combiner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNamePar(const Combiner* c) const {
-  TString name = "plots/par/";
-  if (m_arg->filenamechange != "") {
-    name += m_arg->filenamechange;
-  } else {
-    name += getFileBaseName(c);
-  }
-  name += ".dat";
-  return name;
+TString FileNameBuilder::getFileNamePar(const Combiner *c)
+{
+    TString name = "plots/par/";
+    if ( m_arg->filenamechange != "" ) {
+            name += m_arg->filenamechange;
+    }
+    else{
+        name += getFileBaseName(c);
+    }
+    name += ".dat";
+    return name;
 }
 
 ///
@@ -124,7 +135,10 @@ TString FileNameBuilder::getFileNamePar(const Combiner* c) const {
 /// \param s - Scanner object
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNamePar(const MethodAbsScan* s) const { return getFileNamePar(s->getCombiner()); }
+TString FileNameBuilder::getFileNamePar(const MethodAbsScan *s)
+{
+    return getFileNamePar(s->getCombiner());
+}
 
 ///
 /// Compute the file name of the file to which a scanner gets saved.
@@ -134,13 +148,14 @@ TString FileNameBuilder::getFileNamePar(const MethodAbsScan* s) const { return g
 ///
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameScanner(const MethodAbsScan* c) const {
-  TString name = "plots/scanner/" + m_basename + "_scanner_" + c->getName();
-  if (c->getMethodName() != TString("Prob")) name += "_" + c->getMethodName();
-  name += "_" + m_arg->var[0];
-  if (m_arg->var.size() == 2) name += "_" + m_arg->var[1];
-  name += ".root";
-  return name;
+TString FileNameBuilder::getFileNameScanner(const MethodAbsScan *c)
+{
+    TString name = "plots/scanner/"+m_basename+"_scanner_"+c->getName();
+    if ( c->getMethodName()!=TString("Prob") ) name += "_"+c->getMethodName();
+    name += "_"+m_arg->var[0];
+    if ( m_arg->var.size()==2 ) name += "_"+m_arg->var[1];
+    name += ".root";
+    return name;
 }
 
 ///
@@ -151,13 +166,14 @@ TString FileNameBuilder::getFileNameScanner(const MethodAbsScan* c) const {
 ///
 /// \return - filename
 ///
-TString FileNameBuilder::getFileNameSolution(const MethodAbsScan* c) const {
-  TString name = "plots/latex/" + m_basename + "_solution_" + c->getName();
-  if (c->getMethodName() != TString("Prob")) name += "_" + c->getMethodName();
-  name += "_" + m_arg->var[0];
-  if (m_arg->var.size() == 2) name += "_" + m_arg->var[1];
-  name += ".tex";
-  return name;
+TString FileNameBuilder::getFileNameSolution(const MethodAbsScan *c)
+{
+    TString name = "plots/latex/"+m_basename+"_solution_"+c->getName();
+    if ( c->getMethodName()!=TString("Prob") ) name += "_"+c->getMethodName();
+    name += "_"+m_arg->var[0];
+    if ( m_arg->var.size()==2 ) name += "_"+m_arg->var[1];
+    name += ".tex";
+    return name;
 }
 
 ///
@@ -168,26 +184,25 @@ TString FileNameBuilder::getFileNameSolution(const MethodAbsScan* c) const {
 ///
 /// \return - the filename
 ///
-TString FileNameBuilder::getFileNamePlot(const vector<Combiner*>& cmb) const {
-  TString name = m_basename;
-  if (m_arg->filenamechange != "") {
-    name += "_" + m_arg->filenamechange;
-    return name;
-  }
+TString FileNameBuilder::getFileNamePlot(const vector<Combiner*>& cmb)
+{
+    TString name = m_basename;
+    if ( m_arg->filenamechange != "" ) {
+            name += "_" + m_arg->filenamechange;
+            return name;
+    }
 
-  for (int i = 0; i < m_arg->combid.size(); i++) {
-    name += "_" + cmb[m_arg->combid[i]]->getName();
-    // if ( m_arg->isAsimovCombiner(i) ) name += Form("Asimov%i",m_arg->asimov[i]);
-  }
-  name += "_" + m_arg->var[0];
-  if (m_arg->var.size() == 2) name += "_" + m_arg->var[1];
-  if (m_arg->plotpluginonly)
-    name += "_" + getPluginOnlyNameAddition();
-  else if (m_arg->isAction("plugin"))
-    name += "_" + getPluginNameAddition();
-  if (m_arg->cls.size() > 0) name += "_" + getCLsNameAddition();
-  if (m_arg->plotprelim) name += "_" + getPreliminaryNameAddition();
-  return name;
+    for ( int i=0; i<m_arg->combid.size(); i++ ){
+        name += "_"+cmb[m_arg->combid[i]]->getName();
+        //if ( m_arg->isAsimovCombiner(i) ) name += Form("Asimov%i",m_arg->asimov[i]);
+    }
+    name += "_"+m_arg->var[0];
+    if ( m_arg->var.size()==2 )           name += "_"+m_arg->var[1];
+    if ( m_arg->plotpluginonly )          name += "_"+getPluginOnlyNameAddition();
+    else if ( m_arg->isAction("plugin") ) name += "_"+getPluginNameAddition();
+    if ( m_arg->cls.size()>0 )            name += "_"+getCLsNameAddition();
+    if ( m_arg->plotprelim )              name += "_"+getPreliminaryNameAddition();
+    return name;
 }
 
 ///
@@ -199,40 +214,54 @@ TString FileNameBuilder::getFileNamePlot(const vector<Combiner*>& cmb) const {
 ///
 /// \return - the filename
 ///
-TString FileNameBuilder::getFileNamePlotSingle(const vector<Combiner*>& cmb, int cId) const {
-  TString name = m_basename;
-  name += "_" + cmb[m_arg->combid[cId]]->getName();
-  name += "_" + m_arg->var[0];
-  if (m_arg->var.size() == 2) name += "_" + m_arg->var[1];
-  if (m_arg->plotpluginonly)
-    name += "_" + getPluginOnlyNameAddition();
-  else if (m_arg->isAction("plugin"))
-    name += "_" + getPluginNameAddition();
-  if (m_arg->plotprelim) name += "_" + getPreliminaryNameAddition();
-  return name;
+TString FileNameBuilder::getFileNamePlotSingle(const vector<Combiner*>& cmb, int cId)
+{
+    TString name = m_basename;
+    name += "_"+cmb[m_arg->combid[cId]]->getName();
+    name += "_"+m_arg->var[0];
+    if ( m_arg->var.size()==2 )           name += "_"+m_arg->var[1];
+    if ( m_arg->plotpluginonly )          name += "_"+getPluginOnlyNameAddition();
+    else if ( m_arg->isAction("plugin") ) name += "_"+getPluginNameAddition();
+    if ( m_arg->plotprelim )              name += "_"+getPreliminaryNameAddition();
+    return name;
 }
 
 ///
 /// Define the addition to combiner names for Asimov combiners.
 ///
-TString FileNameBuilder::getAsimovCombinerNameAddition(int id) const { return m_asimov + Form("%i", id); }
+TString FileNameBuilder::getAsimovCombinerNameAddition(int id)
+{
+    return m_asimov + Form("%i", id);
+}
 
 ///
 /// Define the addition for plugin plots.
 ///
-TString FileNameBuilder::getPluginNameAddition() const { return "plugin"; }
+TString FileNameBuilder::getPluginNameAddition()
+{
+    return "plugin";
+}
 
 ///
 /// Define the addition for plugin-only plots.
 ///
-TString FileNameBuilder::getPluginOnlyNameAddition() const { return "pluginonly"; }
+TString FileNameBuilder::getPluginOnlyNameAddition()
+{
+    return "pluginonly";
+}
 
 ///
 /// Define the addition for preliminary plots.
 ///
-TString FileNameBuilder::getPreliminaryNameAddition() const { return "prelim"; }
+TString FileNameBuilder::getPreliminaryNameAddition()
+{
+    return "prelim";
+}
 
 ///
 /// Define the addition for cls plots.
 ///
-TString FileNameBuilder::getCLsNameAddition() const { return "cls"; }
+TString FileNameBuilder::getCLsNameAddition()
+{
+  return "cls";
+}

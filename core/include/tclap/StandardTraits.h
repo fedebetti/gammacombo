@@ -181,3 +181,4 @@ void SetString(T &dst, const std::string &src)
 } // namespace
 
 #endif
+
