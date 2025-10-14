@@ -5,34 +5,31 @@
  *
  **/
 
-#include "PDF_CrossCor_GausA_vs_GausB.h"
+#include <PDF_CrossCor_GausA_vs_GausB.h>
+
+#include <TString.h>
+
+#include <cstdlib>
+#include <iostream>
 
 PDF_CrossCor_GausA_vs_GausB::PDF_CrossCor_GausA_vs_GausB(PDF_Abs* pdf1, PDF_Abs* pdf2, TString cCor)
-: PDF_CrossCorAbs(pdf1,pdf2)
-{
+    : PDF_CrossCorAbs(pdf1, pdf2) {
   name = "CrossCor_GausA_vs_GausB";
   setCorrelations(cCor);
-	buildCov();
+  buildCov();
   buildPdf();
 }
 
-
-PDF_CrossCor_GausA_vs_GausB::~PDF_CrossCor_GausA_vs_GausB(){}
-
-
-void PDF_CrossCor_GausA_vs_GausB::setCorrelations(TString c)
-{
+void PDF_CrossCor_GausA_vs_GausB::setCorrelations(TString c) {
   resetCorrelations();
-	copyMeasurementCovariance();
-  if ( c.EqualTo("year2013") ) {
+  copyMeasurementCovariance();
+  if (c.EqualTo("year2013")) {
     corSource = "cross correlations";
     float c = 0.6;
-    corStatMatrix[0][0+nObs1] = c;	//
-    corStatMatrix[0+nObs1][0] = c;	//
-  }
-  else{
-    cout << "PDF_CrossCor_GausA_vs_GausB::setCorrelations() : ERROR : config "+c+" not found." << endl;
-    exit(1);
+    corStatMatrix[0][0 + nObs1] = c;
+    corStatMatrix[0 + nObs1][0] = c;
+  } else {
+    std::cout << "PDF_CrossCor_GausA_vs_GausB::setCorrelations() : ERROR : config " + c + " not found." << std::endl;
+    std::exit(1);
   }
 }
-

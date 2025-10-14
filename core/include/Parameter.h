@@ -9,32 +9,31 @@
 #ifndef Parameter_h
 #define Parameter_h
 
-#include <iostream>
-#include <sstream>
-#include <stdlib.h>
-#include "TString.h"
+#include <TString.h>
 
-using namespace std;
+class Parameter {
+ public:
+  inline void setVal(double v) { startvalue = v; };
+  void Print() const;
 
-class Parameter
-{
-public:
-                  Parameter();
-  inline virtual  ~Parameter(){};
-  inline void     setVal(double v){startvalue=v;};
-  void            Print();
+  struct Range {
+    double min;
+    double max;
+  };
 
-  struct Range { float min; float max; };
+ private:
+  const static Range default_range;
 
-  TString name;
-  TString title;
-  TString unit;
-  float startvalue;
-  Range phys;
-  Range scan;
-  Range force;
-  Range bboos;
-  Range free;
+ public:
+  TString name = "not initialized";
+  TString title = "not initialized";
+  TString unit = "not initialized";
+  double startvalue = 0.;
+  Range phys = default_range;
+  Range scan = default_range;
+  Range force = default_range;
+  Range bboos = default_range;
+  [[deprecated]] Range free = default_range;
 };
 
 #endif

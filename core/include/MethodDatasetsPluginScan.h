@@ -10,53 +10,63 @@
 #define MethodDatasetsPluginScan_h
 
 #include "MethodPluginScan.h"
-#include "MethodDatasetsProbScan.h"
-#include "ProgressBar.h"
-#include "PDF_Datasets.h"
-#include "RooSlimFitResult.h"
-#include "TLeaf.h"
-#include "TBranch.h"
 
-class MethodDatasetsPluginScan : public MethodPluginScan
-{
-public:
-    MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, OptParser* opt);
-    void                drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn = "default");
-    float               getParValAtIndex(int index, TString parName);
-    MethodDatasetsProbScan*     getProfileLH() {return dynamic_cast<MethodDatasetsProbScan*>(this->profileLH);};
-    virtual void        initScan();
-    void                loadParameterLimits();
-    void                performBootstrapTest(int nSamples = 1000, const TString& ext = "");
-    virtual void        print();
-    void                printDebug(const RooFitResult& r);
-    TChain*             readFiles(int runMin, int runMax, int &nFilesRead, int &nFilesMissing, TString fileNameBaseIn = "default");
-    virtual void        readScan1dTrees(int runMin, int runMax, TString fileNameBaseIn = "default");
-    virtual int         scan1d(int nRun = 1);
-    inline  void        setInputFile(TString name) {inputFiles.push_back(name); explicitInputFile = true;};
-    inline  void        addFile(TString name) {inputFiles.push_back(name);};
+#include <TString.h>
 
-    PDF_Datasets*           pdf;
-    bool                    drawPlots;
-    bool                    explicitInputFile;
-    std::vector<TString>    inputFiles;
-    std::vector<double>     bootstrapPVals;
-    TChain*                 chain;
-    RooFitResult*           dataFreeFitResult;
-    RooFitResult*           dataBkgFitResult;
+#include <limits>
+#include <map>
+#include <vector>
 
-protected:
-    RooSlimFitResult*   getParevolPoint(float scanpoint);
-    void                setParevolPointByIndex(int index);
+class MethodDatasetsProbScan;
+class OptParser;
+class PDF_Datasets;
+class RooSlimFitResult;
+class ToyTree;
 
-private:
-    RooFitResult*       loadAndFit(PDF_Datasets* pdf); // in this Plugin class, this fits to toy!!
-    RooFitResult*       loadAndFitBkg(PDF_Datasets* pdf); // in this Plugin class, this fits to bkg-only toy!!
-    double              getPValueTTestStatistic(double test_statistic_value);
-    void                setAndPrintFitStatusConstrainedToys(const ToyTree& ToyTree);
-    void                setAndPrintFitStatusFreeToys(const ToyTree& ToyTree);
-    void                checkExtProfileLH();
-    void                makeControlPlots( std::map<int, std::vector<double> > bVals, std::map<int, std::vector<double> > sbVals );
-    void                makeControlPlotsBias( std::map<int, std::vector<double> > biasVals);
+class TChain;
+
+class MethodDatasetsPluginScan : public MethodPluginScan {
+ public:
+  MethodDatasetsPluginScan(MethodProbScan* probScan, PDF_Datasets* PDF, const OptParser* opt);
+  void drawDebugPlots(int runMin, int runMax, TString fileNameBaseIn = "default");
+  double getParValAtIndex(int index, TString parName);
+  MethodDatasetsProbScan* getProfileLH();
+  void initScan() override;
+  void loadParameterLimits();
+  void performBootstrapTest(int nSamples = 1000, const TString& ext = "");
+  void print() const override;
+  void printDebug(const RooFitResult& r);
+  TChain* readFiles(int runMin, int runMax, int& nFilesRead, int& nFilesMissing, TString fileNameBaseIn = "default");
+  void readScan1dTrees(int runMin, int runMax, TString fileNameBaseIn = "default") override;
+  int scan1d(int nRun = 1) override;
+  inline void setInputFile(TString name) {
+    inputFiles.push_back(name);
+    explicitInputFile = true;
+  };
+  inline void addFile(TString name) { inputFiles.push_back(name); };
+
+  PDF_Datasets* pdf = nullptr;
+  bool explicitInputFile = false;
+  std::vector<TString> inputFiles;
+  std::vector<double> bootstrapPVals;
+  TChain* chain = nullptr;
+  RooFitResult* dataBkgFitResult = nullptr;
+
+ protected:
+  RooSlimFitResult* getParevolPoint(double scanpoint);
+  void setParevolPointByIndex(int index);
+
+  double bestfitpoint = std::numeric_limits<double>::quiet_NaN();
+
+ private:
+  RooFitResult* loadAndFit(PDF_Datasets* pdf);     // in this Plugin class, this fits to toy!!
+  RooFitResult* loadAndFitBkg(PDF_Datasets* pdf);  // in this Plugin class, this fits to bkg-only toy!!
+  double getPValueTTestStatistic(double test_statistic_value);
+  void setAndPrintFitStatusConstrainedToys(const ToyTree& ToyTree);
+  void setAndPrintFitStatusFreeToys(const ToyTree& ToyTree);
+  void checkExtProfileLH();
+  void makeControlPlots(std::map<int, std::vector<double>> bVals, std::map<int, std::vector<double>> sbVals);
+  void makeControlPlotsBias(std::map<int, std::vector<double>> biasVals);
 };
 
 #endif

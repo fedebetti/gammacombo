@@ -1,0 +1,2 @@
+requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour = "workday"

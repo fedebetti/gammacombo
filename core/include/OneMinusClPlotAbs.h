@@ -8,59 +8,56 @@
 #ifndef OneMinusClPlotAbs_h
 #define OneMinusClPlotAbs_h
 
-#include "TLegend.h"
-#include "TPaveText.h"
-#include "TPaveLabel.h"
-#include "TGraphErrors.h"
-#include "TColor.h"
-
-#include "Utils.h"
 #include "MethodAbsScan.h"
-#include "OptParser.h"
 
-using namespace Utils;
-using namespace RooFit;
-using namespace std;
+#include <TCanvas.h>
+#include <TString.h>
 
-class MethodAbsScan;
+#include <iostream>
+#include <vector>
 
-class OneMinusClPlotAbs
-{
-public:
-    OneMinusClPlotAbs(OptParser *arg, TString name="c1", TString title="c1");
-	~OneMinusClPlotAbs();
+class OptParser;
 
-    virtual void    addScanner(MethodAbsScan* s, int CLsType = 0);
-    inline void     disableLegend(bool yesNo=false){plotLegend = yesNo;};
-    inline void     disableSolution(bool yesNo=false){plotSolution = yesNo;};
-    virtual void    drawSolutions();
-    virtual void    drawLabel(float yPos=0.6){cout << "nothing yet" << endl;};
-    virtual void    drawGroup(float yPos=0.6);
-    inline TString  getName(){return name;};
-    void            save();
-    void            setYLogRange(double min=1.e-3, double max=1){ plotLogYMin=min; plotLogYMax=max;};
-    inline  void    setFont(int fnum){font = fnum;};
-    inline  void    setLabelSize(int lnum){labelsize = lnum;};
-    inline  void    setPlotLabel(TString &lname){label = lname;};
-	inline void     Show(){m_mainCanvas->Show();};
-    virtual void    Draw();
+class OneMinusClPlotAbs {
+ public:
+  OneMinusClPlotAbs(const OptParser* arg, TString name = "c1", TString title = "c1");
+  virtual ~OneMinusClPlotAbs();
 
-    int font;		///< font code. The last digit disables scaling with the canvas size.
-    int labelsize;	///< text size of axis labels in pixels
-    int titlesize;	///< text size of axis titles in pixels
-    int legendsize;	///< text size of legend entries in pixels
+  virtual void addScanner(MethodAbsScan* s, int CLsType = 0);
+  inline void disableLegend(bool yesNo = false) { plotLegend = yesNo; };
+  inline void disableSolution(bool yesNo = false) { plotSolution = yesNo; };
+  virtual void drawSolutions();
+  virtual void drawLabel(double yPos = 0.6) { std::cout << "nothing yet" << std::endl; };
+  virtual void drawGroup(double yPos = 0.6);
+  inline TString getName() const { return name; };
+  void save();
+  void setYLogRange(double min = 1.e-3, double max = 1) {
+    plotLogYMin = min;
+    plotLogYMax = max;
+  };
+  inline void setFont(int fnum) { font = fnum; };
+  inline void setLabelSize(int lnum) { labelsize = lnum; };
+  inline void setPlotLabel(TString& lname) { label = lname; };
+  inline void Show() { m_mainCanvas->Show(); };
+  virtual void Draw();
 
-    vector<MethodAbsScan*> scanners;
-    vector<int> do_CLs;    ///< vector, which stores the cls method type to be plotted
-    OptParser*  arg; ///< command line options
-    TCanvas*    m_mainCanvas;
-    TString     name;
-    TString     title;
-    TString     label;
-    bool        plotLegend;
-    bool        plotSolution;
-    double      plotLogYMin;
-    double      plotLogYMax;
+ protected:
+  int font = 133;       ///< Font code. The last digit disables scaling with the canvas size.
+  int labelsize = 35;   ///< Text size of axis labels, numeric solutions, CL guide lines (in pixels).
+  int titlesize = 45;   ///< Text size of axis titles, group label, "Prliminary" is x0.75 (in pixels).
+  int legendsize = 29;  ///< Text size of legend entries in 1d and 2d plots (in pixels).
+
+  std::vector<MethodAbsScan*> scanners;
+  std::vector<int> do_CLs;  ///< std::vector, which stores the cls method type to be plotted.
+  const OptParser* arg = nullptr;
+  TCanvas* m_mainCanvas = nullptr;
+  TString name;
+  TString title;
+  TString label;
+  bool plotLegend = true;
+  bool plotSolution = true;
+  double plotLogYMin = 1e-3;
+  double plotLogYMax = 1.;
 };
 
 #endif

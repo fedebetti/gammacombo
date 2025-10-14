@@ -1,0 +1,71 @@
+###############################################################################
+# (c) Copyright 2025 CERN for the benefit of the LHCb Collaboration           #
+#                                                                             #
+# This software is distributed under the terms of the GNU General Public      #
+# Licence version 3 (GPL Version 3), copied verbatim in the file "COPYING".   #
+#                                                                             #
+# In applying this licence, CERN does not waive the privileges and immunities #
+# granted to it by virtue of its status as an Intergovernmental Organization  #
+# or submit itself to any jurisdiction.                                       #
+###############################################################################
+
+# This is the CI/CD pipeline for the repository mirror in Gitlab.
+
+stages:
+  - build
+  - test
+
+variables:
+  NO_LBLOGIN: "1"
+
+.select_runner:
+  tags:
+    - cvmfs
+  image: gitlab-registry.cern.ch/lhcb-docker/os-base/alma9-devel:latest
+
+build_gcc:
+  extends: .select_runner
+  stage: build
+  script:
+    - source scripts/setup-env-cvmfs.sh || exit 1
+    - cmake -B build
+    - cmake --build build
+    - cmake --install build
+
+build_clang:
+  extends: .select_runner
+  stage: build
+  script:
+    - source scripts/setup-env-cvmfs.sh -c || exit 1
+    - cmake -B build
+    - cmake --build build
+    - cmake --install build
+  artifacts:
+    when: on_success
+    untracked: true
+    paths:
+      - build
+      - tutorial
+    access: all
+    expire_in: 1 days
+
+.test:
+  extends: .select_runner
+  stage: test
+  dependencies:
+    - build_clang
+  before_script:
+    - source scripts/setup-env-cvmfs.sh -c || exit 1
+
+test:
+  extends: .test
+  script:
+    - python scripts/run_ci_tests.py
+  artifacts:
+    when: always
+    paths:
+      - tutorial/ci_logs
+      - tutorial/plots
+      - tutorial/root
+      - tutorial/workspace.root
+    expire_in: 1 days

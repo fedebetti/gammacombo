@@ -10,42 +10,39 @@
 #ifndef ConfidenceContours_h
 #define ConfidenceContours_h
 
-#include "TROOT.h"
-#include "OptParser.h"
-#include "Contour.h"
 #include "Utils.h"
 
-using namespace std;
-using namespace Utils;
+#include <vector>
 
-class ConfidenceContours
-{
-	public:
+class Contour;
+class OptParser;
 
-		ConfidenceContours(OptParser *arg);
-		~ConfidenceContours();
-		void                     computeContours(TH2F* hist, histogramType type, int id=0);
-		void                     Draw();
-		void                     DrawDashedLine();
-		void                     setStyle(vector<int>& linecolor, vector<int>& linestyle, vector<int>& linewidth, vector<int>& fillcolor, vector<int>& fillstyle);
-		inline void              setTransparency(float percent){m_transparency = percent;};
-    inline void              setContoursToPlot( vector<int>& contstoplot ){ m_contstoplots = contstoplot;};
+class TH2F;
 
-	private:
+class ConfidenceContours {
+ public:
+  ConfidenceContours(const OptParser* arg);
 
-		TH2F*                    addBoundaryBins(TH2F* hist);
-		void                     addFilledPlotArea(TH2F* hist);
-		TH2F*                    transformChi2valleyToHill(TH2F* hist,float offset);
-		OptParser*               m_arg;       ///< command line arguments
-		vector<Contour*>         m_contours;  ///< container for the 1,...,N sigma contours
-		vector<int>              m_linecolor; ///< style for the 1,...,N sigma contours
-		vector<int>              m_linestyle;
-		vector<int>              m_fillcolor;
-		vector<int>              m_fillstyle;
-		vector<int>              m_linewidth;
-		float                    m_transparency;
-    vector<int>              m_contstoplots; ///< container for which contours to actually draw
-    int                      m_nMaxContours;
+  void computeContours(TH2F* hist, Utils::histogramType type, int id = 0);
+  void Draw();
+  void DrawDashedLine();
+  void setStyle(const std::vector<int>& linecolor, const std::vector<int>& linestyle, const std::vector<int>& linewidth,
+                const std::vector<int>& fillcolor, const std::vector<int>& fillstyle);
+  inline void setTransparency(float percent) { m_transparency = percent; };
+  inline void setContoursToPlot(const std::vector<int>& contstoplot) { m_contstoplots = contstoplot; };
+
+ private:
+  void addFilledPlotArea(TH2F* hist);
+  const OptParser* m_arg = nullptr;  ///< command line arguments
+  std::vector<Contour*> m_contours;  ///< container for the 1,...,N sigma contours
+  std::vector<int> m_linecolor;      ///< style for the 1,...,N sigma contours
+  std::vector<int> m_linestyle;
+  std::vector<int> m_fillcolor;
+  std::vector<int> m_fillstyle;
+  std::vector<int> m_linewidth;
+  float m_transparency = 0.f;
+  std::vector<int> m_contstoplots;  ///< container for which contours to actually draw
+  const int m_nMaxContours = 9;
 };
 
 #endif

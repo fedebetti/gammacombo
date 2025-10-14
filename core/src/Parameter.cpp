@@ -1,30 +1,17 @@
-#include "Parameter.h"
+#include <Parameter.h>
 
+#include <format>
+#include <iostream>
 
-Parameter::Parameter()
-{
-  name = "not initialized";
-  title = "not initialized";
-  unit = "not initialized";
-  startvalue = 0;
-  Parameter::Range r = {-1e4, 1e4};
-  free = r;
-  phys = r;
-  scan = r;
-  force = r;
-  bboos = r;
-}
+const Parameter::Range Parameter::default_range = {-1e4, 1e4};
 
-
-void Parameter::Print()
-{
-  cout << " name       = " << name << endl;
-  cout << " title      = " << title << endl;
-  cout << " unit       = " << unit  << endl;
-  cout << " startvalue = " << startvalue  << endl;
-  cout << " phys       = " << phys.min  << " ... " << phys.max << endl;
-  cout << " scan       = " << scan.min  << " ... " << scan.max<< endl;
-  cout << " force      = " << force.min << " ... " << force.max << endl;
-  cout << " bboos      = " << bboos.min << " ... " << bboos.max << endl;
-  cout << " free       = " << free.min  << " ... " << free.max << endl;
+void Parameter::Print() const {
+  std::cout << std::format(" name       = {:s}\n", name.Data());
+  std::cout << std::format(" title      = {:s}\n", title.Data());
+  std::cout << std::format(" unit       = {:s}\n", unit.Data());
+  std::cout << std::format(" startvalue = {:f}\n", startvalue)
+            << std::format(" phys       = {:f} ... {:f}\n", phys.min, phys.max)
+            << std::format(" scan       = {:f} ... {:f}\n", scan.min, scan.max)
+            << std::format(" force      = {:f} ... {:f}\n", force.min, force.max)
+            << std::format(" bboos      = {:f} ... {:f}", bboos.min, bboos.max) << std::endl;
 }

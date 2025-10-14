@@ -11,50 +11,57 @@
 #ifndef ParameterEvolutionPlotter_h
 #define ParameterEvolutionPlotter_h
 
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TGraphErrors.h"
-#include "MethodProbScan.h"
-#include "Utils.h"
+#include <TString.h>
 
-using namespace std;
-using namespace Utils;
+#include <vector>
 
-class ParameterEvolutionPlotter
-{
-	public:
+class MethodProbScan;
+class OptParser;
+class RooSlimFitResult;
 
-		ParameterEvolutionPlotter(MethodProbScan *scanner);
-		~ParameterEvolutionPlotter();
+class RooWorkspace;
 
-		void	plotParEvolution();
-		void	plotObsScanCheck();
+class TCanvas;
+class TGraph;
+class TGraphErrors;
+class TVirtualPad;
 
-	private:
+class ParameterEvolutionPlotter {
+ public:
+  ParameterEvolutionPlotter(MethodProbScan* scanner);
+  ~ParameterEvolutionPlotter();
 
-		void             getLocalMinPositions();
-		void             drawLinesAtMinima(TVirtualPad *pad);
-		void             drawVerticalRedLine(TVirtualPad *pad, float xpos);
-		TGraph*          makeChi2Graph(vector<RooSlimFitResult*> results);
-		TGraph*          makeEvolutionGraph(vector<RooSlimFitResult*> results, TString parName);
-		TGraphErrors*    makeEvolutionGraphErrors(vector<RooSlimFitResult*> results, TString parName);
-		void             saveEvolutionPlots();
-		TCanvas*         selectNewCanvas(TString title);
-		TVirtualPad*     selectNewPad();
-		void             updateCurrentCanvas();
+  ParameterEvolutionPlotter(ParameterEvolutionPlotter&) = delete;
+  ParameterEvolutionPlotter& operator=(const ParameterEvolutionPlotter&) = delete;
 
-		OptParser 	*arg;			///< command line arguments
-		RooWorkspace 	*w;			///< a clone of the scanner's workspace
-		vector<RooSlimFitResult*>	allResults;		///< all results of all scan points
-		vector<RooSlimFitResult*>	curveResults;		///< only the results of scan points that were accepted into the CL curve
-		TString		title;			///< canvas title
-		TString		name;			///< scanner name, part of the file name of the plots
-		TString		parsName;		///< name of parameter set inside the workspace
-		TString		obsName;		///< name of observables set inside the workspace
-		TString		scanVar1;		///< name of the can variable
-		vector<float>    m_localMinPositions; ///< positions of the local minima in scan steps
-		vector<TCanvas*> m_canvases;          ///< Pointers to the canvases of the plots, see selectNewCanvas().
-		int              m_padId;             ///< ID of currently selected pad, see selectNewPad().
+  void plotParEvolution();
+  void plotObsScanCheck();
+
+ private:
+  void getLocalMinPositions();
+  void drawLinesAtMinima(TVirtualPad* pad);
+  void drawVerticalRedLine(TVirtualPad* pad, double xpos);
+  TGraph* makeChi2Graph(const std::vector<RooSlimFitResult*>& results) const;
+  TGraph* makeEvolutionGraph(const std::vector<RooSlimFitResult*>& results, TString parName) const;
+  TGraphErrors* makeEvolutionGraphErrors(const std::vector<RooSlimFitResult*>& results, TString parName) const;
+  void saveEvolutionPlots();
+  TCanvas* selectNewCanvas(TString title);
+  TVirtualPad* selectNewPad();
+  void updateCurrentCanvas();
+
+  const OptParser* arg = nullptr;               ///< command line arguments
+  RooWorkspace* w = nullptr;                    ///< a clone of the scanner's workspace
+  std::vector<RooSlimFitResult*> allResults;    ///< all results of all scan points
+  std::vector<RooSlimFitResult*> curveResults;  ///< only the results of scan points that were accepted into the CL
+                                                ///< curve
+  TString title;                                ///< canvas title
+  TString name;                                 ///< scanner name, part of the file name of the plots
+  TString parsName;                             ///< name of parameter set inside the workspace
+  TString obsName;                              ///< name of observables set inside the workspace
+  TString scanVar1;                             ///< name of the can variable
+  std::vector<double> m_localMinPositions;      ///< positions of the local minima in scan steps
+  std::vector<TCanvas*> m_canvases;             ///< Pointers to the canvases of the plots, see selectNewCanvas().
+  int m_padId = 0;                              ///< ID of currently selected pad, see selectNewPad().
 };
 
 #endif

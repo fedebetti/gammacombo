@@ -10,16 +10,14 @@
 #ifndef ParametersCartesian_h
 #define ParametersCartesian_h
 
-#include "ParametersAbs.h"
+#include <ParametersAbs.h>
 
-class ParametersCartesian : public ParametersAbs
-{
-public:
-    ParametersCartesian();
-    inline ~ParametersCartesian(){};
-    
-protected:
-    void defineParameters();
+class ParametersCartesian : public ParametersAbs {
+ public:
+  ParametersCartesian();
+
+ protected:
+  void defineParameters();
 };
 
 #endif

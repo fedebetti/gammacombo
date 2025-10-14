@@ -1,35 +1,31 @@
-#include "Rounder.h"
+#include <Rounder.h>
 
-Rounder::Rounder(OptParser *arg, float cllo, float clhi, float central)
-: m_cllo(cllo), m_clhi(clhi), m_central(central)
-{
+#include <OptParser.h>
+#include <Utils.h>
+
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+
+using Utils::Round;
+
+Rounder::Rounder(const OptParser* arg, double cllo, double clhi, double central)
+    : m_cllo(cllo), m_clhi(clhi), m_central(central) {
   assert(arg);
   this->arg = arg;
 }
 
-Rounder::~Rounder()
-{}
-
-int Rounder::getNsubdigits()
-{
-  if ( arg->digits>-1 ) return arg->digits;
-	return TMath::Max(calcNsubdigits(fabs(m_central-m_cllo)), calcNsubdigits(fabs(m_central-m_clhi)));
+int Rounder::getNsubdigits() const {
+  if (arg->digits > -1) return arg->digits;
+  using Utils::calcNsubdigits;
+  return std::max(calcNsubdigits(std::abs(m_central - m_cllo)), calcNsubdigits(std::abs(m_central - m_clhi)));
 }
 
-float Rounder::CLlo()
-{
-	return Round(m_cllo, getNsubdigits());
-}
+double Rounder::CLlo() const { return Round(m_cllo, getNsubdigits()); }
 
-float Rounder::CLhi()
-{
-	return Round(m_clhi, getNsubdigits());
-}
+double Rounder::CLhi() const { return Round(m_clhi, getNsubdigits()); }
 
-float Rounder::central()
-{
-	return Round(m_central, getNsubdigits());
-}
+double Rounder::central() const { return Round(m_central, getNsubdigits()); }
 
 ///
 /// Compute rounded negative error.
@@ -37,12 +33,6 @@ float Rounder::central()
 /// Would we round the +/- errors themselves, we'd be geting inconsistent intervals!
 /// \return minus error (always positive)
 ///
-float Rounder::errNeg()
-{
-  return fabs(central()-CLlo());
-}
+double Rounder::errNeg() const { return std::abs(central() - CLlo()); }
 
-float Rounder::errPos()
-{
-  return fabs(central()-CLhi());
-}
+double Rounder::errPos() const { return std::abs(central() - CLhi()); }

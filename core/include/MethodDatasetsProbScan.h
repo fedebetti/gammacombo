@@ -9,53 +9,59 @@
 #define MethodDatasetsProbScan_h
 
 #include "MethodProbScan.h"
-#include "ProgressBar.h"
-#include "PDF_Datasets.h"
-#include "RooSlimFitResult.h"
-#include "TLeaf.h"
-#include "TBranch.h"
-#include "ToyTree.h"
 
-class MethodDatasetsProbScan : public MethodProbScan
-{
-public:
-    MethodDatasetsProbScan(PDF_Datasets* PDF, OptParser* opt);
+#include <TString.h>
 
-    virtual void        initScan();
-    void                loadScanFromFile(TString fileNameBaseIn = "default");
-    void                loadFitResults(TString file);
-    void                loadParameterLimits();
-    virtual void        print();
-    virtual int         scan1d(bool fast=false, bool reverse=false);
-    virtual int         scan2d();
-		virtual bool        loadScanner(TString fName);
-    inline  void        setInputFile(TString name) {inputFiles.push_back(name); explicitInputFile = true;};
-    inline  void        addFile(TString name) {inputFiles.push_back(name);};
-    void                plotFitRes(TString fName);
-    int                 computeCLvalues();
+#include <vector>
 
-    PDF_Datasets*           pdf;
-    TH1F*                   probPValues;
-    bool                    drawPlots;
-    bool                    explicitInputFile;
-    std::vector<TString>    inputFiles;
-    std::vector<double>     bootstrapPVals;
-    TChain*                 chain;
-    RooFitResult*           dataFreeFitResult;
-    RooFitResult*           bkgOnlyFitResult;
-    ToyTree*                probScanTree;
+class OptParser;
+class PDF_Datasets;
+class ToyTree;
 
-protected:
+class RooFitResult;
 
-private:
-    TChain*             readFiles(TString fileNameBaseIn = "default");
-    void                readScan1dTrees(TString fileNameBaseIn = "default");
-    RooFitResult*       loadAndFit(PDF_Datasets* pdf);
-    double              getPValueTTestStatistic(double test_statistic_value, bool isCLs=false);
-    void                sanityChecks();
-    void                setAndPrintFitStatusConstrainedToys(const ToyTree& toyTree);
-    void                setAndPrintFitStatusFreeToys(const ToyTree& toyTree);
-    void                sethCLFromProbScanTree();
+class TChain;
+class TH1F;
+
+class MethodDatasetsProbScan : public MethodProbScan {
+ public:
+  MethodDatasetsProbScan(PDF_Datasets* PDF, const OptParser* opt);
+
+  void initScan() override;
+  void loadScanFromFile(TString fileNameBaseIn = "default");
+  void loadFitResults(TString file);
+  void loadParameterLimits();
+  void print() const override;
+  int scan1d(bool fast = false, bool reverse = false, bool quiet = false) override;
+  int scan2d() override;
+  bool loadScanner(TString fName) override;
+  inline void setInputFile(TString name) {
+    inputFiles.push_back(name);
+    explicitInputFile = true;
+  };
+  inline void addFile(TString name) { inputFiles.push_back(name); };
+  void plotFitRes(TString fName);
+  int computeCLvalues() override;
+
+  PDF_Datasets* pdf = nullptr;
+  TH1F* probPValues = nullptr;
+  bool drawPlots = false;
+  bool explicitInputFile = false;
+  std::vector<TString> inputFiles;
+  std::vector<double> bootstrapPVals;
+  TChain* chain = nullptr;
+  RooFitResult* bkgOnlyFitResult = nullptr;
+  ToyTree* probScanTree = nullptr;
+
+ private:
+  TChain* readFiles(TString fileNameBaseIn = "default");
+  void readScan1dTrees(TString fileNameBaseIn = "default");
+  RooFitResult* loadAndFit(PDF_Datasets* pdf);
+  double getPValueTTestStatistic(double test_statistic_value, bool isCLs = false);
+  void sanityChecks() const;
+  void setAndPrintFitStatusConstrainedToys(const ToyTree& toyTree);
+  void setAndPrintFitStatusFreeToys(const ToyTree& toyTree);
+  void sethCLFromProbScanTree();
 };
 
 #endif

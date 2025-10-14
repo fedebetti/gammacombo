@@ -1,19 +1,20 @@
 #ifndef PDF_DatasetTutorial_h
 #define PDF_DatasetTutorial_h
 
-#include "PDF_Datasets.h"
- 
+#include <PDF_Datasets.h>
 
-class PDF_DatasetTutorial : public PDF_Datasets
-{
-public:
+class RooDataSet;
+class RooFitResult;
+class RooWorkspace;
+
+class PDF_DatasetTutorial : public PDF_Datasets {
+ public:
   PDF_DatasetTutorial(RooWorkspace* w);
   RooFitResult* fit(RooDataSet* dataToFit);
-  void          generateToys(int SeedShift = 0) override;
-  ~PDF_DatasetTutorial();
+  void generateToys(int SeedShift = 0) override;
 
-  private:
-    bool    drawFitsDebug;  //> for visualizing toys and fit results, only changeable in the code
+ private:
+  bool drawFitsDebug;  //> for visualizing toys and fit results, only changeable in the code
 };
 
 #endif

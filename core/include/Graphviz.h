@@ -12,33 +12,20 @@
 #ifndef Graphviz_h
 #define Graphviz_h
 
-#include "Combiner.h"
-#include "OptParser.h"
-#include "Utils.h"
+#include <TString.h>
 
-#include <iostream>
-#include <fstream>
+class Combiner;
+class OptParser;
 
-using namespace std;
-using namespace Utils;
+class Graphviz {
+ public:
+  Graphviz(const OptParser* arg);
 
-class Graphviz
-{
-public:
+  void printCombiner(Combiner* cmb);
+  void printCombinerLayer(Combiner* cmb);
 
-  Graphviz(OptParser *arg);
-  ~Graphviz();
-  
-  void       printCombiner(Combiner* cmb);
-  void       printCombinerLayer(Combiner* cmb);
-    
-private:
-  
-  TString   graphvizString(TString s);
-  // TString   graphvizString(string s);
-  bool      isDmixingParameter(TString s);
-  ofstream& openFile(TString name);
-  OptParser *arg;                     ///< command line arguments
+ private:
+  const OptParser* arg = nullptr;  ///< command line arguments
 };
 
 #endif

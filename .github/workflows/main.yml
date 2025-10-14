@@ -1,0 +1,60 @@
+# Run GC CI tests
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches:
+    - master
+    - development
+  pull_request:
+    branches:
+    - master
+    - development
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t gcimage:latest .
+
+    - name: Run CMake build
+      run: |
+        docker run --name gcbuilder gcimage:latest /bin/bash -c "mkdir -p /code/build && cd /code/build && cmake .. && make -j$(nproc) install"
+        docker commit gcbuilder gcimage:built
+        docker rm gcbuilder
+
+    - name: Run CI Tests
+      run: |
+        docker run --name gcrun gcimage:built /bin/bash -c "cd /code && python3 scripts/run_ci_tests.py"
+
+    - name: Copy output
+      if: always()
+      run: |
+        docker cp gcrun:/code/tutorial/ci_logs ./ci_logs
+        docker rm gcrun
+
+    - name: Publish CI logs & plots to gammacombo.github.io
+      run: |
+        git config --global user.email "gcci@cern.ch"
+        git config --global user.name "gammacombo-bot"
+
+        git clone https://x-access-token:${{ secrets.ORG_REPO_PAT }}@github.com/gammacombo/gammacombo.github.io.git
+
+        cp ci_logs/* gammacombo.github.io/assets/images/ci/ || true
+
+        cd gammacombo.github.io
+        touch ci.html
+        git add ci.html assets/images/ci/*
+        git commit -m "CI test results [skip ci]" || echo "No changes to commit"
+        git push origin master
+
+    - name: Print Info
+      run: echo "Success. Check your CI tests at https://gammacombo.github.io/ci.html"
