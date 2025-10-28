@@ -46,8 +46,9 @@ int main() {
   std::cout << "INPUT WORKSPACE FOR SIG:\n";
   w_sig->Print();
 
-  // this is needed to map the sig function to the same observable of the bkg
+  // some gymnastic to map the mass observable to those of sig and bkg functions
   auto m = w_sig->var("m");
+
   auto sig_tmp = w_sig->pdf("sig");
   auto m_tmp = sig_tmp->getObservables(RooArgSet(*m))->find("m");
   RooCustomizer customizer_sig(*sig_tmp, "sig");
@@ -68,44 +69,11 @@ int main() {
   std::unique_ptr<RooAbsPdf> bkg_only_model{cloned_pdf_bkg};
   bkg_only_model->SetNameTitle("bkg_only_model", "bkg_only_model");
 
-  // std::cout << "TEST2 " << typeid(signal_model).name() << std::endl;
-  // auto bkg_tmp = w_bkg->pdf("bkg");
-  // m_tmp = bkg_tmp->getObservables(RooArgSet(*m))->find("m");
-  // RooCustomizer customizer_bkg(*bkg_tmp, "bkg");
-  // customizer_bkg.replaceArg(*m_tmp, Lb_M_reco);
-  // auto bkg_only_model = *(dynamic_cast<RooAddPdf*>(customizer.build(true)));  // true = recycle unchanged nodes
-  // signal_model.SetName("signal_model");
-
-  /*  // It consists of three gaussians to describe the signal...
-    RooRealVar mean1("mean1", "mean1", 5627.374838, 5000.0, 6000.0);
-    RooRealVar sigma1("sigma1", "sigma1", 78.19803058, 1e-4, 2000.0);
-    RooGaussian gauss1("gauss1", "gauss1", Lb_M_reco, mean1, sigma1);
-    RooRealVar mean2("mean2", "mean2", 6153.337372, 5500.0, 6500.0);
-    RooRealVar sigma2("sigma2", "sigma2", 689.2604944, 1e-4, 2000.0);
-    RooGaussian gauss2("gauss2", "gauss2", Lb_M_reco, mean2, sigma2);
-    RooRealVar mean3("mean3", "mean3", 5724.880206, 5000.0, 6000.0);
-    RooRealVar sigma3("sigma3", "sigma3", 258.6402997, 1e-4, 2000.0);
-    RooGaussian gauss3("gauss3", "gauss3", Lb_M_reco, mean3, sigma3);
-    RooRealVar f1("f1", "f1", 0.4064624117, 0.0, 1.0);
-    RooRealVar f2("f2", "f2", 0.1255721298, 0.0, 1.0);
-    RooAddPdf signal_model("signal_model", "signal_model", RooArgList(gauss1, gauss2, gauss3), RooArgList(f1, f2),
-    true);
-    */
   auto params_signal = signal_model->getParameters(RooArgSet(Lb_M_reco));
   for (auto& param : *params_signal) {
     if (auto* real = dynamic_cast<RooRealVar*>(param)) { real->setConstant(true); }
   }
 
-  /*  // ... and of a DstD0BG function to describe the background.
-    RooRealVar m0("m0", "m0", 4503.098360, 4100.0, mL);
-    RooRealVar C("C", "C", 512.6540166, 0.0, 5000.0);
-    // C.setConstant();
-    RooRealVar A("A", "A", -9.7404521505, -50.0, 50.0);
-    // A.setConstant();
-    RooRealVar B("B", "B", 0.0, -0.01, 0.01);
-    B.setVal(0.0);
-    B.setConstant();
-    RooDstD0BG bkg_only_model("bkg_only_model", "bkg_only_model", Lb_M_reco, m0, C, A, B);*/
   RooRealVar n_bkg("Nbkg", "Nbkg", 4981., 0., 10000.);
   RooExtendPdf extended_bkg_model("extended_bkg_model", "extended_bkg_model", *bkg_only_model, n_bkg);
 
@@ -161,6 +129,8 @@ int main() {
                                                                                      // framework to identify it.
   RooDataSet data = *(dynamic_cast<RooDataSet*>(data_tmp.reduce(RooFit::SelectVars(RooArgSet(Lb_M_reco)))));
   data.SetNameTitle("data", "data");
+  n_bkg.setVal(data.sumEntries());
+  n_bkg.setMax(2.0 * data.sumEntries());
 
   /////////////////////////////////////////////////////////
 
