@@ -39,11 +39,13 @@ int main(int argc, char* argv[]) {
   //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot
   // 7.) To do the full toy-based CLs method and plot the expected values as well) use the --cls 2 option (note you can
   // pass --cls multiple times)
-  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot --cls 1
+  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot --cls
+  //        1
   //        --cls 2
   // 8.) There are various ways of prettyfying your plots - for CLs stuff you can try adding --qh 23 (moves the CL
   // label) --group LHCb (adds LHCb label) --prelim (add preliminary label)
-  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot --cls 1
+  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot --cls
+  //        1
   //        --cls 2 --qh 23 --group LHCb --prelim
   //
   // See also the Snakefile in the Lb2pktaul top directory for an example workflow

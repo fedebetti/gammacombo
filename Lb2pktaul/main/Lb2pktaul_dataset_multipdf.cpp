@@ -20,7 +20,8 @@ int main(int argc, char* argv[]) {
   // 1. Profile likelihood scan - For a multipdf, this will not return the correct limit, but is necessary setup for the
   // plugin scan bin/Lb2pktaul_dataset_multipdf --var branchingRatio --npoints 20 --scanrange 0.:7.e-7 --teststat 1
   // 2. Plugin scan
-  // bin/Lb2pktaul_dataset_multipdf -a pluginbatch --var branchingRatio --npoints 20 --npointstoy 20 --scanrange 0.:7.e-7
+  // bin/Lb2pktaul_dataset_multipdf -a pluginbatch --var branchingRatio --npoints 20 --npointstoy 20 --scanrange
+  // 0.:7.e-7
   // --ntoys 50 --teststat 1 bin/Lb2pktaul_dataset_multipdf -a plugin --var branchingRatio --npoints 20 --npointstoy 20
   // --scanrange 0.:7.e-7 --teststat 1
 
