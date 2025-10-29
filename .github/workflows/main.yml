@@ -41,20 +41,20 @@ jobs:
         docker cp gcrun:/code/tutorial/ci_logs ./ci_logs
         docker rm gcrun
 
-    - name: Publish CI logs & plots to gammacombo.github.io
-      run: |
-        git config --global user.email "gcci@cern.ch"
-        git config --global user.name "gammacombo-bot"
+    # - name: Publish CI logs & plots to gammacombo.github.io
+    #   run: |
+    #     git config --global user.email "federico.betti@cern.ch"
+    #     git config --global user.name "fedebetti"
 
-        git clone https://x-access-token:${{ secrets.ORG_REPO_PAT }}@github.com/gammacombo/gammacombo.github.io.git
+    #     git clone https://x-access-token:${{ secrets.ORG_REPO_PAT }}@github.com/fedebetti/gammacombo.github.io.git
 
-        cp ci_logs/* gammacombo.github.io/assets/images/ci/ || true
+    #     cp ci_logs/* gammacombo.github.io/assets/images/ci/ || true
 
-        cd gammacombo.github.io
-        touch ci.html
-        git add ci.html assets/images/ci/*
-        git commit -m "CI test results [skip ci]" || echo "No changes to commit"
-        git push origin master
+    #     cd gammacombo.github.io
+    #     touch ci.html
+    #     git add ci.html assets/images/ci/*
+    #     git commit -m "CI test results [skip ci]" || echo "No changes to commit"
+    #     git push origin master
 
-    - name: Print Info
-      run: echo "Success. Check your CI tests at https://gammacombo.github.io/ci.html"
+    # - name: Print Info
+    #   run: echo "Success. Check your CI tests at https://gammacombo.github.io/ci.html"
