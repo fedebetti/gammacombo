@@ -66,7 +66,12 @@ int main() {
   RooAbsArg* bkg_rebuilt = customizer_bkg.build(true);  // true = recycle unchanged nodes
   TObject* clone_obj_bkg = bkg_rebuilt->clone(Form("%s_clone", bkg_rebuilt->GetName()));
   auto* cloned_pdf_bkg = dynamic_cast<RooAbsPdf*>(clone_obj_bkg);
-  std::unique_ptr<RooAbsPdf> bkg_only_model{cloned_pdf_bkg};
+  std::unique_ptr<RooAbsPdf> background_model{cloned_pdf_bkg};
+  background_model->SetNameTitle("background_model", "background_model");
+
+  TObject* clone_obj_bkg_only = bkg_rebuilt->clone(Form("%s_only_clone", bkg_rebuilt->GetName()));
+  auto* cloned_pdf_bkg_only = dynamic_cast<RooAbsPdf*>(clone_obj_bkg_only);
+  std::unique_ptr<RooAbsPdf> bkg_only_model{cloned_pdf_bkg_only};
   bkg_only_model->SetNameTitle("bkg_only_model", "bkg_only_model");
 
   auto params_signal = signal_model->getParameters(RooArgSet(Lb_M_reco));
@@ -104,7 +109,7 @@ int main() {
   RooFormulaVar n_sig("Nsig", "branchingRatio/norm_constant", RooArgList(branchingRatio, norm_constant));
   RooExtendPdf extended_sig_model("extended_sig_model", "extended_sig_model", *signal_model, n_sig);
 
-  RooAddPdf mass_model("mass_model", "mass_model", RooArgList(*signal_model, *bkg_only_model),
+  RooAddPdf mass_model("mass_model", "mass_model", RooArgList(*signal_model, *background_model),
                        RooArgList(n_sig, n_bkg));
 
   /////////////////////////////////////////////////////////
@@ -118,17 +123,17 @@ int main() {
   //
   // We create the dataset from real data (Wrong Sign for the moment)
   // TODO: set configurable Cut
+  // TODO: set configurable data file
   TString data_file_name =
       "/eos/lhcb/user/f/fbetti/Lb_to_taus/data/Run2/Lb_pKtaue_3pi_SS_PplusEplus_massConstr_sortPi_vetoes_BDT.root";
   RooRealVar TMVAClassification_BDT_all_noIPCHI2rew("TMVAClassification_BDT_all_noIPCHI2rew",
                                                     "TMVAClassification_BDT_all_noIPCHI2rew", -1.0, 1.0);
   RooDataSet data_tmp("data_tmp", "data_tmp", RooArgSet(Lb_M_reco, TMVAClassification_BDT_all_noIPCHI2rew),
                       RooFit::ImportFromFile(data_file_name, "DecayTree"),
-                      RooFit::Cut("TMVAClassification_BDT_all_noIPCHI2rew>-0.05"));  // the name of the dataset MUST be
-                                                                                     // "data" in order for the
-                                                                                     // framework to identify it.
+                      RooFit::Cut("TMVAClassification_BDT_all_noIPCHI2rew>-0.05"));
   RooDataSet data = *(dynamic_cast<RooDataSet*>(data_tmp.reduce(RooFit::SelectVars(RooArgSet(Lb_M_reco)))));
-  data.SetNameTitle("data", "data");
+  data.SetNameTitle("data",
+                    "data");  //  the name of the dataset MUST be "data" in order for the framework to identify it.
   n_bkg.setVal(data.sumEntries());
   n_bkg.setMax(2.0 * data.sumEntries());
 
@@ -187,7 +192,7 @@ int main() {
 
   RooWorkspace workspace("dataset_workspace");
   workspace.import(mass_model);
-  workspace.import(extended_bkg_model, RooFit::RenameConflictNodes("_internal"));  // TODO check if this is used
+  workspace.import(extended_bkg_model);
   workspace.import(data);
   workspace.import(rooFitResult, "data_fit_result");  // this MUST be called data_fit_result
   workspace.defineSet("constraint_set", constraint_set, true);

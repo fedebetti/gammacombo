@@ -63,12 +63,13 @@ int main(int argc, char* argv[]) {
   }
 
   // You can make any changes to your workspace on the fly here
-  workspace->var("branchingRatio")->SetTitle("#font[32]{B}( B^{0}#rightarrow X )");
-  workspace->var("branchingRatio")->setVal(1.e-7);
-  workspace->var("branchingRatio")->setRange(-1.e-6, 2.5e-6);
-  workspace->var("Nbkg")->SetTitle("N_{bkg}");
-  workspace->var("Nbkg")->setVal(5000);
-  workspace->var("Nbkg")->setRange(4000, 6000);
+  workspace->var("branchingRatio")
+      ->SetTitle("#font[32]{B}(#it{#Lambda}_{b}^{0} #rightarrow #it{p}#it{K}#it{#tau}#it{e})");
+  workspace->var("branchingRatio")->setVal(1.e-9);
+  // workspace->var("branchingRatio")->setRange(-1.e-6, 2.5e-6);
+  // workspace->var("Nbkg")->SetTitle("N_{bkg}");
+  // workspace->var("Nbkg")->setVal(5000);
+  // workspace->var("Nbkg")->setRange(4000, 6000);
 
   // Construct the PDF and pass the workspace to it
   //    note that you can write your own PDF_DatasetsLb2pktaul Class which defines your own fitting procedure etc.
@@ -79,21 +80,22 @@ int main(int argc, char* argv[]) {
   // pdf->setTitle("datasets_combiner"); // give a meaningful title if you want to, default is "PDF_Dataset"
   // pdf->setName("datasets_combiner"); // give a meaningful name if you want to (will enter file names as well),
   // default is "PDF_Dataset"
-  pdf->initData("data");       // this is the name of the dataset in the workspace
-  pdf->initPDF("mass_model");  // this the name of the pdf in the workspace (without the constraints)
-  // pdf->initBkgPDF("extended_bkg_model"); // optional: this the name of the background pdf in the workspace (without
-  // the constraints) If the above line is commented, the tool will assume the BkgPDF to be the PDF with scanVar=0 (most
-  // often true)
+  pdf->initData("data");                  // this is the name of the dataset in the workspace
+  pdf->initPDF("mass_model");             // this the name of the pdf in the workspace (without the constraints)
+  pdf->initBkgPDF("extended_bkg_model");  // optional: this the name of the background pdf in the workspace (without the
+                                          // constraints) If the above line is commented, the tool will assume the
+                                          // BkgPDF to be the PDF with scanVar=0 (most often true)
   pdf->initObservables("datasetObservables");  // non-global observables whose measurements are stored in the dataset
                                                // (for example the mass).
   pdf->initGlobalObservables("global_observables_set");  // global observables
   pdf->initParameters("parameters");                     // all parameters
   pdf->initConstraints("constraint_set");                // RooArgSet containing the "constraint" PDF's
   // the below are optional (will not affect the results but just make some plots for you)
-  pdf->addFitObs("mass");  // this is not required but will make some sanity plots
-  // pdf->unblind("mass","[4360:5260],[5460:6360]"); // have to be a bit careful about staying blind (this code isn't
-  // yet really blind friendly)
-  pdf->unblind("mass", "[4360:6360]");
+  pdf->addFitObs("Lb_M_reco");  // this is not required but will make some sanity plots
+  // // pdf->unblind("Lb_M_reco","[4360:5260],[5460:6360]"); // have to be a bit careful about staying blind (this code
+  // isn't
+  // // yet really blind friendly)
+  // pdf->unblind("Lb_M_reco", "[4360:6360]");
 
   // pdf->printParameters();
 
