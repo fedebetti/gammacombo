@@ -89,7 +89,7 @@ int main() {
       2.6e-7;  // estimated value of the normalization constant, taken from slide 30 of //
                // https://indico.cern.ch/event/1527783/contributions/6427746/attachments/3120608/5533689/WG_August20th_VRD_Lbpktaulepton.pdf
   double sigma_observedValueGlobalObservable =
-      0.1 * observedValueGlobalObservable;  // assuming 10% relative uncertainty
+      0.001 * observedValueGlobalObservable;  // assuming 0.1% relative uncertainty, i.e. no uncertainty for the moment
   RooRealVar norm_constant_obs(
       "norm_constant_glob_obs", "global observable of normalization constant", observedValueGlobalObservable,
       observedValueGlobalObservable - 7 * sigma_observedValueGlobalObservable,

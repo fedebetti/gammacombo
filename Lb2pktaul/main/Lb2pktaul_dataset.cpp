@@ -21,30 +21,30 @@ int main(int argc, char* argv[]) {
   // bin/Lb2pktaul_dataset_build_workspace
 
   // 1.) Running a Profile Likelihood Scan
-  //        bin/Lb2pktaul_dataset --var branchingRatio --npoints 50 --scanrange 0.:1.e-6
+  //        bin/Lb2pktaul_dataset --var branchingRatio --npoints 100 --scanrange 0.:4.e-5
   // 2.) If you want to just remake the plot (without rescanning) add the -a plot option
-  //        bin/Lb2pktaul_dataset --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -a plot
+  //        bin/Lb2pktaul_dataset --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -a plot
   // 3.) If you want to add the CLs method add the option --cls 1
-  //        bin/Lb2pktaul_dataset --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --cls 1
+  //        bin/Lb2pktaul_dataset --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --cls 1
   // 4.) To do a Feldman Cousins plugin scan (run a bunch in parallel and give them different names with --nrun %d
-  //        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --ntoys 100
-  //        --nrun 1 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --ntoys
-  //        100 --nrun 2 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6
-  //        --ntoys 100 --nrun 3 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange
-  //        0.:1.e-6 --ntoys 100 --nrun 4 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 50
-  //        --scanrange 0.:1.e-6 --ntoys 100 --nrun 5
+  //        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 100
+  //        --nrun 1 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5
+  //        --ntoys 100 --nrun 2 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange
+  //        0.:4.e-5 --ntoys 100 --nrun 3 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100
+  //        --scanrange 0.:4.e-5 --ntoys 100 --nrun 4 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio
+  //        --npoints 100 --scanrange 0.:4.e-5 --ntoys 100 --nrun 5
   // 5.) To read a bunch of Feldman Cousins scans back in (use the -j option to label the different run numbers)
-  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5
+  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5
   // 6.) To just plot the Feldman Cousins stuff without having to re-scan or re-read add the -a plot option again
-  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot
+  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5 -a plot
   // 7.) To do the full toy-based CLs method and plot the expected values as well) use the --cls 2 option (note you can
   // pass --cls multiple times)
-  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot --cls
+  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5 -a plot --cls
   //        1
   //        --cls 2
   // 8.) There are various ways of prettyfying your plots - for CLs stuff you can try adding --qh 23 (moves the CL
   // label) --group LHCb (adds LHCb label) --prelim (add preliminary label)
-  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot --cls
+  //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5 -a plot --cls
   //        1
   //        --cls 2 --qh 23 --group LHCb --prelim
   //
