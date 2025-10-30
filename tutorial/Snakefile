@@ -21,7 +21,7 @@
 SETUP_LXPLUS_PREFIX = ' ;'.join([
   'export PATH=/usr/local/bin:/usr/bin',
   'set +u',
-  'source ../scripts/setup_lxplus.sh',
+  'source ../scripts/setup-env-cvmfs.sh',
   # 'set -u',
   ' ',
   ])
