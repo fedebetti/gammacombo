@@ -26,6 +26,36 @@ BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]) {
   subpkg = std::string(argv[0]);
 }
 
+TString BatchScriptWriter::outfDirHelper(const TString dirname, const OptParser* arg) {
+  char cwd[1024];
+  getcwd(cwd, 1024);
+  TString outf_dir = TString(cwd) + "/root/" + dirname;
+  // if write to eos then make the directory
+  if (arg->batchout != "" || arg->batcheos) {
+    time_t t = time(0);
+    struct tm* now = localtime(&t);
+    int day = now->tm_mday;
+    int month = now->tm_mon + 1;
+    int year = now->tm_year + 1900;
+
+    if (arg->batcheos) {
+      std::string name(getenv("USER"));
+      char initial = name[0];
+      std::cout << "Name: " << name << " first: " << initial << std::endl;
+      TString eos_path = Form("/eos/lhcb/user/%c/%s/gammacombo/%02d%02d%04d", initial, name.c_str(), day, month, year);
+      // TString eos_path = Form("/eos/lhcb/user/t/tmombach/gammacombo/%02d%02d%04d",day,month,year);
+      // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir %s",eos_path.Data()));
+      eos_path += Form("/%s", dirname.Data());
+      // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir -p %s",eos_path.Data()));
+      outf_dir = eos_path;
+    } else if (arg->batchout) {
+      outf_dir = Form("%s/%02d%02d%04d/%s", arg->batchout.Data(), day, month, year, dirname.Data());
+    }
+  }
+
+  return outf_dir;
+}
+
 void BatchScriptWriter::writeScripts(const OptParser* arg, std::vector<Combiner*>* cmb) {
 
   for (int i = 0; i < arg->combid.size(); i++) {
@@ -54,37 +84,13 @@ void BatchScriptWriter::writeScripts(const OptParser* arg, std::vector<Combiner*
     if (arg->var.size() > 1) { dirname += "_" + arg->var[1]; }
     if (arg->isAction("coveragebatch")) { dirname += arg->id < 0 ? "_id0" : Form("_id%d", arg->id); }
 
-    char cwd[1024];
-    getcwd(cwd, 1024);
-
     TString scripts_dir_path = "sub/" + dirname;
-    TString outf_dir = TString(cwd) + "/root/" + dirname;
     system(Form("mkdir -p %s", scripts_dir_path.Data()));
     TString scriptname = "scan1d" + methodname + "_" + c->getName() + "_" + arg->var[0];
     if (arg->isAction("coveragebatch")) { scriptname += arg->id < 0 ? "_id0" : Form("_id%d", arg->id); }
-    // if write to eos then make the directory
-    if (arg->batchout != "" || arg->batcheos) {
-      time_t t = time(0);
-      struct tm* now = localtime(&t);
-      int day = now->tm_mday;
-      int month = now->tm_mon + 1;
-      int year = now->tm_year + 1900;
 
-      if (arg->batcheos) {
-        std::string name(getenv("USER"));
-        char initial = name[0];
-        std::cout << "Name: " << name << " first: " << initial << std::endl;
-        TString eos_path =
-            Form("/eos/lhcb/user/%c/%s/gammacombo/%02d%02d%04d", initial, name.c_str(), day, month, year);
-        // TString eos_path = Form("/eos/lhcb/user/t/tmombach/gammacombo/%02d%02d%04d",day,month,year);
-        // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir %s",eos_path.Data()));
-        eos_path += Form("/%s", dirname.Data());
-        // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir -p %s",eos_path.Data()));
-        outf_dir = eos_path;
-      } else if (arg->batchout) {
-        outf_dir = Form("%s/%02d%02d%04d/%s", arg->batchout.Data(), day, month, year, dirname.Data());
-      }
-    }
+    TString outf_dir = outfDirHelper(dirname, arg);
+
     if (arg->var.size() == 2) { scriptname = "scan2d" + methodname + "_" + c->getName() + "_" + arg->var[0]; }
     if (arg->var.size() > 1) { scriptname += "_" + arg->var[1]; }
     scriptname = scripts_dir_path + "/" + scriptname;
@@ -132,31 +138,14 @@ void BatchScriptWriter::writeScripts_datasets(const OptParser* arg, PDF_Abs* pdf
   if (arg->var.size() == 2) { dirname = "scan2dDatasets" + methodname + "_" + pdf->getName() + "_" + arg->var[0]; }
   if (arg->var.size() > 1) { dirname += "_" + arg->var[1]; }
   if (arg->isAction("coveragebatch")) { dirname += arg->id < 0 ? "_id0" : Form("_id%d", arg->id); }
+
   TString scripts_dir_path = "sub/" + dirname;
-  TString outf_dir = "root/" + dirname;
   system(Form("mkdir -p %s", scripts_dir_path.Data()));
   TString scriptname = "scan1dDatasets" + methodname + "_" + pdf->getName() + "_" + arg->var[0];
   if (arg->isAction("coveragebatch")) { scriptname += arg->id < 0 ? "_id0" : Form("_id%d", arg->id); }
-  // if write to eos then make the directory
-  if (arg->batcheos) {
-    time_t t = time(0);
-    struct tm* now = localtime(&t);
-    int day = now->tm_mday;
-    int month = now->tm_mon + 1;
-    int year = now->tm_year + 1900;
 
-    std::string name(getenv("USER"));
-    char initial = name[0];
-    std::cout << "Name: " << name << " first: " << initial << std::endl;
-    TString eos_path = Form("/eos/lhcb/user/%c/%s/gammacombo/%02d%02d%04d", initial, name.c_str(), day, month, year);
-    // TString eos_path = Form("/eos/lhcb/user/t/tmombach/gammacombo/%02d%02d%04d",day,month,year);
-    // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir %s",eos_path.Data()));
-    // system(Form("mkdir %s",eos_path.Data()));
-    eos_path += Form("/%s", dirname.Data());
-    // system(Form("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir -p %s",eos_path.Data()));
-    //  system(Form("mkdir -p %s",eos_path.Data()));
-    outf_dir = eos_path;
-  }
+  TString outf_dir = outfDirHelper(dirname, arg);
+
   if (arg->var.size() == 2) { scriptname = "scan2dDatasets" + methodname + "_" + pdf->getName() + "_" + arg->var[0]; }
   if (arg->var.size() > 1) { scriptname += "_" + arg->var[1]; }
   scriptname = scripts_dir_path + "/" + scriptname;
@@ -236,6 +225,7 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, co
   outfile << "mkdir -p scratch" << std::endl;
   outfile << "cd scratch" << std::endl;
   outfile << Form("source %s/../scripts/setup-env-cvmfs.sh", cwd) << std::endl;
+  outfile << Form("cp %s/workspace.root .", cwd) << std::endl;
   outfile << Form("cp -r %s/ExpNll .", cwd) << std::endl;
   outfile << "mkdir -p bin" << std::endl;
   outfile << Form("cp %s/%s bin/", cwd, subpkg.c_str()) << std::endl;
@@ -244,7 +234,9 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, co
   outfile << "mkdir -p plots/par" << std::endl;
   outfile << Form("cp -r %s/plots/par/* plots/par", cwd) << std::endl;
   outfile << "mkdir -p plots/scanner" << std::endl;
+  outfile << Form("cp -r %s/plots/scanner/* plots/scanner", cwd) << std::endl;
   outfile << "mkdir -p root" << std::endl;
+  outfile << Form("cp %s/root/*.root root", cwd) << std::endl;
   outfile << Form("touch %s/%s.run", cwd, fname.Data()) << std::endl;
   outfile << Form("if ( %s --nrun %d ); then", exec.c_str(), jobn) << std::endl;
   outfile << Form("\trm -f %s/%s.run", cwd, fname.Data()) << std::endl;

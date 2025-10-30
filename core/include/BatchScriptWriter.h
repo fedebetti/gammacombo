@@ -21,6 +21,7 @@ class BatchScriptWriter {
  public:
   BatchScriptWriter(int argc, char* argv[]);
 
+  TString outfDirHelper(const TString dirname, const OptParser* arg);
   void writeScripts(const OptParser* arg, std::vector<Combiner*>* cmb);
   void writeScripts_datasets(const OptParser* arg, PDF_Abs* pdf);
   void writeScript(TString fname, TString outfloc, int jobn, const OptParser* arg);
