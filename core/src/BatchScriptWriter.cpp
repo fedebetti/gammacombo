@@ -235,7 +235,7 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, co
   outfile << Form("rm -f %s/%s.log", cwd, fname.Data()) << std::endl;
   outfile << "mkdir -p scratch" << std::endl;
   outfile << "cd scratch" << std::endl;
-  outfile << Form("source %s/../scripts/setup_lxplus.sh", cwd) << std::endl;
+  outfile << Form("source %s/../scripts/setup-env-cvmfs.sh", cwd) << std::endl;
   outfile << Form("cp -r %s/ExpNll .", cwd) << std::endl;
   outfile << "mkdir -p bin" << std::endl;
   outfile << Form("cp %s/%s bin/", cwd, subpkg.c_str()) << std::endl;
