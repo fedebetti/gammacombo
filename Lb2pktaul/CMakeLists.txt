@@ -4,9 +4,8 @@ set(COMBINER_NAME Lb2pktaul)
 # Define all executables of this combiner. They must be located in the `main`
 # subdirectory and end with `.cpp`.
 set(COMBINER_EXECUTABLES
-    ${COMBINER_NAME} cartesian Lb2pktaul_dataset
-    Lb2pktaul_dataset_build_workspace Lb2pktaul_dataset_multipdf
-    Lb2pktaul_dataset_multipdf_build_workspace)
+    ${COMBINER_NAME} Lb2pktaul_dataset Lb2pktaul_dataset_build_workspace
+    Lb2pktaul_dataset_multipdf Lb2pktaul_dataset_multipdf_build_workspace)
 
 # Configure if this combiner has custom ROOT objects
 set(HAS_CUSTOMROOTOBJECTS FALSE)
@@ -35,17 +34,14 @@ include_directories(BEFORE ${CORE_INC_DIR} ${COMBINER_INCLUDE_DIR})
 # -----------------------------------------------------------------------------
 
 set(COMBINER_LIB_SOURCES
-    ${COMBINER_SOURCE_DIR}/ParametersCartesian.cpp
     ${COMBINER_SOURCE_DIR}/ParametersLb2pktaul.cpp
-    ${COMBINER_SOURCE_DIR}/PDF_Cartesian.cpp
     ${COMBINER_SOURCE_DIR}/PDF_Circle.cpp
     ${COMBINER_SOURCE_DIR}/PDF_CrossCorAbs.cpp
     ${COMBINER_SOURCE_DIR}/PDF_CrossCor_GausA_vs_GausB.cpp
     ${COMBINER_SOURCE_DIR}/PDF_DatasetLb2pktaul.cpp
     ${COMBINER_SOURCE_DIR}/PDF_Gaus.cpp
     ${COMBINER_SOURCE_DIR}/PDF_GausB.cpp
-    ${COMBINER_SOURCE_DIR}/PDF_Gaus2d.cpp
-    ${COMBINER_SOURCE_DIR}/PDF_rb.cpp)
+    ${COMBINER_SOURCE_DIR}/PDF_Gaus2d.cpp)
 
 set(COMBINER_LIB ${COMBINER_NAME}Components)
 add_library(${COMBINER_LIB} SHARED ${COMBINER_LIB_SOURCES})
