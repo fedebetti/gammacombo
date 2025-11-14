@@ -33,6 +33,9 @@ int main(int argc, char* argv[]) {
   //        0.:4.e-5 --ntoys 100 --nrun 3 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100
   //        --scanrange 0.:4.e-5 --ntoys 100 --nrun 4 bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio
   //        --npoints 100 --scanrange 0.:4.e-5 --ntoys 100 --nrun 5
+  // 4.5) To do a Feldman Cousins plugin scan on condor batch
+  //        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 20
+  //        --batchsubmit --nbatchjobs 100 --batchstartn 1
   // 5.) To read a bunch of Feldman Cousins scans back in (use the -j option to label the different run numbers)
   //        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5
   // 6.) To just plot the Feldman Cousins stuff without having to re-scan or re-read add the -a plot option again
