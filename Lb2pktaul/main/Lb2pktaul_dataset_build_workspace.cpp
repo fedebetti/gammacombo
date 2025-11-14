@@ -135,8 +135,6 @@ int main(int argc, char* argv[]) {
   /////////////////////////////////////////////////////////
   //
   // We create the dataset from real data (Wrong Sign for the moment)
-  // TODO: set configurable Cut
-  // TODO: set configurable data file
   RooRealVar TMVAClassification_BDT_all_noIPCHI2rew("TMVAClassification_BDT_all_noIPCHI2rew",
                                                     "TMVAClassification_BDT_all_noIPCHI2rew", -1.0, 1.0);
   RooDataSet data_tmp("data_tmp", "data_tmp", RooArgSet(Lb_M_reco, TMVAClassification_BDT_all_noIPCHI2rew),
@@ -169,7 +167,7 @@ int main(int argc, char* argv[]) {
   mass_model.plotOn(plot);
   TCanvas c("c", "c", 1024, 768);
   plot->Draw();
-  c.SaveAs(TString("plots/pdf/data_and_fit_in_workspace_" + suffix + ".pdf"));
+  c.SaveAs(TString("plots/pdf/data_and_fit_in_workspace.pdf"));
 
   rooFitResult.Print();
 
@@ -211,7 +209,7 @@ int main(int argc, char* argv[]) {
   workspace.defineSet("parameters", parameters_set, true);
 
   // Save the workspace to a file
-  workspace.SaveAs(TString("workspace_" + suffix + ".root"));
+  workspace.SaveAs(TString("workspace.root"));
 
   return 0;
 }
