@@ -20,13 +20,29 @@
 
 #include <typeinfo>
 
-int main() {
+int main(int argc, char* argv[]) {
   /////////////////////////////////////////////////////////
   //
   // First, we define all observables and variables and construct the PDF.
   // It will be included in the workspace.
   //
   /////////////////////////////////////////////////////////
+  TString suffix("lowBDTCut");  // looks for "w_{sig,bkg}_<suffix>.root"
+  TString data_cut = "TMVAClassification_BDT_all_noIPCHI2rew>-0.05";
+  TString data_file_name =
+      "/eos/lhcb/user/f/fbetti/Lb_to_taus/data/Run2/Lb_pKtaue_3pi_SS_PplusEplus_massConstr_sortPi_vetoes_BDT.root";
+  TString path_input_workspaces("~/work/Lb_to_taus/vrd-lb2pktaumu/hadronic/fit/");  // path to the input workspaces
+
+  if (argc > 1) {
+    suffix = argv[1];
+    if (argc > 2) {
+      data_cut = argv[2];
+      if (argc > 3) {
+        data_file_name = argv[3];
+        if (argc > 4) { path_input_workspaces = argv[4]; }
+      }
+    }
+  }
 
   double mL = 4600.0;
   double mR = 10000.0;
@@ -34,14 +50,11 @@ int main() {
 
   // First, define the signal peak of the mass model
 
-  // TODO: import signal and bkg pdfs, and bkg yield, from workspaces
-  // TODO: make workspace path and name configurable
-  TString path_input_workspaces("~/work/Lb_to_taus/vrd-lb2pktaumu/hadronic/fit/");  // path to the input workspaces
-  auto file_w_bkg = TFile::Open(path_input_workspaces + "w_bkg_lowBDTCut.root");
+  auto file_w_bkg = TFile::Open(path_input_workspaces + "w_bkg_" + suffix + ".root");
   auto w_bkg = (RooWorkspace*)file_w_bkg->Get("w");
   std::cout << "INPUT WORKSPACE FOR BKG:\n";
   w_bkg->Print();
-  auto file_w_sig = TFile::Open(path_input_workspaces + "w_sig_lowBDTCut.root");
+  auto file_w_sig = TFile::Open(path_input_workspaces + "w_sig_" + suffix + ".root");
   auto w_sig = (RooWorkspace*)file_w_sig->Get("w");
   std::cout << "INPUT WORKSPACE FOR SIG:\n";
   w_sig->Print();
@@ -124,13 +137,10 @@ int main() {
   // We create the dataset from real data (Wrong Sign for the moment)
   // TODO: set configurable Cut
   // TODO: set configurable data file
-  TString data_file_name =
-      "/eos/lhcb/user/f/fbetti/Lb_to_taus/data/Run2/Lb_pKtaue_3pi_SS_PplusEplus_massConstr_sortPi_vetoes_BDT.root";
   RooRealVar TMVAClassification_BDT_all_noIPCHI2rew("TMVAClassification_BDT_all_noIPCHI2rew",
                                                     "TMVAClassification_BDT_all_noIPCHI2rew", -1.0, 1.0);
   RooDataSet data_tmp("data_tmp", "data_tmp", RooArgSet(Lb_M_reco, TMVAClassification_BDT_all_noIPCHI2rew),
-                      RooFit::ImportFromFile(data_file_name, "DecayTree"),
-                      RooFit::Cut("TMVAClassification_BDT_all_noIPCHI2rew>-0.05"));
+                      RooFit::ImportFromFile(data_file_name, "DecayTree"), RooFit::Cut(data_cut));
   RooDataSet data = *(dynamic_cast<RooDataSet*>(data_tmp.reduce(RooFit::SelectVars(RooArgSet(Lb_M_reco)))));
   data.SetNameTitle("data",
                     "data");  //  the name of the dataset MUST be "data" in order for the framework to identify it.
@@ -159,7 +169,7 @@ int main() {
   mass_model.plotOn(plot);
   TCanvas c("c", "c", 1024, 768);
   plot->Draw();
-  c.SaveAs("plots/pdf/data_and_fit_in_workspace.pdf");
+  c.SaveAs(TString("plots/pdf/data_and_fit_in_workspace_" + suffix + ".pdf"));
 
   rooFitResult.Print();
 
@@ -201,7 +211,7 @@ int main() {
   workspace.defineSet("parameters", parameters_set, true);
 
   // Save the workspace to a file
-  workspace.SaveAs("workspace.root");
+  workspace.SaveAs(TString("workspace_" + suffix + ".root"));
 
   return 0;
 }
