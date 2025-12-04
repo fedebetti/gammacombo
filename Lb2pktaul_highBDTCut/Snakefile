@@ -1,18 +1,17 @@
 # This file includes the following commands into a snakemake workflow (optimised to work on LXPLUS). Any of the commands can be executed outside snakemake independently as well!
 
   # 0.) Create a RooWorkspace
-  #        bin/Lb2pktaul_dataset_build_workspace
-  # 1.) Running a Profile Likelihood Scan with the cls option --cls 2
-  #        bin/Lb2pktaul_dataset --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --cls 2
+  #        bin/Lb2pktaul_highBDTCut_dataset_build_workspace
+  # 1.) Running a Profile Likelihood Scan with the cls option --cls 1
+  #        bin/Lb2pktaul_highBDTCut_dataset --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --cls 1
   # 2.) To do a Feldman Cousins plugin scan (run a bunch in parallel and give them different names with --nrun %d
-  #        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 20 --nrun 0
-  #        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 20 --nrun 1
-  #        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 20 --nrun 2
-  #        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 20 --nrun 3
-  #        bin/Lb2pktaul_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 20 --nrun 4
-  #        ...
+  #        bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --ntoys 100 --nrun 0
+  #        bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --ntoys 100 --nrun 1
+  #        bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --ntoys 100 --nrun 2
+  #        bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --ntoys 100 --nrun 3
+  #        bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 --ntoys 100 --nrun 4
   # 3.) Read a bunch of Feldman Cousins scans back in (use the -j option to label the different run numbers), use the --cls 2 option
-  #        bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 0-4 --cls 2
+  #        bin/Lb2pktaul_highBDTCut_dataset -a plugin --var branchingRatio --npoints 50 --scanrange 0.:1.e-6 -j 1-5 -a plot --cls 1 --cls 2
 
 # This file is just performing program executions. Make sure you have compiled the program properly before executing with snakemake!
 # If you encounter any problems contact Matthew Kenzie (matthew.kenzie@cern.ch) or Titus Mombächer (titus.mombacher@cern.ch)
@@ -22,17 +21,17 @@
 SETUP_LXPLUS_PREFIX = ' ;'.join([
   'export PATH=/usr/local/bin:/usr/bin',
   'set +u',
-  'source ../scripts/setup-env-cvmfs.sh',
+  'source ../scripts/setup_lxplus.sh',
   # 'set -u',
   ' ',
   ])
 
 # some parameter definitions to generalise the snakefile (can be specified in a separate config if desired)
-combiner_name = "PDF_Dataset" # default name, can be defined in "Lb2pktaul_dataset.cpp"
-nscanpoints = 100
+combiner_name = "PDF_Dataset" # default name, can be defined in "Lb2pktaul_highBDTCut_dataset.cpp"
+nscanpoints = 50
 scanvar = "branchingRatio"
-scanrange = "0.:4.e-5"
-ntoys_per_run = 20
+scanrange = "0:1.e-6"
+ntoys_per_run = 100
 nruns = 5
 
 
@@ -60,7 +59,7 @@ rule build_wspc:
   shell:
     SETUP_LXPLUS_PREFIX+
       ' '.join([
-          'bin/Lb2pktaul_dataset_build_workspace',
+          'bin/Lb2pktaul_highBDTCut_dataset_build_workspace',
           '> {log}'
       ])
 
@@ -77,11 +76,11 @@ rule run_prob:
   #     MaxRunHours = 1,  # defining the queue, 1 hour is more than enough
   #     request_disk = 1024000   # in kb, more than enough
   log:
-    'Lb2pktaul_dataset_prob_{name}_{points}p_{var}.log'
+    'Lb2pktaul_highBDTCut_dataset_prob_{name}_{points}p_{var}.log'
   shell:
     SETUP_LXPLUS_PREFIX+
       ' '.join([
-          'bin/Lb2pktaul_dataset',
+          'bin/Lb2pktaul_highBDTCut_dataset',
           '--var {wildcards.var}',
           '--npoints {wildcards.points}',
           '--scanrange '+scanrange,
@@ -105,11 +104,11 @@ rule run_pluginbatch:
   #     MaxRunHours = 1,  # defining the queue, the batch scan can be quite time consuming (very problem dependent), here 1h is enough
   #     request_disk = 1024000  # in kb, more than enough
   log:
-    'Lb2pktaul_dataset_pluginbatch_{name}_{var}_{jobnum}.log'
+    'Lb2pktaul_highBDTCut_dataset_pluginbatch_{name}_{var}_{jobnum}.log'
   shell:
     SETUP_LXPLUS_PREFIX+
       ' '.join([
-          'bin/Lb2pktaul_dataset',
+          'bin/Lb2pktaul_highBDTCut_dataset',
           '--var {wildcards.var}',
           '--npoints '+str(nscanpoints),
           '--scanrange '+scanrange,
@@ -137,11 +136,11 @@ rule run_plugin:
   #     MaxRunHours = 1,  # defining the queue, 1 hour is more than enough
   #     request_disk = 1024000  # in kb, more than enough
   log:
-    'Lb2pktaul_dataset_plugin_{name}_{var}.log'
+    'Lb2pktaul_highBDTCut_dataset_plugin_{name}_{var}.log'
   shell:
     SETUP_LXPLUS_PREFIX+
       ' '.join([
-          'bin/Lb2pktaul_dataset',
+          'bin/Lb2pktaul_highBDTCut_dataset',
           '--var {wildcards.var}',
           '--npoints '+str(nscanpoints),
           '--scanrange '+scanrange,

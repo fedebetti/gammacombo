@@ -1,0 +1,130 @@
+#include <GammaComboEngine.h>
+#include <PDF_Datasets.h>
+
+#include <RooRealVar.h>
+#include <RooWorkspace.h>
+
+#include <TFile.h>
+
+int main(int argc, char* argv[]) {
+  //////////////////////////////////////////////////////////////
+  //
+  // When working with datasets, the gammacombo framework relies on a workspace
+  // as the main reference for data and the statistical model.
+  // Therefore, we first must construct the workspace that contains all necessary information.
+  // In this Lb2pktaul, this is done by calling the command Lb2pktaul_highBDTCut_dataset_build_workspace
+  // In a more complex analysis, you can also do this elsewhere, for example using pyroot.
+  //
+  ///////////////////////////////////////////////////////////////
+
+  // How to run the Lb2pktaul:
+  // bin/Lb2pktaul_highBDTCut_dataset_build_workspace
+
+  // 1.) Running a Profile Likelihood Scan
+  //        bin/Lb2pktaul_highBDTCut_dataset --var branchingRatio --npoints 100 --scanrange 0.:4.e-5
+  // 2.) If you want to just remake the plot (without rescanning) add the -a plot option
+  //        bin/Lb2pktaul_highBDTCut_dataset --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -a plot
+  // 3.) If you want to add the CLs method add the option --cls 1
+  //        bin/Lb2pktaul_highBDTCut_dataset --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --cls 1
+  // 4.) To do a Feldman Cousins plugin scan (run a bunch in parallel and give them different names with --nrun %d
+  //        bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5
+  //        --ntoys 100
+  //        --nrun 1 bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange
+  //        0.:4.e-5
+  //        --ntoys 100 --nrun 2 bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 100
+  //        --scanrange 0.:4.e-5 --ntoys 100 --nrun 3 bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var
+  //        branchingRatio --npoints 100
+  //        --scanrange 0.:4.e-5 --ntoys 100 --nrun 4 bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var
+  //        branchingRatio
+  //        --npoints 100 --scanrange 0.:4.e-5 --ntoys 100 --nrun 5
+  // 4.5) To do a Feldman Cousins plugin scan on condor batch
+  //        bin/Lb2pktaul_highBDTCut_dataset -a pluginbatch --var branchingRatio --npoints 100 --scanrange 0.:4.e-5
+  //        --ntoys 20 --batchsubmit --nbatchjobs 100 --batchstartn 1  --batchreqs ../scripts/cern_condor_reqs_1hour.txt
+  // 5.) To read a bunch of Feldman Cousins scans back in (use the -j option to label the different run numbers)
+  //        bin/Lb2pktaul_highBDTCut_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5
+  // 6.) To just plot the Feldman Cousins stuff without having to re-scan or re-read add the -a plot option again
+  //        bin/Lb2pktaul_highBDTCut_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5 -a
+  //        plot
+  // 7.) To do the full toy-based CLs method and plot the expected values as well) use the --cls 2 option (note you can
+  // pass --cls multiple times)
+  //        bin/Lb2pktaul_highBDTCut_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5 -a
+  //        plot --cls
+  //        1
+  //        --cls 2
+  // 8.) There are various ways of prettyfying your plots - for CLs stuff you can try adding --qh 23 (moves the CL
+  // label) --group LHCb (adds LHCb label) --prelim (add preliminary label)
+  //        bin/Lb2pktaul_highBDTCut_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-5 -a
+  //        plot --cls
+  //        1
+  //        --cls 2 --qh 23 --group LHCb --prelim
+  //
+  // See also the Snakefile in the Lb2pktaul top directory for an example workflow
+  // If you have any problems contact Matthew Kenzie (matthew.kenzie@cern.ch) or Titus Mombächer
+  // (titus.mombacher@cern.ch)
+
+  // Load the workspace from its file
+  TFile f("workspace.root");
+  RooWorkspace* workspace = (RooWorkspace*)f.Get("dataset_workspace");
+  if (workspace == nullptr) {
+    std::cout << "No workspace found:" << std::endl;
+    std::cout << "This Lb2pktaul requires a .root file containting a special workspace before running it." << std::endl;
+    std::cout << "You can create the workspace by calling the Lb2pktaul_highBDTCut_dataset_build_workspace command. "
+              << std::endl;
+    std::cout << "The corresponding code can be found in Lb2pktaul_highBDTCut_dataset_build_workspace.cpp" << std::endl;
+  }
+
+  // You can make any changes to your workspace on the fly here
+  workspace->var("branchingRatio")
+      ->SetTitle("#font[32]{B}(#it{#Lambda}_{b}^{0} #rightarrow #it{p}#it{K}#it{#tau}#it{e})");
+  workspace->var("branchingRatio")->setVal(1.e-9);
+  // workspace->var("branchingRatio")->setRange(-1.e-6, 2.5e-6);
+  // workspace->var("Nbkg")->SetTitle("N_{bkg}");
+  // workspace->var("Nbkg")->setVal(5000);
+  // workspace->var("Nbkg")->setRange(4000, 6000);
+
+  // Construct the PDF and pass the workspace to it
+  //    note that you can write your own PDF_DatasetsLb2pktaul Class which defines your own fitting procedure etc.
+  //    this should inherit from PDF_Datasets
+
+  PDF_Datasets* pdf = new PDF_Datasets(workspace);
+  // PDF_Datasets* pdf = new PDF_DatasetLb2pktaul(workspace); // put your inherited fitter if you want to
+  // pdf->setTitle("datasets_combiner"); // give a meaningful title if you want to, default is "PDF_Dataset"
+  // pdf->setName("datasets_combiner"); // give a meaningful name if you want to (will enter file names as well),
+  // default is "PDF_Dataset"
+  pdf->initData("data");                  // this is the name of the dataset in the workspace
+  pdf->initPDF("mass_model");             // this the name of the pdf in the workspace (without the constraints)
+  pdf->initBkgPDF("extended_bkg_model");  // optional: this the name of the background pdf in the workspace (without the
+                                          // constraints) If the above line is commented, the tool will assume the
+                                          // BkgPDF to be the PDF with scanVar=0 (most often true)
+  pdf->initObservables("datasetObservables");  // non-global observables whose measurements are stored in the dataset
+                                               // (for example the mass).
+  pdf->initGlobalObservables("global_observables_set");  // global observables
+  pdf->initParameters("parameters");                     // all parameters
+  pdf->initConstraints("constraint_set");                // RooArgSet containing the "constraint" PDF's
+  // the below are optional (will not affect the results but just make some plots for you)
+  pdf->addFitObs("Lb_M_reco");  // this is not required but will make some sanity plots
+  // // pdf->unblind("Lb_M_reco","[4360:5260],[5460:6360]"); // have to be a bit careful about staying blind (this code
+  // isn't
+  // // yet really blind friendly)
+  // pdf->unblind("Lb_M_reco", "[4360:6360]");
+
+  // pdf->printParameters();
+
+  // Start the Gammacombo Engine
+  GammaComboEngine gc("Lb2pktaul_highBDTCut_dataset", argc, argv);
+
+  // set run on dataset option
+  gc.setRunOnDataSet(true);
+
+  // set the PDF
+  gc.setPdf(pdf);
+
+  // Combiners are not supported when working with datsets.
+  // The statistical model is fully defined with the PDF
+  // In some other use cases you will see lines like
+  // gc.newCombiner(1, "Combiner Name", "Combiner Title", 2,3,4 );
+  // these have no meaning in the datasets case
+
+  // now run it
+  gc.run();
+}
