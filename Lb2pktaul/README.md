@@ -36,3 +36,6 @@ Read plugin results:
 ```
 bin/Lb2pktaul_dataset -a plugin --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 -j 1-100  --CL 68.3 --CL 95.4  --cls 2
 ```
+
+This will plot the plugin result both with and without CLs, and will add also Prob result (with and without CLs).
+Probably there are some options to choose which results to plot.
