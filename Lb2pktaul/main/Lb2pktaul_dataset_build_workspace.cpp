@@ -27,19 +27,27 @@ int main(int argc, char* argv[]) {
   // It will be included in the workspace.
   //
   /////////////////////////////////////////////////////////
-  TString suffix("lowBDTCut");  // looks for "w_{sig,bkg}_<suffix>.root"
+  TString dataname("PplusEplus_lowBDTCut");  // looks for "w_{sig,bkg}_<dataname>.root" or "w_{sig,bkg}_<dataname>.root"
   TString data_cut = "TMVAClassification_BDT_all_noIPCHI2rew>-0.05";
   TString data_file_name =
       "/eos/lhcb/user/f/fbetti/Lb_to_taus/data/Run2/Lb_pKtaue_3pi_SS_PplusEplus_massConstr_sortPi_vetoes_BDT.root";
+  double SES = 2.6e-7;
+  double SES_uncertainty = 0.001 * SES;  // assuming 0.1% relative uncertainty, i.e. no uncertainty for the moment
   TString path_input_workspaces("~/work/Lb_to_taus/vrd-lb2pktaumu/hadronic/fit/");  // path to the input workspaces
 
   if (argc > 1) {
-    suffix = argv[1];
+    dataname = "_" + TString(argv[1]);
     if (argc > 2) {
       data_cut = argv[2];
       if (argc > 3) {
         data_file_name = argv[3];
-        if (argc > 4) { path_input_workspaces = argv[4]; }
+        if (argc > 4) {
+          SES = std::stod(argv[4]);
+          if (argc > 5) {
+            SES_uncertainty = std::stod(argv[5]);
+            if (argc > 6) { path_input_workspaces = argv[6]; }
+          }
+        }
       }
     }
   }
@@ -50,11 +58,11 @@ int main(int argc, char* argv[]) {
 
   // First, define the signal peak of the mass model
 
-  auto file_w_bkg = TFile::Open(path_input_workspaces + "w_bkg_" + suffix + ".root");
+  auto file_w_bkg = TFile::Open(path_input_workspaces + "w_bkg_SS" + dataname + ".root");
   auto w_bkg = (RooWorkspace*)file_w_bkg->Get("w");
   std::cout << "INPUT WORKSPACE FOR BKG:\n";
   w_bkg->Print();
-  auto file_w_sig = TFile::Open(path_input_workspaces + "w_sig_" + suffix + ".root");
+  auto file_w_sig = TFile::Open(path_input_workspaces + "w_sig" + dataname + ".root");
   auto w_sig = (RooWorkspace*)file_w_sig->Get("w");
   std::cout << "INPUT WORKSPACE FOR SIG:\n";
   w_sig->Print();
@@ -99,10 +107,10 @@ int main(int argc, char* argv[]) {
   // <normalization factor> The normalization factor is not exactly known. Instead, it has to be estimated. The
   // estimator for the normalization factor is a global observable that constrains its value via a Gaussian Constraint.
   double observedValueGlobalObservable =
-      2.6e-7;  // estimated value of the normalization constant, taken from slide 30 of //
-               // https://indico.cern.ch/event/1527783/contributions/6427746/attachments/3120608/5533689/WG_August20th_VRD_Lbpktaulepton.pdf
+      SES;  // estimated value of the normalization constant, taken from slide 30 of //
+            // https://indico.cern.ch/event/1527783/contributions/6427746/attachments/3120608/5533689/WG_August20th_VRD_Lbpktaulepton.pdf
   double sigma_observedValueGlobalObservable =
-      0.001 * observedValueGlobalObservable;  // assuming 0.1% relative uncertainty, i.e. no uncertainty for the moment
+      SES_uncertainty;  // assuming 0.1% relative uncertainty, i.e. no uncertainty for the moment
   RooRealVar norm_constant_obs(
       "norm_constant_glob_obs", "global observable of normalization constant", observedValueGlobalObservable,
       observedValueGlobalObservable - 7 * sigma_observedValueGlobalObservable,
@@ -167,7 +175,7 @@ int main(int argc, char* argv[]) {
   mass_model.plotOn(plot);
   TCanvas c("c", "c", 1024, 768);
   plot->Draw();
-  c.SaveAs(TString("plots/pdf/data_and_fit_in_workspace.pdf"));
+  c.SaveAs(TString("plots/pdf/data_and_fit_in_workspace" + dataname + ".pdf"));
 
   rooFitResult.Print();
 
@@ -209,7 +217,7 @@ int main(int argc, char* argv[]) {
   workspace.defineSet("parameters", parameters_set, true);
 
   // Save the workspace to a file
-  workspace.SaveAs(TString("workspace.root"));
+  workspace.SaveAs(TString("workspace" + dataname + ".root"));
 
   return 0;
 }
