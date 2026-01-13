@@ -55,8 +55,30 @@ int main(int argc, char* argv[]) {
   // If you have any problems contact Matthew Kenzie (matthew.kenzie@cern.ch) or Titus Mombächer
   // (titus.mombacher@cern.ch)
 
+  // save value of dataname (if any) and remove it from argv
+  const char* flag_remove = "--dataname";
+  TString dataname = "";
+  int write = 1;  // keep argv[0]
+  for (int read = 1; read < argc; ++read) {
+    if (std::strcmp(argv[read], flag_remove) == 0) {
+
+      // Case: --dataname value
+      if (read + 1 < argc && argv[read + 1][0] != '-') {
+        dataname = argv[read + 1];  // save the value
+        ++read;                     // skip also the value
+      }
+      continue;
+    }
+    argv[write++] = argv[read];
+  }
+  argc = write;
+  argv[argc] = nullptr;
+
+  TString workspace_name = "workspace.root";
+  if (dataname.Length() > 0) { workspace_name = "workspace_" + dataname + ".root"; }
+
   // Load the workspace from its file
-  TFile f("workspace.root");
+  TFile f(workspace_name);
   RooWorkspace* workspace = (RooWorkspace*)f.Get("dataset_workspace");
   if (workspace == nullptr) {
     std::cout << "No workspace found:" << std::endl;
@@ -78,7 +100,12 @@ int main(int argc, char* argv[]) {
   //    note that you can write your own PDF_DatasetsLb2pktaul Class which defines your own fitting procedure etc.
   //    this should inherit from PDF_Datasets
 
-  PDF_Datasets* pdf = new PDF_Datasets(workspace);
+  PDF_Datasets* pdf;
+  if (dataname.Length() > 0) {
+    pdf = new PDF_Datasets(workspace, dataname);
+  } else {
+    pdf = new PDF_Datasets(workspace);
+  }
   // PDF_Datasets* pdf = new PDF_DatasetLb2pktaul(workspace); // put your inherited fitter if you want to
   // pdf->setTitle("datasets_combiner"); // give a meaningful title if you want to, default is "PDF_Dataset"
   // pdf->setName("datasets_combiner"); // give a meaningful name if you want to (will enter file names as well),
