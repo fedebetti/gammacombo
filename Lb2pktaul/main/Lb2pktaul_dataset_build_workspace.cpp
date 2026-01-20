@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
   TString data_cut = "TMVAClassification_BDT_all_noIPCHI2rew>-0.05";
   TString data_file_name =
       "/eos/lhcb/user/f/fbetti/Lb_to_taus/data/Run2/Lb_pKtaue_3pi_SS_PplusEplus_massConstr_sortPi_vetoes_BDT.root";
-  double SES = 2.6e-7;
+  double SES = 1.4e-7;
   double SES_uncertainty = 0.001 * SES;  // assuming 0.1% relative uncertainty, i.e. no uncertainty for the moment
   TString path_input_workspaces("~/work/Lb_to_taus/vrd-lb2pktaumu/hadronic/fit/");  // path to the input workspaces
 
@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
         data_file_name = argv[3];
         if (argc > 4) {
           SES = std::stod(argv[4]);
+          SES_uncertainty = 0.001 * SES;
           if (argc > 5) {
             SES_uncertainty = std::stod(argv[5]);
             if (argc > 6) { path_input_workspaces = argv[6]; }
@@ -126,7 +127,7 @@ int main(int argc, char* argv[]) {
 
   // Now we can build the mass model by adding the signal and background probability density functions
   RooRealVar branchingRatio("branchingRatio", "branchingRatio", 1e-9, 0,
-                            1e-5);  // this is the branching ratio, the parameter of interest
+                            4e-5);  // this is the branching ratio, the parameter of interest
   RooFormulaVar n_sig("Nsig", "branchingRatio/norm_constant", RooArgList(branchingRatio, norm_constant));
   RooExtendPdf extended_sig_model("extended_sig_model", "extended_sig_model", *signal_model, n_sig);
 
