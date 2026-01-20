@@ -131,6 +131,7 @@ int main(int argc, char* argv[]) {
 
   // Start the Gammacombo Engine
   GammaComboEngine gc("Lb2pktaul_dataset", argc, argv);
+  gc.setDatanameBashWriter(dataname);
 
   // set run on dataset option
   gc.setRunOnDataSet(true);
