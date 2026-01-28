@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
                                        norm_constant, norm_constant_sigma);
 
   // Now we can build the mass model by adding the signal and background probability density functions
-  RooRealVar branchingRatio("branchingRatio", "branchingRatio", 1e-9, 0,
+  RooRealVar branchingRatio("branchingRatio", "branchingRatio", 1e-9, -4e-5,
                             4e-5);  // this is the branching ratio, the parameter of interest
   RooFormulaVar n_sig("Nsig", "branchingRatio/norm_constant", RooArgList(branchingRatio, norm_constant));
   RooExtendPdf extended_sig_model("extended_sig_model", "extended_sig_model", *signal_model, n_sig);
@@ -199,6 +199,8 @@ int main(int argc, char* argv[]) {
   auto params = mass_model.getParameters(RooArgSet(Lb_M_reco));
   params->remove(constraint_set);
   params->remove(global_observables_set);
+  auto params_sig = signal_model->getParameters(RooArgSet(Lb_M_reco));
+  params->remove(*params_sig);
   RooArgSet parameters_set(*params, "parameters");
 
   /////////////////////////////////////////////////////////
