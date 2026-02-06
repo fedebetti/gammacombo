@@ -35,7 +35,7 @@ class RooWorkspace;
 class PDF_Datasets : public PDF_Abs {
  public:
   PDF_Datasets(RooWorkspace* w, int nObs, const OptParser* opt);
-  PDF_Datasets(RooWorkspace* w);
+  PDF_Datasets(RooWorkspace* w, TString PDF_name = "PDF_Dataset");
   virtual ~PDF_Datasets();
   void deleteNLL();
 

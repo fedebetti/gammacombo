@@ -26,6 +26,11 @@ BatchScriptWriter::BatchScriptWriter(int argc, char* argv[]) {
   subpkg = std::string(argv[0]);
 }
 
+void BatchScriptWriter::setDataname(std::string _dataname) {
+  dataname = _dataname;
+  exec += "--dataname " + dataname + " ";
+}
+
 TString BatchScriptWriter::outfDirHelper(const TString dirname, const OptParser* arg) {
   char cwd[1024];
   getcwd(cwd, 1024);
@@ -225,7 +230,10 @@ void BatchScriptWriter::writeScript(TString fname, TString outfloc, int jobn, co
   outfile << "mkdir -p scratch" << std::endl;
   outfile << "cd scratch" << std::endl;
   outfile << Form("source %s/../scripts/setup-env-cvmfs.sh", cwd) << std::endl;
-  outfile << Form("cp %s/workspace.root .", cwd) << std::endl;
+  if (dataname.empty())
+    outfile << Form("cp %s/workspace.root .", cwd) << std::endl;
+  else
+    outfile << Form("cp %s/workspace_%s.root .", cwd, dataname.c_str()) << std::endl;
   outfile << Form("cp -r %s/ExpNll .", cwd) << std::endl;
   outfile << "mkdir -p bin" << std::endl;
   outfile << Form("cp %s/%s bin/", cwd, subpkg.c_str()) << std::endl;

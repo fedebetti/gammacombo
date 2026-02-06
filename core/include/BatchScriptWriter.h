@@ -28,6 +28,8 @@ class BatchScriptWriter {
   void writeCondorScript(TString fname, const OptParser* arg);
   std::string exec;
   std::string subpkg;
+  std::string dataname = "";
+  void setDataname(std::string _dataname);
 };
 
 #endif

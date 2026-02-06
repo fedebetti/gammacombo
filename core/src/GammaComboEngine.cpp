@@ -321,6 +321,10 @@ void GammaComboEngine::cloneCombiner(int newId, int oldId, TString name, TString
   addCombiner(newId, getCombiner(oldId)->Clone(name, title));
 }
 
+void GammaComboEngine::setDatanameBashWriter(TString dataname) {
+  if (dataname != "") m_batchscriptwriter->setDataname(dataname.Data());
+}
+
 ///
 /// Get a combiner.
 /// \param id - combiner ID, set when defining the combiner using addCombiner(), cloneCombiner(), or newCombiner()

@@ -62,6 +62,8 @@ class GammaComboEngine {
   void cloneCombiner(int newId, int oldId, TString name, TString title);
   void newCombiner(const int id, const TString name, const TString title, const std::vector<int>& pdfIds = {});
 
+  void setDatanameBashWriter(TString dataname);
+
   /**
    * This method is deprecated and is maintained only for legacy reasons.
    *
