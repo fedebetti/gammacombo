@@ -20,7 +20,7 @@ Run plugin on batch condor:
 bin/Lb2pktaul_dataset -a pluginbatch  --var branchingRatio --npoints 100 --scanrange 0.:4.e-5 --ntoys 20 --nbatchjobs 100 --batchstartn 1 --batchreqs ../scripts/cern_condor_req.txt --batchsubmit
 ```
 
-For Lb2pktaul (i.e. low BDT cut), 1 hour is enough so also `--batchreqs ../scripts/cern_condor_req_1hour.txt` can be used.
+For lowBDTCut it may need 1 day, so you may need to use `--batchreqs ../scripts/cern_condor_req_1day.txt`.
 
 Equivalent running in local is:
 

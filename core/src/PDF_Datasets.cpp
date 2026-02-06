@@ -32,9 +32,9 @@ PDF_Datasets::PDF_Datasets(RooWorkspace* w, int nObs, const OptParser* opt) : PD
   arg = opt;
 };
 
-PDF_Datasets::PDF_Datasets(RooWorkspace* w) : PDF_Datasets(w, 1, nullptr) {
-  name = "PDF_Dataset";
-  title = "PDF_Dataset";
+PDF_Datasets::PDF_Datasets(RooWorkspace* w, TString PDF_name) : PDF_Datasets(w, 1, nullptr) {
+  name = PDF_name;
+  title = PDF_name;
 };
 
 PDF_Datasets::~PDF_Datasets() {
